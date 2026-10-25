@@ -35,32 +35,25 @@ var probemode = {
 }
 
 $(document).ready(function() {
-  if (localStorage.getItem('probeType')) {
-    if (localStorage.getItem('probeType') == "z") {
-      $(".needsXYZProbe").hide()
-    } else {
-      // console.log("Enabling XYZ Probing")
-      $(".needsXYZProbe").show()
-    }
-  }
+  $(".needsXYZProbe").toggle(localStorage.getItem('probeType') != "z");
 
   if (localStorage.getItem('z0platethickness')) {
-    zprobeplate.zoffset = localStorage.getItem('z0platethickness')
+    zprobeplate.zoffset = localStorage.getItem('z0platethickness');
   }
 
   if (localStorage.getItem('probediameterxyz')) {
-    const probediameterxyz = localStorage.getItem('probediameterxyz')
+    const probediameterxyz = localStorage.getItem('probediameterxyz');
     $("#probediameterxyz").val(probediameterxyz)
   }
 
   if (localStorage.getItem('probeunitxyz')) {
-    const probeunitxyz = localStorage.getItem('probeunitxyz')
+    const probeunitxyz = localStorage.getItem('probeunitxyz');
     $('#probeunitxyz').data('select').val(probeunitxyz)
   }
 });
 
 if (localStorage.getItem('customProbe')) {
-  customprobeplate = (JSON.parse(localStorage.getItem('customProbe')))
+  customprobeplate = (JSON.parse(localStorage.getItem('customProbe')));
 }
 
 $("#z0platethickness").keyup(function() {
@@ -76,8 +69,12 @@ $("#probeunitxyz").change(function() {
   localStorage.setItem('probeunitxyz', $("#probeunitxyz").val())
 });
 
+function probeDlgOnClose() {
+  removeDlgContext("probe");
+}
 
 function initProbeDialog() {
+  addDlgContext("probe");
   Metro.dialog.open("#xyzProbeWindow");
   $('#confirmNewProbeBtn')[0].innerHTML = "Confirm Probe Position";
 

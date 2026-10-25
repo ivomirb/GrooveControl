@@ -326,10 +326,14 @@ function toastErrorAlarm(data) {
   const printLogCls = "fg-darkRed"
   printLogModern(icon, source, string, printLogCls)
 
+  addDlgContext("alarm");
   const dialog = Metro.dialog.create({
     clsDialog: 'dark',
     title: "<i class='fas fa-exclamation-triangle'></i> Grbl Alarm:",
     content: "<i class='fas fa-exclamation-triangle fg-darkRed'></i>  " + data,
+    onClose: function () {
+      removeDlgContext("alarm");
+    },
     actions: [{
         caption: "Clear Alarm",
         cls: "js-dialog-close alert closeAlarmBtn",
