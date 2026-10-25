@@ -10,6 +10,7 @@ var buttonShortcuts = {};
 var gamepadId = null;
 var controllerButtons = [];
 var focusedButtonAction = undefined;
+var analogStickDeadzone = 10;
 
 const keyboardActions = [
   { // X+
@@ -261,6 +262,15 @@ const keyboardActions = [
     defaultKey: "ctrl+o",
     keydown: loadJobFile,
   },
+
+  { // Activate Analog Jog
+    name: "analogJogXY",
+    friendlyName: "Activate Analog XY Move",
+    label: ``,
+    defaultKey: "",
+    keydown: activateAnalogJog,
+    hidden: true,
+  },
 ];
 
 function jogKeyDown(name) {
@@ -292,6 +302,11 @@ function jogSetContinuous(state) {
   $('#jogTypeContinuous').prop('checked', state);
   allowContinuousJog = state;
   $('.distbtn').hide();
+}
+
+function activateAnalogJog() {
+  const gamepad = navigator.getGamepads()[gamepadId];
+  gamepad.vibrationActuator.playEffect("dual-rumble", {startDelay: 0, duration: 50, strongMagnitude: 0, weakMagnitude: 1});
 }
 
 function addDlgContext(context) {
@@ -333,6 +348,8 @@ function keyboardDocReady() {
     for (const action of keyboardActions) {
       if (settings[action.name] != undefined) {
         keyboardShortcuts[action.name] = settings[action.name];
+      } else {
+        keyboardShortcuts[action.name] = "";
       }
     }
   }
@@ -355,12 +372,18 @@ function keyboardDocReady() {
     for (const action of keyboardActions) {
       if (settings[action.name] != undefined) {
         buttonShortcuts[action.name] = settings[action.name];
+      } else {
+        buttonShortcuts[action.name] = "";
       }
     }
   }
 
   window.addEventListener("gamepadconnected", onGamepadConnected);
   window.addEventListener("gamepaddisconnected", onGamepadDisconnected);
+
+  if (localStorage.getItem('analogStickDeadzone')) {
+    analogStickDeadzone = Math.max(Math.min(parseInt(localStorage.getItem('analogStickDeadzone')), 100), 0);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -606,13 +629,14 @@ function initKeyboardEditor() {
   focusedKbdAction = undefined;
 
   for (const action of keyboardActions) {
+    if (action.hidden) continue;
     $('#keyboardAssignmentForm').append(`
       <div class="row mt-1 ml-1 mr-1">
         <label class="cell-sm-6" style="margin-top:4px">` + action.label + `</label>
         <div class="cell-sm-6">
           <input type="text" readonly data-role="input" data-clear-button="true" data-editable="true"
               onfocus="onShortcutGetFocus('` + action.name + `')" onblur="onShortcutLoseFocus()" onchange="onShortcutInputChange('` + action.name + `')"
-              id="` + action.name + `newKey" value="` + capitalizeShortcut(keyboardShortcuts[action.name]) + `" >
+              id="` + action.name + `newKey" value="` + capitalizeShortcut(keyboardShortcuts[action.name]) + `" />
         </div>
       </div>`);
   }
@@ -623,7 +647,7 @@ function initKeyboardEditor() {
 function applyKeyboardSettings() {
   keyboardShortcuts = {};
   for (const action of keyboardActions) {
-    keyboardShortcuts[action.name] = $('#' + action.name + 'newKey').val().toLowerCase();
+    keyboardShortcuts[action.name] = action.hidden ? "" : $('#' + action.name + 'newKey').val().toLowerCase();
   }
 
   localStorage.setItem('keyboardShortcuts', JSON.stringify(keyboardShortcuts));
@@ -708,8 +732,6 @@ function buttonInUse(newVal, forMacro) {
   };
 }
 
-//            gamepad.vibrationActuator.playEffect("dual-rumble", {startDelay: 0, duration: 50, strongMagnitude: 0, weakMagnitude: 1});
-
 function handleButtonPress(button) {
   const dlgVisible = $('.dialog').filter((i, dlg) => { return $(dlg).css('visibility') == 'visible'}).length > 0;
 
@@ -788,7 +810,7 @@ function updateGamepad() {
       }
       controllerButtons = gamepad.buttons.map((x) => x.pressed);
 
-      const deadzone = 0.1; // Filter out slight hardware drift
+      const deadzone = analogStickDeadzone / 100;
 
       const leftStickX = gamepad.axes[0];
       const leftStickY = gamepad.axes[1];
@@ -819,16 +841,20 @@ Press a button on the gamepad to activate`);
 
 function initGamepadEditor() {
   for (const action of keyboardActions) {
+    if (action.hidden) continue;
     $('#gamepadAssignmentForm').append(`
       <div class="row mt-1 ml-1 mr-1">
         <label class="cell-sm-6" style="margin-top:4px">` + action.label + `</label>
         <div class="cell-sm-6">
           <input type="text" readonly data-role="input" data-clear-button="true" data-editable="true"
               onfocus="onButtonGetFocus('` + action.name + `')" onblur="onButtonLoseFocus()" onchange="onButtonInputChange('` + action.name + `')"
-              id="` + action.name + `newButton" value="` + capitalizeShortcut(buttonShortcuts[action.name]) + `" >
+              id="` + action.name + `newButton" value="` + capitalizeShortcut(buttonShortcuts[action.name]) + `" />
         </div>
       </div>`);
   }
+
+  $('#analogJognewButton').val(capitalizeShortcut(buttonShortcuts.analogJogXY));
+  $('#analogDeadzone').val(analogStickDeadzone);
 }
 
 function applyGamepadSettings() {
@@ -838,4 +864,7 @@ function applyGamepadSettings() {
   }
 
   localStorage.setItem('buttonShortcuts', JSON.stringify(buttonShortcuts));
+
+  analogStickDeadzone = Math.max(Math.min(parseInt($('#analogDeadzone').val()), 100), 0);
+  localStorage.setItem('analogStickDeadzone', JSON.stringify(analogStickDeadzone));
 }
