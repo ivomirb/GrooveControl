@@ -40,7 +40,7 @@ const appSettingsDlg = `
 <ul class="tabs-holder">
   <li><a id="mainSettingsTab" href="#mainSettings" style="font-size:14px;"><i class="fas fa-sliders-h"></i> Main</a></li>
   <li><a id="keyboardSettingsTab" href="#keyboardSettings" style="font-size:14px;"><i class="fas fa-keyboard"></i> Keyboard</a></li>
-<!--  <li><a id="gamepadSettingsTab" href="#gamepadSettings" style="font-size:14px;"><i class="fas fa-gamepad"></i> Gamepad</a></li> -->
+  <li><a id="gamepadSettingsTab" href="#gamepadSettings" style="font-size:14px;"><i class="fas fa-gamepad"></i> Gamepad</a></li>
   <li><a id="rotarySettingsTab" href="#rotarySettings" style="font-size:14px;"><i class="fab fa-ubuntu"></i> Rotary</a></li>
 <!--  <li><a id="toolchangeSettingsTab" href="#toolchangeSettings" style="font-size:14px;"><i class="fas fa-tools"></i> Toolchange</a></li> -->
 </ul>
@@ -138,16 +138,23 @@ Some of the actions can be dangerous when triggered by an accidental keyboard cl
   <span class="fg-red" id="alreadyAssignedWarnKbd" style="display: none; position:absolute; bottom:-18px;"></span>
 </div>
 
-<!--<div class="section" id="gamepadSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
-</div> -->
+<div class="section" id="gamepadSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
+  <span style="font-size:14px;">Click below to assign a gamepad button to each action.</span>
+  <div class="p-0 mt-2" style="overflow-y:auto; height:430px;">
+    <form id="gamepadAssignmentForm" style="padding:2px 0px;">
+    </form>
+  </div>
+  <div class="mt-1 border-top bd-dialog"></div>
+  <span class="fg-red" id="alreadyAssignedWarnButton" style="display: none; position:absolute; bottom:-18px;"></span>
+</div>
 
-<div class="section" id="rotarySettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
+<div class="section" id="rotarySettings" style="height:500px; flex-direction:column; border-bottom:0px;">
   <div class="row ml-2" title="Hide the 4th axis controls if the controller supports a 4th axis but it is not currently in use">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Hide 4th Axis Controls" id="disable4thAxisCheck" />
   </div>
 </div>
 
-<!--<div class="section" id="toolchangeSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
+<!--<div class="section" id="toolchangeSettings" style="height:500px; flex-direction:column; border-bottom:0px;">
 </div> -->
 
 </div>
@@ -194,6 +201,7 @@ function applySettings() {
   }
 
   applyKeyboardSettings();
+  applyGamepadSettings();
 
   if (reload) {
     location.reload();
@@ -268,7 +276,7 @@ function showAppSettings(category) {
   $('#disable4thAxisCheck').prop('checked', disable4thAxis);
 
   initKeyboardEditor();
-  updateSettingsState();
+  initGamepadEditor();
 
   if (category) {
     const tab = $('#' + category + "SettingsTab");
@@ -276,6 +284,8 @@ function showAppSettings(category) {
     const content = $(tab.attr('href'));
     content.addClass('active');
   }
+
+  updateSettingsState();
 }
 
 function initSettings() {

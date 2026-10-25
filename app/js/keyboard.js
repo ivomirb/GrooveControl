@@ -3,8 +3,13 @@
 var disableKeyboardShortcuts = true;
 
 var keyboardShortcuts = {};
-var focusedKbdAction = undefined;
 var dlgContext = {};
+var focusedKbdAction = undefined;
+
+var buttonShortcuts = {};
+var gamepadId = null;
+var controllerButtons = [];
+var focusedButtonAction = undefined;
 
 const keyboardActions = [
   { // X+
@@ -324,7 +329,7 @@ function keyboardDocReady() {
   }
 
   if (localStorage.getItem('keyboardShortcuts')) {
-    let settings = JSON.parse(localStorage.getItem('keyboardShortcuts'));
+    const settings = JSON.parse(localStorage.getItem('keyboardShortcuts'));
     for (const action of keyboardActions) {
       if (settings[action.name] != undefined) {
         keyboardShortcuts[action.name] = settings[action.name];
@@ -344,7 +349,22 @@ function keyboardDocReady() {
 
   $(document).bind('keydown', null, onDocKeyDown);
   $(document).bind('keyup', null, onDocKeyUp);
+
+  if (localStorage.getItem('buttonShortcuts')) {
+    const settings = JSON.parse(localStorage.getItem('buttonShortcuts'));
+    for (const action of keyboardActions) {
+      if (settings[action.name] != undefined) {
+        buttonShortcuts[action.name] = settings[action.name];
+      }
+    }
+  }
+
+  window.addEventListener("gamepadconnected", onGamepadConnected);
+  window.addEventListener("gamepaddisconnected", onGamepadDisconnected);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Keyboard specific
 
 function onDocKeyDown(event) {
   const dlgVisible = $('.dialog').filter((i, dlg) => { return $(dlg).css('visibility') == 'visible'}).length > 0;
@@ -400,7 +420,6 @@ function onDocKeyDown(event) {
     }
   }
 
-  // Bind for Macro keys
   for (const macro of buttonsarray) {
     if (macro.macrokeyboardshortcut == key) {
       event.preventDefault();
@@ -607,4 +626,213 @@ function applyKeyboardSettings() {
   localStorage.setItem('keyboardShortcuts', JSON.stringify(keyboardShortcuts));
   disableKeyboardShortcuts = !$('#enableKeyboardShortcuts').prop('checked');
   localStorage.setItem('disableKeyboardShortcuts', disableKeyboardShortcuts);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Gamepad specific
+
+function onButtonGetFocus(name) {
+  const action = findKeyboardAction(name);
+  if (focusedButtonAction != action) {
+    if (focusedButtonAction) {
+      const oldInput = $('#' + focusedButtonAction.name + 'newButton');
+      oldInput.parent().removeClass('primary').removeClass('alert');
+    }
+    const input = $('#' + name + 'newButton');
+    input.parent().removeClass('alert').addClass('primary');
+    $('#alreadyAssignedWarnButton').hide();
+    focusedButtonAction = action;
+  }
+}
+
+function onButtonLoseFocus() {
+  if (focusedButtonAction) {
+    const input = $('#' + focusedButtonAction.name + 'newButton');
+    input.parent().removeClass('primary').removeClass('alert');
+    $('#alreadyAssignedWarnButton').hide();
+    focusedButtonAction = undefined;
+  }
+}
+
+function onButtonInputChange(name) {
+  const action = findKeyboardAction(name);
+  const input = $('#' + action.name + 'newButton');
+  if (input.val() == "") {
+    input.parent().removeClass('alert');
+    $('#alreadyAssignedWarnButton').hide();
+  }
+}
+
+function buttonInUse(newVal, forMacro) {
+  let inUse = false;
+  let usedBy = false;
+
+  // Check currently assigned Macros
+  for (const macro of buttonsarray) {
+    if (macro != currentEditMacro && newVal == macro.macrokeyboardshortcut) {
+      inUse = true;
+      usedBy = "macro: " + macro.title;
+      break;
+    }
+  }
+
+  if (forMacro) {
+    // Check currently saved button assignments
+    for (const action of keyboardActions) {
+      if (buttonShortcuts[action.name] == newVal) {
+        inUse = true;
+        usedBy = "action: " + action.friendlyName;
+        break;
+      }
+    }
+  } else {
+    // Check currently edited buttons, not saved yet
+    for (const action of keyboardActions) {
+      if (action != focusedButtonAction) {
+        const input = $('#' + action.name + 'newButton');
+        if (input.val().toLowerCase() == newVal) {
+          inUse = true;
+          usedBy = "action: " + action.friendlyName;
+          break;
+        }
+      }
+    }
+  }
+
+  return {
+    inUse: inUse,
+    source: usedBy
+  };
+}
+
+//            gamepad.vibrationActuator.playEffect("dual-rumble", {startDelay: 0, duration: 50, strongMagnitude: 0, weakMagnitude: 1});
+
+function handleButtonPress(button) {
+  const dlgVisible = $('.dialog').filter((i, dlg) => { return $(dlg).css('visibility') == 'visible'}).length > 0;
+
+  if (focusedButtonAction != undefined) {
+    const input = $('#' + focusedButtonAction.name + 'newButton');
+    const inUse = buttonInUse(button, false).inUse;
+    if (inUse) {
+      $('#alreadyAssignedWarnButton').html("\"" + capitalizeShortcut(button) + "\" is already assigned to " + buttonInUse(button, false).source);
+      $('#alreadyAssignedWarnButton').show();
+      input.parent().removeClass('primary').addClass('alert');
+    } else {
+      $('#alreadyAssignedWarnButton').hide();
+      input.val(capitalizeShortcut(button));
+      input.parent().removeClass('alert').addClass('primary');
+    }
+    return;
+  }
+
+  if ($('#macrokeyboardshortcut').is(':focus')) {
+    const inUse = buttonInUse(button, true).inUse;
+    if (inUse) {
+      $('#alreadyAssignedWarnMacro').html("\"" + capitalizeShortcut(button) + "\" is already assigned to " + buttonInUse(button, true).source + "<br>");
+      $('#alreadyAssignedWarnMacro').show();
+      $('#macrokeyboardshortcut').parent().removeClass("primary").addClass("alert");
+    } else {
+      $('#alreadyAssignedWarnMacro').hide();
+      $('#macrokeyboardshortcut').val(capitalizeShortcut(button));
+      $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
+    }
+    return;
+  }
+
+  for (const action of keyboardActions) {
+    if (buttonShortcuts[action.name] == button && action.keydown) {
+      if (!dlgVisible || dlgContext[action.dlgContext]) {
+        action.keydown();
+      }
+      return;
+    }
+  }
+
+  if (!dlgVisible) {
+    for (const macro of buttonsarray) {
+      if (macro.macrokeyboardshortcut == button) {
+        runMacro(macro);
+        return;
+      }
+    }
+  }
+}
+
+function handleButtonRelease(button) {
+  for (const action of keyboardActions) {
+    if (buttonShortcuts[action.name] == button && action.keyup) {
+      action.keyup();
+      return;
+    }
+  }
+}
+
+function updateGamepad() {
+  if (gamepadId !== null) {
+    const gamepad = navigator.getGamepads()[gamepadId];
+    
+    if (gamepad) {
+      for (let i = 0; i < gamepad.buttons.length; i++) {
+        const button = gamepad.buttons[i];
+        if ((i < controllerButtons.length ? controllerButtons[i] : false) != button.pressed) {
+          const name = "button " + (i+1);
+          if (button.pressed) {
+            handleButtonPress(name);
+          } else {
+            handleButtonRelease(name);
+          }
+        }
+      }
+      controllerButtons = gamepad.buttons.map((x) => x.pressed);
+
+      const deadzone = 0.1; // Filter out slight hardware drift
+
+      const leftStickX = gamepad.axes[0];
+      const leftStickY = gamepad.axes[1];
+
+      if (Math.abs(leftStickX) > deadzone || Math.abs(leftStickY) > deadzone) {
+//        console.log(`Left Stick Moving -> X: ${leftStickX.toFixed(2)}, Y: ${leftStickY.toFixed(2)}`);
+      }
+
+      requestAnimationFrame(updateGamepad);
+    } else {
+      gamepadId = null;
+    }
+  }
+
+}
+
+function onGamepadConnected(event) {
+  $('#gamepadDisplay').removeClass('disabled').parent().attr('title', "Gamepad connected");
+  gamepadId = event.gamepad.index;
+  requestAnimationFrame(updateGamepad);
+}
+
+function onGamepadDisconnected() {
+  $('#gamepadDisplay').addClass('disabled').parent().attr('title', `Gamepad disconnected
+Press a button on the gamepad to activate`);
+  gamepadId = null;
+}
+
+function initGamepadEditor() {
+  for (const action of keyboardActions) {
+    $('#gamepadAssignmentForm').append(`
+      <div class="row mt-1 ml-1 mr-1">
+        <label class="cell-sm-6" style="margin-top:4px">` + action.label + `</label>
+        <div class="cell-sm-6">
+          <input type="text" readonly data-role="input" data-clear-button="true" data-editable="true"
+              onfocus="onButtonGetFocus('` + action.name + `')" onblur="onButtonLoseFocus()" onchange="onButtonInputChange('` + action.name + `')"
+              id="` + action.name + `newButton" value="` + capitalizeShortcut(buttonShortcuts[action.name]) + `" >
+        </div>
+      </div>`);
+  }
+}
+
+function applyGamepadSettings() {
+  for (const action of keyboardActions) {
+    const newButton = $('#' + action.name + 'newButton').val().toLowerCase();
+    buttonShortcuts[action.name] = newButton;
+  }
+
+  localStorage.setItem('buttonShortcuts', JSON.stringify(buttonShortcuts));
 }
