@@ -27,6 +27,12 @@ function updateSettingsState() {
   if (laststatus.driver.operatingsystem == "linux") {
     $('#trayIconNote').toggle(laststatus.misc.trayIcon && !$('#enableTrayIconCheck').prop('checked'));
   }
+
+  const enableKeyboardShortcuts = $('#enableKeyboardShortcuts').prop('checked');
+
+  enableViaClass("#keyboardAssignmentPrompt", enableKeyboardShortcuts);
+  enableViaClass("#keyboardAssignmentForm", enableKeyboardShortcuts);
+
 }
 
 const appSettingsDlg = `
@@ -58,7 +64,7 @@ const appSettingsDlg = `
   </div>
 
   <div id="osSettings">
-    <div class="row border-top mt-2 bd-gray">
+    <div class="row border-top mt-2 bd-dialog">
       <label class="cell-sm-8 mt-1"><b>OS Integration</b></label>
     </div>
 
@@ -76,7 +82,7 @@ const appSettingsDlg = `
     </div>
   </div>
 
-  <div class="row border-top mt-2 bd-gray">
+  <div class="row border-top mt-2 bd-dialog">
     <label class="cell-sm-8 mt-1"><b>Machine Control</b></label>
   </div>
 
@@ -94,7 +100,7 @@ const appSettingsDlg = `
     </div>
   </div>
 
-  <div class="row ml border-top mt-3 bd-gray" style="margin-left:-4px; font-weight:700;" title="You may try disabling this for slower computers">
+  <div class="row border-top mt-3 bd-dialog" style="margin-left:-4px; font-weight:700;" title="You may try disabling this for slower computers">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable 3D Viewer" id="enable3DviewerCheck" onclick="updateSettingsState()"/>
   </div>
 
@@ -119,12 +125,17 @@ const appSettingsDlg = `
 </div>
 
 <div class="section" id="keyboardSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
-  <span class="text-small fg-red" id="alreadyAssignedWarnShortcut" style="display: none;"></span>
-  <span style="font-size:14px;">Click below to assign a new Keyboard Shortcut to each action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
-  <div class="p-0 mt-2" style="overflow-y:auto; height:430px;">
-    <form id="keyboardAssignmentForm" style="padding:2px 0px;">
+  <span title="Caution: When enabling the keyboard shortcuts, examine the current key settings to learn their assigned functions.
+Some of the actions can be dangerous when triggered by an accidental keyboard click.">
+    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Keyboard Shortcuts" id="enableKeyboardShortcuts" onclick="updateSettingsState()"/>
+  </span>
+  <span id="keyboardAssignmentPrompt" style="font-size:14px;">Click below to assign a new Keyboard Shortcut to each action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
+  <div class="p-0 mt-2" style="overflow-y:auto; height:400px;">
+    <form id="keyboardAssignmentForm" style="padding:3px 0px;">
     </form>
   </div>
+  <div class="mt-1 border-top bd-dialog"></div>
+  <span class="fg-red" id="alreadyAssignedWarnKbd" style="display: none; position:absolute; bottom:-18px;"></span>
 </div>
 
 <!--<div class="section" id="gamepadSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
@@ -256,8 +267,8 @@ function showAppSettings(category) {
 
   $('#disable4thAxisCheck').prop('checked', disable4thAxis);
 
-  updateSettingsState();
   initKeyboardEditor();
+  updateSettingsState();
 
   if (category) {
     const tab = $('#' + category + "SettingsTab");

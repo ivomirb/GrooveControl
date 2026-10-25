@@ -314,7 +314,7 @@ The spindle will automatically start when the job is resumed.">
                     <li onclick="showAppSettings('rotary')"><a href="#"><i class="fab fa-ubuntu"></i> Rotary Settings</a></li>
 <!--                    <li onclick="showAppSettings('toolchange')"><a href="#"><i class="fas fa-tools"></i> Toolchange Settings</a></li> -->
                     <li><a a href="#" class="dropdown-toggle"><i class="fas fa-palette"></i> Color Theme</a>
-                      <ul id="ddTheme" class="ribbon-dropdown" data-role="dropdown" data-duration="100" style="text-align:start;">
+                      <ul id="ddTheme" class="ribbon-dropdown" data-role="dropdown" data-duration="100" style="text-align:start; right:100%; left:auto;">
                       </ul>
                     </li>
                   </ul>
@@ -1437,7 +1437,8 @@ Restore previous origins from history.">
       </div>
 
       <!-- XYZ Probe -->
-      <div class="dialog dark" id="xyzProbeWindow" data-role="dialog" data-overlay-click-close="false" data-to-top="true" data-width="800">
+      <div class="dialog dark" id="xyzProbeWindow" data-role="dialog" data-on-close="probeDlgOnClose"
+          data-overlay-click-close="false" data-to-top="true" data-width="800">
         <div class="dialog-title">Probing Wizard</div>
         <div class="dialog-content" style="max-height: calc(100vh - 100px);overflow-y: auto; overflow-x: hidden;">
           <nav data-role="ribbonmenu">
@@ -1520,27 +1521,27 @@ Restore previous origins from history.">
                         &nbsp;
                       </td>
                       <td>
-                        <button class="button success small rounded outline m-1 yP" style="width: 40px;">Y+</button>
+                        <button class="button success small rounded outline m-1 yP" id="probeyP" style="width: 40px;">Y+</button>
                       </td>
                       <td>
                         &nbsp;
                       </td>
                       <td>
-                        <button class="button primary small rounded outline m-1 zP" style="width: 40px;">Z+</button>
+                        <button class="button primary small rounded outline m-1 zP" id="probezP" style="width: 40px;">Z+</button>
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        <button class="button alert small rounded outline m-1 xM" style="width: 40px;">X-</button>
+                        <button class="button alert small rounded outline m-1 xM" id="probexM" style="width: 40px;">X-</button>
                       </td>
                       <td>
-                        <button class="button success small rounded outline m-1 yM" style="width: 40px;">Y-</button>
+                        <button class="button success small rounded outline m-1 yM" id="probeyM" style="width: 40px;">Y-</button>
                       </td>
                       <td>
-                        <button class="button alert small rounded outline m-1 xP" style="width: 40px;">X+</button>
+                        <button class="button alert small rounded outline m-1 xP" id="probexP" style="width: 40px;">X+</button>
                       </td>
                       <td>
-                        <button class="button primary small rounded outline m-1 zM" style="width: 40px;">Z-</button>
+                        <button class="button primary small rounded outline m-1 zM" id="probezM" style="width: 40px;">Z-</button>
                       </td>
                     </tr>
                     <tr>

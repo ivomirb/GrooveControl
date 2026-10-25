@@ -24,7 +24,7 @@ const surfacingWizardTemplate = `
             </div>
           </div>
 
-          <div class="row mb-2 pb-2  border-bottom bd-gray">
+          <div class="row mb-2 pb-2  border-bottom bd-dialog">
             <label class="cell-sm-6">Spindle RPM</label>
             <div class="cell-sm-6">
               <input id="surfaceRPM" type="number" data-role="input" data-append="RPM" data-clear-button="false" value="1000" data-editable="true">
@@ -45,7 +45,7 @@ const surfacingWizardTemplate = `
             </div>
           </div>
 
-          <div class="row mb-2 pb-2 border-bottom bd-gray">
+          <div class="row mb-2 pb-2 border-bottom bd-dialog">
             <label class="cell-sm-6"
                title="Allows the center of the bit to travel the full Width and Length, which effctively extends the surfaced area by the bit's radius.
 Best when surfacing the entire spoilboard. Use with caution when flattening stock">Extend by Tool Radius</label>
@@ -57,7 +57,7 @@ Best when surfacing the entire spoilboard. Use with caution when flattening stoc
             </div>
           </div>
 
-          <div class="row mb-2 pb-2 border-bottom bd-gray">
+          <div class="row mb-2 pb-2 border-bottom bd-dialog">
             <label class="cell-sm-6">Surface Direction</label>
             <div class="cell-sm-6">
               <select id="surfaceDirection" data-role="input" data-clear-button="false">
@@ -74,14 +74,14 @@ Best when surfacing the entire spoilboard. Use with caution when flattening stoc
             </div>
           </div>
 
-          <div class="row mb-2 pb-2 border-bottom bd-gray">
+          <div class="row mb-2 pb-2 border-bottom bd-dialog">
             <label class="cell-sm-6  mb-2">Final Cut Depth</label>
             <div class="cell-sm-6">
               <input id="surfaceFinalDepth" type="number" data-role="input" data-append="mm" data-clear-button="false" value="2" data-editable="true">
             </div>
           </div>
 
-          <div class="row mb-2 pb-2 border-bottom bd-gray">
+          <div class="row mb-2 pb-2 border-bottom bd-dialog">
             <label class="cell-sm-6">Enable Coolant/Vacuum</label>
             <div class="cell-sm-6">
               <select id="surfaceCoolant" data-role="input" data-clear-button="false">
@@ -91,7 +91,7 @@ Best when surfacing the entire spoilboard. Use with caution when flattening stoc
             </div>
           </div>
 
-          <div class="row mb-2 pb-2 border-bottom bd-gray">
+          <div class="row mb-2 pb-2 border-bottom bd-dialog">
             <label class="cell-sm-6">Enable Framing</label>
             <div class="cell-sm-6">
               <select id="surfaceFraming" data-role="input" data-clear-button="false">
