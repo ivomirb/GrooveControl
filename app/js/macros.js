@@ -128,8 +128,7 @@ function onMacroShorcutKeyDown(event) {
   }
 }
 
-function onMacroShortcutGetFocus()
-{
+function onMacroShortcutGetFocus() {
   $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
   $('#alreadyAssignedWarnMacro').hide();
 }
@@ -139,8 +138,7 @@ function onMacroShortcutLoseFocus() {
   $('#alreadyAssignedWarnMacro').hide();
 }
 
-function onMacroShortcutInputChange()
-{
+function onMacroShortcutInputChange() {
   if ($('#macrokeyboardshortcut').val() == "") {
     $('#macrokeyboardshortcut').parent().removeClass('alert');
     $('#alreadyAssignedWarnMacro').hide();
@@ -605,8 +603,7 @@ function saveMacroGroupView() {
   localStorage.setItem("macroGroupView", JSON.stringify({tabVisibility: macroGroupView, currentGroupLower: currentMacroGroupLower}));
 }
 
-function setCurrentMacroGroup(groupLower)
-{
+function setCurrentMacroGroup(groupLower) {
   if (currentMacroGroupLower != groupLower) {
     currentMacroGroupLower = groupLower;
     saveMacroGroupView();

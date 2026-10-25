@@ -401,11 +401,13 @@ function onDocKeyDown(event) {
   }
 
   // Bind for Macro keys
-  for (const macro of buttonsarray) {
-    if (macro.macrokeyboardshortcut == key) {
-      event.preventDefault();
-      runMacro(macro);
-      return;
+  if (!dlgVisible) {
+    for (const macro of buttonsarray) {
+      if (macro.macrokeyboardshortcut == key) {
+        event.preventDefault();
+        runMacro(macro);
+        return;
+      }
     }
   }
 }
