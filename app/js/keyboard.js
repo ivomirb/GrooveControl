@@ -420,11 +420,14 @@ function onDocKeyDown(event) {
     }
   }
 
-  for (const macro of buttonsarray) {
-    if (macro.macrokeyboardshortcut == key) {
-      event.preventDefault();
-      runMacro(macro);
-      return;
+  // Bind for Macro keys
+  if (!dlgVisible) {
+    for (const macro of buttonsarray) {
+      if (macro.macrokeyboardshortcut == key) {
+        event.preventDefault();
+        runMacro(macro);
+        return;
+      }
     }
   }
 }
