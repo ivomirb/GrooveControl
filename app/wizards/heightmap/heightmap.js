@@ -60,7 +60,7 @@ function heightmapSettingChange() {
 }
 
 const heightmapSettingsDlg = `
-<div class="row mb-2 border-top bd-gray">
+<div class="row mb-2" style="margin-top:-16px;">
   <label class="cell-sm-3"><b>Grid Dimensions</b></label>
   <label class="cell-sm-9" id="hightmapChangeWarning" style="display:none; margin-left:-30px;"><small class="dark"><i>Changing these settings will clear the current heightmap data</i></small></label>
 </div>
@@ -108,7 +108,7 @@ It has to match the Z0 of the G-code.">Anchor point</label>
   </div>
 </div>
 
-<div class="row mb-2 border-top bd-gray">
+<div class="row mb-2 border-top bd-dialog">
   <label class="cell-sm-6"><b>Z Probe Settings</b></label>
 </div>
 
@@ -140,7 +140,7 @@ Higher speed will make the probing faster, but will make potential collisions wi
   </div>
 </div>
 
-<div class="row mb-2 border-top bd-gray">
+<div class="row mb-2 border-top bd-dialog">
   <label class="cell-sm-3" title="The heightmap tool needs to subdivide the toolpaths into small linear segments to follow the surface.
 Smaller numbers will produce more accurate results, but will generate larger and slower G-code."><b>Toolpath Settings</b></label>
   <label class="cell-sm-9" style="margin-left:-30px;"><small class="dark"><i>These settings are global, independent of the current heightmap</i></small></label>
