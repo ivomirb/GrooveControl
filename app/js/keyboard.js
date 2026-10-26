@@ -792,6 +792,105 @@ function handleButtonRelease(button) {
   }
 }
 
+var analogJogXY = false;
+var analogJogZ = false;
+var analogJogStopping = false;
+var analogJogDir = {dx:0, dy:0, dz:0};
+
+function adjustDeadzone(value, deadzone) {
+	if (value > 0) {
+		value = Math.max((value - deadzone) / (1 - deadzone), 0);
+	} else if (value < 0) {
+		value = -Math.max((-value - deadzone) / (1 - deadzone), 0);
+	}
+	return value;
+}
+
+function analogJogHandleOk(command) {
+	if (analogJogStopping) {
+		socket.emit('stop', {stop: false, jog: true, abort: false});
+		clearAnalogJog();
+	} else if (analogJogXY || analogJogZ) {
+		sendAnalogJog();
+	}
+}
+
+function sendAnalogJog() {
+	if (analogJogXY) {
+		if (analogJogDir.dx != 0 || analogJogDir.dy != 0) {
+			let length = Math.sqrt(analogJogDir.dx*analogJogDir.dx + analogJogDir.dy*analogJogDir.dy);
+			let jogSpeedXY = Math.min(parseFloat(grblParams.$110), parseFloat(grblParams.$111)) * length;
+			const dt = 0.01 / 60; // 10ms per command
+			let dx = jogSpeedXY * analogJogDir.dx * dt;
+			let dy = jogSpeedXY * analogJogDir.dy * dt;
+			const gcode = "$J=G91 G21 X" + dx.toFixed(3) + " Y" + dy.toFixed(3) + " F" + jogSpeedXY.toFixed(3);
+			sendGcode(gcode);
+			return;
+		}
+	} else if (analogJogZ) {
+		if (analogJogDir.dz != 0) {
+			let length = Math.abs(analogJogDir.dz);
+			let jogSpeedZ = parseFloat(grblParams.$112) * length;
+			const dt = 0.01 / 60; // 10ms per command
+			let dz = jogSpeedZ * analogJogDir.dz * dt;
+			const gcode = "$J=G91 G21 Z" + dz.toFixed(3) + " F" + jogSpeedZ.toFixed(3);
+			sendGcode(gcode);
+			return;
+		}
+	}
+
+	clearAnalogJog();
+}
+
+function startAnalogJog() {
+	if (analogJogStopping) return;
+console.log("START");
+	analogJogStopping = false;
+	socket.on('ok', analogJogHandleOk);
+	sendAnalogJog();
+}
+
+function clearAnalogJog() {
+console.log("CLEAR");
+	socket.off('ok', analogJogHandleOk);
+	analogJogStopping = false;
+	analogJogXY = false;
+	analogJogZ = false;
+}
+
+function stopAnalogJog() {
+console.log("STOP", analogJogXY, analogJogZ);
+	if (analogJogXY || analogJogZ) {
+		analogJogStopping = true;
+		analogJogXY = false;
+		analogJogZ = false;
+	}
+}
+
+function startAnalogJogXY(dx, dy) {
+	analogJogXY = true;
+	updateAnalogJogXY(dx, dy);
+	startAnalogJog();
+}
+
+function updateAnalogJogXY(dx, dy) {
+	analogJogDir.dx = dx;
+	analogJogDir.dy = dy;
+	analogJogDir.dz = 0;
+}
+
+function startAnalogJogZ(dz) {
+	analogJogZ = true;
+	updateAnalogJogZ(dz);
+	startAnalogJog();
+}
+
+function updateAnalogJogZ(dz) {
+	analogJogDir.dx = 0;
+	analogJogDir.dy = 0;
+	analogJogDir.dz = dz;
+}
+
 function updateGamepad() {
   if (gamepadId !== null) {
     const gamepad = navigator.getGamepads()[gamepadId];
@@ -812,12 +911,31 @@ function updateGamepad() {
 
       const deadzone = analogStickDeadzone / 100;
 
-      const leftStickX = gamepad.axes[0];
-      const leftStickY = gamepad.axes[1];
+      let stickX = adjustDeadzone(gamepad.axes[0], deadzone);
+      let stickY = -adjustDeadzone(gamepad.axes[1], deadzone);
+      let stickZ = -adjustDeadzone(gamepad.axes[3], deadzone);
 
-      if (Math.abs(leftStickX) > deadzone || Math.abs(leftStickY) > deadzone) {
-//        console.log(`Left Stick Moving -> X: ${leftStickX.toFixed(2)}, Y: ${leftStickY.toFixed(2)}`);
-      }
+			if (!analogJogStopping) {
+				if (stickX != 0 || stickY != 0) {
+					if (!analogJogXY && !analogJogZ) {
+						startAnalogJogXY(stickX, stickY);
+					} else if (analogJogXY) {
+						updateAnalogJogXY(stickX, stickY);
+					}
+				} else if (analogJogXY) {
+					stopAnalogJog();
+				}
+
+				if (stickZ != 0) {
+					if (!analogJogXY && !analogJogZ) {
+						startAnalogJogZ(stickZ);
+					} else if (analogJogZ) {
+						updateAnalogJogZ(stickZ);
+					}
+				} else if (analogJogZ) {
+					stopAnalogJog();
+				}
+			}
 
       requestAnimationFrame(updateGamepad);
     } else {
