@@ -216,11 +216,7 @@ function runJobFileInternal(gcode) {
 }
 
 function jobNeedsHoming(gcode) {
-  if (laststatus && laststatus.machine.modals.homedRecently) {
-    return false;
-  }
-
-  if (localStorage.getItem('disableJobNeedsHoming') == "true") {
+  if (laststatus && laststatus.machine.modals.homedRecently || disabledWarnings.jobNeedsHoming) {
     return false;
   }
 
@@ -247,7 +243,7 @@ function jobNeedsHoming(gcode) {
       cls: "js-dialog-close warning",
       onclick: function() {
         if ($('#disableJobHomeCheck').prop('checked')) {
-          localStorage.setItem('disableJobNeedsHoming', "true");
+          disableWarning("jobNeedsHoming");
         }
         runJobFileInternal(gcode);
       }
@@ -257,7 +253,7 @@ function jobNeedsHoming(gcode) {
       cls: "js-dialog-close",
       onclick: function() {
         if ($('#disableJobHomeCheck').prop('checked')) {
-          localStorage.setItem('disableJobNeedsHoming', "true");
+          disableWarning("jobNeedsHoming");
         }
       }
     }]

@@ -5,8 +5,19 @@ var disable3Dskybox = false;
 var disable3Drealtimepos = false;
 var disable3Dgcodepreview = false;
 var disable4thAxis = false;
-
 const disable3Dcontrols = false; // always false, keep for now, may delete later
+
+var disabledWarnings = {};
+
+function disableWarning(warning) {
+  disabledWarnings[warning] = true;
+  localStorage.setItem("disabledWarnings", JSON.stringify(disabledWarnings));
+}
+
+function resetWarnings() {
+  disabledWarnings = {};
+  localStorage.setItem("disabledWarnings", JSON.stringify(disabledWarnings));
+}
 
 function updatePinStatus(pin, status, onText, offText) {
   if (status && !pin.hasClass('alert')) {
@@ -125,9 +136,8 @@ const appSettingsDlg = `
 </div>
 
 <div class="section" id="keyboardSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
-  <span title="Caution: When enabling the keyboard shortcuts, examine the current key settings to learn their assigned functions.
-Some of the actions can be dangerous when triggered by an accidental keyboard click.">
-    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Keyboard Shortcuts" id="enableKeyboardShortcuts" onclick="updateSettingsState()"/>
+  <span>
+    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Keyboard Shortcuts" id="enableKeyboardShortcuts" onclick="showKbdWarning(); updateSettingsState()"/>
   </span>
   <span id="keyboardAssignmentPrompt" style="font-size:14px;">Click below to assign a new Keyboard Shortcut to each action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
   <div class="p-0 mt-2" style="overflow-y:auto; height:400px;">
@@ -198,11 +208,6 @@ function applySettings() {
   if (reload) {
     location.reload();
   }
-}
-
-function resetWarnings() {
-  localStorage.setItem('disableJobNeedsHoming', "false");
-  localStorage.setItem('disablePauseSpindleDlg', "false");
 }
 
 function showAppSettings(category) {
@@ -286,6 +291,13 @@ function initSettings() {
   disable4thAxis = localStorage.getItem('disable4thAxis') != null  && (JSON.parse(localStorage.getItem('disable4thAxis')) == true);
 
   $('#runSimBtn').parent().toggle(!disable3Drealtimepos && !disable3Dgcodepreview);
+
+  if (localStorage.getItem("disabledWarnings")) {
+    const warnings = JSON.parse(localStorage.getItem("disabledWarnings"));
+    if (typeof warnings == "object") {
+      disabledWarnings = warnings;
+    }
+  }
 }
 
 initSettings();

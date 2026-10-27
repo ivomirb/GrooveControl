@@ -177,7 +177,7 @@ function parseStatusReport(data) {
 
   // Extract Pin Data
   const startPin = data.search(/Pn:/i) + 3;
-	let pins;
+  let pins;
   if (startPin > 3) {
     const pinsdata = data.replace(">", "").replace("\r", "").substr(startPin).split(/,|\|/, 1);
     pins = pinsdata[0].split('')

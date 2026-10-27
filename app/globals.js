@@ -20,6 +20,7 @@ const usedFunctions = {
   updateSettingsState,
   showAppSettings,
   resetWarnings,
+  showKbdWarning,
   onMacroShortcutGetFocus,
   onMacroShortcutLoseFocus,
   onMacroShortcutInputChange,

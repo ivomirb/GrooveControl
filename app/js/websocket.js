@@ -974,18 +974,18 @@ function pauseSpindle() {
   if (socket) {
     socket.emit('serialInject', String.fromCharCode(0x84));
 
-    if (localStorage.getItem('disablePauseSpindleDlg') != "true") {
+    if (!disabledWarnings.pauseSpindleDlg) {
       Metro.dialog.create({
         clsDialog: 'dark',
         title: "<i class='fas fa-exclamation-triangle'></i> Spindle Paused",
         content: `The spindle will automatically turn back on when the job is resumed.<br>The movement will continue a few seconds later.<br><br>` +
-    `<input id="disablePauseSpindleDlg" type="checkbox" data-role="checkbox" data-style="2" data-caption="Don't show this again"/>`,
+          `<input id="disablePauseSpindleDlg" type="checkbox" data-role="checkbox" data-style="2" data-caption="Don't show this again"/>`,
         actions: [{
           caption: "OK",
           cls: "js-dialog-close",
           onclick: function() {
             if ($('#disablePauseSpindleDlg').prop('checked')) {
-              localStorage.setItem('disablePauseSpindleDlg', "true");
+              disableWarning("pauseSpindleDlg");
             }
           }
         }]

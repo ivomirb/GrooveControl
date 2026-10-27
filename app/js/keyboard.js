@@ -5,6 +5,7 @@ var disableKeyboardShortcuts = true;
 var keyboardShortcuts = {};
 var focusedKbdAction = undefined;
 var dlgContext = {};
+var kbdWarningShown = false;
 
 // Copied from metro.js - filters for text fields for which to suppress global hotkeys
 // excludes: button, checkbox, file, hidden, image, password, radio, reset, search, submit, url
@@ -617,6 +618,7 @@ function initKeyboardEditor() {
   }
 
   $('#enableKeyboardShortcuts').prop('checked', !disableKeyboardShortcuts);
+  kbdWarningShown = !disableKeyboardShortcuts;
 }
 
 function applyKeyboardSettings() {
@@ -628,4 +630,29 @@ function applyKeyboardSettings() {
   localStorage.setItem('keyboardShortcuts', JSON.stringify(keyboardShortcuts));
   disableKeyboardShortcuts = !$('#enableKeyboardShortcuts').prop('checked');
   localStorage.setItem('disableKeyboardShortcuts', disableKeyboardShortcuts);
+}
+
+function showKbdWarning() {
+  if (!$('#enableKeyboardShortcuts').prop('checked') || disabledWarnings.enableKbd || kbdWarningShown) {
+    return;
+  }
+  kbdWarningShown = true;
+  Metro.dialog.create({
+    clsDialog: 'dark',
+    leaveOverlayOnClose: true,
+    title: "<i class='fas fa-exclamation-triangle'></i> Keyboard Shortcuts Enabled",
+    content: `When enabling the keyboard shortcuts, examine the current key settings to learn their assigned functions.<br>` +
+      `Change them as necessary to fit your preferred workflow.<br><br>` +
+      `<b>Caution:</b> Some of the actions can be dangerous when triggered by an accidental keyboard click.<br><br>` +
+      `<input id="disableKbdDlg" type="checkbox" data-role="checkbox" data-style="2" data-caption="Don't show this again"/>`,
+    actions: [{
+      caption: "OK",
+      cls: "js-dialog-close warning",
+      onclick: function() {
+        if ($('#disableKbdDlg').prop('checked')) {
+          disableWarning("enableKbd");
+        }
+      }
+    }]
+  });
 }
