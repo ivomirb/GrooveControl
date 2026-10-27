@@ -26,7 +26,7 @@ const grblSettingsTemplate = {
     key: `$3`,
     title: `Step direction invert, mask`,
     description: `This setting inverts the direction signal for each axis. By default, Grbl assumes that the axes move in a positive direction when the direction pin signal is low, and a negative direction when the pin is high. Often, axes don't move this way with some machines. This setting will invert the direction pin signal for those axes that move the opposite way.`,
-    template: `<input  id="val-3-input" readonly type="hidden" />
+    template: `<input id="val-3-input" readonly type="hidden" />
     <div class="row">
     <div class="cell">
         <span class="text-small">X</span>
@@ -36,8 +36,8 @@ const grblSettingsTemplate = {
     </div>
     <div class="cell pb-1">
         <label class="toggle">
-            <input type="checkbox" id="xdirinvert">
-            <div class="app-notification">app-notification</div>
+            <input type="checkbox" id="xdirinvert"/>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -53,8 +53,8 @@ const grblSettingsTemplate = {
     </div>
     <div class="cell pb-1">
         <label class="toggle">
-            <input type="checkbox" id="ydirinvert">
-            <div class="app-notification">app-notification</div>
+            <input type="checkbox" id="ydirinvert"/>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -70,8 +70,8 @@ const grblSettingsTemplate = {
     </div>
     <div class="cell pb-1">
         <label class="toggle">
-            <input type="checkbox" id="zdirinvert">
-            <div class="app-notification">app-notification</div>
+            <input type="checkbox" id="zdirinvert"/>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -88,8 +88,8 @@ const grblSettingsTemplate = {
         </div>
         <div class="cell pb-1">
             <label class="toggle">
-                <input type="checkbox" id="adirinvert">
-                <div class="app-notification">app-notification</div>
+                <input type="checkbox" id="adirinvert"/>
+                <div class="app-notification"></div>
             </label>
         </div>
         <div class="cell">
@@ -196,8 +196,8 @@ const grblSettingsTemplate = {
     </div>
     <div class="cell pb-1">
         <label class="toggle">
-            <input type="checkbox" id="xHomeDir">
-            <div class="app-notification">app-notification</div>
+            <input type="checkbox" id="xHomeDir"/>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -213,9 +213,9 @@ const grblSettingsTemplate = {
     </div>
     <div class="cell pb-1">
         <label class="toggle">
-            <input type="checkbox" id="yHomeDir">
-            <div class="app-notification">app-notification</div>
-         </label>
+            <input type="checkbox" id="yHomeDir"/>
+            <div class="app-notification"></div>
+        </label>
     </div>
     <div class="cell">
         <span class="text-small">Max</span>
@@ -230,8 +230,8 @@ const grblSettingsTemplate = {
     </div>
     <div class="cell pb-1">
         <label class="toggle">
-            <input type="checkbox" id="zHomeDir">
-            <div class="app-notification">app-notification</div>
+            <input type="checkbox" id="zHomeDir"/>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -248,8 +248,8 @@ const grblSettingsTemplate = {
         </div>
         <div class="cell pb-1">
             <label class="toggle">
-                <input type="checkbox" id="aHomeDir">
-                <div class="app-notification">app-notification</div>
+                <input type="checkbox" id="aHomeDir"/>
+                <div class="app-notification"></div>
             </label>
         </div>
         <div class="cell">

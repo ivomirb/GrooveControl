@@ -180,8 +180,8 @@
 }
 
 .toggle input:checked+div {
-  background: #fff;
-  border-color: #lightgray;
+  background: white;
+  border-color: lightgray;
 }
 
 .toggle input:checked+div:before {
@@ -190,7 +190,17 @@
   background: #4a4e51;
 }
 
+.toggle.contrast input:checked+div {
+  background: #222;
+  border-color: lightgray;
+}
+
+.toggle.contrast input:checked+div:before {
+  background: white;
+}
+
 /* End CSS mini Switch */
+
 /* Custom size button for Macros */
 .command-button-macro {
   height: 70px;
