@@ -213,8 +213,6 @@ function probeautotab() {
   probemode.stock.position == "fl"
   $('#runNewProbeBtn').addClass("disabled")
   $('#confirmNewProbeBtn').removeClass("disabled")
-  $('#jogTypeContinuous').prop('checked', true)
-  allowContinuousJog = true;
   $('.probetabxyz').removeClass('active');
   $('#probeautotab').addClass('active');
 }
@@ -237,8 +235,6 @@ function probexyztab() {
   }
   $('#runNewProbeBtn').addClass("disabled")
   $('#confirmNewProbeBtn').removeClass("disabled")
-  $('#jogTypeContinuous').prop('checked', true)
-  allowContinuousJog = true;
   $('.probetabxyz').removeClass('active');
   $('#probexyztab').addClass('active');
 }
@@ -257,8 +253,6 @@ function probextab() {
   $("#toggle-probe-advanced-content").data('collapse').collapse()
   $('#runNewProbeBtn').addClass("disabled")
   $('#confirmNewProbeBtn').removeClass("disabled")
-  $('#jogTypeContinuous').prop('checked', true)
-  allowContinuousJog = true;
 }
 
 function probeytab() {
@@ -275,8 +269,6 @@ function probeytab() {
   $("#toggle-probe-advanced-content").data('collapse').collapse()
   $('#runNewProbeBtn').addClass("disabled")
   $('#confirmNewProbeBtn').removeClass("disabled")
-  $('#jogTypeContinuous').prop('checked', true)
-  allowContinuousJog = true;
 }
 
 function probeztab() {
@@ -294,8 +286,6 @@ function probeztab() {
   $("#toggle-probe-advanced-content").data('collapse').collapse()
   $('#runNewProbeBtn').addClass("disabled")
   $('#confirmNewProbeBtn').removeClass("disabled")
-  $('#jogTypeContinuous').prop('checked', true)
-  allowContinuousJog = true;
 }
 
 function probezplatetab() {
@@ -312,8 +302,6 @@ function probezplatetab() {
   $("#toggle-probe-advanced-content").data('collapse').collapse()
   $('#runNewProbeBtn').addClass("disabled")
   $('#confirmNewProbeBtn').removeClass("disabled")
-  $('#jogTypeContinuous').prop('checked', true)
-  allowContinuousJog = true;
   $('#z0platethickness').val(zprobeplate.zoffset)
   $('.probetabxyz').removeClass('active');
   $('#probezplatetab').addClass('active');
@@ -339,8 +327,6 @@ function probeendmilltab() {
   $("#toggle-probe-advanced-content").data('collapse').collapse()
   $('#runNewProbeBtn').addClass("disabled")
   $('#confirmNewProbeBtn').removeClass("disabled")
-  $('#jogTypeContinuous').prop('checked', true)
-  allowContinuousJog = true;
 }
 
 function resetOffsetFL() {
@@ -423,17 +409,6 @@ function confirmProbeInPlace() {
 }
 
 function resetJogModeAfterProbe() {
-  if (localStorage.getItem('continuousJog')) {
-    if (JSON.parse(localStorage.getItem('continuousJog')) == true) {
-      $('#jogTypeContinuous').prop('checked', true)
-      allowContinuousJog = true;
-      $('.distbtn').hide()
-    } else {
-      $('#jogTypeContinuous').prop('checked', false)
-      allowContinuousJog = false;
-      $('.distbtn').show();
-    }
-  }
   $('#confirmNewProbeBtn').removeClass("disabled")
   clearInterval(probemode.interval)
   probemode.interval = undefined;
