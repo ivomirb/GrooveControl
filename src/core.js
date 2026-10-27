@@ -60,7 +60,7 @@ function findLocalIpAddress() {
     const name = adapter.toLowerCase();
     if (!virtKeywords.some(x => name.includes(x)) && !virtPrefixes.some(x => name.startsWith(x))) {
       const adapters = interfaces[adapter];
-      for (var i = 0; i < adapters.length; i++) {
+      for (let i = 0; i < adapters.length; i++) {
         const adapter = adapters[i];
         if (adapter.family == "IPv4" && !adapter.internal) {
           return adapter.address;
@@ -222,7 +222,7 @@ process.on('exit', () => debug_log('exit'))
 
 function savePersistentConfig() {
   try {
-    var text = JSON.stringify(persistentConfig, null, 2);
+    const text = JSON.stringify(persistentConfig, null, 2);
     fs.writeFileSync(configFilePath, text, 'utf8');
   } catch (err) {
     debug_log(err);
@@ -231,9 +231,9 @@ function savePersistentConfig() {
 
 function loadPersistentConfig() {
   try {
-    var text = fs.readFileSync(configFilePath, 'utf8');
-    var stored = JSON.parse(text);
-    for (var prop in stored) {
+    const text = fs.readFileSync(configFilePath, 'utf8');
+    const stored = JSON.parse(text);
+    for (let prop in stored) {
       if (prop in persistentConfig && typeof(stored[prop]) == typeof(persistentConfig[prop])) {
         persistentConfig[prop] = stored[prop];
       }

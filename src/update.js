@@ -71,7 +71,7 @@ function createAutoUpdater(isPackaged) {
 
   autoUpdater.on('error', (ev, err) => {
     const string = err ? 'Error in auto-updater: \n' + err.split('SyntaxError')[0] : 'Error in auto-updater';
-    var output = {
+    const output = {
       'command': 'autoupdate',
       'response': string
     }
@@ -138,7 +138,7 @@ function initUpdate(isPackaged) {
 
   try {
     const changelog = path.join(__dirname, "..", "CHANGELOG.txt");
-    var text = fs.readFileSync(changelog, 'utf8');
+    let text = fs.readFileSync(changelog, 'utf8');
     text = text.split(/\r?\n/, MAX_CHANGELOG_LINES);
     changelogText = text.join('\n');
   } catch (err) {

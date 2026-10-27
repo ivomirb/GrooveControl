@@ -32,9 +32,9 @@ var portCloseHandlers = [];
 
 
 function friendlyPort(port) {
-  var img = 'usb.png';
-  var note = '';
-  var manufacturer = port.manufacturer
+  let img = 'usb.png';
+  let note = '';
+  const manufacturer = port.manufacturer;
   if (manufacturer == `(Standard port types)`) {
     img = 'serial.png'
     note = 'Motherboard Serial Port';
@@ -112,8 +112,8 @@ function friendlyPort(port) {
 async function findPorts() {
   const ports = await SerialPort.list()
   status.comms.interfaces.ports = ports;
-  for (var i = 0; i < status.comms.interfaces.ports.length; i++) {
-    var data = friendlyPort(status.comms.interfaces.ports[i])
+  for (let i = 0; i < status.comms.interfaces.ports.length; i++) {
+    const data = friendlyPort(status.comms.interfaces.ports[i])
     status.comms.interfaces.ports[i].img = data.img;
     status.comms.interfaces.ports[i].note = data.note;
   }
@@ -156,8 +156,8 @@ function connectTo(data) { // If a user picks a port to connect to, open a Node 
     if (data.type == "usb") {
       console.log("connect", "Connecting to " + data.port + " via " + data.type);
 
-      var allowRtsCts = false
-      var allowHupcl = false
+      let allowRtsCts = false
+      let allowHupcl = false
       if (process.platform == 'darwin') {
         allowRtsCts = true // Fix for autoreset getting stuck on MacOS with Silabs Chip
         allowHupcl = true // Fix for autoreset getting stuck on MacOS with Silabs Chip
@@ -219,7 +219,7 @@ function scanForTelnetDevices(range) {
   //var network = localNetwork[0] + '.' + localNetwork[1] + '.' + localNetwork[2];
   //var range = network + ".1-" + network + ".254"
 
-  var networkDevices = []
+  let networkDevices = []
   oldIpList = status.comms.interfaces.networkDevices;
   const telnetScanOptions = {
     target: range,
@@ -248,7 +248,7 @@ function scanForTelnetDevices(range) {
     scan.on('result', data => {
       // fired when item is matching options
       if (data.status == "open") {
-        var type = false;
+        let type = false;
         if (data.banner.indexOf("GrblHAL") != -1) {
           type = "grblHAL"
         } else if (data.banner.indexOf("Grbl") != -1) {
@@ -275,11 +275,11 @@ function scanForTelnetDevices(range) {
       });
       status.comms.interfaces.networkDevices = networkDevices;
       if (!_.isEqual(status.comms.interfaces.networkDevices, oldIpList)) {
-        var newTelnetPorts = _.differenceWith(status.comms.interfaces.networkDevices, oldIpList, _.isEqual)
+        const newTelnetPorts = _.differenceWith(status.comms.interfaces.networkDevices, oldIpList, _.isEqual)
         if (newTelnetPorts.length > 0) {
           debug_log("Detected new device: " + newTelnetPorts[0].ip);
         }
-        var removedTelnetPorts = _.differenceWith(oldIpList, status.comms.interfaces.networkDevices, _.isEqual)
+        const removedTelnetPorts = _.differenceWith(oldIpList, status.comms.interfaces.networkDevices, _.isEqual)
         if (removedTelnetPorts.length > 0) {
           debug_log("No longer detecting device: " + removedTelnetPorts[0].ip);
         }

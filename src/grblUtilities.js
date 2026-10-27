@@ -23,9 +23,9 @@ function feedOverride(data) {
   if (status.comms.connectionStatus > 0) {
     debug_log("current FRO = " + status.machine.overrides.feedOverride)
     debug_log("requested FRO = " + data)
-    var curfro = parseInt(status.machine.overrides.feedOverride)
-    var reqfro = parseInt(data)
-    var delta;
+    const curfro = parseInt(status.machine.overrides.feedOverride)
+    const reqfro = parseInt(data)
+    let delta;
 
     if (reqfro == 100) {
       addQRealtime(String.fromCharCode(0x90));
@@ -84,9 +84,9 @@ function spindleOverride(data) {
   if (status.comms.connectionStatus > 0) {
     debug_log("current SRO = " + status.machine.overrides.spindleOverride)
     debug_log("requested SRO = " + data)
-    var cursro = parseInt(status.machine.overrides.spindleOverride)
-    var reqsro = parseInt(data)
-    var delta;
+    const cursro = parseInt(status.machine.overrides.spindleOverride)
+    const reqsro = parseInt(data)
+    let delta;
 
     if (reqsro == 100) {
       addQRealtime(String.fromCharCode(153));
@@ -147,9 +147,9 @@ function jog(data) {
   debug_log('Jog ' + data);
   if (status.comms.connectionStatus > 0) {
     data = data.split(',');
-    var dir = data[0];
-    var dist = parseFloat(data[1]);
-    var feed;
+    const dir = data[0];
+    const dist = parseFloat(data[1]);
+    let feed;
     if (data.length > 2) {
       feed = parseInt(data[2]);
       if (feed) {
@@ -170,9 +170,9 @@ function jog(data) {
 function jogXY(data) {
   debug_log('Jog XY' + data);
   if (status.comms.connectionStatus > 0) {
-    var xincrement = parseFloat(data.x);
-    var yincrement = parseFloat(data.y);
-    var feed = parseFloat(data.feed)
+    const xincrement = parseFloat(data.x);
+    const yincrement = parseFloat(data.y);
+    let feed = parseFloat(data.feed)
     if (feed) {
       feed = 'F' + feed;
     }
@@ -192,11 +192,11 @@ function jogTo(data) { // data = {x:xVal, y:yVal, z:zVal, mode:0(absulute)|1(rel
   debug_log('JogTo ' + JSON.stringify(data));
   if (status.comms.connectionStatus > 0) {
     if (data.x !== undefined || data.y !== undefined || data.z !== undefined) {
-      var xVal = (data.x !== undefined ? 'X' + parseFloat(data.x) : '');
-      var yVal = (data.y !== undefined ? 'Y' + parseFloat(data.y) : '');
-      var zVal = (data.z !== undefined ? 'Z' + parseFloat(data.z) : '');
-      var mode = ((data.mode == 0) ? 0 : 1);
-      var feed = (data.feed !== undefined ? 'F' + parseInt(data.feed) : '');
+      const xVal = (data.x !== undefined ? 'X' + parseFloat(data.x) : '');
+      const yVal = (data.y !== undefined ? 'Y' + parseFloat(data.y) : '');
+      const zVal = (data.z !== undefined ? 'Z' + parseFloat(data.z) : '');
+      const mode = ((data.mode == 0) ? 0 : 1);
+      const feed = (data.feed !== undefined ? 'F' + parseInt(data.feed) : '');
       addQToEndAndKick('$J=G91G21' + mode + xVal + yVal + zVal + feed);
     } else {
       debug_log('error Invalid params!');
@@ -269,10 +269,10 @@ function setPosition(data) {
   debug_log('setPosition(' + JSON.stringify(data) + ')');
   if (status.comms.connectionStatus > 0) {
     if (data.x !== undefined || data.y !== undefined || data.z !== undefined) {
-      var xVal = (data.x !== undefined ? 'X' + parseFloat(data.x) + ' ' : '');
-      var yVal = (data.y !== undefined ? 'Y' + parseFloat(data.y) + ' ' : '');
-      var zVal = (data.z !== undefined ? 'Z' + parseFloat(data.z) + ' ' : '');
-      var aVal = (data.a !== undefined ? 'A' + parseFloat(data.a) + ' ' : '');
+      const xVal = (data.x !== undefined ? 'X' + parseFloat(data.x) + ' ' : '');
+      const yVal = (data.y !== undefined ? 'Y' + parseFloat(data.y) + ' ' : '');
+      const zVal = (data.z !== undefined ? 'Z' + parseFloat(data.z) + ' ' : '');
+      const aVal = (data.a !== undefined ? 'A' + parseFloat(data.a) + ' ' : '');
       addQToEndAndKick('G10 L20 P0 ' + xVal + yVal + zVal + aVal);
     }
   } else {
