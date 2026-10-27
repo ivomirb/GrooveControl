@@ -685,7 +685,7 @@ async function connectController(data) {
 
   serverEmitOutput({
     command: 'connect',
-    response: "Attempting to detect Controller (1): (Ctrl+X)",
+    response: "Attempting to detect Controller: (Ctrl+X)",
     type: 'info'
   });
 
@@ -704,10 +704,10 @@ async function connectController(data) {
 
     if (data.type == "usb") {
       // Second attempt - toggle DTR to trigger a reset
-      debug_log("Didn't detect firmware after Ctrl+X. Lets try toggling DTR");
+      debug_log("Didn't detect firmware after Ctrl+X. Lets try enabling DTR");
       serverEmitOutput({
         command: 'connect',
-        response: "Attempting to detect Controller (2): (DTR Enable)",
+        response: "Attempting to reset Controller: (DTR Enable)",
         type: 'info'
       });
       port.set({dtr: true});

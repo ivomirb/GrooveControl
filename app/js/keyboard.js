@@ -12,6 +12,13 @@ var controllerButtons = [];
 var focusedButtonAction = undefined;
 var analogStickDeadzone = 10;
 
+// Copied from metro.js - filters for text fields for which to suppress global hotkeys
+// excludes: button, checkbox, file, hidden, image, password, radio, reset, search, submit, url
+const textInputNodeNames = ["textarea", "input", "select"];
+const textInputTypes = [
+    "text", "password", "number", "email", "url", "range", "date", "month", "week", "time", "datetime",
+    "datetime-local", "search", "color", "tel"];
+
 const keyboardActions = [
   { // X+
     name: "xP",
@@ -428,6 +435,12 @@ function onDocKeyDown(event) {
     return; // ignore auto-repeat
   }
 
+  if (textInputNodeNames.includes(event.target.nodeName.toLowerCase()) ||
+      textInputTypes.includes(event.target.type) ||
+      event.target.hasAttribute('contenteditable')) {
+    return;
+  }
+
   let key = keyNameFromDownEvent(event);
   if (key == "") {
     return;
@@ -456,6 +469,12 @@ function onDocKeyDown(event) {
 }
 
 function onDocKeyUp(event) {
+  if (textInputNodeNames.includes(event.target.nodeName.toLowerCase()) ||
+      textInputTypes.includes(event.target.type) ||
+      event.target.hasAttribute('contenteditable')) {
+    return;
+  }
+
   let key = keyNameFromDownEvent(event);
   if (key == "") {
     return;
