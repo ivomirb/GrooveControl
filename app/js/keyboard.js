@@ -1,16 +1,21 @@
 "use strict";
 
 var disableKeyboardShortcuts = true;
-
 var keyboardShortcuts = {};
 var dlgContext = {};
 var focusedKbdAction = undefined;
 
+var disableGamepad = true;
 var buttonShortcuts = {};
+var focusedButtonAction = undefined;
+
 var gamepadId = null;
 var controllerButtons = [];
-var focusedButtonAction = undefined;
+
+var analogJogActive = false;
+var analogJogActiveStart = false;
 var analogStickDeadzone = 10;
+var ANALOG_JOG_TIMEOUT = 10000; // deactivate after 10 seconds of inactivity
 
 // Copied from metro.js - filters for text fields for which to suppress global hotkeys
 // excludes: button, checkbox, file, hidden, image, password, radio, reset, search, submit, url
@@ -20,6 +25,22 @@ const textInputTypes = [
     "datetime-local", "search", "color", "tel"];
 
 const keyboardActions = [
+  { // Activate Analog Jog
+    name: "analogJogActivate",
+    friendlyName: "Activate Analog Move",
+    label: `Activate Analog Move<br><span class="text-small">Click to activate analog sticks</span>`,
+    defaultKey: "",
+    gamepad: true,
+  },
+
+  { // Precise Analog Move (25% speed)
+    name: "analogJogPrecise",
+    friendlyName: "Precise Analog Move",
+    label: `Precise Analog Move<br><span class="text-small">Press and hold to move at 25% speed</span>`,
+    defaultKey: "",
+    gamepad: true,
+  },
+
   { // X+
     name: "xP",
     friendlyName: "Jog X+",
@@ -269,15 +290,6 @@ const keyboardActions = [
     defaultKey: "ctrl+o",
     keydown: loadJobFile,
   },
-
-  { // Activate Analog Jog
-    name: "analogJogXY",
-    friendlyName: "Activate Analog XY Move",
-    label: ``,
-    defaultKey: "",
-    keydown: activateAnalogJog,
-    hidden: true,
-  },
 ];
 
 function jogKeyDown(name) {
@@ -309,11 +321,6 @@ function jogSetContinuous(state) {
   $('#jogTypeContinuous').prop('checked', state);
   allowContinuousJog = state;
   $('.distbtn').hide();
-}
-
-function activateAnalogJog() {
-  const gamepad = navigator.getGamepads()[gamepadId];
-  gamepad.vibrationActuator.playEffect("dual-rumble", {startDelay: 0, duration: 50, strongMagnitude: 0, weakMagnitude: 1});
 }
 
 function addDlgContext(context) {
@@ -362,6 +369,7 @@ function keyboardDocReady() {
   }
 
   disableKeyboardShortcuts = localStorage.getItem('disableKeyboardShortcuts') == null || (JSON.parse(localStorage.getItem('disableKeyboardShortcuts')) == true);
+  disableGamepad = localStorage.getItem('disableGamepad') == null || (JSON.parse(localStorage.getItem('disableGamepad')) == true);
 
   // Remove Keyboard Bindings from Override Sliders
   $("#jrocell").find(".marker").unbind(Metro.events.keydown);
@@ -387,6 +395,7 @@ function keyboardDocReady() {
 
   window.addEventListener("gamepadconnected", onGamepadConnected);
   window.addEventListener("gamepaddisconnected", onGamepadDisconnected);
+  $('#gamepadDisplay').toggle(!disableGamepad);
 
   if (localStorage.getItem('analogStickDeadzone')) {
     analogStickDeadzone = Math.max(Math.min(parseInt(localStorage.getItem('analogStickDeadzone')), 100), 0);
@@ -648,7 +657,7 @@ function initKeyboardEditor() {
   focusedKbdAction = undefined;
 
   for (const action of keyboardActions) {
-    if (action.hidden) continue;
+    if (action.gamepad) continue;
     $('#keyboardAssignmentForm').append(`
       <div class="row mt-1 ml-1 mr-1">
         <label class="cell-sm-6" style="margin-top:4px">` + action.label + `</label>
@@ -666,7 +675,7 @@ function initKeyboardEditor() {
 function applyKeyboardSettings() {
   keyboardShortcuts = {};
   for (const action of keyboardActions) {
-    keyboardShortcuts[action.name] = action.hidden ? "" : $('#' + action.name + 'newKey').val().toLowerCase();
+    keyboardShortcuts[action.name] = action.gamepad ? "" : $('#' + action.name + 'newKey').val().toLowerCase();
   }
 
   localStorage.setItem('keyboardShortcuts', JSON.stringify(keyboardShortcuts));
@@ -811,107 +820,17 @@ function handleButtonRelease(button) {
   }
 }
 
-var analogJogXY = false;
-var analogJogZ = false;
-var analogJogStopping = false;
-var analogJogDir = {dx:0, dy:0, dz:0};
-
 function adjustDeadzone(value, deadzone) {
-	if (value > 0) {
-		value = Math.max((value - deadzone) / (1 - deadzone), 0);
-	} else if (value < 0) {
-		value = -Math.max((-value - deadzone) / (1 - deadzone), 0);
-	}
-	return value;
-}
-
-function analogJogHandleOk(command) {
-	if (analogJogStopping) {
-		socket.emit('stop', {stop: false, jog: true, abort: false});
-		clearAnalogJog();
-	} else if (analogJogXY || analogJogZ) {
-		sendAnalogJog();
-	}
-}
-
-function sendAnalogJog() {
-	if (analogJogXY) {
-		if (analogJogDir.dx != 0 || analogJogDir.dy != 0) {
-			let length = Math.sqrt(analogJogDir.dx*analogJogDir.dx + analogJogDir.dy*analogJogDir.dy);
-			let jogSpeedXY = Math.min(parseFloat(grblParams.$110), parseFloat(grblParams.$111)) * length;
-			const dt = 0.01 / 60; // 10ms per command
-			let dx = jogSpeedXY * analogJogDir.dx * dt;
-			let dy = jogSpeedXY * analogJogDir.dy * dt;
-			const gcode = "$J=G91 G21 X" + dx.toFixed(3) + " Y" + dy.toFixed(3) + " F" + jogSpeedXY.toFixed(3);
-			sendGcode(gcode);
-			return;
-		}
-	} else if (analogJogZ) {
-		if (analogJogDir.dz != 0) {
-			let length = Math.abs(analogJogDir.dz);
-			let jogSpeedZ = parseFloat(grblParams.$112) * length;
-			const dt = 0.01 / 60; // 10ms per command
-			let dz = jogSpeedZ * analogJogDir.dz * dt;
-			const gcode = "$J=G91 G21 Z" + dz.toFixed(3) + " F" + jogSpeedZ.toFixed(3);
-			sendGcode(gcode);
-			return;
-		}
-	}
-
-	clearAnalogJog();
-}
-
-function startAnalogJog() {
-	if (analogJogStopping) return;
-console.log("START");
-	analogJogStopping = false;
-	socket.on('ok', analogJogHandleOk);
-	sendAnalogJog();
-}
-
-function clearAnalogJog() {
-console.log("CLEAR");
-	socket.off('ok', analogJogHandleOk);
-	analogJogStopping = false;
-	analogJogXY = false;
-	analogJogZ = false;
-}
-
-function stopAnalogJog() {
-console.log("STOP", analogJogXY, analogJogZ);
-	if (analogJogXY || analogJogZ) {
-		analogJogStopping = true;
-		analogJogXY = false;
-		analogJogZ = false;
-	}
-}
-
-function startAnalogJogXY(dx, dy) {
-	analogJogXY = true;
-	updateAnalogJogXY(dx, dy);
-	startAnalogJog();
-}
-
-function updateAnalogJogXY(dx, dy) {
-	analogJogDir.dx = dx;
-	analogJogDir.dy = dy;
-	analogJogDir.dz = 0;
-}
-
-function startAnalogJogZ(dz) {
-	analogJogZ = true;
-	updateAnalogJogZ(dz);
-	startAnalogJog();
-}
-
-function updateAnalogJogZ(dz) {
-	analogJogDir.dx = 0;
-	analogJogDir.dy = 0;
-	analogJogDir.dz = dz;
+  if (value > 0) {
+    value = Math.max((value - deadzone) / (1 - deadzone), 0);
+  } else if (value < 0) {
+    value = -Math.max((-value - deadzone) / (1 - deadzone), 0);
+  }
+  return value;
 }
 
 function updateGamepad() {
-  if (gamepadId !== null) {
+  if (gamepadId !== null && !disableGamepad) {
     const gamepad = navigator.getGamepads()[gamepadId];
     
     if (gamepad) {
@@ -926,35 +845,74 @@ function updateGamepad() {
           }
         }
       }
+
+      let activateIdx = -1;
+      if (buttonShortcuts.analogJogActivate.startsWith("button ")) {
+        const idx = parseInt(buttonShortcuts.analogJogActivate.substr(7)) - 1;
+        if (idx >= 0 && idx < controllerButtons.length) {
+          activateIdx = idx;
+        }
+      }
+
+      let preciseIdx = -1;
+      if (buttonShortcuts.analogJogPrecise.startsWith("button ")) {
+        const idx = parseInt(buttonShortcuts.analogJogPrecise.substr(7)) - 1;
+        if (idx >= 0 && idx < controllerButtons.length) {
+          preciseIdx = idx;
+        }
+      }
+
+      let enableAnalogJog = (laststatus.comms.connectionStatus == 2);
+      if (enableAnalogJog && $('.dialog').filter((i, dlg) => { return $(dlg).css('visibility') == 'visible'}).length > 0) {
+        enableAnalogJog = dlgContext.probe;
+      }
+      if (enableAnalogJog) {
+        if (activateIdx != -1) {
+          if (gamepad.buttons[activateIdx].pressed && !controllerButtons[activateIdx]) {
+            gamepad.vibrationActuator.playEffect("dual-rumble", {startDelay: 0, duration: 75, strongMagnitude: 0, weakMagnitude: 0.75});
+            analogJogActiveStart = new Date().getTime();
+          } else if (analogJogActiveStart + ANALOG_JOG_TIMEOUT < new Date().getTime()) {
+            enableAnalogJog = false; // timer expired
+          }
+        } else {
+          analogJogActiveStart = false;
+        }
+      }
+
       controllerButtons = gamepad.buttons.map((x) => x.pressed);
 
-      const deadzone = analogStickDeadzone / 100;
+      let stickX = 0, stickY = 0, stickZ = 0;
+      if (enableAnalogJog) {
+        const deadzone = analogStickDeadzone / 100;
+        stickX = adjustDeadzone(gamepad.axes[0], deadzone);
+        stickY = -adjustDeadzone(gamepad.axes[1], deadzone);
+        stickZ = -adjustDeadzone(gamepad.axes[3], deadzone);
+        if (preciseIdx != -1 && controllerButtons[preciseIdx]) {
+          stickX *= 0.25;
+          stickY *= 0.25;
+          stickZ *= 0.25;
+        }
+      }
 
-      let stickX = adjustDeadzone(gamepad.axes[0], deadzone);
-      let stickY = -adjustDeadzone(gamepad.axes[1], deadzone);
-      let stickZ = -adjustDeadzone(gamepad.axes[3], deadzone);
-
-			if (!analogJogStopping) {
-				if (stickX != 0 || stickY != 0) {
-					if (!analogJogXY && !analogJogZ) {
-						startAnalogJogXY(stickX, stickY);
-					} else if (analogJogXY) {
-						updateAnalogJogXY(stickX, stickY);
-					}
-				} else if (analogJogXY) {
-					stopAnalogJog();
-				}
-
-				if (stickZ != 0) {
-					if (!analogJogXY && !analogJogZ) {
-						startAnalogJogZ(stickZ);
-					} else if (analogJogZ) {
-						updateAnalogJogZ(stickZ);
-					}
-				} else if (analogJogZ) {
-					stopAnalogJog();
-				}
-			}
+      if (stickX != 0 || stickY != 0 || stickZ != 0) {
+        let jogSettings;
+        if (!analogJogActive) {
+          analogJogActive = true;
+          const limits = computeMachineLimits(1);
+          jogSettings = {
+            minX: limits.minX, minY: limits.minY, minZ: limits.minZ,
+            maxX: limits.maxX, maxY: limits.maxY, maxZ: limits.maxZ,
+            hasSoftLimits: parseInt(grblParams.$20) == 1,
+            speedXY: Math.min(parseFloat(grblParams.$110), parseFloat(grblParams.$111)),
+            speedZ: parseFloat(grblParams.$112)
+          };
+        }
+        socket.emit('analogJog', {dx: stickX, dy: stickY, dz: stickZ, settings: jogSettings});
+        analogJogActiveStart = new Date().getTime();
+      } else if (analogJogActive) {
+        analogJogActive = false;
+        socket.emit('analogJog', {stop: true});
+      }
 
       requestAnimationFrame(updateGamepad);
     } else {
@@ -967,7 +925,10 @@ function updateGamepad() {
 function onGamepadConnected(event) {
   $('#gamepadDisplay').removeClass('disabled').parent().attr('title', "Gamepad connected");
   gamepadId = event.gamepad.index;
-  requestAnimationFrame(updateGamepad);
+
+  if (!disableGamepad) {
+    requestAnimationFrame(updateGamepad);
+  }
 }
 
 function onGamepadDisconnected() {
@@ -978,7 +939,6 @@ Press a button on the gamepad to activate`);
 
 function initGamepadEditor() {
   for (const action of keyboardActions) {
-    if (action.hidden) continue;
     $('#gamepadAssignmentForm').append(`
       <div class="row mt-1 ml-1 mr-1">
         <label class="cell-sm-6" style="margin-top:4px">` + action.label + `</label>
@@ -990,7 +950,7 @@ function initGamepadEditor() {
       </div>`);
   }
 
-  $('#analogJognewButton').val(capitalizeShortcut(buttonShortcuts.analogJogXY));
+  $('#enableGamepad').prop('checked', !disableGamepad);
   $('#analogDeadzone').val(analogStickDeadzone);
 }
 
@@ -1004,4 +964,19 @@ function applyGamepadSettings() {
 
   analogStickDeadzone = Math.max(Math.min(parseInt($('#analogDeadzone').val()), 100), 0);
   localStorage.setItem('analogStickDeadzone', JSON.stringify(analogStickDeadzone));
+
+  const disable = !$('#enableGamepad').prop('checked');
+
+  if (disableGamepad && !disable) {
+    $('#gamepadDisplay').show();
+    if (gamepadId !== null) {
+      requestAnimationFrame(updateGamepad);
+    }
+  }
+  else if (!disableGamepad && disable) {
+    $('#gamepadDisplay').hide();
+  }
+  disableGamepad = disable;
+
+  localStorage.setItem('disableGamepad', disableGamepad);
 }

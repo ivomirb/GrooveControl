@@ -48,6 +48,7 @@ var connectionCancelToken;
 // Status parsing
 var oldPinsList;
 var grblStatusLoop;
+var realRunState;
 
 // Queue
 var gcodeQueue = [];
@@ -74,7 +75,8 @@ const memoryStorage = multer.memoryStorage();
 // Parses Grbl status report: <Idle|MPos:0.000,0.000,0.000,0.000|Bf:100,1022|FS:0,0|Pn:XYZP|WCO:10.000,10.000,0.000,-10.000>
 function parseStatusReport(data) {
   const state = data.substring(1, data.search(/(,|\|)/));
-  status.comms.runStatus = state
+  status.comms.runStatus = state;
+  realRunState = state;
   if (state == "Idle") {
     if (jobStatusInternal >= 3 && (new Date().getTime()) > jobStartTime + 100) {
       finalizeJob(true); // Idle after at least 100ms after the "ok" for the last line, declare the job as done
@@ -177,7 +179,7 @@ function parseStatusReport(data) {
 
   // Extract Pin Data
   const startPin = data.search(/Pn:/i) + 3;
-	let pins;
+  let pins;
   if (startPin > 3) {
     const pinsdata = data.replace(">", "").replace("\r", "").substr(startPin).split(/,|\|/, 1);
     pins = pinsdata[0].split('')
@@ -481,6 +483,18 @@ function handleGreeting(data, command) {
 }
 
 function handleOK(data, command) {
+  if (analogJogState == 1) {
+    sendAnalogJogCommand();
+    return;
+  } else if (analogJogState == 2) {
+    addQRealtime(String.fromCharCode(0x85)); // canceljog
+    analogJogState = 3;
+    setTimeout(function() {
+      analogJogState = 0;
+      send1Q(); // restart queue
+    }, 200);
+    return;
+  }
   serverEmit('ok', command);
   sentBuffer.shift();
   if (command == "$CD") {
@@ -523,11 +537,19 @@ function handleAlarm(data, command) {
   });
 
   clearGcodeQueue(false);
+  analogJogState = 0;
   status.comms.connectionStatus = 5;
 }
 
 function handleError(data, command) {
   const errorCode = parseInt(data.split(':')[1]);
+
+  // there is a bug in grbl that sometimes a jog command enters a Run state instead of Jog, causing the
+  // next jog command to fail. just cancel the jog and ignore the error
+  if (errorCode == 8 && analogJogState != 0) {
+    analogJogState = 0;
+    return;
+  }
 
   let lastAlarm = "";
   if (errorCode == 9 && status.comms.connectionStatus == 5 && status.comms.alarm.length > 0) {
@@ -543,11 +565,13 @@ function handleError(data, command) {
 
   debug_log("error;")
   clearGcodeQueue(false);
+  analogJogState = 0;
   status.comms.connectionStatus = 5;
 }
 
 function onParserData(data) {
   let command = sentBuffer[0];
+  const analogJog = analogJogState != 0;
   if (data.startsWith("<")) {
     parseStatusReport(data);
     if (command == "?") {
@@ -617,7 +641,7 @@ function onParserData(data) {
       });
     }
   } else {
-    if (data.indexOf("<") != 0) {
+    if (data.indexOf("<") != 0 && !analogJog) {
       serverEmitOutput({
         command: "",
         response: data,
@@ -859,11 +883,12 @@ function calcBufferSpace() {
 }
 
 function send1Q() {
+  if (analogJogState != 0) return; // can't send during jogging
   if (status.comms.connectionStatus > 0) {
     if (queuePointer == 0) {
       serverEmit("queueCount", [gcodeQueue.length, gcodeQueue.length]);
     }
-    while ((gcodeQueue.length - queuePointer) > 0 && !status.comms.blocked && !status.comms.paused) {
+    while (queuePointer < gcodeQueue.length && !status.comms.blocked && !status.comms.paused) {
       const spaceLeft = calcBufferSpace();
 
       // Do we have enough space in the buffer?
@@ -1035,13 +1060,96 @@ function unpause() {
     debug_log('Sent: ~');
     status.comms.paused = false;
     status.comms.blocked = false;
-    setTimeout(function() {
-      send1Q(); // restart queue
-    }, 200);
+    setTimeout(send1Q, 200); // restart queue
     status.comms.runStatus = 'Resuming';
     status.comms.connectionStatus = 3;
   } else {
     debug_log('ERROR: Machine connection not open!');
+  }
+}
+
+var analogJogState = 0; // 0 - none, 1 - jogging, 2 - stopping (waiting for idle to send stop), 3 - stopped, attempting to continue queue
+var analogJogType = ""; // valid only if analogJogState=1
+var analogJogPosition = undefined;
+var analogJogSettings = undefined;
+var analogJogDir = undefined;
+
+function sendAnalogJogCommand() {
+  if (analogJogType == "xy") {
+    let length = Math.sqrt(analogJogDir.dx*analogJogDir.dx + analogJogDir.dy*analogJogDir.dy);
+    let speedXY = analogJogSettings.speedXY * length;
+    const dt = 0.01 / 60; // 10ms per command
+
+    const dx0 = speedXY * analogJogDir.dx * dt;
+    const dy0 = speedXY * analogJogDir.dy * dt;
+
+    let dx1 = analogJogPosition.x;
+    let dy1 = analogJogPosition.y;
+
+    analogJogPosition.x += dx0;
+    analogJogPosition.y += dy0;
+
+    if (analogJogSettings.hasSoftLimits) {
+      analogJogPosition.x = Math.min(Math.max(analogJogPosition.x, analogJogSettings.minX), analogJogSettings.maxX);
+      analogJogPosition.y = Math.min(Math.max(analogJogPosition.y, analogJogSettings.minY), analogJogSettings.maxY);
+      dx1 = analogJogPosition.x - dx1;
+      dy1 = analogJogPosition.y - dy1;
+
+      const distance0 = Math.sqrt(dx0*dx0 + dy0*dy0);
+      const distance1 = Math.sqrt(dx1*dx1 + dy1*dy1);
+      if (distance1 < distance0) {
+        speedXY *= Math.max(distance1 / distance0, 0.1); // reduce speed if one of the axes gets clamped by the edge
+      }
+    }
+
+    const gcode = "$J=G53 G90 G21 X" + analogJogPosition.x.toFixed(3) + " Y" + analogJogPosition.y.toFixed(3) + " F" + speedXY.toFixed(3) + "\n";
+    machineSendRealtime(gcode);
+  }
+  if (analogJogType == "z") {
+    let length = Math.abs(analogJogDir.dz);
+    let speedZ = analogJogSettings.speedZ * length;
+    const dt = 0.01 / 60; // 10ms per command
+
+    analogJogPosition.z += speedZ * analogJogDir.dz * dt;
+    if (analogJogSettings.hasSoftLimits) {
+      analogJogPosition.z = Math.min(Math.max(analogJogPosition.z, analogJogSettings.minZ), analogJogSettings.maxZ);
+    }
+
+    const gcode = "$J=G53 G90 G21 Z" + analogJogPosition.z.toFixed(3) + " F" + speedZ.toFixed(3) + "\n";
+    machineSendRealtime(gcode);
+  }
+}
+
+function onAnalogJog(data) {
+  if (data.stop) {
+    if (analogJogState == 1) {
+      analogJogType = "";
+      analogJogState = 2;
+      analogJogDir = undefined;
+    }
+  } else {
+    if (data.settings) {
+      analogJogSettings = data.settings;
+    }
+    analogJogDir = {dx: data.dx, dy: data.dy, dz: data.dz};
+    if (analogJogState == 0) {
+      if (realRunState == "Idle" && gcodeQueue.length == 0 && sentBuffer.length == 0 && status.comms.connectionStatus == 2) {
+        if (data.dx != 0 || data.dy != 0) {
+          analogJogType = "xy";
+        } else if (data.dz != 0) {
+          analogJogType = "z";
+        }
+        if (analogJogType) {
+          analogJogState = 1;
+          analogJogPosition = {
+            x: status.machine.position.work.x + status.machine.position.offset.x,
+            y: status.machine.position.work.y + status.machine.position.offset.y,
+            z: status.machine.position.work.z + status.machine.position.offset.z,
+          }
+          sendAnalogJogCommand();
+        }
+      }
+    }
   }
 }
 
@@ -1132,6 +1240,8 @@ function onConnection(socket) {
   socket.on('captureWcsHistory', function(data) {
     serverEmit('captureWcsHistory', data);
   });
+
+  socket.on('analogJog', onAnalogJog);
 }
 
 function onDocReady(result) {

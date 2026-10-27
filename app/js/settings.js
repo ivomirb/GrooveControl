@@ -29,10 +29,13 @@ function updateSettingsState() {
   }
 
   const enableKeyboardShortcuts = $('#enableKeyboardShortcuts').prop('checked');
-
   enableViaClass("#keyboardAssignmentPrompt", enableKeyboardShortcuts);
   enableViaClass("#keyboardAssignmentForm", enableKeyboardShortcuts);
 
+  const enableGamepad = $('#enableGamepad').prop('checked');
+  enableViaClass("#gamepadAssignmentPrompt", enableGamepad);
+  enableViaClass("#gamepadAssignmentForm", enableGamepad);
+  enableViaClass("#analogDeadzoneRow", enableGamepad);
 }
 
 const appSettingsDlg = `
@@ -139,23 +142,18 @@ Some of the actions can be dangerous when triggered by an accidental keyboard cl
 </div>
 
 <div class="section" id="gamepadSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
-  <div class="row mt-1 ml-1 mr-1" title="Select a button to activate the XY move with the analog stick. The analog stick will deactivate after 10 seconds of inactivity.
-If you leave this blank, the analog stick will be active all the time.">
-    <label class="cell-sm-6" style="margin-top:4px;">Button To Activate Analog Stick</label>
-    <div class="cell-sm-6" style="margin-left:-10px;">
-      <input type="text" readonly data-role="input" data-clear-button="true" data-editable="true"
-          onfocus="onButtonGetFocus('analogJogXY')" onblur="onButtonLoseFocus()" onchange="onButtonInputChange('analogJogXY')"
-          id="analogJogXYnewButton" />
-    </div>
-  </div>
-  <div class="row mt-1 ml-1 mr-1">
-    <label class="cell-sm-6" style="margin-top:4px;">Analog Stick Deadzone</label>
-    <div class="cell-sm-6" style="margin-left:-10px;">
+  <span title="Caution: When enabling the keyboard shortcuts, examine the current key settings to learn their assigned functions.
+Some of the actions can be dangerous when triggered by an accidental keyboard click.">
+  <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Gamepad" id="enableGamepad" onclick="updateSettingsState()"/>
+  </span>
+  <div class="row mt-1 ml-1 mr-1" id="analogDeadzoneRow">
+    <label class="cell-sm-4" style="margin-top:4px;">Analog Deadzone</label>
+    <div class="cell-sm-3" style="margin-left:-10px;">
       <input type="number" style="text-align:right;" data-role="input" data-editable="true" data-clear-button="false" data-append="%" id="analogDeadzone" />
     </div>
   </div>
   <div class="mt-1 border-top bd-dialog"></div>
-  <span style="font-size:14px;">Click below to assign a gamepad button to each action.</span>
+  <span id="gamepadAssignmentPrompt" style="font-size:14px;">Click below to assign a gamepad button to each action.</span>
   <div class="p-0 mt-2" style="overflow-y:auto; height:430px;">
     <form id="gamepadAssignmentForm" style="padding:2px 0px;">
     </form>
