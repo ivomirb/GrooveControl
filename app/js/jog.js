@@ -18,7 +18,7 @@ var jogdistXYZ = 10;
 var jogdistA = 10;
 var unit = "mm";
 
-function jogOverride(newVal) {
+function jogOverride(newVal, temp) {
   if (laststatus && laststatus.comms.connectionStatus > 0) {
     jogRate.x = 4000;
     jogRate.y = 4000;
@@ -38,11 +38,14 @@ function jogOverride(newVal) {
       jogRate.a = (grblParams.$113 * (newVal / 100)).toFixed(0);
     }
 
-    if ($('#jro').data('slider').val() != newVal)
-      $('#jro').data('slider').val(newVal)
+    if ($('#jro').data('slider').val() != newVal) {
+      $('#jro').data('slider').val(newVal);
+    }
   }
 
-  localStorage.setItem('jogOverride', newVal);
+  if (!temp) {
+    localStorage.setItem('jogOverride', newVal);
+  }
 }
 
 function setJogDist(index) {
