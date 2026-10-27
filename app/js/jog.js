@@ -112,11 +112,7 @@ function toggleWCS() {
 }
 
 function cancelJog() {
-  socket.emit('stop', {
-    stop: false,
-    jog: true,
-    abort: false
-  })
+  socket.emit('stop', {stop: false, jog: true, abort: false});
   continuousJogRunning = false;
 }
 
@@ -262,18 +258,18 @@ function onDroBlur(axis) {
   input.hide();
 }
 
-function onJogAxisMinus(event, axis, jogdist, pulloffOverride, ripple) {
+function onJogAxisMinus(event, axis, jogdist, pulloffOverride, ripple, continuousJog) {
   if (event.which > 1) {
     return;
   }
   event.preventDefault();
 
   let Axis = axis.toUpperCase();
-  if (allowContinuousJog) {
+  if (continuousJog) {
     if (!waitingForStatus && (laststatus.comms.runStatus == "Idle" || laststatus.comms.runStatus == "Jog" || laststatus.comms.runStatus == "Door:0")) {
       const currentPos = parseFloat(laststatus.machine.position.offset[axis]) + parseFloat(laststatus.machine.position.work[axis]);
       let minPos = currentPos - 1000;
-      const hasSoftLimits = pulloffOverride != null && Object.keys(grblParams).length > 0 && parseInt(grblParams.$20) == 1;
+      const hasSoftLimits = pulloffOverride != null && parseInt(grblParams.$20) == 1;
       if (hasSoftLimits) {
         // Soft Limits is enabled so lets use the minimum machine position
         minPos = computeMachineLimits(pulloffOverride)["min" + Axis];
@@ -298,18 +294,18 @@ function onJogAxisMinus(event, axis, jogdist, pulloffOverride, ripple) {
   $('#confirmNewProbeBtn').removeClass("disabled");
 }
 
-function onJogAxisPlus(event, axis, jogdist, pulloffOverride, ripple) {
+function onJogAxisPlus(event, axis, jogdist, pulloffOverride, ripple, continuousJog) {
   if (event.which > 1) {
     return;
   }
   event.preventDefault();
 
   let Axis = axis.toUpperCase();
-  if (allowContinuousJog) {
+  if (continuousJog) {
     if (!waitingForStatus && (laststatus.comms.runStatus == "Idle" || laststatus.comms.runStatus == "Jog" || laststatus.comms.runStatus == "Door:0")) {
       const currentPos = parseFloat(laststatus.machine.position.offset[axis]) + parseFloat(laststatus.machine.position.work[axis]);
       let maxPos = currentPos + 1000;
-      const hasSoftLimits = pulloffOverride != null && Object.keys(grblParams).length > 0 && parseInt(grblParams.$20) == 1;
+      const hasSoftLimits = pulloffOverride != null && parseInt(grblParams.$20) == 1;
       if (hasSoftLimits) {
         // Soft Limits is enabled so lets use the maximum machine position
         maxPos = computeMachineLimits(pulloffOverride)["max" + Axis];
@@ -336,7 +332,7 @@ function onJogAxisPlus(event, axis, jogdist, pulloffOverride, ripple) {
 
 function onJogAxisCancel(event) {
   event.preventDefault();
-  if (allowContinuousJog) {
+  if (continuousJogRunning) {
     cancelJog()
   }
 }
@@ -421,7 +417,9 @@ function jogDocReady() {
 
   $(document).mousedown(function() {
     safeToUpdateSliders = false;
-  }).mouseup(function() {
+  });
+
+  $(document).mouseup(function() {
     safeToUpdateSliders = true;
     // Added to cancel Jog moves even when user moved the mouse off the button before releasing
     if (allowContinuousJog) {
@@ -429,7 +427,9 @@ function jogDocReady() {
         cancelJog()
       }
     }
-  }).mouseleave(function() {
+  });
+
+  $(document).mouseleave(function() {
     safeToUpdateSliders = true;
   });
 
@@ -521,29 +521,35 @@ function jogDocReady() {
     }
   });
 
-  $('.xM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'x', jogdistXYZ, 1, "#e21b1b"); });
+  $('#xM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'x', jogdistXYZ, 1, "#e21b1b", allowContinuousJog); });
+  $('#probexM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'x', jogdistXYZ, 1, "#e21b1b", true); });
   $('.xM').on('touchend mouseup', onJogAxisCancel);
 
-  $('.xP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'x', jogdistXYZ, 1, "#e21b1b"); });
+  $('#xP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'x', jogdistXYZ, 1, "#e21b1b", allowContinuousJog); });
+  $('#probexP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'x', jogdistXYZ, 1, "#e21b1b", true); });
   $('.xP').on('touchend mouseup', onJogAxisCancel);
 
-  $('.yM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'y', jogdistXYZ, 1, "#5de21b"); });
+  $('#yM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'y', jogdistXYZ, 1, "#5de21b", allowContinuousJog); });
+  $('#probeyM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'y', jogdistXYZ, 1, "#5de21b", true); });
   $('.yM').on('touchend mouseup', onJogAxisCancel);
 
-  $('.yP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'y', jogdistXYZ, 1, "#5de21b"); });
+  $('#yP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'y', jogdistXYZ, 1, "#5de21b", allowContinuousJog); });
+  $('#probeyP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'y', jogdistXYZ, 1, "#5de21b", true); });
   $('.yP').on('touchend mouseup', onJogAxisCancel);
 
-  $('.zM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'z', jogdistXYZ, 1, "#1ba1e2"); });
+  $('#zM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'z', jogdistXYZ, 1, "#1ba1e2", allowContinuousJog); });
+  $('#probezM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'z', jogdistXYZ, 1, "#1ba1e2", true); });
   $('.zM').on('touchend mouseup', onJogAxisCancel);
 
-  $('.zP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'z', jogdistXYZ, 1, "#1ba1e2"); });
+  $('#zP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'z', jogdistXYZ, 1, "#1ba1e2", allowContinuousJog); });
+  $('#probezP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'z', jogdistXYZ, 1, "#1ba1e2", true); });
   $('.zP').on('touchend mouseup', onJogAxisCancel);
 
   // A axis has unlimited rotation if $133 == 0, otherwise assume pulloff 0
-  $('.aM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'a', jogdistA, parseFloat(grblParams.$133) == 0 ? null : 0, "#fa6800"); });
+  $('#aM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'a', jogdistA, parseFloat(grblParams.$133) == 0 ? null : 0, "#fa6800", allowContinuousJog); });
   $('.aM').on('touchend mouseup', onJogAxisCancel);
 
-  $('.aP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'a', jogdistA, parseFloat(grblParams.$133) == 0 ? null : 0, "#fa6800"); });
+  $('#aP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'a', jogdistA, parseFloat(grblParams.$133) == 0 ? null : 0, "#fa6800", allowContinuousJog); });
   $('.aP').on('touchend mouseup', onJogAxisCancel);
 
   $('#homeBtn').on('click', smartHome);
