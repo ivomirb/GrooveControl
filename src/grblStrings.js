@@ -1,7 +1,7 @@
 "use strict";
 var exports = module.exports = {};
 
-var grblErrorCodes = {
+const grblErrorCodes = {
   0: "No error",
   1: "G-code words consist of a letter and a value. Letter was not found.",
   2: "Missing the expected G-code word value or numeric value format is not valid.",
@@ -70,7 +70,7 @@ var grblErrorCodes = {
 };
 
 
-var grblAlarmCodes = {
+const grblAlarmCodes = {
   0: "no alarm",
   1: "Hard limit triggered. Machine position is likely lost due to sudden and immediate halt. Re-homing is highly recommended.",
   2: "G-code motion target exceeds machine travel. Machine position safely retained. Alarm may be unlocked.",

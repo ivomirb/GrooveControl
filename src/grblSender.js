@@ -73,7 +73,7 @@ const memoryStorage = multer.memoryStorage();
 
 // Parses Grbl status report: <Idle|MPos:0.000,0.000,0.000,0.000|Bf:100,1022|FS:0,0|Pn:XYZP|WCO:10.000,10.000,0.000,-10.000>
 function parseStatusReport(data) {
-  var state = data.substring(1, data.search(/(,|\|)/));
+  const state = data.substring(1, data.search(/(,|\|)/));
   status.comms.runStatus = state
   if (state == "Idle") {
     if (jobStatusInternal >= 3 && (new Date().getTime()) > jobStartTime + 100) {
@@ -115,10 +115,10 @@ function parseStatusReport(data) {
 
     status.machine.has4thAxis = posArray.length > 3;
 
-    var xPos = posArray[0];
-    var yPos = posArray[1];
-    var zPos = posArray[2];
-    var aPos = status.machine.has4thAxis ? posArray[3] : 0;
+    let xPos = posArray[0];
+    let yPos = posArray[1];
+    let zPos = posArray[2];
+    let aPos = status.machine.has4thAxis ? posArray[3] : 0;
 
     if (isMPos) {
       //If the status includes machine coordinates, subtract the offset to convert to work space
@@ -135,9 +135,9 @@ function parseStatusReport(data) {
   }
 
   // Extract override values (for Grbl > v1.1 only!)
-  var startOv = data.search(/ov:/i) + 3;
+  const startOv = data.search(/ov:/i) + 3;
   if (startOv > 3) {
-    var ov = data.replace(">", "").substr(startOv).split(/,|\|/, 3);
+    const ov = data.replace(">", "").substr(startOv).split(/,|\|/, 3);
     if (Array.isArray(ov)) {
       if (ov[0]) {
         status.machine.overrides.feedOverride = parseInt(ov[0]);
@@ -151,9 +151,9 @@ function parseStatusReport(data) {
     }
   }
   // Extract realtime Feed and Spindle (for Grbl > v1.1 only!)
-  var startFS = data.search(/\|FS:/i) + 4;
+  const startFS = data.search(/\|FS:/i) + 4;
   if (startFS > 4) {
-    var fs = data.replace(">", "").substr(startFS).split(/,|\|/);
+    const fs = data.replace(">", "").substr(startFS).split(/,|\|/);
     if (Array.isArray(fs)) {
       if (fs[0]) {
         status.machine.overrides.realFeed = parseInt(fs[0]);
@@ -165,9 +165,9 @@ function parseStatusReport(data) {
   }
 
   // extras realtime feed (if variable spindle is disabled)
-  var startF = data.search(/\|F:/i) + 3;
+  const startF = data.search(/\|F:/i) + 3;
   if (startF > 3) {
-    var f = data.replace(">", "").substr(startF).split(/,|\|/);
+    const f = data.replace(">", "").substr(startF).split(/,|\|/);
     if (Array.isArray(f)) {
       if (f[0]) {
         status.machine.overrides.realFeed = parseInt(f[0]);
@@ -176,10 +176,11 @@ function parseStatusReport(data) {
   }
 
   // Extract Pin Data
-  var startPin = data.search(/Pn:/i) + 3;
+  const startPin = data.search(/Pn:/i) + 3;
+	let pins;
   if (startPin > 3) {
-    var pinsdata = data.replace(">", "").replace("\r", "").substr(startPin).split(/,|\|/, 1);
-    var pins = pinsdata[0].split('')
+    const pinsdata = data.replace(">", "").replace("\r", "").substr(startPin).split(/,|\|/, 1);
+    pins = pinsdata[0].split('')
     status.machine.inputs = pins;
     if (!_.isEqual(pins, oldPinsList)) {
       if (pins.includes('H') && !pins.includes('D')) {
@@ -222,9 +223,9 @@ function parseStatusReport(data) {
   }
   oldPinsList = pins;
   // Extract Buffer Data
-  var startBuf = data.search(/Bf:/i) + 3;
+  const startBuf = data.search(/Bf:/i) + 3;
   if (startBuf > 3) {
-    var buffer = data.replace(">", "").replace("\r", "").substr(startBuf).split(/,|\|/, 2);
+    const buffer = data.replace(">", "").replace("\r", "").substr(startBuf).split(/,|\|/, 2);
     // debug_log("BUF: " + JSON.stringify(buffer, null, 2));
     status.machine.firmware.buffer = buffer;
   } else {
@@ -250,7 +251,7 @@ function parseModals(data) {
 
   data = data.split(/:|\[|\]/)[2].split(" ")
 
-  for (var i = 0; i < data.length; i++) {
+  for (let i = 0; i < data.length; i++) {
 
     if (coordinateSysCommands.includes(data[i])) {
       status.machine.modals.coordinatesys = data[i]; // handle G54, G55, G56, G57, G58, G59
@@ -316,9 +317,9 @@ function parseOptions(data) {
   status.machine.firmware.blockBufferSize = grblOpts[1];
   status.machine.firmware.rxBufferSize = grblOpts[2];
 
-  var features = [];
+  let features = [];
 
-  for (var i = 0; i < featuresStr.length; i++) {
+  for (let i = 0; i < featuresStr.length; i++) {
     features.push(featuresStr[i]);
     switch (featuresStr[i]) {
       case 'Q':
@@ -393,8 +394,8 @@ function parseOptions(data) {
 // Handle probe output and reporting: [PRB:0.000,0.000,0.000:0]
 function handleProbe(data, report) {
   debug_log(data);
-  var prbData = data.substr(5).split(/,|\]/);
-  var success = data.split(':')[2].split(']')[0];
+  const prbData = data.substr(5).split(/,|\]/);
+  const success = data.split(':')[2].split(']')[0];
   status.machine.probe.x = prbData[0];
   status.machine.probe.y = prbData[1];
   status.machine.probe.z = prbData[2].split(':')[0];
@@ -526,9 +527,9 @@ function handleAlarm(data, command) {
 }
 
 function handleError(data, command) {
-  var errorCode = parseInt(data.split(':')[1]);
+  const errorCode = parseInt(data.split(':')[1]);
 
-  var lastAlarm = "";
+  let lastAlarm = "";
   if (errorCode == 9 && status.comms.connectionStatus == 5 && status.comms.alarm.length > 0) {
     lastAlarm = "<hr>This error may just be a symptom of an earlier event:<br> ALARM: " + status.comms.alarm
   }
@@ -546,7 +547,7 @@ function handleError(data, command) {
 }
 
 function onParserData(data) {
-  var command = sentBuffer[0];
+  let command = sentBuffer[0];
   if (data.startsWith("<")) {
     parseStatusReport(data);
     if (command == "?") {
@@ -749,7 +750,7 @@ function machineSend(gcode) {
   debug_log("SENDING: " + gcode)
   if (port.isOpen) {
     if (gcode.match(/T([\d.]+)/i)) {
-      var tool = parseFloat(RegExp.$1);
+      const tool = parseFloat(RegExp.$1);
       status.machine.tool.nexttool.number = tool
       status.machine.tool.nexttool.line = gcode
     }
@@ -763,14 +764,14 @@ function machineSend(gcode) {
 // Splits the data into lines and adds them to the queue
 // Removes comments
 function addLinesToQueue(data, isJob) {
-  var empty = true;
+  let empty = true;
   data = data.split('\n');
-  for (var i = 0; i < data.length; i++) {
+  for (let i = 0; i < data.length; i++) {
 
-    var line = data[i].replace("%", "").split(';')[0]; // Remove everything after ; = comment
+    let line = data[i].replace("%", "").split(';')[0]; // Remove everything after ; = comment
 
     // remove () comments
-    var commentStart = line.indexOf('(');
+    let commentStart = line.indexOf('(');
     while (commentStart >= 0) {
       const commentEnd = line.indexOf(')', commentStart);
       if (commentEnd < 0) {
@@ -781,7 +782,7 @@ function addLinesToQueue(data, isJob) {
       commentStart = line.indexOf('(');
     }
 
-    var tosend = line.trim();
+    const tosend = line.trim();
     if (tosend.length > 0) {
       if (addQToEnd(tosend) && isJob && status.misc.spindleDelay > 0 && !status.misc.laserMode) {
         if (tosend.indexOf("M3") >= 0 || tosend.indexOf("M4") >= 0 || tosend.indexOf("M03") >= 0 || tosend.indexOf("M04") >= 0) {
@@ -797,7 +798,7 @@ function addLinesToQueue(data, isJob) {
 
 function runJob(object) {
   jobStartTime = false;
-  var data = object.data;
+  const data = object.data;
 
   jobIsJob = object.isJob;
   jobStartTime = new Date().getTime();
@@ -842,8 +843,8 @@ function runCommand(data) {
 
 function calcBufferSpace() {
   const len = sentBuffer.length;
-  var total = len; // account for the \n at the end
-  for (var i = 0; i < len; i++) {
+  let total = len; // account for the \n at the end
+  for (let i = 0; i < len; i++) {
     total += sentBuffer[i].length;
   }
   if (status.machine.firmware.rxBufferSize > 0) {
@@ -889,7 +890,7 @@ function send1Q() {
 // Clears the queue and generates a queueComplete event
 function clearGcodeQueue(success) {
   if (gcodeQueue.length > 0) {
-    var data = {
+    const data = {
       failed: !success,
     }
     serverEmit('queueComplete', data);
@@ -915,7 +916,7 @@ function clearGcodeQueue(success) {
 // If a job is currently in progress, sends the jobComplete message
 function finalizeJob(success) {
   if (jobStatusInternal > 0) {
-    var data = {
+    const data = {
       completed: true, // always true, kept for backwards compatibility
       failed: !success,
       jobCompletedMsg: jobCompletedMsg,
@@ -938,7 +939,7 @@ const modalCommandsRegExp = new RegExp(modalCommands.join("|"));
 function addQToEnd(gcode) {
   gcodeQueue.push(gcode);
 
-  var testGcode = gcode.toUpperCase();
+  const testGcode = gcode.toUpperCase();
   if (testGcode.indexOf("$H") != -1) {
     status.machine.modals.homedRecently = true;
   }

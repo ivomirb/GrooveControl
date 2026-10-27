@@ -106,7 +106,7 @@ async function getSystemInfo() {
 
 function showGpuInfo() {
   // GPU
-  var gpuInfoWindow = new BrowserWindow({
+  const gpuInfoWindow = new BrowserWindow({
     // 1366 * 768 == minimum to cater for
     width: 800,
     height: 800,
@@ -140,7 +140,7 @@ function showGpuInfo() {
 function checkPowerSettings() {
   if (process.platform == 'win32') {
     debug_log("Checking Power Settings")
-    var powerplan = "";
+    let powerplan = "";
     const {
       exec
     } = require('child_process');
@@ -165,7 +165,7 @@ function checkPowerSettings() {
             debug_log('Error code: ' + error.code);
             debug_log('Signal received: ' + error.signal);
           }
-          var usbselective = (stdout.slice(stdout.search("USB selective suspend setting") - 1)).split("\n")
+          let usbselective = (stdout.slice(stdout.search("USB selective suspend setting") - 1)).split("\n")
           usbselective.length = 7;
 
           if (usbselective[5].indexOf("0x00000000") != -1) {

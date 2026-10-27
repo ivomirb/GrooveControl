@@ -71,8 +71,8 @@ For security reasons, only files that are picked from a file browser can be acce
 This could be caused by a buggy or malicious Javascript macro.`;
 
 function addRecentFile(filePath) {
-  var file_path = filePath.toLowerCase();
-  var index = persistentConfig.recentFiles.findIndex(x => x.toLowerCase() == file_path);
+  const file_path = filePath.toLowerCase();
+  const index = persistentConfig.recentFiles.findIndex(x => x.toLowerCase() == file_path);
   if (index == 0 && persistentConfig.recentFiles[0] == filePath) return;
 
   if (index >= 0) {
@@ -93,7 +93,7 @@ function clearRecentFiles() {
 }
 
 function openFileDialog(data, callback) {
-  var defaultPath = persistentConfig.defaultPaths[data.id || "default"] || persistentConfig.defaultPaths["last"];
+  const defaultPath = persistentConfig.defaultPaths[data.id || "default"] || persistentConfig.defaultPaths["last"];
 
   dialog.showOpenDialog(jogWindowAPI.getJogWindow(), {
     title: data.title,
@@ -114,7 +114,7 @@ function openFileDialog(data, callback) {
 }
 
 function saveFileDialog(data, callback) {
-  var defaultPath = persistentConfig.defaultPaths[data.id || "default"] || persistentConfig.defaultPaths["last"];
+  let defaultPath = persistentConfig.defaultPaths[data.id || "default"] || persistentConfig.defaultPaths["last"];
 
   if (data.fileName) {
     defaultPath = defaultPath ? path.join(defaultPath, data.fileName) : data.fileName;
@@ -172,7 +172,7 @@ function readTextFile(filePath, params, callback) {
 }
 
 function openGcodeFile() {
-  var defaultPath = persistentConfig.defaultPaths["gcode"] || persistentConfig.defaultPaths["last"];
+  const defaultPath = persistentConfig.defaultPaths["gcode"] || persistentConfig.defaultPaths["last"];
 
   dialog.showOpenDialog(jogWindowAPI.getJogWindow(), {
     title: "Open G-code",
@@ -238,7 +238,7 @@ function readGcodeFile(filePath, showErrorDlg, onSuccess) {
       } else { // GCODE
         setCurrentGcode(data);
         status.misc.lastFilePath = filePath;
-        var payload = {
+        const payload = {
           gcode: data,
           filename: path.basename(status.misc.lastFilePath)
         }
@@ -283,10 +283,9 @@ function uploadGcodeRequest(req, res) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-  var uploadprogress = 0;
-  var lastsentuploadprogress = 0;
+  let lastsentuploadprogress = 0;
 
-  var form = new formidable.IncomingForm();
+  const form = new formidable.IncomingForm();
   form.maxFileSize = 300 * 1024 * 1024;
 
   // eslint-disable-next-line no-unused-vars
@@ -301,7 +300,7 @@ function uploadGcodeRequest(req, res) {
   });
 
   form.on('progress', function(bytesReceived, bytesExpected) {
-    uploadprogress = parseInt(((bytesReceived * 100) / bytesExpected).toFixed(0));
+    const uploadprogress = parseInt(((bytesReceived * 100) / bytesExpected).toFixed(0));
     if (uploadprogress != lastsentuploadprogress) {
       lastsentuploadprogress = uploadprogress;
     }
