@@ -37,7 +37,7 @@ const grblSettingsTemplate = {
     <div class="cell pb-1">
         <label class="toggle">
             <input type="checkbox" id="xdirinvert">
-            <div class="app-notification">app-notification</div>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -54,7 +54,7 @@ const grblSettingsTemplate = {
     <div class="cell pb-1">
         <label class="toggle">
             <input type="checkbox" id="ydirinvert">
-            <div class="app-notification">app-notification</div>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -71,7 +71,7 @@ const grblSettingsTemplate = {
     <div class="cell pb-1">
         <label class="toggle">
             <input type="checkbox" id="zdirinvert">
-            <div class="app-notification">app-notification</div>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -89,7 +89,7 @@ const grblSettingsTemplate = {
         <div class="cell pb-1">
             <label class="toggle">
                 <input type="checkbox" id="adirinvert">
-                <div class="app-notification">app-notification</div>
+                <div class="app-notification"></div>
             </label>
         </div>
         <div class="cell">
@@ -197,7 +197,7 @@ const grblSettingsTemplate = {
     <div class="cell pb-1">
         <label class="toggle">
             <input type="checkbox" id="xHomeDir">
-            <div class="app-notification">app-notification</div>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -214,7 +214,7 @@ const grblSettingsTemplate = {
     <div class="cell pb-1">
         <label class="toggle">
             <input type="checkbox" id="yHomeDir">
-            <div class="app-notification">app-notification</div>
+            <div class="app-notification"></div>
          </label>
     </div>
     <div class="cell">
@@ -231,7 +231,7 @@ const grblSettingsTemplate = {
     <div class="cell pb-1">
         <label class="toggle">
             <input type="checkbox" id="zHomeDir">
-            <div class="app-notification">app-notification</div>
+            <div class="app-notification"></div>
         </label>
     </div>
     <div class="cell">
@@ -249,7 +249,7 @@ const grblSettingsTemplate = {
         <div class="cell pb-1">
             <label class="toggle">
                 <input type="checkbox" id="aHomeDir">
-                <div class="app-notification">app-notification</div>
+                <div class="app-notification"></div>
             </label>
         </div>
         <div class="cell">
