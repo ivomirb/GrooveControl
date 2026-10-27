@@ -34,6 +34,8 @@ var probemode = {
   interval: undefined,
 }
 
+var storedJro;
+
 $(document).ready(function() {
   $(".needsXYZProbe").toggle(localStorage.getItem('probeType') != "z");
 
@@ -70,6 +72,7 @@ $("#probeunitxyz").change(function() {
 });
 
 function probeDlgOnClose() {
+  jogOverride(storedJro);
   removeDlgContext("probe");
 }
 
@@ -87,6 +90,9 @@ function initProbeDialog() {
       probemode.interval = undefined;
     }
   }, 100);
+
+  storedJro = $('#jro').data('slider').val();
+  $('#probeJro').data('slider').val(storedJro);
 }
 
 function openProbeDialog() {
