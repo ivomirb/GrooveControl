@@ -67,7 +67,7 @@ $(document).ready(function() {
     init3D();
 
     jogDocReady();
-    keyboardDocReady();
+    actionsDocReady();
     macrosDocReady();
     servoDocReady();
     themeDocReady();

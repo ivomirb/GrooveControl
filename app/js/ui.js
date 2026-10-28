@@ -147,12 +147,6 @@ function setControlBar(val, status) {
     const doorOpen = status.machine.inputs.includes('D');
 
     $('#toolBtn').show().attr('disabled', activeJob);
-    addRemoveClass('#spinDelay0', "checked", status.misc.spindleDelay == 0 || status.misc.laserMode);
-    addRemoveClass('#spinDelay3', "checked", status.misc.spindleDelay == 3 && !status.misc.laserMode);
-    addRemoveClass('#spinDelay5', "checked", status.misc.spindleDelay == 5 && !status.misc.laserMode);
-    addRemoveClass('#spinDelay8', "checked", status.misc.spindleDelay == 8 && !status.misc.laserMode);
-    enableViaClass('#spinDelay0, #spinDelay3, #spinDelay5, #spinDelay8', !status.misc.laserMode);
-
     $('#toolBtn2').toggle(!activeJob);
     $('#toolBtn3').toggle(activeJob).attr('disabled', val != 4 || status.machine.overrides.realSpindle == 0);
 
