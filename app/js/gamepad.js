@@ -241,7 +241,7 @@ function updateGamepad() {
           jogSettings = {
             minX: limits.minX, minY: limits.minY, minZ: limits.minZ,
             maxX: limits.maxX, maxY: limits.maxY, maxZ: limits.maxZ,
-            hasSoftLimits: parseInt(grblParams.$20) == 1,
+            enableLimits: parseInt(grblParams.$20) == 1,
             speedXY: Math.min(parseFloat(grblParams.$110), parseFloat(grblParams.$111)),
             speedZ: parseFloat(grblParams.$112)
           };

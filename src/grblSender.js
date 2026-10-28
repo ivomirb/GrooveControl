@@ -70,6 +70,16 @@ const GRBLHAL_RX_BUFFER_SIZE = 1023;
 var fluidncConfig = "";
 // FluidNC end test
 
+var analogJogState = 0; // 0 - none, 1 - jogging, 2 - stopping (waiting for OK to send stop), 3 - stopped, attempting to continue queue
+var analogJogType = ""; // valid only if analogJogState=1
+var analogJogPosition = undefined;
+var analogJogSettings = undefined;
+var analogJogDir = undefined;
+
+var mpgJogState = 0; // 0 - none, 1 - jogging, 2 - last command confirmed, waiting for more commands or idle
+var mpgJogSettings = null;
+var mpgJogValue = undefined;
+
 const memoryStorage = multer.memoryStorage();
 
 // Parses Grbl status report: <Idle|MPos:0.000,0.000,0.000,0.000|Bf:100,1022|FS:0,0|Pn:XYZP|WCO:10.000,10.000,0.000,-10.000>
@@ -77,6 +87,10 @@ function parseStatusReport(data) {
   const state = data.substring(1, data.search(/(,|\|)/));
   status.comms.runStatus = state;
   realRunState = state;
+  if (mpgJogState == 2 && state != "Jog") {
+    mpgJogState = 0;
+    mpgJogSettings = null;
+  }
   if (state == "Idle") {
     if (jobStatusInternal >= 3 && (new Date().getTime()) > jobStartTime + 100) {
       finalizeJob(true); // Idle after at least 100ms after the "ok" for the last line, declare the job as done
@@ -495,6 +509,17 @@ function handleOK(data, command) {
     }, 200);
     return;
   }
+
+  if (mpgJogState == 1) {
+    if (!sendMpgJogCommand()) {
+      mpgJogState = 2;
+    }
+/*    if (!mpgJogSettings) {
+      setTimeout(send1Q, 200); // restart queue
+    }*/
+    return;
+  }
+
   serverEmit('ok', command);
   sentBuffer.shift();
   if (command == "$CD") {
@@ -538,6 +563,7 @@ function handleAlarm(data, command) {
 
   clearGcodeQueue(false);
   analogJogState = 0;
+  mpgJogState = 0;
   status.comms.connectionStatus = 5;
 }
 
@@ -546,9 +572,15 @@ function handleError(data, command) {
 
   // there is a bug in grbl that sometimes a jog command enters a Run state instead of Jog, causing the
   // next jog command to fail. just cancel the jog and ignore the error
-  if (errorCode == 8 && analogJogState != 0) {
-    analogJogState = 0;
-    return;
+  if (errorCode == 8) {
+    if (analogJogState != 0) {
+      analogJogState = 0;
+      return;
+    }
+    if (mpgJogState != 0) {
+      mpgJogState = 0;
+      return;
+    }
   }
 
   let lastAlarm = "";
@@ -566,12 +598,13 @@ function handleError(data, command) {
   debug_log("error;")
   clearGcodeQueue(false);
   analogJogState = 0;
+  mpgJogState = 0;
   status.comms.connectionStatus = 5;
 }
 
 function onParserData(data) {
   let command = sentBuffer[0];
-  const analogJog = analogJogState != 0;
+  const internalJog = analogJogState != 0 || mpgJogState != 0;
   if (data.startsWith("<")) {
     parseStatusReport(data);
     if (command == "?") {
@@ -641,7 +674,7 @@ function onParserData(data) {
       });
     }
   } else {
-    if (data.indexOf("<") != 0 && !analogJog) {
+    if (data.indexOf("<") != 0 && !internalJog) {
       serverEmitOutput({
         command: "",
         response: data,
@@ -883,7 +916,7 @@ function calcBufferSpace() {
 }
 
 function send1Q() {
-  if (analogJogState != 0) return; // can't send during jogging
+  if (analogJogState != 0 || mpgJogState != 0) return; // can't send during jogging
   if (status.comms.connectionStatus > 0) {
     if (queuePointer == 0) {
       serverEmit("queueCount", [gcodeQueue.length, gcodeQueue.length]);
@@ -1068,12 +1101,6 @@ function unpause() {
   }
 }
 
-var analogJogState = 0; // 0 - none, 1 - jogging, 2 - stopping (waiting for idle to send stop), 3 - stopped, attempting to continue queue
-var analogJogType = ""; // valid only if analogJogState=1
-var analogJogPosition = undefined;
-var analogJogSettings = undefined;
-var analogJogDir = undefined;
-
 function sendAnalogJogCommand() {
   if (analogJogType == "xy") {
     let length = Math.sqrt(analogJogDir.dx*analogJogDir.dx + analogJogDir.dy*analogJogDir.dy);
@@ -1089,7 +1116,7 @@ function sendAnalogJogCommand() {
     analogJogPosition.x += dx0;
     analogJogPosition.y += dy0;
 
-    if (analogJogSettings.hasSoftLimits) {
+    if (analogJogSettings.enableLimits) {
       analogJogPosition.x = Math.min(Math.max(analogJogPosition.x, analogJogSettings.minX), analogJogSettings.maxX);
       analogJogPosition.y = Math.min(Math.max(analogJogPosition.y, analogJogSettings.minY), analogJogSettings.maxY);
       dx1 = analogJogPosition.x - dx1;
@@ -1111,7 +1138,7 @@ function sendAnalogJogCommand() {
     const dt = 0.01 / 60; // 10ms per command
 
     analogJogPosition.z += speedZ * analogJogDir.dz * dt;
-    if (analogJogSettings.hasSoftLimits) {
+    if (analogJogSettings.enableLimits) {
       analogJogPosition.z = Math.min(Math.max(analogJogPosition.z, analogJogSettings.minZ), analogJogSettings.maxZ);
     }
 
@@ -1150,6 +1177,65 @@ function onAnalogJog(data) {
         }
       }
     }
+  }
+}
+
+function sendMpgJogCommand() {
+  let stepCount = 0;
+  let targetValue = mpgJogValue;
+
+  if (new Date().getTime() < mpgJogSettings.timeout) {
+    let dt = 0;
+    while (mpgJogSettings.count > 0) {
+      mpgJogSettings.count--;
+      let nextValue = targetValue + mpgJogSettings.step;
+
+      let valid;
+      if (mpgJogSettings.enableLimits) {
+        valid = true;
+      } else if (mpgJogSettings.step < 0) {
+        valid = (nextValue >= mpgJogSettings.min);
+      } else {
+        valid = (nextValue <= mpgJogSettings.max);
+      }
+
+      if (valid) {
+        stepCount++;
+        targetValue = nextValue;
+        dt += Math.abs(mpgJogSettings.step * 60) / mpgJogSettings.speed;
+        if (dt > 0.01) break; // limit each command to 10ms
+      } else {
+        mpgJogSettings.count = 0; // reached the limit, clear the count
+        break;
+      }
+    }
+  }
+
+  if (stepCount > 0) {
+    const gcode = "$J=G90 G53 " + (mpgJogSettings.units == "in" ? "G20 " : "G21 ") +
+      mpgJogSettings.axis.toUpperCase() + targetValue.toFixed(3) + " F" + mpgJogSettings.speed.toFixed(0) + "\n";
+    machineSendRealtime(gcode);
+    mpgJogValue = targetValue;
+  }
+  return stepCount > 0;
+}
+
+function onMpgJog(data) {
+  if (mpgJogSettings && mpgJogSettings.axis == data.axis && mpgJogSettings.units == data.units && mpgJogSettings.step == data.step) {
+    // same axis, units and step size: add to the count
+    data.count += mpgJogSettings.count;
+  }
+  if (mpgJogState == 0) {
+    mpgJogValue = status.machine.position.work[data.axis] + status.machine.position.offset[data.axis];
+    if (data.units == "in") {
+      mpgJogValue /= 25.4;
+    }
+  }
+  mpgJogSettings = data;
+  mpgJogSettings.timeout += new Date().getTime();
+  if (mpgJogState != 1) {
+    mpgJogState = 1;
+    sendMpgJogCommand();
   }
 }
 
@@ -1242,6 +1328,7 @@ function onConnection(socket) {
   });
 
   socket.on('analogJog', onAnalogJog);
+  socket.on('mpgJog', onMpgJog);
 }
 
 function onDocReady(result) {
