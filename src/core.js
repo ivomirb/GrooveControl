@@ -58,7 +58,7 @@ function findLocalIpAddress() {
   const interfaces = os.networkInterfaces();
   for (const adapter in interfaces) {
     const name = adapter.toLowerCase();
-    if (!virtKeywords.some(x => name.includes(x)) && !virtPrefixes.some(x => name.startsWith(x))) {
+    if (!virtKeywords.some((x) => name.includes(x)) && !virtPrefixes.some(x => name.startsWith(x))) {
       const adapters = interfaces[adapter];
       for (let i = 0; i < adapters.length; i++) {
         const adapter = adapters[i];

@@ -597,7 +597,7 @@ function loadHeightmap() {
           config.shift();
         }
 
-        config = config.map(Number);
+        config = config.map((x) => Number(x));
         if (config.length != 12) {
           throw new Error("Line 1 doesn't have the correct number of values. Expecting 12 numbers.");
         }
@@ -616,7 +616,7 @@ function loadHeightmap() {
         }
         let heightmap = [];
         for (let y = 0; y < pointCount.y; y++) {
-          let row = lines[y+1].split(',').map(Number);
+          let row = lines[y+1].split(',').map((x) => Number(x));
           row.splice(pointCount.x);
           if (row.length != pointCount.x) {
             throw new Error("Line " + (y+2) + " doesn't have the correct number of values. Expecting " + pointCount.x + " numbers.");

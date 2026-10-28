@@ -72,7 +72,7 @@ This could be caused by a buggy or malicious Javascript macro.`;
 
 function addRecentFile(filePath) {
   const file_path = filePath.toLowerCase();
-  const index = persistentConfig.recentFiles.findIndex(x => x.toLowerCase() == file_path);
+  const index = persistentConfig.recentFiles.findIndex((x) => x.toLowerCase() == file_path);
   if (index == 0 && persistentConfig.recentFiles[0] == filePath) return;
 
   if (index >= 0) {
@@ -100,7 +100,7 @@ function openFileDialog(data, callback) {
     filters: data.filters,
     defaultPath: defaultPath,
     properties: ['openFile']
-  }).then(result => {
+  }).then((result) => {
     if (!result.canceled && result.filePaths.length > 0) {
       allowedFilePaths.add(result.filePaths[0]);
       persistentConfig.defaultPaths[data.id || "default"] = path.dirname(result.filePaths[0]);
@@ -108,7 +108,7 @@ function openFileDialog(data, callback) {
       savePersistentConfig();
       callback(result.filePaths[0]);
     }
-  }).catch(err => {
+  }).catch((err) => {
     console.log(err)
   })
 }
@@ -125,7 +125,7 @@ function saveFileDialog(data, callback) {
     filters: data.filters,
     defaultPath: defaultPath,
     properties: ['dontAddToRecent']
-  }).then(result => {
+  }).then((result) => {
     if (!result.canceled) {
       allowedFilePaths.add(result.filePath);
       persistentConfig.defaultPaths[data.id || "default"] = path.dirname(result.filePath);
@@ -133,7 +133,7 @@ function saveFileDialog(data, callback) {
       savePersistentConfig();
       callback(result.filePath);
     }
-  }).catch(err => {
+  }).catch((err) => {
     console.log(err)
   })
 }
@@ -182,7 +182,7 @@ function openGcodeFile() {
     ],
     defaultPath: defaultPath,
     properties: ['openFile']
-  }).then(result => {
+  }).then((result) => {
     if (!result.canceled && result.filePaths.length > 0) {
       allowedFilePaths.add(result.filePaths[0]);
       const openFilePath = result.filePaths[0];
@@ -193,7 +193,7 @@ function openGcodeFile() {
       readGcodeFile(openFilePath, true, addRecentFile);
     }
 
-  }).catch(err => {
+  }).catch((err) => {
     console.log(err)
   })
 }

@@ -58,7 +58,7 @@ async function getSystemInfo() {
       codename: osInfo.codename || "N/A",
     },
     hardware: {
-      cpu: cpu.map(core => ({
+      cpu: cpu.map((core) => ({
         model: core.model,
         speed: core.speed, // in MHz
         times: core.times
@@ -69,7 +69,7 @@ async function getSystemInfo() {
         version: baseboard.version,
         serialNumber: baseboard.serial,
       },
-      gpu: graphics.controllers.map(gpu => ({
+      gpu: graphics.controllers.map((gpu) => ({
         model: gpu.model,
         vendor: gpu.vendor,
         vram: gpu.vram, // in MB
@@ -80,9 +80,9 @@ async function getSystemInfo() {
         free: (os.freemem() / (1024 * 1024 * 1024)).toFixed(2) + " GB",
       },
     },
-    network: Object.keys(networkInterfaces).map(iface => ({
+    network: Object.keys(networkInterfaces).map((iface) => ({
       interface: iface,
-      addresses: networkInterfaces[iface].map(addr => ({
+      addresses: networkInterfaces[iface].map((addr) => ({
         address: addr.address,
         family: addr.family,
         internal: addr.internal,
@@ -205,7 +205,7 @@ function onDocReady(result) {
 }
 
 function initSystemInfo() {
-  getSystemInfo().catch(err => console.error("Error retrieving system information:", err));
+  getSystemInfo().catch((err) => console.error("Error retrieving system information:", err));
   addConnectionHandler(onConnection);
   addDocReadyHandler(onDocReady);
   checkPowerSettings();

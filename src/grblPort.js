@@ -245,7 +245,7 @@ function scanForTelnetDevices(range) {
       return;
     }
 
-    scan.on('result', data => {
+    scan.on('result', (data) => {
       // fired when item is matching options
       if (data.status == "open") {
         let type = false;
@@ -264,7 +264,7 @@ function scanForTelnetDevices(range) {
     });
 
     // eslint-disable-next-line no-unused-vars
-    scan.on('error', err => {
+    scan.on('error', (err) => {
       //throw new Error(data.toString());
     });
 
