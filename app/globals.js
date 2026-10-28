@@ -21,6 +21,7 @@ const usedFunctions = {
   showAppSettings,
   resetWarnings,
   showKbdWarning,
+  showGamepadWarning,
   onMacroShortcutGetFocus,
   onMacroShortcutLoseFocus,
   onMacroShortcutInputChange,

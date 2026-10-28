@@ -1,6 +1,22 @@
 "use strict";
 
 const inputActions = [
+  { // Activate Joystick Jog
+    name: "analogJogActivate",
+    friendlyName: "Activate Joystick Move",
+    label: `Activate Joystick Move<br><span class="text-small">Click to activate joysticks</span>`,
+    defaultKey: "",
+    gamepad: true,
+  },
+
+  { // Precise Joystick Move (25% speed)
+    name: "analogJogPrecise",
+    friendlyName: "Precise Joystick Move",
+    label: `Precise Joystick Move<br><span class="text-small">Press and hold to move at 25% speed</span>`,
+    defaultKey: "",
+    gamepad: true,
+  },
+
   { // X+
     name: "xP",
     friendlyName: "Jog X+",
@@ -333,6 +349,11 @@ function actionsDocReady() {
   }
 
   disableKeyboardShortcuts = localStorage.getItem('disableKeyboardShortcuts') == null || (JSON.parse(localStorage.getItem('disableKeyboardShortcuts')) == true);
+  disableGamepad = localStorage.getItem('disableGamepad') == null || JSON.parse(localStorage.getItem('disableGamepad')) == true;
+
+  analogStickInvertX = localStorage.getItem('analogStickInvertX') != null && JSON.parse(localStorage.getItem('analogStickInvertX')) == true;
+  analogStickInvertY = localStorage.getItem('analogStickInvertY') != null && JSON.parse(localStorage.getItem('analogStickInvertY')) == true;
+  analogStickInvertZ = localStorage.getItem('analogStickInvertZ') != null && JSON.parse(localStorage.getItem('analogStickInvertZ')) == true;
 
   // Remove Keyboard Bindings from Override Sliders
   $("#jrocell").find(".marker").unbind(Metro.events.keydown);
@@ -344,4 +365,23 @@ function actionsDocReady() {
 
   $(document).bind('keydown', null, onDocKeyDown);
   $(document).bind('keyup', null, onDocKeyUp);
+
+  if (localStorage.getItem('buttonShortcuts')) {
+    const settings = JSON.parse(localStorage.getItem('buttonShortcuts'));
+    for (const action of inputActions) {
+      if (settings[action.name] != undefined) {
+        buttonShortcuts[action.name] = settings[action.name];
+      } else {
+        buttonShortcuts[action.name] = "";
+      }
+    }
+  }
+
+  window.addEventListener("gamepadconnected", onGamepadConnected);
+  window.addEventListener("gamepaddisconnected", onGamepadDisconnected);
+  $('#gamepadDisplay').toggle(!disableGamepad);
+
+  if (localStorage.getItem('analogStickDeadzone')) {
+    analogStickDeadzone = Math.max(Math.min(parseInt(localStorage.getItem('analogStickDeadzone')), 100), 0);
+  }
 }
