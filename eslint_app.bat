@@ -73,6 +73,10 @@ echo // NOTE: js\widget.js >> all.js
 copy /b all.js + js\widget.js
 
 echo // >> all.js
+echo // NOTE: js\actions.js >> all.js
+copy /b all.js + js\actions.js
+
+echo // >> all.js
 echo // NOTE: js\keyboard.js >> all.js
 copy /b all.js + js\keyboard.js
 

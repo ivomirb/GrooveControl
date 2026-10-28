@@ -456,7 +456,7 @@ function onDocKeyDown(event) {
     return;
   }
 
-  for (const action of keyboardActions) {
+  for (const action of inputActions) {
     if (keyboardShortcuts[action.name] == key && action.keydown) {
       if (!dlgVisible || dlgContext[action.dlgContext]) {
         event.preventDefault();
@@ -489,7 +489,7 @@ function onDocKeyUp(event) {
   if (key == "") {
     return;
   }
-  for (const action of keyboardActions) {
+  for (const action of inputActions) {
     if (keyboardShortcuts[action.name] == key && action.keyup) {
       event.preventDefault();
       action.keyup();
@@ -627,7 +627,7 @@ function keyInUse(newVal, forMacro) {
 
   if (forMacro) {
     // Check currently saved Keyboard Shortcuts
-    for (const action of keyboardActions) {
+    for (const action of inputActions) {
       if (keyboardShortcuts[action.name] == newVal) {
         inUse = true;
         usedBy = "action: " + action.friendlyName;
@@ -636,7 +636,7 @@ function keyInUse(newVal, forMacro) {
     }
   } else {
     // Check currently edited in keys, not saved yet
-    for (const action of keyboardActions) {
+    for (const action of inputActions) {
       if (action != focusedKbdAction) {
         const input = $('#' + action.name + 'newKey');
         if (input.val().toLowerCase() == newVal) {
