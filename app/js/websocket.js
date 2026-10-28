@@ -126,7 +126,7 @@ function onSysInfo(sysinfo) {
     const operatingsys = sysinfo.operatingSystem.distro + " / " + sysinfo.operatingSystem.arch + " (" + sysinfo.operatingSystem.version + ")";
     $("#osspecs").html(operatingsys);
 
-    const ipaddresses = sysinfo.network.flatMap(iface => iface.addresses.map(addr => addr.address)).join(' / ');
+    const ipaddresses = sysinfo.network.flatMap((iface) => iface.addresses.map(addr => addr.address)).join(' / ');
     $("#ipspecs").html(ipaddresses);
   }
 }
@@ -627,7 +627,7 @@ function onStatus(status) {
   waitingForStatus = false;
   if (firstStatus) {
     if (!isJogWidget) {
-      updatesFirstStatus();
+      onFirstStatus(status);
     }
   }
 }

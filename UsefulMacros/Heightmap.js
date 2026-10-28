@@ -673,7 +673,7 @@ function LoadHeightmap(file)
 			version = parseInt(config[0].substr(1));
 			config.shift();
 		}
-		config = config.map(Number);
+		config = config.map((x) => Number(x));
 		if (config.length != 12)
 		{
 			throw new Error("Line 1 doesn't have the correct number of values. Expecting 12 numbers.");
@@ -695,7 +695,7 @@ function LoadHeightmap(file)
 		var data = [];
 		for (var y = 0; y < pointCount.y; y++)
 		{
-			var row = lines[y+1].split(',').map(Number);
+			var row = lines[y+1].split(',').map((x) => Number(x));
 			row.splice(pointCount.x);
 			if (row.length != pointCount.x)
 			{

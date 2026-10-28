@@ -1,5 +1,8 @@
 "use strict";
 
+const APP_NAME = "Groove Control";
+const APP_VERSION = 1000.000; // 1.0.0 (convenient way to represent the version as a number)
+
 var currentGcode = ""; // this should always match what is in the 3d view, but the editor contents may be different
 var loadedFileName = ""; // name for the contents of the editor, usually the last loaded file
 var editor;
@@ -184,6 +187,15 @@ function onDocReady(data) {
 
     setChangelog(data.changelogText);
   }
+}
+
+function onFirstStatus(status) {
+  const version = status.driver.version.split('.', 3).map((x) => parseInt(x));
+	if (version[0]*1000000 + version[1]*1000 + version[2] != Math.round(APP_VERSION*1000)) {
+		throw APP_NAME + ": APP_VERSION needs to be updated to " + (((version[0]*1000000 + version[1]*1000 + version[2])/1000).toFixed(3));
+	}
+
+  updatesFirstStatus(status);
 }
 
 function runJobFile() {

@@ -147,7 +147,7 @@ function keyNameFromDownEvent(event) {
 
 function capitalizeShortcut(key) {
   let parts = key.split('+');
-  let Parts = parts.map(x => x == "" ? "" : x[0].toUpperCase() + x.substr(1));
+  let Parts = parts.map((x) => x == "" ? "" : x[0].toUpperCase() + x.substr(1));
   return Parts.join('+');
 }
 

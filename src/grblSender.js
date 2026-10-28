@@ -90,7 +90,7 @@ function parseStatusReport(data) {
   const startWCO = data.search(/wco:/i) + 4;
   if (startWCO > 4) {
     const wcoLen = data.substr(startWCO).search(/>|\|/);
-    const wcoArray = data.substr(startWCO, wcoLen).split(',', 4).map(parseFloat);
+    const wcoArray = data.substr(startWCO, wcoLen).split(',', 4).map((x) => parseFloat(x));
 
     const xOffset = wcoArray[0];
     const yOffset = wcoArray[1];
@@ -111,7 +111,7 @@ function parseStatusReport(data) {
 
   if (startPos > 5) {
     const posLen = data.substr(startPos).search(/>|\|/);
-    const posArray = data.substr(startPos, posLen).split(',', 4).map(parseFloat);
+    const posArray = data.substr(startPos, posLen).split(',', 4).map((x) => parseFloat(x));
 
     status.machine.has4thAxis = posArray.length > 3;
 
