@@ -326,6 +326,8 @@ function actionsDocReady() {
     for (const action of inputActions) {
       if (settings[action.name] != undefined) {
         keyboardShortcuts[action.name] = settings[action.name];
+      } else {
+        keyboardShortcuts[action.name] = "";
       }
     }
   }
