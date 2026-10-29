@@ -380,6 +380,7 @@ function actionsDocReady() {
   window.addEventListener("gamepadconnected", onGamepadConnected);
   window.addEventListener("gamepaddisconnected", onGamepadDisconnected);
   $('#gamepadDisplay').toggle(!disableGamepad);
+  onGamepadDisconnected();
 
   if (localStorage.getItem('analogStickDeadzone')) {
     analogStickDeadzone = Math.max(Math.min(parseInt(localStorage.getItem('analogStickDeadzone')), 100), 0);
