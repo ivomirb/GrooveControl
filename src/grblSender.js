@@ -74,7 +74,8 @@ const memoryStorage = multer.memoryStorage();
 // Parses Grbl status report: <Idle|MPos:0.000,0.000,0.000,0.000|Bf:100,1022|FS:0,0|Pn:XYZP|WCO:10.000,10.000,0.000,-10.000>
 function parseStatusReport(data) {
   const state = data.substring(1, data.search(/(,|\|)/));
-  status.comms.runStatus = state
+  status.comms.rawStatus = state;
+  status.comms.runStatus = state;
   if (state == "Idle") {
     if (jobStatusInternal >= 3 && (new Date().getTime()) > jobStartTime + 100) {
       finalizeJob(true); // Idle after at least 100ms after the "ok" for the last line, declare the job as done
@@ -1159,6 +1160,8 @@ function onPortClose() {
   status.comms.interfaces.activePort = false;
   status.comms.interfaces.activeBaud = false;
   status.comms.connectionStatus = 0;
+  status.comms.rawStatus = "";
+  status.comms.runStatus = "Pending";
   status.comms.queue = 0;
   status.machine.firmware.type = "";
   status.machine.firmware.version = ""; // get version

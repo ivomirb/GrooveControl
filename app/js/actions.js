@@ -79,6 +79,14 @@ const inputActions = [
     keyup: () => { jogKeyUp("aM") },
   },
 
+  { // Toggle Jog Mode
+    name: "jogToggleMode",
+    friendlyName: "Toggle Continuous Jog",
+    label: `<i class="fas fa-running fg-openbuilds fa-fw"></i> Toggle Continuous Jog`,
+    defaultKey: "/",
+    keydown: jogToggleMode,
+  },
+
   { // Increase Step Size
     name: "stepP",
     friendlyName: "Increase Step Size",
@@ -95,7 +103,7 @@ const inputActions = [
     keydown: () => { jogStepSize(-1); },
   },
 
-  { // Increase Step Size
+  { // Increase Jog Speed
     name: "jogSpeedM",
     friendlyName: "Increase Jog Speed",
     label: `<i class="fas fa-fast-forward fg-openbuilds fa-fw"></i> Increase Jog Speed`,
@@ -106,7 +114,7 @@ const inputActions = [
     },
   },
 
-  { // Decrease Step Size
+  { // Decrease Jog Speed
     name: "jogSpeedP",
     friendlyName: "Decrease Jog Speed",
     label: `<i class="fas fa-fast-backward fg-openbuilds fa-fw"></i> Decrease Jog Speed`,
@@ -115,22 +123,6 @@ const inputActions = [
       const currentJogOverride = $('#jro').data('slider').val();
       jogOverride(Math.min(currentJogOverride + 10, 100))
     },
-  },
-
-  { // Incremental Jog Mode
-    name: "incJogMode",
-    friendlyName: "Incremental Jog Mode",
-    label: `<i class="fas fa-step-forward fg-openbuilds fa-fw"></i> Incremental Jog Mode`,
-    defaultKey: "/",
-    keydown: () => { jogSetContinuous(false); },
-  },
-
-  { // Continuous Jog Mode
-    name: "conJogMode",
-    friendlyName: "Continuous Jog Mode",
-    label: `<i class="fas fa-running fg-openbuilds fa-fw"></i> Continuous Jog Mode`,
-    defaultKey: "*",
-    keydown: () => { jogSetContinuous(true); },
   },
 
   { // Abort / Emergency
@@ -150,8 +142,12 @@ const inputActions = [
     defaultKey: "space",
     keydown: () => {
       if (laststatus.comms.connectionStatus == 2) {
-        runJobFile();
-      } else if (laststatus.comms.connectionStatus == 3) {
+        const hasJob = (useEditor && editor && editor.session.getLength() > 1) || (!useEditor && currentGcode != "");
+        const doorOpen = laststatus.machine.inputs.includes('D');
+        if (hasJob && !doorOpen) {
+          runJobFile();
+        }
+      } else if (laststatus.comms.connectionStatus == 3 && laststatus.misc.jobStatus != 2) {
         socket.emit('pause', true);
       } else if (laststatus.comms.connectionStatus == 4) {
         socket.emit('resume', true);
@@ -272,19 +268,18 @@ function jogKeyUp(name) {
   }
 }
 
-function jogStepSize(event, dir) {
-  event.preventDefault();
+function jogStepSize(dir) {
   $('#jogTypeContinuous').prop('checked', false);
-  allowContinuousJog = false;
+  continuousJogMode = false;
   $('.distbtn').show();
   changeStepSize(dir);
 }
 
-function jogSetContinuous(state) {
-  localStorage.setItem('continuousJog', state);
-  $('#jogTypeContinuous').prop('checked', state);
-  allowContinuousJog = state;
-  $('.distbtn').hide();
+function jogToggleMode() {
+  continuousJogMode = !continuousJogMode;
+  localStorage.setItem('continuousJog', continuousJogMode);
+  $('#jogTypeContinuous').prop('checked', continuousJogMode);
+  $('.distbtn').toggle(!continuousJogMode);
 }
 
 function addDlgContext(context) {
@@ -326,8 +321,6 @@ function actionsDocReady() {
     for (const action of inputActions) {
       if (settings[action.name] != undefined) {
         keyboardShortcuts[action.name] = settings[action.name];
-      } else {
-        keyboardShortcuts[action.name] = "";
       }
     }
   }
@@ -342,6 +335,6 @@ function actionsDocReady() {
   $("#trocell").find(".marker").unbind(Metro.events.keyup);
   $("#frocell").find(".marker").unbind(Metro.events.keyup);
 
-  $(document).bind('keydown', null, onDocKeyDown);
-  $(document).bind('keyup', null, onDocKeyUp);
+  $(document).on('keydown', onDocKeyDown);
+  $(document).on('keyup', onDocKeyUp);
 }

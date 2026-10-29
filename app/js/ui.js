@@ -72,7 +72,6 @@ function setConnectBar(val, status) {
   if (val == 0) { // Not Connected Yet
     $('#connectStatus').html("Port: Not Connected");
     $("#disconnectBtn").hide();
-    $("#flashBtn").hide();
     $('#portUSB').parent().show();
     $("#connectBtn, #scanBtn, #driverBtn").show();
     $("#connectBtn").attr('disabled', $('#portUSB').val() == "");
@@ -97,7 +96,6 @@ function setConnectBar(val, status) {
     $('#portUSB').parent().hide();
     $("#connectBtn").attr('disabled', false);
     $("#disconnectBtn").show();
-    $("#flashBtn").hide();
 
     // Port Dropdown
     $('#portUSB').parent(".select").removeClass('success')
@@ -107,21 +105,6 @@ function setConnectBar(val, status) {
 
     enableViaClass('.macrobtn', val != 3); // disable macros while running
     enableViaClass('.grblCalibrationMenu', val == 2); // enable calibration only during idle
-  } else if (val == 6) { // Firmware Upgrade State
-    $('#connectStatus').html("Port: Flashing");
-    $("#disconnectBtn").hide();
-    $("#flashBtn").show();
-    $('#portUSB').parent().hide();
-    $("#connectBtn, #scanBtn, #driverBtn").hide();
-
-    // Port Dropdown
-    $('#portUSB').parent(".select").removeClass('success')
-    $('#portUSB').parent(".select").addClass('alert')
-    // Set Port Dropdown to Current Value
-    $("#portUSB").val(status.comms.interfaces.activePort);
-
-    enableViaClass('.macrobtn', true);
-    enableViaClass('.grblCalibrationMenu', false);
   }
 }
 
@@ -151,7 +134,7 @@ function setControlBar(val, status) {
     $('#toolBtn3').toggle(activeJob).attr('disabled', val != 4 || status.machine.overrides.realSpindle == 0);
 
     // Hide the Run button if running or paused. Enable if the door is closed and there is a job to run
-    $('#runBtn').toggle(val != 3 && val != 4).attr('disabled', doorOpen || !hasJob);
+    $('#runBtn').toggle(val != 3 && val != 4).attr('disabled', doorOpen || !hasJob || val == 5);
 
     // Show the Resume button only if paused. Enable if the door is closed
     $('#resumeBtn').toggle(val == 4).attr('disabled', doorOpen);
@@ -169,9 +152,6 @@ function setControlBar(val, status) {
 
     $('#controlBtnGrp').show();
     $('.estop').show();
-  } else if (val == 6) { // Firmware Upgrade State
-    $('#controlBtnGrp').hide();
-    $('.estop').hide();
   }
 }
 
@@ -237,7 +217,7 @@ function captureWcsHistoryInternal(position, wcs, name, tooltip, isRunJob) {
     return; // ignore updates to the same WCS that are within the timeout, as they are likely related to the same user intent
 
   if (history.length > 0 && history[0].isRedo) {
-    history.splice(index, 1);
+    history.splice(0, 1);
   }
 
   let newItem = {
