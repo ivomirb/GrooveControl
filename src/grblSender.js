@@ -75,6 +75,7 @@ var analogJogType = ""; // valid only if analogJogState=1
 var analogJogPosition = undefined;
 var analogJogSettings = undefined;
 var analogJogDir = undefined;
+var analogJogWatchdog = undefined;
 
 var mpgJogState = 0; // 0 - none, 1 - at least one command is posted, 2 - at least one command is accepted
 var mpgJogSettings = null;
@@ -508,6 +509,10 @@ function handleOK(data, command) {
     return;
   } else if (analogJogState == 2) {
     addQRealtime(String.fromCharCode(0x85)); // canceljog
+    if (analogJogWatchdog) {
+      clearTimeout(analogJogWatchdog);
+      analogJogWatchdog = undefined;
+    }
     analogJogState = 3;
     setTimeout(function() {
       analogJogState = 0;
@@ -1106,20 +1111,27 @@ function sendAnalogJogCommand() {
   if (analogJogType == "xy") {
     let length = Math.sqrt(analogJogDir.dx*analogJogDir.dx + analogJogDir.dy*analogJogDir.dy);
     let speedXY = analogJogSettings.speedXY * length;
-    const dt = 0.01 / 60; // 10ms per command
+    let dt = 0.01 / 60; // 10ms per command
+    if (status.machine.firmware.blockBufferSize > 50) {
+      dt /= 2; // use 5ms for machines with larger planning buffer to improve cornering responsiveness
+    }
 
     const dx0 = speedXY * analogJogDir.dx * dt;
     const dy0 = speedXY * analogJogDir.dy * dt;
 
-    let dx1 = analogJogPosition.x;
-    let dy1 = analogJogPosition.y;
-
-    analogJogPosition.x += dx0;
-    analogJogPosition.y += dy0;
-
     if (analogJogSettings.enableLimits) {
-      analogJogPosition.x = Math.min(Math.max(analogJogPosition.x, analogJogSettings.minX), analogJogSettings.maxX);
-      analogJogPosition.y = Math.min(Math.max(analogJogPosition.y, analogJogSettings.minY), analogJogSettings.maxY);
+      let dx1 = analogJogPosition.x;
+      let dy1 = analogJogPosition.y;
+      if (dx0 < 0) {
+        analogJogPosition.x = Math.max(analogJogPosition.x + dx0, Math.min(analogJogPosition.x, analogJogSettings.minX));
+      } else {
+        analogJogPosition.x = Math.min(analogJogPosition.x + dx0, Math.max(analogJogPosition.x, analogJogSettings.maxX));
+      }
+      if (dy0 < 0) {
+        analogJogPosition.y = Math.max(analogJogPosition.y + dy0, Math.min(analogJogPosition.y, analogJogSettings.minY));
+      } else {
+        analogJogPosition.y = Math.min(analogJogPosition.y + dy0, Math.max(analogJogPosition.y, analogJogSettings.maxY));
+      }
       dx1 = analogJogPosition.x - dx1;
       dy1 = analogJogPosition.y - dy1;
 
@@ -1128,6 +1140,9 @@ function sendAnalogJogCommand() {
       if (distance1 < distance0) {
         speedXY *= Math.max(distance1 / distance0, 0.1); // reduce speed if one of the axes gets clamped by the edge
       }
+    } else {
+      analogJogPosition.x += dx0;
+      analogJogPosition.y += dy0;
     }
 
     const gcode = "$J=G53 G90 G21 X" + analogJogPosition.x.toFixed(3) + " Y" + analogJogPosition.y.toFixed(3) + " F" + speedXY.toFixed(3) + "\n";
@@ -1138,9 +1153,15 @@ function sendAnalogJogCommand() {
     let speedZ = analogJogSettings.speedZ * length;
     const dt = 0.01 / 60; // 10ms per command
 
-    analogJogPosition.z += speedZ * analogJogDir.dz * dt;
+    const dz0 = speedZ * analogJogDir.dz * dt;
     if (analogJogSettings.enableLimits) {
-      analogJogPosition.z = Math.min(Math.max(analogJogPosition.z, analogJogSettings.minZ), analogJogSettings.maxZ);
+      if (dz0 < 0) {
+        analogJogPosition.z = Math.max(analogJogPosition.z + dz0, Math.min(analogJogPosition.z, analogJogSettings.minZ));
+      } else {
+        analogJogPosition.z = Math.min(analogJogPosition.z + dz0, Math.max(analogJogPosition.z, analogJogSettings.maxZ));
+      }
+    } else {
+      analogJogPosition.z += dz0;
     }
 
     const gcode = "$J=G53 G90 G21 Z" + analogJogPosition.z.toFixed(3) + " F" + speedZ.toFixed(3) + "\n";
@@ -1153,6 +1174,10 @@ function onAnalogJog(data) {
     if (analogJogState == 1) {
       analogJogType = "";
       analogJogState = 2;
+      analogJogWatchdog = setTimeout(function() {
+        addQRealtime(String.fromCharCode(0x85)); // canceljog
+        analogJogState = 0;
+      }, 100);
       analogJogDir = undefined;
     }
   } else {
