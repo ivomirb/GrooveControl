@@ -334,7 +334,7 @@ function updateGamepadEditor() {
           const MarkerSize = 5;
           const Center = analogViewSize.height / 2;
           const Range = analogViewSize.height / 2 - MarkerSize;
-          const ZOffset = analogViewSize.height + 12;
+          const ZOffset = analogViewSize.height + 5;
           const Deadzone = Math.max(Math.min(parseInt($('#analogDeadzone').val()), 100), 0) * Range / 100;
 
           analogViewCtx.lineWidth = 1;
@@ -342,10 +342,10 @@ function updateGamepadEditor() {
           analogViewCtx.strokeStyle = "#00BF00";
           analogViewCtx.beginPath();
           analogViewCtx.rect(Center - Deadzone, Center - Deadzone, 2 * Deadzone, 2 * Deadzone);
-          analogViewCtx.moveTo(ZOffset - MarkerSize - 2, Center - Deadzone);
-          analogViewCtx.lineTo(ZOffset + MarkerSize + 2, Center - Deadzone);
-          analogViewCtx.moveTo(ZOffset - MarkerSize - 2, Center + Deadzone);
-          analogViewCtx.lineTo(ZOffset + MarkerSize + 2, Center + Deadzone);
+          analogViewCtx.moveTo(ZOffset, Center - Deadzone);
+          analogViewCtx.lineTo(ZOffset + 2*MarkerSize, Center - Deadzone);
+          analogViewCtx.moveTo(ZOffset, Center + Deadzone);
+          analogViewCtx.lineTo(ZOffset + 2*MarkerSize, Center + Deadzone);
           analogViewCtx.stroke();
 
           analogViewCtx.strokeStyle = ThemeData.currentThemeId == "light" ? "#000000" : "#FFFFFF";
@@ -365,11 +365,11 @@ function updateGamepadEditor() {
           analogViewCtx.stroke();
 
           analogViewCtx.beginPath();
-          analogViewCtx.moveTo(ZOffset - MarkerSize, z);
-          analogViewCtx.lineTo(ZOffset + MarkerSize, z);
-          analogViewCtx.moveTo(ZOffset, z - 2);
-          analogViewCtx.lineTo(ZOffset, z + 2);
-          analogViewCtx.stroke();
+          analogViewCtx.moveTo(ZOffset + 2*MarkerSize, z);
+          analogViewCtx.lineTo(ZOffset + 3*MarkerSize, z - MarkerSize);
+          analogViewCtx.lineTo(ZOffset + 3*MarkerSize, z + MarkerSize);
+          analogViewCtx.lineTo(ZOffset + 2*MarkerSize, z);
+          analogViewCtx.fill();
         }
       }
 
@@ -469,8 +469,8 @@ function showGamepadWarning() {
     clsDialog: 'dark',
     leaveOverlayOnClose: true,
     title: "<i class='fas fa-exclamation-triangle'></i> Gamepad Enabled",
-    content: `To prevent unwanted movement when the analog sticks are pushed accidentally, it is recommended that you assign a button to the` +
-      `'Activate Analog Move' action. The button will activate the sticks and allow you to jog. The sticks will be disabled after 10 seconds of inactivity.<br><br>` +
+    content: `To prevent unwanted movement when the analog sticks are bumped accidentally, it is recommended that you assign a button to the ` +
+      `<b>Activate Joystick Move</b> action. The button will activate the sticks and allow you to jog. The sticks will be deactivated after 10 seconds of inactivity.<br><br>` +
       `<input id="disableGamepadDlg" type="checkbox" data-role="checkbox" data-style="2" data-caption="Don't show this again"/>`,
     actions: [{
       caption: "OK",
