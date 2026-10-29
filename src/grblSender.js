@@ -48,7 +48,6 @@ var connectionCancelToken;
 // Status parsing
 var oldPinsList;
 var grblStatusLoop;
-var realRunState;
 
 // Queue
 var gcodeQueue = [];
@@ -86,8 +85,8 @@ const memoryStorage = multer.memoryStorage();
 // Parses Grbl status report: <Idle|MPos:0.000,0.000,0.000,0.000|Bf:100,1022|FS:0,0|Pn:XYZP|WCO:10.000,10.000,0.000,-10.000>
 function parseStatusReport(data) {
   const state = data.substring(1, data.search(/(,|\|)/));
+  status.comms.rawStatus = state;
   status.comms.runStatus = state;
-  realRunState = state;
   if (state == "Idle") {
     if (jobStatusInternal >= 3 && (new Date().getTime()) > jobStartTime + 100) {
       finalizeJob(true); // Idle after at least 100ms after the "ok" for the last line, declare the job as done
@@ -248,9 +247,9 @@ function parseStatusReport(data) {
   if (mpgJogState == 2) {
     if (new Date().getTime() >= mpgJogSettings.timeout) {
       mpgJogState = 0;
-    } else if ((realRunState == "Idle" || realRunState == "Jog") && mpgJogSettings.count > 0) {
+    } else if ((status.comms.rawStatus == "Idle" || status.comms.rawStatus == "Jog") && mpgJogSettings.count > 0) {
       sendMpgJogCommand();
-    } else if (realRunState == "Idle" && mpgJogSettings.count == 0) {
+    } else if (status.comms.rawStatus == "Idle" && mpgJogSettings.count == 0) {
       mpgJogState = 0;
     }
   }
@@ -1186,7 +1185,7 @@ function onAnalogJog(data) {
     }
     analogJogDir = {dx: data.dx, dy: data.dy, dz: data.dz};
     if (analogJogState == 0) {
-      if (realRunState == "Idle" && gcodeQueue.length == 0 && sentBuffer.length == 0 && status.comms.connectionStatus == 2) {
+      if (status.comms.rawStatus == "Idle" && gcodeQueue.length == 0 && sentBuffer.length == 0 && status.comms.connectionStatus == 2) {
         if (data.dx != 0 || data.dy != 0) {
           analogJogType = "xy";
         } else if (data.dz != 0) {
@@ -1261,7 +1260,7 @@ function onMpgJog(data) {
       return; // otherwise ignore
     }
   } else {
-    if (realRunState != "Idle") {
+    if (status.comms.rawStatus != "Idle") {
       return; // need to be idle to start
     }
     mpgJogValue = status.machine.position.work[data.axis] + status.machine.position.offset[data.axis];
@@ -1392,6 +1391,8 @@ function onPortClose() {
   status.comms.interfaces.activePort = false;
   status.comms.interfaces.activeBaud = false;
   status.comms.connectionStatus = 0;
+  status.comms.rawStatus = "";
+  status.comms.runStatus = "Pending";
   status.comms.queue = 0;
   status.machine.firmware.type = "";
   status.machine.firmware.version = ""; // get version
