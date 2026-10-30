@@ -248,9 +248,9 @@ function parseStatusReport(data) {
   if (mpgJogState == 2) {
     if (new Date().getTime() >= mpgJogSettings.timeout) {
       mpgJogState = 0;
-    } else if ((status.comms.rawStatus == "Idle" || status.comms.rawStatus == "Jog") && mpgJogSettings.count > 0) {
+    } else if ((status.comms.runStatus == "Idle" || status.comms.runStatus == "Jog") && mpgJogSettings.count > 0) {
       sendMpgJogCommand();
-    } else if (status.comms.rawStatus == "Idle" && mpgJogSettings.count == 0) {
+    } else if (status.comms.runStatus == "Idle" && mpgJogSettings.count == 0) {
       mpgJogState = 0;
     }
   }
@@ -1184,7 +1184,7 @@ function onAnalogJog(data) {
     }
     analogJogDir = {dx: data.dx, dy: data.dy, dz: data.dz};
     if (analogJogState == 0) {
-      if (status.comms.rawStatus == "Idle" && gcodeQueue.length == 0 && sentBuffer.length == 0 && status.comms.connectionStatus == 2) {
+      if (status.comms.runStatus == "Idle" && gcodeQueue.length == 0 && sentBuffer.length == 0 && status.comms.connectionStatus == 2) {
         if (data.dx != 0 || data.dy != 0) {
           analogJogType = "xy";
         } else if (data.dz != 0) {
@@ -1259,7 +1259,7 @@ function onMpgJog(data) {
       return; // otherwise ignore
     }
   } else {
-    if (status.comms.rawStatus != "Idle") {
+    if (status.comms.runStatus != "Idle") {
       return; // need to be idle to start
     }
     mpgJogValue = status.machine.position.work[data.axis] + status.machine.position.offset[data.axis];
