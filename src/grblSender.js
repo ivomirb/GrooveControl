@@ -85,14 +85,15 @@ const memoryStorage = multer.memoryStorage();
 // Parses Grbl status report: <Idle|MPos:0.000,0.000,0.000,0.000|Bf:100,1022|FS:0,0|Pn:XYZP|WCO:10.000,10.000,0.000,-10.000>
 function parseStatusReport(data) {
   const state = data.substring(1, data.search(/(,|\|)/));
-  status.comms.rawStatus = state;
   status.comms.runStatus = state;
   if (state == "Idle") {
     if (jobStatusInternal >= 3 && (new Date().getTime()) > jobStartTime + 100) {
       finalizeJob(true); // Idle after at least 100ms after the "ok" for the last line, declare the job as done
     }
+    if (status.comms.connectionStatus == 5) {
+      status.comms.connectionStatus = 2;
+    }
   } else if (state == "Alarm" && status.comms.connectionStatus >= 2) {
-    // debug_log("ALARM:  " + data)
     status.comms.connectionStatus = 5;
   } else if (state == "Hold:0") {
     pause();
@@ -895,7 +896,6 @@ function runCommand(data) {
   if (status.comms.connectionStatus > 0) {
     if (data) {
       addLinesToQueue(data, false);
-      status.comms.runStatus = 'Running'
       send1Q();
     }
   } else {
@@ -971,7 +971,7 @@ function clearGcodeQueue(success) {
 
   if (!success) {
     finalizeJob(false); // on failure, also finalize the job right now
-  } else if (jobStatusInternal == 0 && status.comms.connectionStatus >= 2) {
+  } else if (jobStatusInternal == 0 && status.comms.connectionStatus > 2 && status.comms.connectionStatus < 5) {
     status.comms.connectionStatus = 2; // finished non-job queue
   }
 }
@@ -991,7 +991,9 @@ function finalizeJob(success) {
     jobStartTime = false;
     jobStatusInternal = 0;
     status.misc.jobStatus = 0;
-    status.comms.connectionStatus = 2;
+    if (status.comms.connectionStatus != 5) {
+      status.comms.connectionStatus = 2;
+    }
   }
 }
 
@@ -1063,7 +1065,6 @@ function stop(data) {
       }, 200);
     }
 
-    status.comms.runStatus = 'Stopped';
     status.comms.alarm = "";
     sentBuffer.length = 0; // Dump the queue
     status.comms.blocked = false;
@@ -1084,7 +1085,6 @@ function pause() {
       addQRealtime(String.fromCharCode(0x9E)); // Stop Spindle/Laser
       debug_log('Sent: Code(0x9E)');
     }
-    status.comms.runStatus = 'Paused';
     status.comms.connectionStatus = 4;
   } else {
     debug_log('ERROR: Machine connection not open!');
@@ -1099,7 +1099,6 @@ function unpause() {
     status.comms.paused = false;
     status.comms.blocked = false;
     setTimeout(send1Q, 200); // restart queue
-    status.comms.runStatus = 'Resuming';
     status.comms.connectionStatus = 3;
   } else {
     debug_log('ERROR: Machine connection not open!');
@@ -1314,10 +1313,6 @@ function clearAlarm(data) {
         });
         break;
     }
-    status.comms.runStatus = 'Stopped'
-    if (status.comms.connectionStatus >= 2) {
-      status.comms.connectionStatus = 2;
-    }
     status.comms.alarm = "";
     serverEmit('errorsCleared', true);
   } else {
@@ -1391,7 +1386,6 @@ function onPortClose() {
   status.comms.interfaces.activePort = false;
   status.comms.interfaces.activeBaud = false;
   status.comms.connectionStatus = 0;
-  status.comms.rawStatus = "";
   status.comms.runStatus = "Pending";
   status.comms.queue = 0;
   status.machine.firmware.type = "";

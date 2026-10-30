@@ -6,7 +6,7 @@ var grblParams = {}
 var nostatusyet = true;
 var bellstate = false;
 var waitingForStatus = false;
-var openDialogs = [];
+var openErrorDialogs = [];
 
 const MAX_GCODE_IN_EDITOR = 20 * 1024 * 1024;
 
@@ -326,13 +326,17 @@ function toastErrorAlarm(data) {
   const printLogCls = "fg-darkRed"
   printLogModern(icon, source, string, printLogCls)
 
-  addDlgContext("alarm");
+  if (typeof addDlgContext != "undefined") {
+    addDlgContext("alarm");
+  }
   const dialog = Metro.dialog.create({
     clsDialog: 'dark',
     title: "<i class='fas fa-exclamation-triangle'></i> Grbl Alarm:",
     content: "<i class='fas fa-exclamation-triangle fg-darkRed'></i>  " + data,
     onClose: function () {
-      removeDlgContext("alarm");
+      if (typeof removeDlgContext != "undefined") {
+        removeDlgContext("alarm");
+      }
     },
     actions: [{
         caption: "Clear Alarm",
@@ -350,7 +354,7 @@ function toastErrorAlarm(data) {
   });
 
   if (data.indexOf("ALARM: 6") == -1 && data.indexOf("ALARM: 7") == -1 && data.indexOf("ALARM: 8") == -1 && data.indexOf("ALARM: 9") == -1 && data.indexOf("ALARM: 10") == -1) {
-    openDialogs.push(dialog);
+    openErrorDialogs.push(dialog);
   }
 
   setTimeout(function() {
@@ -377,7 +381,7 @@ function toastError(data) {
       }
     }]
   });
-  openDialogs.push(dialog);
+  openErrorDialogs.push(dialog);
   setTimeout(function() {
     $(".closeErrorBtn").focus();
   }, 200);
@@ -385,10 +389,10 @@ function toastError(data) {
 
 function errorsCleared(data) {
   if (data) {
-    for (const dlg of openDialogs) {
+    for (const dlg of openErrorDialogs) {
       Metro.dialog.close(dlg);
     }
-    openDialogs.length = 0;
+    openErrorDialogs.length = 0;
   }
 }
 
@@ -445,25 +449,30 @@ function onStatus(status) {
     }
   }
 
-  if (status.comms.runStatus.startsWith("Door")) {
-    const doorType = status.comms.runStatus.split(":")[1]
-    let doorMsg = "";
+  let statusMsg;
+  if (status.comms.runStatus == "Pending") {
+    statusMsg = "Controller: Not Connected";
+  } else if (status.comms.runStatus == "Hold:0") {
+    statusMsg = "Controller: Paused";
+  } else if (status.comms.runStatus.startsWith("Door")) {
+    const doorType = status.comms.runStatus.split(":")[1];
+    statusMsg = "";
     if (doorType == 0) {
-      doorMsg += "Door Closed: Ready to Resume"
+      statusMsg = "Door Closed: Ready to Resume"
     }
     if (doorType == 1) {
-      doorMsg += "Door Open: Paused"
+      statusMsg = "Door Open: Paused"
     }
     if (doorType == 2) {
-      doorMsg += "Door Open: Tool Stopping"
+      statusMsg = "Door Open: Tool Stopping"
     }
     if (doorType == 3 || doorType == 4) {
-      doorMsg += "Door Closed: Tool Starting Up"
+      statusMsg = "Door Closed: Tool Starting Up"
     }
-    $('#runStatus').html(doorMsg);
   } else {
-    $('#runStatus').html("Controller: " + status.comms.runStatus);
+    statusMsg = "Controller: " + status.comms.runStatus;
   }
+  $('#runStatus').html(statusMsg);
 
   updateDro(status);
 

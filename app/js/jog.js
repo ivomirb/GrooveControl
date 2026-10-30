@@ -269,7 +269,7 @@ function onJogAxisMinus(event, axis, jogdist, pulloffOverride, ripple, continuou
 
   let Axis = axis.toUpperCase();
   if (continuousJog) {
-    if (!waitingForStatus && (laststatus.comms.runStatus == "Idle" || laststatus.comms.runStatus == "Jog" || laststatus.comms.runStatus == "Door:0")) {
+    if (!waitingForStatus && (laststatus.comms.runStatus == "Idle" || laststatus.comms.runStatus == "Jog")) {
       const currentPos = parseFloat(laststatus.machine.position.offset[axis]) + parseFloat(laststatus.machine.position.work[axis]);
       let minPos = currentPos - 1000;
       const hasSoftLimits = pulloffOverride != null && parseInt(grblParams.$20) == 1;
@@ -305,7 +305,7 @@ function onJogAxisPlus(event, axis, jogdist, pulloffOverride, ripple, continuous
 
   let Axis = axis.toUpperCase();
   if (continuousJog) {
-    if (!waitingForStatus && (laststatus.comms.runStatus == "Idle" || laststatus.comms.runStatus == "Jog" || laststatus.comms.runStatus == "Door:0")) {
+    if (!waitingForStatus && (laststatus.comms.runStatus == "Idle" || laststatus.comms.runStatus == "Jog")) {
       const currentPos = parseFloat(laststatus.machine.position.offset[axis]) + parseFloat(laststatus.machine.position.work[axis]);
       let maxPos = currentPos + 1000;
       const hasSoftLimits = pulloffOverride != null && parseInt(grblParams.$20) == 1;

@@ -115,6 +115,7 @@ function setControlBar(val, status) {
     $("#grblSettings").hide(); // Hide Grbl Settings if it was Open
     $('#grblconfig').empty();
     $('.estop').hide();
+    $('#unlockBtn, #unlockBtn2, #unlockBtn3').attr('disabled', true);
   } else if (val >= 1 && val <= 5) { // Normal operation
     // 1 - connecting
     // 2 - idle
@@ -141,6 +142,8 @@ function setControlBar(val, status) {
 
     // Show the Pause button only if running. Disable if the job uses $J commands, as they can't be paused
     $('#pauseBtn').toggle(val == 3).attr('disabled', status.misc.jobStatus == 2);
+
+    $('#unlockBtn, #unlockBtn2, #unlockBtn3').attr('disabled', val != 5);
 
     // Enable the Stop button if running or paused
     $('#stopBtn').show().attr('disabled', !activeJob);

@@ -162,8 +162,7 @@ const status = {
   },
   comms: {
     connectionStatus: 0, //0 = not connected, 1 = opening, 2 = connected, 3 = playing, 4 = paused, 5 = alarm
-    rawStatus: "", // always up to date
-    runStatus: "Pending", // can vary from rawStatus for display purposes
+    runStatus: "Pending",
     queue: 0,
     blocked: false,
     paused: false,

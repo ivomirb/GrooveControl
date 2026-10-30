@@ -177,8 +177,10 @@ const inputActions = [
     label: `<i class="fas fa-bell fg-openbuilds fa-fw"></i> Unlock Alarm`,
     defaultKey: "end",
     keydown: () => {
-      Metro.dialog.close($('.closeAlarmBtn').parent().parent());
-      socket.emit('clearAlarm', 2);
+      if (laststatus.comms.connectionStatus == 5) {
+        Metro.dialog.close($('.closeAlarmBtn').parent().parent());
+        socket.emit('clearAlarm', 2);
+      }
     },
     dlgContext: "alarm",
   },
