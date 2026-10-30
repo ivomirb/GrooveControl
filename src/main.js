@@ -474,11 +474,19 @@ function onConnection(socket) {
   });
 
   socket.on("openwiki", function() {
+    shell.openExternal('https://github.com/ivomirb/GrooveControl/wiki')
+  });
+
+  socket.on("openbuilds", function() {
     shell.openExternal('https://github.com/OpenBuilds/docs-migrated/wiki')
   });
 
   socket.on("openforum", function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl/discussions')
+  });
+
+  socket.on("openheightmap", function() {
+    shell.openExternal('https://github.com/ivomirb/GrooveControl/wiki/Heightmap-Tool')
   });
 
   socket.on("minimisetotray", function() {

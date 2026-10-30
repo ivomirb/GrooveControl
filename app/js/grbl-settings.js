@@ -817,12 +817,12 @@ function computeMachineLimits(pulloffOverride) {
       if (fluidncConfigYaml.axes.A?.homing?.mpos_mm !== undefined) {
         limits.minA += fluidncConfigYaml.axes.A.homing.mpos_mm;
       }
-
-      limits.maxX = limits.minX + sizeX;
-      limits.maxY = limits.minY + sizeY;
-      limits.maxZ = limits.minZ + sizeZ;
-      limits.maxA = limits.minA + sizeA;
     }
+
+    limits.maxX = limits.minX + sizeX;
+    limits.maxY = limits.minY + sizeY;
+    limits.maxZ = limits.minZ + sizeZ;
+    limits.maxA = limits.minA + sizeA;
   } else if (laststatus && laststatus.machine.firmware.features.contains('Z')) {
     limits.minX = homingMask.x ? 0 : -sizeX;
     limits.minY = homingMask.y ? 0 : -sizeY;

@@ -9,6 +9,7 @@ and takes it to the next level of polish, safety and usability.
 Every feature has been enhanced. Frustrating bugs and quirks have been fixed. The job controls are improved and more reliable.
 New features like the file history, origin history, a macro manager, a heightmap tool,
 and a slick job simulator fit seamlessly into the existing design.
+More major features are in the works or planned for future releases.
 
 ![Screenshot](docs/screenshot.png)
 
