@@ -65,7 +65,7 @@ const appSettingsDlg = `
   <div class="row ml-3">
     <label class="cell-sm-3" style="padding-left:0px; padding-top:5px;">Color Theme</label>
     <div class="cell-sm-6">
-      <select data-role="select" id="selectTheme" data-filter="false" data-drop-height="">
+      <select data-role="select" id="selectTheme" data-filter="false">
       </select>
     </div>
   </div>
@@ -98,11 +98,13 @@ const appSettingsDlg = `
   </div>
 
   <div class="row ml-3">
-    <label class="cell-sm-3" style="padding-left:0px; padding-top:5px;" title="Insert a pause after the spindle starts. Useful primarily for Grbl.
-  For GrblHAL use parameter $394 instead and for FluidNC use the spinup_ms setting.
-  Ignored in Laser mode.">Spindle Delay</label>
+    <label class="cell-sm-3" style="padding-left:0px; padding-top:5px;">Spindle Delay <span class="far fa-question-circle ml-1"
+      title="Insert a pause after the spindle starts. Useful primarily for Grbl.
+For GrblHAL use parameter $394 instead and for FluidNC use the spinup_ms setting.
+Ignored in Laser mode."></span>
+    </label>
     <div class="cell-sm-6">
-      <select data-role="select" id="spindleDelay" data-filter="false" data-drop-height="">
+      <select data-role="select" id="spindleDelay" data-filter="false">
         <option value="0" selected>No Delay</option>
         <option value="3">Delay 3 sec (G4 P3)</option>
         <option value="5">Delay 5 sec (G4 P5)</option>
@@ -111,8 +113,9 @@ const appSettingsDlg = `
     </div>
   </div>
 
-  <div class="row border-top mt-3 bd-dialog" style="margin-left:-4px; font-weight:700;" title="You may try disabling this for slower computers">
+  <div class="row border-top mt-3 bd-dialog" style="margin-left:-4px; font-weight:700;">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable 3D Viewer" id="enable3DviewerCheck" onclick="updateSettingsState()"/>
+    <span class="far fa-question-circle ml-1 mt-2" title="You may try disabling the 3d Viewer for slower computers"></span>
   </div>
 
   <div class="row" style="padding-left:8px;">
@@ -139,7 +142,7 @@ const appSettingsDlg = `
   <span>
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Keyboard Shortcuts" id="enableKeyboardShortcuts" onclick="showKbdWarning(); updateSettingsState()"/>
   </span>
-  <span id="keyboardAssignmentPrompt" style="font-size:14px;">Click below to assign a new Keyboard Shortcut to each action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
+  <span id="keyboardAssignmentPrompt" style="font-size:14px;" class="border-top bd-dialog">Click below to assign a new Keyboard Shortcut to each action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
   <div class="p-0 mt-2" style="overflow-y:auto; height:400px;">
     <form id="keyboardAssignmentForm" style="padding:3px 0px;">
     </form>
@@ -154,16 +157,17 @@ const appSettingsDlg = `
 <div class="section" id="rotarySettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
   <div class="row ml-2" title="Hide the 4th axis controls if the controller supports a 4th axis but it is not currently in use">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Hide 4th Axis Controls" id="disable4thAxisCheck" />
+    <span class="far fa-question-circle ml-1 mt-2" title="Hide the 4th axis controls if the controller supports a 4th axis but it is not currently in use"></span>
   </div>
 </div>
 
-<!--<div class="section" id="toolchangeSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
+<!--<div class="section" id="toolchangeSettings" style="height:500px; flex-direction:column; border-bottom:0px;">
 </div> -->
 
 </div>
 </nav>`;
 
-function applySettings() {
+function applyAppSettings() {
   const disable3DviewerNew = !$('#enable3DviewerCheck').prop('checked');
   const disable3DskyboxNew = !$('#enable3DskyboxCheck').prop('checked');
   const disable3DrealtimeposNew = !$('#enable3DrealtimeposCheck').prop('checked');
@@ -210,6 +214,9 @@ function applySettings() {
   }
 }
 
+function cancelAppSettings() {
+}
+
 function showAppSettings(category) {
   if (!laststatus) return; // not ready
 
@@ -234,12 +241,12 @@ function showAppSettings(category) {
       {
         caption: "OK",
         cls: "js-dialog-close success",
-        onclick: applySettings
+        onclick: applyAppSettings
       },
       {
         caption: "Cancel",
         cls: "js-dialog-close",
-        onclick: function() {}
+        onclick: cancelAppSettings
       },
     ],
   });
@@ -273,7 +280,6 @@ function showAppSettings(category) {
   $('#disable4thAxisCheck').prop('checked', disable4thAxis);
 
   initKeyboardEditor();
-  updateSettingsState();
 
   if (category) {
     const tab = $('#' + category + "SettingsTab");
@@ -281,6 +287,8 @@ function showAppSettings(category) {
     const content = $(tab.attr('href'));
     content.addClass('active');
   }
+
+  updateSettingsState();
 }
 
 function initSettings() {
