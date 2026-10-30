@@ -314,7 +314,7 @@ The spindle will automatically start when the job is resumed.">
                     <li onclick="showAppSettings('rotary')"><a href="#"><i class="fab fa-ubuntu"></i> Rotary Settings</a></li>
 <!--                    <li onclick="showAppSettings('toolchange')"><a href="#"><i class="fas fa-tools"></i> Toolchange Settings</a></li> -->
                     <li><a a href="#" class="dropdown-toggle"><i class="fas fa-palette"></i> Color Theme</a>
-                      <ul id="ddTheme" class="ribbon-dropdown" data-role="dropdown" data-duration="100" style="text-align:start;">
+                      <ul id="ddTheme" class="ribbon-dropdown" data-role="dropdown" data-duration="100" style="text-align:start; right:100%; left:auto;">
                       </ul>
                     </li>
                   </ul>
@@ -323,7 +323,7 @@ The spindle will automatically start when the job is resumed.">
               </div>
 
               <div class="group estop">
-                <button class="ribbon-button" onclick="socket.emit('clearAlarm', 2)">
+                <button class="ribbon-button" id="unlockBtn2" onclick="socket.emit('clearAlarm', 2)">
                   <span class="icon">
                     <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
                       <i id="navbellBtn2" class="fas fa-bell fg-red" style="display: none;"></i>
@@ -453,7 +453,7 @@ The spindle will automatically start when the job is resumed.">
                 <span class="title">Firmware Reset Defaults</span>
               </div>
               <div class="group estop">
-                <button class="ribbon-button" onclick="socket.emit('clearAlarm', 2)">
+                <button class="ribbon-button" id="unlockBtn" onclick="socket.emit('clearAlarm', 2)">
                   <span class="icon">
                     <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
                       <i id="navbellBtn3" class="fas fa-bell fg-red" style="display: none;"></i>
@@ -494,24 +494,30 @@ The spindle will automatically start when the job is resumed.">
               <div class="group">
                 <button class="ribbon-button" onclick="socket.emit('openwiki');">
                   <span class="icon">
-                    <i class="fas fa-book" data-fa-transform=""></i>
+                    <i class="fas fa-book"></i>
                   </span>
-                  <span class="caption">OpenBuilds<br>Archive</span>
+                  <span class="caption">Groove<br>Docs</span>
                 </button>
                 <button class="ribbon-button" onclick="socket.emit('openforum');">
                   <span class="icon">
                     <span class="fa-layers fa-fw">
-                      <i class="far fa-comment-alt" data-fa-transform=""></i>
+                      <i class="far fa-comment-alt"></i>
                       <i class="fas fa-question" data-fa-transform="shrink-8 up-1"></i>
                     </span>
                   </span>
                   <span class="caption">Groove<br>Forum</span>
                 </button>
+                <button class="ribbon-button" onclick="socket.emit('openbuilds');">
+                  <span class="icon">
+                    <img src="img/openbuilds-logo.svg">
+                  </span>
+                  <span class="caption">OpenBuilds<br>Archive</span>
+                </button>
                 <span class="title">Support</span>
               </div>
 
               <div class="group">
-                <button class="ribbon-button" onclick="socket.emit('clearAlarm', 2)">
+                <button class="ribbon-button" id="unlockBtn3" onclick="socket.emit('clearAlarm', 2)">
                   <span class="icon">
                     <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
                       <i id="navbellBtn1" class="fas fa-bell fg-red" style="display: none;"></i>
@@ -907,7 +913,7 @@ Restore previous origins from history.">
                             <td class="pb-1">
                               <label class="toggle">
                                 <input class=" jogbtn" type="checkbox" id="jogTypeContinuous" />
-                                <div>app-notification</div>
+                                <div></div>
                               </label>
                             </td>
                             <td><span class="text-small jogbtn">Continuous Jog</span>
@@ -966,20 +972,20 @@ Restore previous origins from history.">
 
                 <div class="cell border-left bd-gray" id="jrocell" style="min-width:75px; max-width:100px; display:flex; flex-direction:column; align-items:center; padding-top:3px;">
                   <button class="button light mini mb-1" onclick="jogOverride(100);">reset</button>
-                  <input id="jro" data-on-stop="jogOverride(arguments[0])" data-role="slider" data-accuracy="1" data-vertical="true" data-size="160" data-min="1" data-max="100" data-value="100" data-hint="true" data-hint-always="true"
+                  <input id="jro" data-on-stop="jogOverride(arguments[0])" data-role="slider" data-accuracy="1" data-vertical="true" data-size="170" data-min="1" data-max="100" data-value="100" data-hint="true" data-hint-always="true"
                     data-hint-position="bottom" data-hint-mask="Jog: $1%" data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>
                   <span class="tally text-small bg-openbuilds fg-white" id="realJog" style="display:none;"></span>
                 </div>
 
                 <div class="cell border-left bd-gray" id="frocell" style="min-width:75px; max-width:100px; display:flex; flex-direction:column; align-items:center; padding-top:3px;">
                   <button class="button light mini mb-1" onclick="feedOverride(100);">reset</button>
-                  <input id="fro" data-on-stop="feedOverride(arguments[0])" data-role="slider" data-accuracy="5" data-vertical="true" data-size="160" data-accuracy="1" data-min="10" data-max="200" data-value="100" data-hint="true"
+                  <input id="fro" data-on-stop="feedOverride(arguments[0])" data-role="slider" data-accuracy="5" data-vertical="true" data-size="170" data-accuracy="1" data-min="10" data-max="200" data-value="100" data-hint="true"
                     data-hint-always="true" data-hint-position="bottom" data-hint-mask="Feed: $1%" data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>
                   <span class="tally text-small bg-openbuilds fg-white" id="realFeed" style="width:64px; height:fit-content; vertical-align:top; padding-bottom:3px; margin-top:2px;"></span>
                 </div>
                 <div class="cell border-left bd-gray" id="trocell" style="min-width:75px; max-width:100px; display:flex; flex-direction:column; align-items:center; padding-top:3px;">
                   <button class="button light mini  mb-1" onclick="spindleOverride(100);">reset</button>
-                  <input id="tro" data-on-stop="spindleOverride(arguments[0])" data-role="slider" data-accuracy="5" data-vertical="true" data-size="160" data-accuracy="1" data-min="10" data-max="200" data-value="100" data-hint="true"
+                  <input id="tro" data-on-stop="spindleOverride(arguments[0])" data-role="slider" data-accuracy="5" data-vertical="true" data-size="170" data-accuracy="1" data-min="10" data-max="200" data-value="100" data-hint="true"
                     data-hint-always="true" data-hint-position="bottom" data-hint-mask="Tool: $1%" data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>
                   <span class="tally text-small bg-openbuilds fg-white" id="realSpeed" style="width:64px; height:fit-content; vertical-align:top; padding-bottom:3px; margin-top:2px;"></span>
                 </div>
@@ -1069,7 +1075,7 @@ Restore previous origins from history.">
                         <table id="viewSettingsTable" class="ribbon-dropdown" data-role="dropdown" style="display:none; width:max-content;">
                           <tr onclick="event.stopPropagation()">
                             <td style="vertical-align:middle;">
-                              <label class="toggle"><input type="checkbox" id="viewGridSetting" onchange="changeViewSettings()"/><div>app-notification</div></label>
+                              <label class="toggle contrast"><input type="checkbox" id="viewGridSetting" onchange="changeViewSettings()"/><div></div></label>
                             </td>
                             <td style="vertical-align:middle;">
                               <span class="text-small" style="padding: 6px; display:inline-block;">Grid</span>
@@ -1077,7 +1083,7 @@ Restore previous origins from history.">
                           </tr>
                           <tr onclick="event.stopPropagation()">
                             <td style="vertical-align:middle;">
-                              <label class="toggle"><input type="checkbox" id="viewRulerSetting" onchange="changeViewSettings()"/><div>app-notification</div></label>
+                              <label class="toggle contrast"><input type="checkbox" id="viewRulerSetting" onchange="changeViewSettings()"/><div></div></label>
                             </td>
                             <td style="vertical-align:middle;">
                               <span class="text-small" style="padding: 6px; display:inline-block;">Ruler</span>
@@ -1085,7 +1091,7 @@ Restore previous origins from history.">
                           </tr>
                           <tr onclick="event.stopPropagation()">
                             <td style="vertical-align:middle;">
-                              <label class="toggle"><input type="checkbox" id="viewToolpathSetting" onchange="changeViewSettings()"/><div>app-notification</div></label>
+                              <label class="toggle contrast"><input type="checkbox" id="viewToolpathSetting" onchange="changeViewSettings()"/><div></div></label>
                             </td>
                             <td style="vertical-align:middle;">
                               <span class="text-small" style="padding: 6px; display:inline-block;">Toolpath</span>
@@ -1093,7 +1099,7 @@ Restore previous origins from history.">
                           </tr>
                           <tr onclick="event.stopPropagation()">
                             <td style="vertical-align:middle;">
-                              <label class="toggle"><input type="checkbox" id="viewToolSetting" onchange="changeViewSettings()"/><div>app-notification</div></label>
+                              <label class="toggle contrast"><input type="checkbox" id="viewToolSetting" onchange="changeViewSettings()"/><div></div></label>
                             </td>
                             <td style="vertical-align:middle;">
                               <span class="text-small" style="padding: 6px; display:inline-block;">Tool marker</span>
@@ -1101,7 +1107,7 @@ Restore previous origins from history.">
                           </tr>
                           <tr onclick="event.stopPropagation()">
                             <td style="vertical-align:middle;">
-                              <label class="toggle"><input type="checkbox" id="viewMachineSetting" onchange="changeViewSettings()"/><div>app-notification</div></label>
+                              <label class="toggle contrast"><input type="checkbox" id="viewMachineSetting" onchange="changeViewSettings()"/><div></div></label>
                             </td>
                             <td style="vertical-align:middle;">
                               <span class="text-small" style="padding: 6px; display:inline-block;">Machine Extents</span>
@@ -1109,7 +1115,7 @@ Restore previous origins from history.">
                           </tr>
                           <tr onclick="event.stopPropagation()" class="heightmap" style="display:none;">
                             <td style="vertical-align:middle;">
-                              <label class="toggle"><input type="checkbox" id="viewHeighmtapSetting" onchange="changeViewSettings()"/><div>app-notification</div></label>
+                              <label class="toggle contrast"><input type="checkbox" id="viewHeighmtapSetting" onchange="changeViewSettings()"/><div></div></label>
                             </td>
                             <td style="vertical-align:middle;">
                               <span class="text-small" style="padding: 6px; display:inline-block;">Heightmap</span>
@@ -1132,7 +1138,9 @@ Restore previous origins from history.">
                           <li onclick="clearHeightmapData()" id="clearHeightmap"><a href="#">Clear Heightmap</a></li>
                           <li class="divider"></li>
                           <li onclick="applyHeightmap()" id="applyHeightmap"><a href="#">Apply Heightmap</a></li>
-                          <li onclick="revertHeightmap()" id="revertHeightmap" onclick="RevertGCode()"><a href="#">Revert G-code changes</a></li>
+                          <li onclick="revertHeightmap()" id="revertHeightmap"><a href="#">Revert G-code changes</a></li>
+                          <li class="divider"></li>
+                          <li onclick="socket.emit('openheightmap')"><a href="#">Documentation</a></li>
                         </ul>
                       </div>
                     </div>
@@ -1479,7 +1487,8 @@ Restore previous origins from history.">
       </div>
 
       <!-- XYZ Probe -->
-      <div class="dialog dark" id="xyzProbeWindow" data-role="dialog" data-overlay-click-close="false" data-to-top="true" data-width="800">
+      <div class="dialog dark" id="xyzProbeWindow" data-role="dialog" data-on-close="probeDlgOnClose"
+          data-overlay-click-close="false" data-to-top="true" data-width="800">
         <div class="dialog-title">Probing Wizard</div>
         <div class="dialog-content" style="max-height: calc(100vh - 100px);overflow-y: auto; overflow-x: hidden;">
           <nav data-role="ribbonmenu">
@@ -1562,27 +1571,32 @@ Restore previous origins from history.">
                         &nbsp;
                       </td>
                       <td>
-                        <button class="button success small rounded outline m-1 yP" style="width: 40px;">Y+</button>
+                        <button class="button success small rounded outline m-1 yP" id="probeyP" style="width: 40px;">Y+</button>
                       </td>
                       <td>
                         &nbsp;
                       </td>
                       <td>
-                        <button class="button primary small rounded outline m-1 zP" style="width: 40px;">Z+</button>
+                        <button class="button primary small rounded outline m-1 zP" id="probezP" style="width: 40px;">Z+</button>
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        <button class="button alert small rounded outline m-1 xM" style="width: 40px;">X-</button>
+                        <button class="button alert small rounded outline m-1 xM" id="probexM" style="width: 40px;">X-</button>
                       </td>
                       <td>
-                        <button class="button success small rounded outline m-1 yM" style="width: 40px;">Y-</button>
+                        <button class="button success small rounded outline m-1 yM" id="probeyM" style="width: 40px;">Y-</button>
                       </td>
                       <td>
-                        <button class="button alert small rounded outline m-1 xP" style="width: 40px;">X+</button>
+                        <button class="button alert small rounded outline m-1 xP" id="probexP" style="width: 40px;">X+</button>
                       </td>
                       <td>
-                        <button class="button primary small rounded outline m-1 zM" style="width: 40px;">Z-</button>
+                        <button class="button primary small rounded outline m-1 zM" id="probezM" style="width: 40px;">Z-</button>
+                      </td>
+                      <td rowspan="2" style="vertical-align:bottom; padding-left:30px;">
+                        <input id="probeJro" class="thin" data-on-stop="jogOverride(arguments[0], true)" data-role="slider" data-accuracy="1" data-vertical="false" data-size="170"
+                           data-min="1" data-max="100" data-value="100" data-hint="true" data-hint-position="top" data-hint-always="true" data-hint-mask="Jog: $1%"
+                           data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>
                       </td>
                     </tr>
                     <tr>
@@ -1726,7 +1740,7 @@ Restore previous origins from history.">
       <!-- End XYZ Probe -->
 
       <!-- Edit Custom Probe -->
-      <div class="dialog dark" data-role="dialog" id="editCustomProbeDialog" data-role="dialog" data-overlay-click-close="false">
+      <div class="dialog dark" data-role="dialog" id="editCustomProbeDialog" data-role="dialog" data-overlay-click-close="false" data-leave-overlay-on-close="true">
         <div class="dialog-title"><i class="fas fa-cogs"></i> Edit Custom Probe</div>
         <div class="dialog-content">
           <input type="text" data-role="input" class="mb-1" data-prepend="X Offset" data-append="mm" id="customProbeXOffset">
@@ -1854,6 +1868,7 @@ Restore previous origins from history.">
 
   <script type="text/javascript" src="js/widget.js"></script>
 
+  <script type="text/javascript" src="js/actions.js"></script>
   <script type="text/javascript" src="js/keyboard.js"></script>
 
   <script type="text/javascript" src="lib/3dview/3dview.js"></script>

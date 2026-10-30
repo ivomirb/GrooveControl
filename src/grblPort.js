@@ -31,91 +31,72 @@ var portOpenHandlers = [];
 var portCloseHandlers = [];
 
 
-function friendlyPort(port) {
-  var img = 'usb.png';
-  var note = '';
-  var manufacturer = port.manufacturer
-  if (manufacturer == `(Standard port types)`) {
-    img = 'serial.png'
-    note = 'Motherboard Serial Port';
-  } else if (port.productId && port.vendorId) {
-    if (port.productId == '6001' && port.vendorId == '0403') {
-      // found FTDI FT232
-      img = 'usb.png';
-      note = 'FTDI USB to Serial';
-    }
-    if (port.productId == '6015' && port.vendorId == '0403') {
-      // found FTDI FT230x
-      img = 'usb.png';
-      note = 'FTDI USD to Serial';
-    }
-    if (port.productId == '606D' && port.vendorId == '1D50') {
-      // found TinyG G2
-      img = 'usb.png';
-      note = 'Tiny G2';
-    }
-    if (port.productId == '003D' && port.vendorId == '2341') {
-      // found Arduino Due Prog Port
-      img = 'due.png';
-      note = 'Arduino Due Prog';
-    }
-    if (port.productId == '0043' && port.vendorId == '2341' || port.productId == '0001' && port.vendorId == '2341' || port.productId == '0043' && port.vendorId == '2A03') {
-      // found Arduino Uno
-      img = 'uno.png';
-      note = 'Arduino Uno';
-    }
-    if (port.productId == '2341' && port.vendorId == '0042') {
-      // found Arduino Mega
-      img = 'mega.png';
-      note = 'Arduino Mega';
-    }
-    if (port.productId == '7523' && port.vendorId == '1A86') {
-      // found CH340
-      img = 'uno.png';
-      note = 'WCH.cn CH340 USB to UART';
-    }
-    if (port.productId == 'EA60' && port.vendorId == '10C4') {
-      // found CP2102
-      img = 'silabs.png';
-      note = 'Silicon Labs USB to UART';
-    }
-    if (port.productId == '000A' && port.vendorId == '2E8A') {
-      // found CP2102
-      img = 'pipico.png';
-      note = 'Raspberry Pi Pico CDC UART';
-    }
-    if (port.productId == '4001' && port.vendorId == '303A') {
-      // found CP2102
-      img = 'blox.png';
-      note = 'OpenBuilds BLOX (with grblHAL)';
-    }
-    if (port.productId == '1001' && port.vendorId == '303A') {
-      // found CP2102
-      img = 'blox.png';
-      note = 'OpenBuilds BLOX (Alternate Firmware)';
-    }
-    if (port.productId == '2303' && port.vendorId == '067B') {
-      // found CP2102
-      // img = 'nodemcu.png';
-      note = 'Prolific USB to Serial';
-    }
-  } else {
-    img = "usb.png";
+function friendlyPortName(port) {
+  if (port.manufacturer == `(Standard port types)`) {
+    return 'Motherboard Serial Port';
   }
 
-  return {
-    img: img,
-    note: note
-  };
+  const productId = port.productId.toUpperCase();
+  const vendorId = port.vendorId.toUpperCase();
+  if (productId == '6001' && vendorId == '0403') {
+    // found FTDI FT232
+    return 'FTDI USB to Serial';
+  }
+  if (productId == '6015' && vendorId == '0403') {
+    // found FTDI FT230x
+    return 'FTDI USD to Serial';
+  }
+  if (productId == '606D' && vendorId == '1D50') {
+    // found TinyG G2
+    return 'Tiny G2';
+  }
+  if (productId == '003D' && vendorId == '2341') {
+    // found Arduino Due Prog Port
+    return 'Arduino Due Prog';
+  }
+  if ((productId == '0043' && vendorId == '2341') || (productId == '0001' && vendorId == '2341') || (productId == '0043' && vendorId == '2A03')) {
+    // found Arduino Uno
+    return 'Arduino Uno';
+  }
+  if (productId == '0042' && vendorId == '2341') {
+    // found Arduino Mega
+    return 'Arduino Mega';
+  }
+  if (productId == '7523' && vendorId == '1A86') {
+    // found CH340
+    return 'WCH.cn CH340 USB to UART';
+  }
+  if (productId == 'EA60' && vendorId == '10C4') {
+    // found CP2102
+    return 'Silicon Labs USB to UART';
+  }
+  if (productId == '000A' && vendorId == '2E8A') {
+    // found CP2102
+    return 'Raspberry Pi Pico CDC UART';
+  }
+  if (productId == '4001' && vendorId == '303A') {
+    // found CP2102
+    return 'OpenBuilds BLOX (with grblHAL)';
+  }
+  if (productId == '1001' && vendorId == '303A') {
+    // found CP2102
+    return 'OpenBuilds BLOX (Alternate Firmware)';
+  }
+  if (productId == '2303' && vendorId == '067B') {
+    // found CP2102
+    return 'Prolific USB to Serial';
+  }
+  return "";
 }
 
 async function findPorts() {
   const ports = await SerialPort.list()
-  status.comms.interfaces.ports = ports;
-  for (var i = 0; i < status.comms.interfaces.ports.length; i++) {
-    var data = friendlyPort(status.comms.interfaces.ports[i])
-    status.comms.interfaces.ports[i].img = data.img;
-    status.comms.interfaces.ports[i].note = data.note;
+  status.comms.interfaces.ports = [];
+  for (const port of ports) {
+    if (port.productId || port.vendorId) {
+      port.note = friendlyPortName(port);
+      status.comms.interfaces.ports.push(port);
+    }
   }
 }
 
@@ -156,8 +137,8 @@ function connectTo(data) { // If a user picks a port to connect to, open a Node 
     if (data.type == "usb") {
       console.log("connect", "Connecting to " + data.port + " via " + data.type);
 
-      var allowRtsCts = false
-      var allowHupcl = false
+      let allowRtsCts = false
+      let allowHupcl = false
       if (process.platform == 'darwin') {
         allowRtsCts = true // Fix for autoreset getting stuck on MacOS with Silabs Chip
         allowHupcl = true // Fix for autoreset getting stuck on MacOS with Silabs Chip
@@ -219,7 +200,7 @@ function scanForTelnetDevices(range) {
   //var network = localNetwork[0] + '.' + localNetwork[1] + '.' + localNetwork[2];
   //var range = network + ".1-" + network + ".254"
 
-  var networkDevices = []
+  let networkDevices = []
   oldIpList = status.comms.interfaces.networkDevices;
   const telnetScanOptions = {
     target: range,
@@ -245,10 +226,10 @@ function scanForTelnetDevices(range) {
       return;
     }
 
-    scan.on('result', data => {
+    scan.on('result', (data) => {
       // fired when item is matching options
       if (data.status == "open") {
-        var type = false;
+        let type = false;
         if (data.banner.indexOf("GrblHAL") != -1) {
           type = "grblHAL"
         } else if (data.banner.indexOf("Grbl") != -1) {
@@ -264,7 +245,7 @@ function scanForTelnetDevices(range) {
     });
 
     // eslint-disable-next-line no-unused-vars
-    scan.on('error', err => {
+    scan.on('error', (err) => {
       //throw new Error(data.toString());
     });
 
@@ -275,11 +256,11 @@ function scanForTelnetDevices(range) {
       });
       status.comms.interfaces.networkDevices = networkDevices;
       if (!_.isEqual(status.comms.interfaces.networkDevices, oldIpList)) {
-        var newTelnetPorts = _.differenceWith(status.comms.interfaces.networkDevices, oldIpList, _.isEqual)
+        const newTelnetPorts = _.differenceWith(status.comms.interfaces.networkDevices, oldIpList, _.isEqual)
         if (newTelnetPorts.length > 0) {
           debug_log("Detected new device: " + newTelnetPorts[0].ip);
         }
-        var removedTelnetPorts = _.differenceWith(oldIpList, status.comms.interfaces.networkDevices, _.isEqual)
+        const removedTelnetPorts = _.differenceWith(oldIpList, status.comms.interfaces.networkDevices, _.isEqual)
         if (removedTelnetPorts.length > 0) {
           debug_log("No longer detecting device: " + removedTelnetPorts[0].ip);
         }

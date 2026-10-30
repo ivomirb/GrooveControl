@@ -2,6 +2,7 @@
 
 var buttonsarray = [];
 var macroCodeType = "gcode";
+var currentEditMacro = undefined;
 
 // eslint-disable-next-line no-unused-vars
 var macroMenuIdx = undefined; // used in context menus
@@ -110,16 +111,37 @@ function loadJavascriptFile(text) {
   return text;
 }
 
-function onMacroShortcutInputClick()
-{
-  $('#macrokeyboardshortcut').addClass('primary');
+function onMacroShorcutKeyDown(event) {
+  event.preventDefault();
+  let newVal = keyNameFromDownEvent(event);
+  if (newVal != "") {
+    const inUse = keyInUse(newVal, true).inUse;
+    if (inUse) {
+      $('#alreadyAssignedWarnMacro').html("\"" + capitalizeShortcut(newVal) + "\" is already assigned to " + keyInUse(newVal, true).source + "<br>");
+      $('#alreadyAssignedWarnMacro').show();
+      $('#macrokeyboardshortcut').parent().removeClass("primary").addClass("alert");
+    } else {
+      $('#alreadyAssignedWarnMacro').hide();
+      $('#macrokeyboardshortcut').val(capitalizeShortcut(newVal));
+      $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
+    }
+  }
 }
 
-function onMacroShortcutInputChange()
-{
+function onMacroShortcutGetFocus() {
+  $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
+  $('#alreadyAssignedWarnMacro').hide();
+}
+
+function onMacroShortcutLoseFocus() {
+  $('#macrokeyboardshortcut').parent().removeClass('primary').removeClass('alert');
+  $('#alreadyAssignedWarnMacro').hide();
+}
+
+function onMacroShortcutInputChange() {
   if ($('#macrokeyboardshortcut').val() == "") {
+    $('#macrokeyboardshortcut').parent().removeClass('alert');
     $('#alreadyAssignedWarnMacro').hide();
-    $('#macrokeyboardshortcut').removeClass('alert');
   }
 }
 
@@ -239,14 +261,16 @@ function editMacro(buttonIdx, fileName, script) {
 
           <label class="cell-sm-3">Keyboard Shortcut</label>
           <div class="cell-sm-9" >
-            <input id="macrokeyboardshortcut" readonly class="macrokeyboardshortcutinput" type="text" value="` + macrokeyboardshortcut + `" data-role="input" data-clear-button="true" data-editable="true" onclick="onMacroShortcutInputClick()" onchange="onMacroShortcutInputChange()">
-            <span class="text-small fg-red" id="alreadyAssignedWarnMacro" style="display: none;"></span>
+            <input id="macrokeyboardshortcut" readonly class="macrokeyboardshortcutinput" type="text" value="` + capitalizeShortcut(macrokeyboardshortcut) + `" data-role="input" data-clear-button="true" data-editable="true"
+              onfocus="onMacroShortcutGetFocus()" onblur="onMacroShortcutLoseFocus()" onchange="onMacroShortcutInputChange()">
+            <span class="text-small fg-red" id="alreadyAssignedWarnMacro" style="display: none; position:absolute; bottom:-20px;"></span>
             <span class="text-small">Click above to assign a new Keyboard Shortcut to the action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
           </div>
       </div>
     </div>
   </form>`
 
+  currentEditMacro = button;
   Metro.dialog.create({
     title: buttonIdx >= 0 ? "Edit Macro" : "New Macro",
     clsDialog: "dark",
@@ -270,40 +294,25 @@ function editMacro(buttonIdx, fileName, script) {
           button.javascript = $('#macrojs').val();
           button.class = $('#macrocls').val();
           button.tooltip = $('#macrotooltip').val();
-          button.macrokeyboardshortcut = $('#macrokeyboardshortcut').val();
+          button.macrokeyboardshortcut = $('#macrokeyboardshortcut').val().toLowerCase();
           button.jsrunonstartup = $('#jsRunOnStartup').is(':checked')
           populateMacroButtons();
-          bindKeys();
+          currentEditMacro = undefined;
         }
       },
       {
         caption: "Cancel",
         cls: "js-dialog-close",
-        onclick: function() {}
+        onclick: function() {
+          currentEditMacro = undefined;
+        }
       }
     ]
   });
 
-  $('#macrokeyboardshortcut').bind('keydown', null, function(event) {
-    event.preventDefault();
-    let newVal = keyNameFromDownEvent(event);
-    if (newVal != "") {
-      const alreadyAssigned = newVal != macrokeyboardshortcut && newVal.length > 0 && keyInUse(newVal, true).inUse;
-      if (alreadyAssigned) {
-        $('#alreadyAssignedWarnMacro').html("\"" + newVal + "\" is already assigned to " + keyInUse(newVal, true).source);
-        $('#alreadyAssignedWarnMacro').show();
-        $('#macrokeyboardshortcut').removeClass("primary").addClass("alert");
-      } else {
-        $('#alreadyAssignedWarnMacro').hide();
-        $('#macrokeyboardshortcut').val(newVal);
-        $('#macrokeyboardshortcut').removeClass("alert").addClass("primary");
-      }
-    }
+  $('#jsedit').val(javascript);
 
-    $('#jsedit').val(javascript);
-
-  });
-
+  $('#macrokeyboardshortcut').bind('keydown', null, onMacroShorcutKeyDown);
 
   IconPicker.Init({
     // Required: You have to set the path of IconPicker JSON file to "jsonUrl" option. e.g. '/content/plugins/IconPicker/dist/iconpicker-1.5.0.json'
@@ -363,7 +372,6 @@ function macrosDocReady() {
   const safeMode = urlParams.get("safeMode") == "true";
   populateMacroButtons(!safeMode);
   setMacroGroupView(macroGroupView);
-  bindKeys();
 }
 
 function editorGcodeMode() {
@@ -470,7 +478,6 @@ function confirmMacroDelete(buttonIdx) {
         onclick: function() {
           buttonsarray.splice(buttonIdx, 1);
           populateMacroButtons();
-          bindKeys();
         }
       },
       {
@@ -547,7 +554,6 @@ function importMacroBackupFile() {
         newMacro.group = macroGroups[activeIdx];
         buttonsarray.push(newMacro);
         populateMacroButtons();
-        bindKeys();
       } else {
         macroReadError("JSON error: Invalid macro backup.");
       }
@@ -572,7 +578,6 @@ function importMacroAll() {
       if (newButtons && Array.isArray(newButtons)) {
         buttonsarray = newButtons;
         populateMacroButtons();
-        bindKeys();
       } else {
         macroReadError("JSON error: Invalid list of macros.");
       }
@@ -598,8 +603,7 @@ function saveMacroGroupView() {
   localStorage.setItem("macroGroupView", JSON.stringify({tabVisibility: macroGroupView, currentGroupLower: currentMacroGroupLower}));
 }
 
-function setCurrentMacroGroup(groupLower)
-{
+function setCurrentMacroGroup(groupLower) {
   if (currentMacroGroupLower != groupLower) {
     currentMacroGroupLower = groupLower;
     saveMacroGroupView();

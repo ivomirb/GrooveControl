@@ -74,7 +74,6 @@ function setConnectBar(val, status) {
   if (val == 0) { // Not Connected Yet
     $('#connectStatus').html("Port: Not Connected");
     $("#disconnectBtn").hide();
-    $("#flashBtn").hide();
     $('#portUSB').parent().show();
     $("#connectBtn, #scanBtn, #driverBtn").show();
     $("#connectBtn").attr('disabled', $('#portUSB').val() == "");
@@ -99,7 +98,6 @@ function setConnectBar(val, status) {
     $('#portUSB').parent().hide();
     $("#connectBtn").attr('disabled', false);
     $("#disconnectBtn").show();
-    $("#flashBtn").hide();
 
     // Port Dropdown
     $('#portUSB').parent(".select").removeClass('success')
@@ -109,21 +107,6 @@ function setConnectBar(val, status) {
 
     enableViaClass('.macrobtn', val != 3); // disable macros while running
     enableViaClass('.grblCalibrationMenu', val == 2); // enable calibration only during idle
-  } else if (val == 6) { // Firmware Upgrade State
-    $('#connectStatus').html("Port: Flashing");
-    $("#disconnectBtn").hide();
-    $("#flashBtn").show();
-    $('#portUSB').parent().hide();
-    $("#connectBtn, #scanBtn, #driverBtn").hide();
-
-    // Port Dropdown
-    $('#portUSB').parent(".select").removeClass('success')
-    $('#portUSB').parent(".select").addClass('alert')
-    // Set Port Dropdown to Current Value
-    $("#portUSB").val(status.comms.interfaces.activePort);
-
-    enableViaClass('.macrobtn', true);
-    enableViaClass('.grblCalibrationMenu', false);
   }
 }
 
@@ -134,6 +117,7 @@ function setControlBar(val, status) {
     $("#grblSettings").hide(); // Hide Grbl Settings if it was Open
     $('#grblconfig').empty();
     $('.estop').hide();
+    $('#unlockBtn, #unlockBtn2, #unlockBtn3').attr('disabled', true);
   } else if (val >= 1 && val <= 5) { // Normal operation
     // 1 - connecting
     // 2 - idle
@@ -149,23 +133,19 @@ function setControlBar(val, status) {
     const doorOpen = status.machine.inputs.includes('D');
 
     $('#toolBtn').show().attr('disabled', activeJob);
-    addRemoveClass('#spinDelay0', "checked", status.misc.spindleDelay == 0 || status.misc.laserMode);
-    addRemoveClass('#spinDelay3', "checked", status.misc.spindleDelay == 3 && !status.misc.laserMode);
-    addRemoveClass('#spinDelay5', "checked", status.misc.spindleDelay == 5 && !status.misc.laserMode);
-    addRemoveClass('#spinDelay8', "checked", status.misc.spindleDelay == 8 && !status.misc.laserMode);
-    enableViaClass('#spinDelay0, #spinDelay3, #spinDelay5, #spinDelay8', !status.misc.laserMode);
-
     $('#toolBtn2').toggle(!activeJob);
     $('#toolBtn3').toggle(activeJob).attr('disabled', val != 4 || status.machine.overrides.realSpindle == 0);
 
     // Hide the Run button if running or paused. Enable if the door is closed and there is a job to run
-    $('#runBtn').toggle(val != 3 && val != 4).attr('disabled', doorOpen || !hasJob);
+    $('#runBtn').toggle(val != 3 && val != 4).attr('disabled', doorOpen || !hasJob || val == 5);
 
     // Show the Resume button only if paused. Enable if the door is closed
     $('#resumeBtn').toggle(val == 4).attr('disabled', doorOpen);
 
     // Show the Pause button only if running. Disable if the job uses $J commands, as they can't be paused
     $('#pauseBtn').toggle(val == 3).attr('disabled', status.misc.jobStatus == 2);
+
+    $('#unlockBtn, #unlockBtn2, #unlockBtn3').attr('disabled', val != 5);
 
     // Enable the Stop button if running or paused
     $('#stopBtn').show().attr('disabled', !activeJob);
@@ -177,9 +157,6 @@ function setControlBar(val, status) {
 
     $('#controlBtnGrp').show();
     $('.estop').show();
-  } else if (val == 6) { // Firmware Upgrade State
-    $('#controlBtnGrp').hide();
-    $('.estop').hide();
   }
 }
 
@@ -245,7 +222,7 @@ function captureWcsHistoryInternal(position, wcs, name, tooltip, isRunJob) {
     return; // ignore updates to the same WCS that are within the timeout, as they are likely related to the same user intent
 
   if (history.length > 0 && history[0].isRedo) {
-    history.splice(index, 1);
+    history.splice(0, 1);
   }
 
   let newItem = {

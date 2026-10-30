@@ -1,17 +1,20 @@
-# Groove Control
+![Groove Control](docs/groove-control-logo.png)
+
 Groove Control is a G-code sender software for CNC machines running Grbl, GrblHAL, and FluidNC.
 
 It is the spiritual successor of the popular OpenBuilds CONTROL software.
 It builds on what made the original great - its simple and extremely approachable interface -
 and takes it to the next level of polish, safety and usability.
 
-Every feature has been enhanced. Frustrating bugs and quirks have been fixed. The job control is improved and more reliable.
+Every feature has been enhanced. Frustrating bugs and quirks have been fixed. The job controls are improved and more reliable.
 New features like the file history, origin history, a macro manager, a heightmap tool,
 and a slick job simulator fit seamlessly into the existing design.
+More major features are in the works or planned for future releases.
 
 ![Screenshot](docs/screenshot.png)
 
 ## Download
+*work in progress, the first public release is expected mid-November*
 
 **Latest version**
 
@@ -27,7 +30,7 @@ See all past versions here: [All Releases](releases)
 Signing the installer requires a certificate, which is not free.
 One will be added in the future, but at this time I can't justify the expense until I know that enough people are even going to use it
 
-* The Mac binaries are completely untested and not notarized. I don't have a Mac to test them.
+* The Mac binaries are completely untested and not notarized. I don't have a Mac to test them.<br>
 If you are a Mac developer and you are willing to help get things started, let me know
 
 
@@ -45,7 +48,7 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** More accurate machine limits, compatible with a variety of homing settings for Grbl, GrblHAL and FluidNC
 * **Improvement:** The Pause and Stop buttons remain available until the very end of the job
 * **Improvement:** A new setting to hide the controls for the 4th axis if it is supported, but not used
-* **Improvement:** The "Recover from line" feature is more reliable
+* **Improvement:** The "Recover from line" feature is smarter and more reliable
 * **Improvement:** Doesn't reset the "recently homed" status for errors and alerts that don't invalidate the machine position
 * **Improvement:** The homing button prevents accidental homing, and has a menu for homing a single axis if the hardware supports it
 * **Improvement:** Improved the speed and reliability of the controller detection over USB cable
@@ -55,23 +58,24 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **New Feature:** New button to reload the current G-code file or load from a list of recent files
 * **Improvement:** Removed the dropdown menu from the Open G-code button to save unnecessary mouse click
 * **Improvement:** New dialog for editing all application settings in one place
-* **Improvement:** New settings to disable the autostart and the tray icon, making it behave like a regular desktop app
 * **Improvement:** Allow clearing the key assignment in the keyboard shortcut editor and the macro editor
-* **Improvement:** The dialogs for opening and saving files have independent default directories for G-code, macros and grbl settings
+* **Improvement:** New settings to disable the autostart and the tray icon, making it behave like a regular desktop app
+* **Improvement:** Windows installer setting to control the file associations for G-code file extensions
+* **Improvement:** The dialogs for opening files remember their directory, with separate settings for G-code, macros and grbl settings
 * **Improvement:** The position of the main window is preserved between runs
 * **Improvement:** Improved readability for Light and Dark themes
-* **Bug fix:** Fix for dragging sliders with the mouse
+* **Bug Fix:** Fix for dragging sliders with the mouse to their min and max position
 
 ### 3D View
 
 * **New Feature:** Added playback controls to the simulation and fixed many bugs
 * **Improvement:** Options to hide graphical elements like the grid, ruler, tool marker, and more
 * **Improvement:** Optimized memory usage to allow for loading of larger files
-* **Bug fix:** Updated the 3D view to properly show arcs in the XZ and YZ planes
-* **Bug fix:** Fixed the orbiting controls rotation axis
-* **Bug fix:** Fixed the wrong bounding box for the machine area
-* **Bug fix:** Fixed the grid alignment and sizing
-* **Bug fix:** Fixed GPU memory leaks
+* **Bug Fix:** Updated the 3D view to properly show arcs in the XZ and YZ planes
+* **Bug Fix:** Fixed the orbiting controls rotation axis
+* **Bug Fix:** Fixed the wrong bounding box for the machine area
+* **Bug Fix:** Fixed the grid alignment and sizing
+* **Bug Fix:** Fixed GPU memory leaks
 
 ### Grbl Settings Editor
 
@@ -79,16 +83,15 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** Added more known GrblHAL settings and updated wrong descriptions
 * **Improvement:** Added support for a 4th axis in settings $3 and $23
 * **Improvement:** Basic support for FluidNC that shows the configuration file
-* **Improvement:** The "Basic" settings tab is removed, as it is specific to hardware that is no longer manufactured
-* **Improvement:** The flashing capabilities are removed for the same reason
-* **Bug fix:** Fixed a bug where using the search filter loses all unsaved changes
-* **Bug fix:** Fixed the broken tooltips for the setting descriptions
-* **Bug fix:** Fixed bugs in the backup feature that would corrupt certain settings, especially for GrblHAL
+* **Improvement:** The presets and flashing tools for OpenBuilds hardware have been removed, since it is no longer in production
+* **Bug Fix:** Fixed a bug where using the search filter loses all unsaved changes
+* **Bug Fix:** Fixed the broken tooltips for the setting descriptions
+* **Bug Fix:** Fixed bugs in the backup feature that would corrupt certain settings, especially for GrblHAL
 
 ### Surfacing Wizard
 
 * **Improvement:** New option to extend the surfaced area by the tool radius
-* **Bug fix:** Fix for a bug where the last row was sometimes skipped
+* **Bug Fix:** Fix for a bug where the last row was sometimes skipped
 
 ### Macro Management
 
@@ -169,7 +172,7 @@ The benefits of any additions will be weighed against their impact on the overal
 
 * **Tool change support** - allow for manual or assisted tool change
 
-* **Better use of larger screens** - will allow moving one of the main components (e.g. 3d view) to a secondary panel
+* **Better use of larger screens** - will allow moving one of the main tabs (e.g. 3d view) to a secondary panel
 
 That said, new features can be added via macros as well. The bar for those is lower than for features in the main software,
 since they are optional addons, and usually address a niche need.

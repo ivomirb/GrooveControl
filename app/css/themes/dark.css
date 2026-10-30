@@ -260,13 +260,23 @@ body.theme_dark, .theme_dark div.window, .theme_dark .card {
   border-top: none;
 }
 
-.theme_dark .switch .check, .theme_dark .switch .check::after {
-  border-color: #333 !important;
+.theme_dark .switch .check {
+  border-color: #bbb !important;
+}
+.theme_dark .switch .check::after {
+  color: white !important;
+  border-color: white !important;
+  background-color: white !important;
 }
 
-.theme_dark .switch .check::after {
-  color: #DDD !important;
-  background-color: #DDD !important;
+.theme_dark .switch input[type=checkbox]:checked~.check {
+  background-color: white !important;
+}
+
+.theme_dark .switch input[type=checkbox]:checked~.check::after {
+  color: black !important;
+  border: black !important;
+  background-color: black !important;
 }
 
 .theme_dark .action-button, .theme_dark .button, .theme_dark .flat-button {
@@ -382,6 +392,10 @@ body.theme_dark, .theme_dark div.window, .theme_dark .card {
 
 .theme_dark .bd-gray {
   border-color: #333 !important;
+}
+
+.theme_dark .bd-dialog {
+  border-color: #444 !important;
 }
 
 .theme_dark .tabs>ul.tabs-list>li>a {
@@ -522,6 +536,14 @@ body.theme_dark, .theme_dark div.window, .theme_dark .card {
 
 .theme_dark #simControls, .theme_dark #simText {
   background-color: #333;
+}
+
+.theme_dark .toggle.contrast input:checked+div {
+  background: #fff;
+}
+
+.theme_dark .toggle.contrast input:checked+div:before {
+  background: #4a4e51;
 }
 
 .theme_dark #sidePanel {

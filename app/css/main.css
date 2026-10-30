@@ -337,6 +337,10 @@ select {
   background-color: #f5f6f7;
 }
 
+.bd-dialog {
+  border-color: #ddd !important;
+}
+
 #sidePanel {
   background-color: #f5f6f7;
 }

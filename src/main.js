@@ -87,9 +87,9 @@ function onSecondInstance(event, commandLine, workingDirectory) {
 
   debug_log(commandLine);
 
-  for (var i = 0; i < commandLine.length; i++) {
+  for (let i = 0; i < commandLine.length; i++) {
     const arg = commandLine[i];
-    var ext = path.extname(arg).toLowerCase();
+    const ext = path.extname(arg).toLowerCase();
     if ([".obc", ".gcode", ".gc", ".tap", ".nc", ".cnc"].indexOf(ext) >= 0) {
       allowedFilePaths.add(arg);
       readGcodeFile(arg, true, addRecentFile);
@@ -106,7 +106,7 @@ function onSecondInstance(event, commandLine, workingDirectory) {
 function createApp() {
   appCreated = true;
 
-  var showGui = forceShowGui || process.argv.indexOf("-showGui") > 0;
+  let showGui = forceShowGui || process.argv.indexOf("-showGui") > 0;
   status.misc.trayIcon = persistentConfig.trayIcon;
   status.misc.autoStart = persistentConfig.autoStart;
 
@@ -136,7 +136,7 @@ function createApp() {
 
   const pathIndex = electronApp.isPackaged ? 1 : 2;
   if (pathIndex < process.argv.length) {
-    var openFilePath = process.argv[pathIndex];
+    const openFilePath = process.argv[pathIndex];
     if (openFilePath !== "" && openFilePath[0] != '-') {
       debug_log("path" + openFilePath);
       allowedFilePaths.add(openFilePath);
@@ -160,7 +160,7 @@ function exitApp() {
 }
 
 function createMacMenu() {
-  var template = [{
+  const template = [{
     label: "Application",
     submenu: [{
       label: "Quit",
@@ -373,7 +373,7 @@ function createJogWindow() {
     jogWindow.setOverlayIcon(nativeImage.createFromPath(iconPath), 'Icon');
   }
 
-  var url = `http://localhost:${config.webPort}/`;
+  let url = `http://localhost:${config.webPort}/`;
   if (safeMode) {
     url += "?safeMode=true";
   }
@@ -474,11 +474,19 @@ function onConnection(socket) {
   });
 
   socket.on("openwiki", function() {
+    shell.openExternal('https://github.com/ivomirb/GrooveControl/wiki')
+  });
+
+  socket.on("openbuilds", function() {
     shell.openExternal('https://github.com/OpenBuilds/docs-migrated/wiki')
   });
 
   socket.on("openforum", function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl/discussions')
+  });
+
+  socket.on("openheightmap", function() {
+    shell.openExternal('https://github.com/ivomirb/GrooveControl/wiki/Heightmap-Tool')
   });
 
   socket.on("minimisetotray", function() {

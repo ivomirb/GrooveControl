@@ -1,5 +1,8 @@
 "use strict";
 
+const APP_NAME = "Groove Control";
+const APP_VERSION = 1000.000; // 1.0.0 (convenient way to represent the version as a number)
+
 var currentGcode = ""; // this should always match what is in the 3d view, but the editor contents may be different
 var loadedFileName = ""; // name for the contents of the editor, usually the last loaded file
 var editor;
@@ -67,7 +70,7 @@ $(document).ready(function() {
     init3D();
 
     jogDocReady();
-    keyboardDocReady();
+    actionsDocReady();
     macrosDocReady();
     servoDocReady();
     themeDocReady();
@@ -126,44 +129,6 @@ $(document).ready(function() {
 
   initSocket();
   socket.emit('docReady', onDocReady);
-
-/* This seems to be a broken attempt to show api help text when the dev tools are open, however it doesn't work.
-If this is needed, it may be better triggered from the backend using jogWindow.webContents.on('devtools-opened' ...).
-However it may be rude to show the full text every time. Maybe only print "for help type help()", which then will print the entire doc
-  const element = new Image();
-  Object.defineProperty(element, 'id', {
-    get: function() {
-      socket.emit("maximize", true)
-      console.log('%cGroove Control Devtools', 'font-weight: bold; font-size: 20px;color: rgb(50,80,188); text-shadow: 1px 1px 0 rgb(0,00,39)');
-      console.log('%c', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%cGeneral: Check for any errors, messages as requested by our support team', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%c', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%cConsole Commands:', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%cAccess the last received feedback data (positions', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%coffsets, probes, comms, queues, etc )', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%claststatus', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%cAccess the Grbl Settings on the controller', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%cgrblParams', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%c; Clears the console screen', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%cconsole.clear()', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%c; Print a log entry/message to the Serial Log', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%cprintLog("string")', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%cAccess the running/last ran gcode via API', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%c$.get("/gcode", function(data) { //do something with gcode data });', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%c;  Send a job, ideal for macros, jobs. Can display a message when complete.', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%c;  Set isJob to store for access via GET /gcode if needed', 'font-weight: bold; font-size: 12px;color: black; ');
-
-      console.log('%csocket.emit("runJob", {', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%c  data: gcode-commands,', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%c  isJob: false,', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%c  completedMsg: "message displayed upon completion ",', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%c});', 'font-weight: regular; font-size: 12px;color: black; ');
-      console.log('%c; Send the G-code string to the controller, ideal for single commands', 'font-weight: bold; font-size: 12px;color: black; ');
-      console.log('%csendGcode("gcode-string")', 'font-weight: regular; font-size: 12px;color: black; ');
-    }
-  });
-  console.log('%c', element);
-*/
 });
 
 function onDocReady(data) {
@@ -186,6 +151,15 @@ function onDocReady(data) {
 
     setChangelog(data.changelogText);
   }
+}
+
+function onFirstStatus(status) {
+  const version = status.driver.version.split('.', 3).map((x) => parseInt(x));
+  if (version[0]*1000000 + version[1]*1000 + version[2] != Math.round(APP_VERSION*1000)) {
+    throw APP_NAME + ": APP_VERSION needs to be updated to " + (((version[0]*1000000 + version[1]*1000 + version[2])/1000).toFixed(3));
+  }
+
+  updatesFirstStatus(status);
 }
 
 function runJobFile() {
@@ -218,11 +192,7 @@ function runJobFileInternal(gcode) {
 }
 
 function jobNeedsHoming(gcode) {
-  if (laststatus && laststatus.machine.modals.homedRecently) {
-    return false;
-  }
-
-  if (localStorage.getItem('disableJobNeedsHoming') == "true") {
+  if (laststatus && laststatus.machine.modals.homedRecently || disabledWarnings.jobNeedsHoming) {
     return false;
   }
 
@@ -249,7 +219,7 @@ function jobNeedsHoming(gcode) {
       cls: "js-dialog-close warning",
       onclick: function() {
         if ($('#disableJobHomeCheck').prop('checked')) {
-          localStorage.setItem('disableJobNeedsHoming', "true");
+          disableWarning("jobNeedsHoming");
         }
         runJobFileInternal(gcode);
       }
@@ -259,7 +229,7 @@ function jobNeedsHoming(gcode) {
       cls: "js-dialog-close",
       onclick: function() {
         if ($('#disableJobHomeCheck').prop('checked')) {
-          localStorage.setItem('disableJobNeedsHoming', "true");
+          disableWarning("jobNeedsHoming");
         }
       }
     }]

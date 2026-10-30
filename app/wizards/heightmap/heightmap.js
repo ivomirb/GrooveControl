@@ -60,7 +60,7 @@ function heightmapSettingChange() {
 }
 
 const heightmapSettingsDlg = `
-<div class="row mb-2 border-top bd-gray">
+<div class="row mb-2" style="margin-top:-16px;">
   <label class="cell-sm-3"><b>Grid Dimensions</b></label>
   <label class="cell-sm-9" id="hightmapChangeWarning" style="display:none; margin-left:-30px;"><small class="dark"><i>Changing these settings will clear the current heightmap data</i></small></label>
 </div>
@@ -99,7 +99,7 @@ const heightmapSettingsDlg = `
 
 <div class="row mb-3">
   <label class="cell-sm-3 pt-1" style="padding-left:30px;" title="The anchor point is the location where the initial Z0 measurement will be taken.
-It has to match the Z0 of the G-code.">Anchor point</label>
+It has to match the Z0 of the G-code.">Anchor Point</label>
   <div class="cell-sm-4">
     <input id="heightmapAX" type="number" style="text-align:right;" data-role="input" data-prepend="X" data-append="mm" data-clear-button="false" data-editable="true"  onchange="heightmapSettingChange()"/>
   </div>
@@ -108,7 +108,7 @@ It has to match the Z0 of the G-code.">Anchor point</label>
   </div>
 </div>
 
-<div class="row mb-2 border-top bd-gray">
+<div class="row mb-2 border-top bd-dialog">
   <label class="cell-sm-6"><b>Z Probe Settings</b></label>
 </div>
 
@@ -140,14 +140,14 @@ Higher speed will make the probing faster, but will make potential collisions wi
   </div>
 </div>
 
-<div class="row mb-2 border-top bd-gray">
+<div class="row mb-2 border-top bd-dialog">
   <label class="cell-sm-3" title="The heightmap tool needs to subdivide the toolpaths into small linear segments to follow the surface.
 Smaller numbers will produce more accurate results, but will generate larger and slower G-code."><b>Toolpath Settings</b></label>
   <label class="cell-sm-9" style="margin-left:-30px;"><small class="dark"><i>These settings are global, independent of the current heightmap</i></small></label>
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3" style="padding-top:6px; padding-left:30px;" title="Minimum segment length for linear and arc segments">Min segment length</label>
+  <label class="cell-sm-3" style="padding-top:6px; padding-left:30px;" title="Minimum segment length for linear and arc segments">Min Segment Length</label>
   <div class="cell-sm-3">
     <input id="heightmapMinLength" type="number" style="text-align:right;" data-role="input" data-append="mm" data-clear-button="false" data-editable="true" />
   </div>
@@ -171,7 +171,7 @@ This could be useful for very uneven heightmaps.">Apply To Rapids</label>
     <input id="heightmapRapids" type="checkbox" data-role="checkbox" data-style="2"/>
   </div>
   <label class="cell-sm-3" style="margin-bottom:0; padding-top:6px;" title="When this is checked, the original G-code lines will be preserved as comments and the changes can be undone.
-You can uncheck it for large files to reduce the final size.">Preserve original lines</label>
+You can uncheck it for large files to reduce the final size.">Preserve Original Lines</label>
   <div class="cell-sm-1" style="padding-left:30px;">
     <input id="heightmapAllowRevert" type="checkbox" data-role="checkbox" data-style="2"/>
   </div>
@@ -597,7 +597,7 @@ function loadHeightmap() {
           config.shift();
         }
 
-        config = config.map(Number);
+        config = config.map((x) => Number(x));
         if (config.length != 12) {
           throw new Error("Line 1 doesn't have the correct number of values. Expecting 12 numbers.");
         }
@@ -616,7 +616,7 @@ function loadHeightmap() {
         }
         let heightmap = [];
         for (let y = 0; y < pointCount.y; y++) {
-          let row = lines[y+1].split(',').map(Number);
+          let row = lines[y+1].split(',').map((x) => Number(x));
           row.splice(pointCount.x);
           if (row.length != pointCount.x) {
             throw new Error("Line " + (y+2) + " doesn't have the correct number of values. Expecting " + pointCount.x + " numbers.");

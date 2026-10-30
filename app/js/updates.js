@@ -160,7 +160,7 @@ function onUpdateAvailable(info) {
   getReleaseStats();
 }
 
-function updatesFirstStatus() {
+function updatesFirstStatus(status) {
   socket.on('updatedata', function(data) {
     const icon = '';
     const source = data.command;
@@ -183,7 +183,7 @@ function updatesFirstStatus() {
     }
   });
 
-  if (!laststatus.misc.enableUpdates) {
+  if (!status.misc.enableUpdates) {
     const icon = '';
     const source = "autoupdate";
     const string = "The check for software updates is disabled.";

@@ -6,7 +6,7 @@ var grblParams = {}
 var nostatusyet = true;
 var bellstate = false;
 var waitingForStatus = false;
-var openDialogs = [];
+var openErrorDialogs = [];
 
 const MAX_GCODE_IN_EDITOR = 20 * 1024 * 1024;
 
@@ -126,7 +126,7 @@ function onSysInfo(sysinfo) {
     const operatingsys = sysinfo.operatingSystem.distro + " / " + sysinfo.operatingSystem.arch + " (" + sysinfo.operatingSystem.version + ")";
     $("#osspecs").html(operatingsys);
 
-    const ipaddresses = sysinfo.network.flatMap(iface => iface.addresses.map(addr => addr.address)).join(' / ');
+    const ipaddresses = sysinfo.network.flatMap((iface) => iface.addresses.map(addr => addr.address)).join(' / ');
     $("#ipspecs").html(ipaddresses);
   }
 }
@@ -326,10 +326,18 @@ function toastErrorAlarm(data) {
   const printLogCls = "fg-darkRed"
   printLogModern(icon, source, string, printLogCls)
 
+  if (typeof addDlgContext != "undefined") {
+    addDlgContext("alarm");
+  }
   const dialog = Metro.dialog.create({
     clsDialog: 'dark',
     title: "<i class='fas fa-exclamation-triangle'></i> Grbl Alarm:",
     content: "<i class='fas fa-exclamation-triangle fg-darkRed'></i>  " + data,
+    onClose: function () {
+      if (typeof removeDlgContext != "undefined") {
+        removeDlgContext("alarm");
+      }
+    },
     actions: [{
         caption: "Clear Alarm",
         cls: "js-dialog-close alert closeAlarmBtn",
@@ -346,7 +354,7 @@ function toastErrorAlarm(data) {
   });
 
   if (data.indexOf("ALARM: 6") == -1 && data.indexOf("ALARM: 7") == -1 && data.indexOf("ALARM: 8") == -1 && data.indexOf("ALARM: 9") == -1 && data.indexOf("ALARM: 10") == -1) {
-    openDialogs.push(dialog);
+    openErrorDialogs.push(dialog);
   }
 
   setTimeout(function() {
@@ -373,7 +381,7 @@ function toastError(data) {
       }
     }]
   });
-  openDialogs.push(dialog);
+  openErrorDialogs.push(dialog);
   setTimeout(function() {
     $(".closeErrorBtn").focus();
   }, 200);
@@ -381,10 +389,10 @@ function toastError(data) {
 
 function errorsCleared(data) {
   if (data) {
-    for (const dlg of openDialogs) {
+    for (const dlg of openErrorDialogs) {
       Metro.dialog.close(dlg);
     }
-    openDialogs.length = 0;
+    openErrorDialogs.length = 0;
   }
 }
 
@@ -441,25 +449,30 @@ function onStatus(status) {
     }
   }
 
-  if (status.comms.runStatus.startsWith("Door")) {
-    const doorType = status.comms.runStatus.split(":")[1]
-    let doorMsg = "";
+  let statusMsg;
+  if (status.comms.runStatus == "Pending") {
+    statusMsg = "Controller: Not Connected";
+  } else if (status.comms.runStatus == "Hold:0") {
+    statusMsg = "Controller: Paused";
+  } else if (status.comms.runStatus.startsWith("Door")) {
+    const doorType = status.comms.runStatus.split(":")[1];
+    statusMsg = "";
     if (doorType == 0) {
-      doorMsg += "Door Closed: Ready to Resume"
+      statusMsg = "Door Closed: Ready to Resume"
     }
     if (doorType == 1) {
-      doorMsg += "Door Open: Paused"
+      statusMsg = "Door Open: Paused"
     }
     if (doorType == 2) {
-      doorMsg += "Door Open: Tool Stopping"
+      statusMsg = "Door Open: Tool Stopping"
     }
     if (doorType == 3 || doorType == 4) {
-      doorMsg += "Door Closed: Tool Starting Up"
+      statusMsg = "Door Closed: Tool Starting Up"
     }
-    $('#runStatus').html(doorMsg);
   } else {
-    $('#runStatus').html("Controller: " + status.comms.runStatus);
+    statusMsg = "Controller: " + status.comms.runStatus;
   }
+  $('#runStatus').html(statusMsg);
 
   updateDro(status);
 
@@ -623,7 +636,7 @@ function onStatus(status) {
   waitingForStatus = false;
   if (firstStatus) {
     if (!isJogWidget) {
-      updatesFirstStatus();
+      onFirstStatus(status);
     }
   }
 }
@@ -894,9 +907,9 @@ function populatePortsMenu() {
       for (const port of laststatus.comms.interfaces.ports) {
         const lastUsedPort = localStorage.getItem('lastUsedPort');
         if (port.path == lastUsedPort) {
-          response += `<option value="` + port.path + `" selected>` + port.path.replace("/dev/tty.", "") + " " + port.note + `</option>`;
+          response += `<option value="` + port.path + `" selected>` + port.path.replace("/dev/tty.", "") + ": " + port.note + `</option>`;
         } else {
-          response += `<option value="` + port.path + `">` + port.path.replace("/dev/tty.", "") + " " + port.note + `</option>`;
+          response += `<option value="` + port.path + `">` + port.path.replace("/dev/tty.", "") + ": " + port.note + `</option>`;
         }
 
       }
@@ -970,18 +983,18 @@ function pauseSpindle() {
   if (socket) {
     socket.emit('serialInject', String.fromCharCode(0x84));
 
-    if (localStorage.getItem('disablePauseSpindleDlg') != "true") {
+    if (!disabledWarnings.pauseSpindleDlg) {
       Metro.dialog.create({
         clsDialog: 'dark',
         title: "<i class='fas fa-exclamation-triangle'></i> Spindle Paused",
         content: `The spindle will automatically turn back on when the job is resumed.<br>The movement will continue a few seconds later.<br><br>` +
-    `<input id="disablePauseSpindleDlg" type="checkbox" data-role="checkbox" data-style="2" data-caption="Don't show this again"/>`,
+          `<input id="disablePauseSpindleDlg" type="checkbox" data-role="checkbox" data-style="2" data-caption="Don't show this again"/>`,
         actions: [{
           caption: "OK",
           cls: "js-dialog-close",
           onclick: function() {
             if ($('#disablePauseSpindleDlg').prop('checked')) {
-              localStorage.setItem('disablePauseSpindleDlg', "true");
+              disableWarning("pauseSpindleDlg");
             }
           }
         }]

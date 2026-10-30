@@ -55,7 +55,7 @@ function removeDocReadyHandler(handler) {
 
 function onDocReady(callback) {
   serverEmit("status", status);
-  var result = {
+  const result = {
     platform: process.platform,
   };
   docReadyHandlers.forEach((x) => x(result));
@@ -106,7 +106,7 @@ that expire in 3 months. Besides, the private keys are included in the open sour
   // fix error:    App threw an error during load
   //               Error: error:06000066:public key routines:OPENSSL_internal:DECODE_ERROR
 
-  var httpsOptions = {
+  const httpsOptions = {
     key: fs.readFileSync(path.join(rootDir, 'privkey1.pem')),
     cert: fs.readFileSync(path.join(rootDir, 'fullchain1.pem'))
   };
