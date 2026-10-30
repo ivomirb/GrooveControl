@@ -60,6 +60,7 @@ var jobStartTime = false;
 var jobIsJob = false;
 var jobStatusInternal = 0; // 0 - no job, 1 - running, 2 - jog job running, 3 - wait for idle, 4 - jog job waiting for idle
 var jobCompletedMsg = ""; // message sent when job is done
+var pendingJobCallbacks = [];
 var currentGcode = ""; // the gcode for the current job
 
 const GRBL_RX_BUFFER_SIZE = 127;
@@ -798,7 +799,15 @@ function addLinesToQueue(data, isJob) {
   return !empty;
 }
 
-function runJob(object) {
+function runJob(object, callback) {
+  if (status.comms.connectionStatus < 2) {
+    debug_log('ERROR: Machine connection not open!');
+    if (callback) {
+      callback(false);
+    }
+    return;
+  }
+
   jobStartTime = false;
   const data = object.data;
 
@@ -812,11 +821,6 @@ function runJob(object) {
     jobCompletedMsg = object.completedMsg
   }
 
-  if (status.comms.connectionStatus == 0) {
-    debug_log('ERROR: Machine connection not open!');
-    return;
-  }
-
   if (data && addLinesToQueue(data, true)) {
     // Start interval for qCount messages to socket clients
     queueCounterLoop = setInterval(function() {
@@ -827,6 +831,17 @@ function runJob(object) {
     status.misc.jobStatus = 1;
     send1Q(); // send first line
     status.comms.connectionStatus = 3;
+
+    if (callback) {
+      pendingJobCallbacks.push({
+        callback: callback,
+        report: {
+          startTime: jobStartTime,
+        }
+      });
+    }
+  } else if (callback) {
+    callback(false);
   }
 }
 
@@ -917,6 +932,12 @@ function clearGcodeQueue(success) {
 // If a job is currently in progress, sends the jobComplete message
 function finalizeJob(success) {
   if (jobStatusInternal > 0) {
+    for (let job of pendingJobCallbacks) {
+      job.report.endTime = new Date().getTime();
+      job.report.success = success;
+      job.callback(success, job.report);
+    }
+    pendingJobCallbacks.length = 0;
     const data = {
       completed: true, // always true, kept for backwards compatibility
       failed: !success,
