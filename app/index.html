@@ -478,18 +478,24 @@ The spindle will automatically start when the job is resumed.">
               <div class="group">
                 <button class="ribbon-button" onclick="socket.emit('openwiki');">
                   <span class="icon">
-                    <i class="fas fa-book" data-fa-transform=""></i>
+                    <i class="fas fa-book"></i>
                   </span>
-                  <span class="caption">OpenBuilds<br>Archive</span>
+                  <span class="caption">Groove<br>Docs</span>
                 </button>
                 <button class="ribbon-button" onclick="socket.emit('openforum');">
                   <span class="icon">
                     <span class="fa-layers fa-fw">
-                      <i class="far fa-comment-alt" data-fa-transform=""></i>
+                      <i class="far fa-comment-alt"></i>
                       <i class="fas fa-question" data-fa-transform="shrink-8 up-1"></i>
                     </span>
                   </span>
                   <span class="caption">Groove<br>Forum</span>
+                </button>
+                <button class="ribbon-button" onclick="socket.emit('openbuilds');">
+                  <span class="icon">
+                    <img src="img/openbuilds-logo.svg">
+                  </span>
+                  <span class="caption">OpenBuilds<br>Archive</span>
                 </button>
                 <span class="title">Support</span>
               </div>
@@ -1091,7 +1097,9 @@ Restore previous origins from history.">
                           <li onclick="clearHeightmapData()" id="clearHeightmap"><a href="#">Clear Heightmap</a></li>
                           <li class="divider"></li>
                           <li onclick="applyHeightmap()" id="applyHeightmap"><a href="#">Apply Heightmap</a></li>
-                          <li onclick="revertHeightmap()" id="revertHeightmap" onclick="RevertGCode()"><a href="#">Revert G-code changes</a></li>
+                          <li onclick="revertHeightmap()" id="revertHeightmap"><a href="#">Revert G-code changes</a></li>
+                          <li class="divider"></li>
+                          <li onclick="socket.emit('openheightmap')"><a href="#">Documentation</a></li>
                         </ul>
                       </div>
                     </div>
