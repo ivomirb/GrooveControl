@@ -31,91 +31,69 @@ var portOpenHandlers = [];
 var portCloseHandlers = [];
 
 
-function friendlyPort(port) {
-  let img = 'usb.png';
-  let note = '';
-  const manufacturer = port.manufacturer;
-  if (manufacturer == `(Standard port types)`) {
-    img = 'serial.png'
-    note = 'Motherboard Serial Port';
-  } else if (port.productId && port.vendorId) {
-    if (port.productId == '6001' && port.vendorId == '0403') {
-      // found FTDI FT232
-      img = 'usb.png';
-      note = 'FTDI USB to Serial';
-    }
-    if (port.productId == '6015' && port.vendorId == '0403') {
-      // found FTDI FT230x
-      img = 'usb.png';
-      note = 'FTDI USD to Serial';
-    }
-    if (port.productId == '606D' && port.vendorId == '1D50') {
-      // found TinyG G2
-      img = 'usb.png';
-      note = 'Tiny G2';
-    }
-    if (port.productId == '003D' && port.vendorId == '2341') {
-      // found Arduino Due Prog Port
-      img = 'due.png';
-      note = 'Arduino Due Prog';
-    }
-    if (port.productId == '0043' && port.vendorId == '2341' || port.productId == '0001' && port.vendorId == '2341' || port.productId == '0043' && port.vendorId == '2A03') {
-      // found Arduino Uno
-      img = 'uno.png';
-      note = 'Arduino Uno';
-    }
-    if (port.productId == '2341' && port.vendorId == '0042') {
-      // found Arduino Mega
-      img = 'mega.png';
-      note = 'Arduino Mega';
-    }
-    if (port.productId == '7523' && port.vendorId == '1A86') {
-      // found CH340
-      img = 'uno.png';
-      note = 'WCH.cn CH340 USB to UART';
-    }
-    if (port.productId == 'EA60' && port.vendorId == '10C4') {
-      // found CP2102
-      img = 'silabs.png';
-      note = 'Silicon Labs USB to UART';
-    }
-    if (port.productId == '000A' && port.vendorId == '2E8A') {
-      // found CP2102
-      img = 'pipico.png';
-      note = 'Raspberry Pi Pico CDC UART';
-    }
-    if (port.productId == '4001' && port.vendorId == '303A') {
-      // found CP2102
-      img = 'blox.png';
-      note = 'OpenBuilds BLOX (with grblHAL)';
-    }
-    if (port.productId == '1001' && port.vendorId == '303A') {
-      // found CP2102
-      img = 'blox.png';
-      note = 'OpenBuilds BLOX (Alternate Firmware)';
-    }
-    if (port.productId == '2303' && port.vendorId == '067B') {
-      // found CP2102
-      // img = 'nodemcu.png';
-      note = 'Prolific USB to Serial';
-    }
-  } else {
-    img = "usb.png";
+function friendlyPortName(port) {
+  if (port.manufacturer == `(Standard port types)`) {
+    return 'Motherboard Serial Port';
   }
-
-  return {
-    img: img,
-    note: note
-  };
+  if (port.productId == '6001' && port.vendorId == '0403') {
+    // found FTDI FT232
+    return 'FTDI USB to Serial';
+  }
+  if (port.productId == '6015' && port.vendorId == '0403') {
+    // found FTDI FT230x
+    return 'FTDI USD to Serial';
+  }
+  if (port.productId == '606D' && port.vendorId == '1D50') {
+    // found TinyG G2
+    return 'Tiny G2';
+  }
+  if (port.productId == '003D' && port.vendorId == '2341') {
+    // found Arduino Due Prog Port
+    return 'Arduino Due Prog';
+  }
+  if (port.productId == '0043' && port.vendorId == '2341' || port.productId == '0001' && port.vendorId == '2341' || port.productId == '0043' && port.vendorId == '2A03') {
+    // found Arduino Uno
+    return 'Arduino Uno';
+  }
+  if (port.productId == '2341' && port.vendorId == '0042') {
+    // found Arduino Mega
+    return 'Arduino Mega';
+  }
+  if (port.productId == '7523' && port.vendorId == '1A86') {
+    // found CH340
+    return 'WCH.cn CH340 USB to UART';
+  }
+  if (port.productId == 'EA60' && port.vendorId == '10C4') {
+    // found CP2102
+    return 'Silicon Labs USB to UART';
+  }
+  if (port.productId == '000A' && port.vendorId == '2E8A') {
+    // found CP2102
+    return 'Raspberry Pi Pico CDC UART';
+  }
+  if (port.productId == '4001' && port.vendorId == '303A') {
+    // found CP2102
+    return 'OpenBuilds BLOX (with grblHAL)';
+  }
+  if (port.productId == '1001' && port.vendorId == '303A') {
+    // found CP2102
+    return 'OpenBuilds BLOX (Alternate Firmware)';
+  }
+  if (port.productId == '2303' && port.vendorId == '067B') {
+    // found CP2102
+    return 'Prolific USB to Serial';
+  }
+  return "";
 }
 
 async function findPorts() {
   const ports = await SerialPort.list()
-  status.comms.interfaces.ports = ports;
-  for (let i = 0; i < status.comms.interfaces.ports.length; i++) {
-    const data = friendlyPort(status.comms.interfaces.ports[i])
-    status.comms.interfaces.ports[i].img = data.img;
-    status.comms.interfaces.ports[i].note = data.note;
+  status.comms.interfaces.ports = [];
+  for (const port of ports) {
+    if (port.productId || port.vendorId) {
+      port.note = friendlyPortName(port);
+      status.comms.interfaces.ports.push(port);
+    }
   }
 }
 
