@@ -147,7 +147,7 @@ const g_HeightmapSettingsDlg = `
 
 <div class="row mb-3">
   <label class="cell-sm-3 pt-1" style="padding-left:30px;" title="The anchor point is the location where the initial Z0 measurement will be taken.
-It has to match the Z0 of the G-code.">Anchor point</label>
+It has to match the Z0 of the G-code.">Anchor Point</label>
   <div class="cell-sm-4">
     <input id="heightmapAX" type="number" style="text-align:right;" data-role="input" data-prepend="X" data-append="mm" data-clear-button="false" data-editable="true"  onchange="OnSettingChange()"/>
   </div>
@@ -195,7 +195,7 @@ Smaller numbers will produce more accurate results, but will generate larger and
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3" style="padding-top:6px; padding-left:30px;" title="Minimum segment length for linear and arc segments">Min segment length</label>
+  <label class="cell-sm-3" style="padding-top:6px; padding-left:30px;" title="Minimum segment length for linear and arc segments">Min Segment Length</label>
   <div class="cell-sm-3">
     <input id="heightmapMinLength" type="number" style="text-align:right;" data-role="input" data-append="mm" data-clear-button="false" data-editable="true" />
   </div>
@@ -219,7 +219,7 @@ This could be useful for very uneven heightmaps.">Apply To Rapids</label>
     <input id="heightmapRapids" type="checkbox" data-role="checkbox" data-style="2"/>
   </div>
   <label class="cell-sm-3" style="margin-bottom:0; padding-top:6px;" title="When this is checked, the original G-code lines will be preserved as comments and the changes can be undone.
-You can uncheck it for large files to reduce the final size.">Preserve original lines</label>
+You can uncheck it for large files to reduce the final size.">Preserve Original Lines</label>
   <div class="cell-sm-1" style="padding-left:30px;">
     <input id="heightmapAllowRevert" type="checkbox" data-role="checkbox" data-style="2"/>
   </div>
