@@ -907,9 +907,9 @@ function populatePortsMenu() {
       for (const port of laststatus.comms.interfaces.ports) {
         const lastUsedPort = localStorage.getItem('lastUsedPort');
         if (port.path == lastUsedPort) {
-          response += `<option value="` + port.path + `" selected>` + port.path.replace("/dev/tty.", "") + " " + port.note + `</option>`;
+          response += `<option value="` + port.path + `" selected>` + port.path.replace("/dev/tty.", "") + ": " + port.note + `</option>`;
         } else {
-          response += `<option value="` + port.path + `">` + port.path.replace("/dev/tty.", "") + " " + port.note + `</option>`;
+          response += `<option value="` + port.path + `">` + port.path.replace("/dev/tty.", "") + ": " + port.note + `</option>`;
         }
 
       }

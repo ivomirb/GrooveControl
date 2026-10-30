@@ -35,51 +35,54 @@ function friendlyPortName(port) {
   if (port.manufacturer == `(Standard port types)`) {
     return 'Motherboard Serial Port';
   }
-  if (port.productId == '6001' && port.vendorId == '0403') {
+
+  const productId = port.productId.toUpperCase();
+  const vendorId = port.vendorId.toUpperCase();
+  if (productId == '6001' && vendorId == '0403') {
     // found FTDI FT232
     return 'FTDI USB to Serial';
   }
-  if (port.productId == '6015' && port.vendorId == '0403') {
+  if (productId == '6015' && vendorId == '0403') {
     // found FTDI FT230x
     return 'FTDI USD to Serial';
   }
-  if (port.productId == '606D' && port.vendorId == '1D50') {
+  if (productId == '606D' && vendorId == '1D50') {
     // found TinyG G2
     return 'Tiny G2';
   }
-  if (port.productId == '003D' && port.vendorId == '2341') {
+  if (productId == '003D' && vendorId == '2341') {
     // found Arduino Due Prog Port
     return 'Arduino Due Prog';
   }
-  if (port.productId == '0043' && port.vendorId == '2341' || port.productId == '0001' && port.vendorId == '2341' || port.productId == '0043' && port.vendorId == '2A03') {
+  if ((productId == '0043' && vendorId == '2341') || (productId == '0001' && vendorId == '2341') || (productId == '0043' && vendorId == '2A03')) {
     // found Arduino Uno
     return 'Arduino Uno';
   }
-  if (port.productId == '2341' && port.vendorId == '0042') {
+  if (productId == '0042' && vendorId == '2341') {
     // found Arduino Mega
     return 'Arduino Mega';
   }
-  if (port.productId == '7523' && port.vendorId == '1A86') {
+  if (productId == '7523' && vendorId == '1A86') {
     // found CH340
     return 'WCH.cn CH340 USB to UART';
   }
-  if (port.productId == 'EA60' && port.vendorId == '10C4') {
+  if (productId == 'EA60' && vendorId == '10C4') {
     // found CP2102
     return 'Silicon Labs USB to UART';
   }
-  if (port.productId == '000A' && port.vendorId == '2E8A') {
+  if (productId == '000A' && vendorId == '2E8A') {
     // found CP2102
     return 'Raspberry Pi Pico CDC UART';
   }
-  if (port.productId == '4001' && port.vendorId == '303A') {
+  if (productId == '4001' && vendorId == '303A') {
     // found CP2102
     return 'OpenBuilds BLOX (with grblHAL)';
   }
-  if (port.productId == '1001' && port.vendorId == '303A') {
+  if (productId == '1001' && vendorId == '303A') {
     // found CP2102
     return 'OpenBuilds BLOX (Alternate Firmware)';
   }
-  if (port.productId == '2303' && port.vendorId == '067B') {
+  if (productId == '2303' && vendorId == '067B') {
     // found CP2102
     return 'Prolific USB to Serial';
   }
