@@ -5,6 +5,7 @@ var keyboardShortcuts = {};
 var focusedKbdAction = undefined;
 var dlgContext = {};
 var kbdWarningShown = false;
+var keyUpAction = undefined;
 
 // Copied from metro.js - filters for text fields for which to suppress global hotkeys
 // excludes: button, checkbox, file, hidden, image, password, radio, reset, search, submit, url
@@ -67,7 +68,14 @@ function onDocKeyDown(event) {
     if (keyboardShortcuts[action.name] == key && action.keydown) {
       if (!dlgVisible || dlgContext[action.dlgContext]) {
         event.preventDefault();
+        if (keyUpAction) {
+          keyUpAction.keyup();
+          keyUpAction = undefined;
+        }
         action.keydown();
+        if (action.keyup) {
+          keyUpAction = action;
+        }
       }
       return;
     }
@@ -86,21 +94,16 @@ function onDocKeyDown(event) {
 }
 
 function onDocKeyUp(event) {
-  if (textInputNodeNames.includes(event.target.nodeName.toLowerCase()) ||
-      textInputTypes.includes(event.target.type) ||
-      event.target.hasAttribute('contenteditable')) {
-    return;
-  }
-
-  let key = keyNameFromDownEvent(event);
-  if (key == "") {
-    return;
-  }
-  for (const action of inputActions) {
-    if (keyboardShortcuts[action.name] == key && action.keyup) {
+  if (keyUpAction) {
+    const shortcut = keyboardShortcuts[keyUpAction.name];
+    const keyLower = event.key.toLowerCase();
+    if (shortcut == keyNameFromDownEvent(event) || // relese the main key while all modifiers are active
+        (keyLower == 'alt' && shortcut.indexOf('alt+') >= 0) || // or release any of the modifiers
+        (keyLower == 'control' && shortcut.indexOf('ctrl+') >= 0) ||
+        (keyLower == 'shift' && shortcut.indexOf('shift+') >= 0)) {
       event.preventDefault();
-      action.keyup();
-      return;
+      keyUpAction.keyup();
+      keyUpAction = undefined;
     }
   }
 }
@@ -119,7 +122,7 @@ function keyNameFromDownEvent(event) {
     keyName += 'shift+'
   }
 
-  let keyLower = event.key.toLowerCase();
+  const keyLower = event.key.toLowerCase();
   if (keyLower != 'alt' && keyLower != 'control' && keyLower != 'shift') {
     // Handle MetroUI naming non-standards of some keys
     if (event.keyCode == 32) {
