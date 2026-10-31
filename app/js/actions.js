@@ -464,7 +464,7 @@ function runMacro(macro) {
 }
 
 function actionsDocReady() {
-  initKeyboardSettings();
+  initKeyboardActions();
 
   if (!isJogWidget) {
     updateButtonTooltips();

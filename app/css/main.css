@@ -321,6 +321,10 @@ select {
   justify-content: left;
 }
 
+.compact-options .d-menu li a {
+  padding: 0 1rem;
+}
+
 .light_theme_only {
   display: block;
 }

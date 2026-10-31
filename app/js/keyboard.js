@@ -316,7 +316,7 @@ function showKbdWarning() {
   });
 }
 
-function initKeyboardSettings() {
+function initKeyboardActions() {
   for (const action of inputActions) {
     keyboardShortcuts[action.name] = action.defaultKey;
   }
