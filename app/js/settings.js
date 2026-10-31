@@ -208,6 +208,7 @@ function applyAppSettings() {
   }
 
   applyKeyboardSettings();
+  updateButtonTooltips();
 
   if (reload) {
     location.reload();
