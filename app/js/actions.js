@@ -1,5 +1,7 @@
 "use strict";
 
+var dlgContext = {};
+
 const inputActions = [
   { // Activate Joystick Jog
     name: "analogJogActivate",
@@ -534,7 +536,7 @@ function removeDlgContext(context) {
   dlgContext[context] = false;
 }
 
-function findKeyboardAction(name) {
+function findInputAction(name) {
   for (const action of inputActions) {
     if (action.name == name) {
       return action;

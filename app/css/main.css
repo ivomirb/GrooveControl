@@ -198,6 +198,11 @@ select {
   font-size: 10px !important;
 }
 
+.macrokbd-icon {
+  font-size: 14px;
+  margin-bottom: -2px;
+}
+
 #macrogcode {
   /*font-family: "Courier New", Courier, monospace;*/
   font-family: "Lucida Console", Monaco, monospace;

@@ -2,10 +2,9 @@
 
 var disableKeyboardShortcuts = true;
 var keyboardShortcuts = {};
-var dlgContext = {};
 var focusedKbdAction = undefined;
 var kbdWarningShown = false;
-var keyUpAction = undefined;
+var keyboardUpAction = undefined;
 
 // Copied from metro.js - filters for text fields for which to suppress global hotkeys
 // excludes: button, checkbox, file, hidden, image, password, radio, reset, search, submit, url
@@ -68,13 +67,13 @@ function onDocKeyDown(event) {
     if (keyboardShortcuts[action.name] == key && action.keydown) {
       if (!dlgVisible || dlgContext[action.dlgContext]) {
         event.preventDefault();
-        if (keyUpAction) {
-          keyUpAction.keyup();
-          keyUpAction = undefined;
+        if (keyboardUpAction) {
+          keyboardUpAction.keyup();
+          keyboardUpAction = undefined;
         }
         action.keydown();
         if (action.keyup) {
-          keyUpAction = action;
+          keyboardUpAction = action;
         }
       }
       return;
@@ -84,7 +83,7 @@ function onDocKeyDown(event) {
   // Bind for Macro keys
   if (!dlgVisible) {
     for (const macro of buttonsarray) {
-      if (macro.macrokeyboardshortcut == key) {
+      if (macro.shortcut == key) {
         event.preventDefault();
         runMacro(macro);
         return;
@@ -94,16 +93,16 @@ function onDocKeyDown(event) {
 }
 
 function onDocKeyUp(event) {
-  if (keyUpAction) {
-    const shortcut = keyboardShortcuts[keyUpAction.name];
+  if (keyboardUpAction) {
+    const shortcut = keyboardShortcuts[keyboardUpAction.name];
     const keyLower = event.key.toLowerCase();
     if (shortcut == keyNameFromDownEvent(event) || // relese the main key while all modifiers are active
         (keyLower == 'alt' && shortcut.indexOf('alt+') >= 0) || // or release any of the modifiers
         (keyLower == 'control' && shortcut.indexOf('ctrl+') >= 0) ||
         (keyLower == 'shift' && shortcut.indexOf('shift+') >= 0)) {
       event.preventDefault();
-      keyUpAction.keyup();
-      keyUpAction = undefined;
+      keyboardUpAction.keyup();
+      keyboardUpAction = undefined;
     }
   }
 }
@@ -173,7 +172,7 @@ function onShorcutKeyDown(event) {
 }
 
 function onShortcutGetFocus(name) {
-  const action = findKeyboardAction(name);
+  const action = findInputAction(name);
 
   if (focusedKbdAction != action) {
     if (focusedKbdAction) {
@@ -200,7 +199,7 @@ function onShortcutLoseFocus() {
 }
 
 function onShortcutInputChange(name) {
-  const action = findKeyboardAction(name);
+  const action = findInputAction(name);
   const input = $('#' + action.name + 'newKey');
   if (input.val() == "") {
     input.parent().removeClass('alert');
@@ -228,7 +227,7 @@ function keyInUse(newVal, forMacro) {
 
   // Check currently assigned Macros
   for (const macro of buttonsarray) {
-    if (macro != currentEditMacro && newVal == macro.macrokeyboardshortcut) {
+    if (macro != currentEditMacro && newVal == macro.shortcut) {
       inUse = true;
       usedBy = "macro: " + macro.title;
       break;
