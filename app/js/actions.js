@@ -480,28 +480,7 @@ function runMacro(macro) {
 }
 
 function actionsDocReady() {
-  for (const action of inputActions) {
-    keyboardShortcuts[action.name] = action.defaultKey;
-    buttonShortcuts[action.name] = "";
-  }
-  disableGamepad = localStorage.getItem('disableGamepad') == null || JSON.parse(localStorage.getItem('disableGamepad')) == true;
-  if (localStorage.getItem('buttonShortcuts')) {
-    const settings = JSON.parse(localStorage.getItem('buttonShortcuts'));
-    for (const action of inputActions) {
-      if (settings[action.name] != undefined) {
-        buttonShortcuts[action.name] = settings[action.name];
-      }
-    }
-  }
-
-  window.addEventListener("gamepadconnected", onGamepadConnected);
-  window.addEventListener("gamepaddisconnected", onGamepadDisconnected);
-  $('#gamepadDisplay').toggle(!disableGamepad);
-  onGamepadDisconnected();
-
-  if (localStorage.getItem('analogStickDeadzone')) {
-    analogStickDeadzone = Math.max(Math.min(parseInt(localStorage.getItem('analogStickDeadzone')), 100), 0);
-  }
+  initKeyboardActions();
 
   if (!isJogWidget) {
     updateButtonTooltips();

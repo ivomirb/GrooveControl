@@ -211,7 +211,7 @@ function editMacro(buttonIdx, fileName, script) {
           </div>
           <label class="cell-sm-1" style="padding:0;">Color</label>
           <div class="cell-sm-4">
-            <select data-role="select" id="macrocls" data-filter="false" data-drop-height="">
+            <select data-role="select" id="macrocls" data-filter="false" class="compact-options">
               <option value="" selected>Default</option>
               <option value="primary">Blue</option>
               <option value="info">Light Blue</option>
@@ -767,7 +767,7 @@ function moveMacroToGroup(buttonIdx) {
 <div class="row mb-2">
   <label class="cell-sm-4 pt-1" title="Move to existing group">Group:</label>
   <div class="cell-sm-6">
-  <select id="macroGroup" data-role="select" data-clear-button="true" data-filter="false" onchange="if (Number($('#macroGroup').val()) == -1) $('#macroGroupNameRow').show(); else $('#macroGroupNameRow').hide()">
+  <select id="macroGroup" class="compact-options" data-role="select" data-clear-button="true" data-filter="false" onchange="if (Number($('#macroGroup').val()) == -1) $('#macroGroupNameRow').show(); else $('#macroGroupNameRow').hide()">
     <option value="0">Default</option>
 `;
 
