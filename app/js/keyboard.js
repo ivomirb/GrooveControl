@@ -315,3 +315,31 @@ function showKbdWarning() {
     }]
   });
 }
+
+function initKeyboardActions() {
+  for (const action of inputActions) {
+    keyboardShortcuts[action.name] = action.defaultKey;
+  }
+
+  if (localStorage.getItem('keyboardShortcuts')) {
+    let settings = JSON.parse(localStorage.getItem('keyboardShortcuts'));
+    for (const action of inputActions) {
+      if (settings[action.name] != undefined) {
+        keyboardShortcuts[action.name] = settings[action.name];
+      }
+    }
+  }
+
+  disableKeyboardShortcuts = localStorage.getItem('disableKeyboardShortcuts') == null || (JSON.parse(localStorage.getItem('disableKeyboardShortcuts')) == true);
+
+  // Remove Keyboard Bindings from Override Sliders
+  $("#jrocell").find(".marker").unbind(Metro.events.keydown);
+  $("#trocell").find(".marker").unbind(Metro.events.keydown);
+  $("#frocell").find(".marker").unbind(Metro.events.keydown);
+  $("#jrocell").find(".marker").unbind(Metro.events.keyup);
+  $("#trocell").find(".marker").unbind(Metro.events.keyup);
+  $("#frocell").find(".marker").unbind(Metro.events.keyup);
+
+  $(document).on('keydown', onDocKeyDown);
+  $(document).on('keyup', onDocKeyUp);
+}

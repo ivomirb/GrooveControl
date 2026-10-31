@@ -65,7 +65,7 @@ const appSettingsDlg = `
   <div class="row ml-3">
     <label class="cell-sm-3" style="padding-left:0px; padding-top:5px;">Color Theme</label>
     <div class="cell-sm-6">
-      <select data-role="select" id="selectTheme" data-filter="false">
+      <select data-role="select" id="selectTheme" data-filter="false" class="compact-options">
       </select>
     </div>
   </div>
@@ -104,7 +104,7 @@ For GrblHAL use parameter $394 instead and for FluidNC use the spinup_ms setting
 Ignored in Laser mode."></span>
     </label>
     <div class="cell-sm-6">
-      <select data-role="select" id="spindleDelay" data-filter="false">
+      <select data-role="select" id="spindleDelay" data-filter="false" class="compact-options">
         <option value="0" selected>No Delay</option>
         <option value="3">Delay 3 sec (G4 P3)</option>
         <option value="5">Delay 5 sec (G4 P5)</option>
@@ -139,10 +139,10 @@ Ignored in Laser mode."></span>
 </div>
 
 <div class="section" id="keyboardSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
-  <span>
+  <span class="border-bottom bd-dialog">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Keyboard Shortcuts" id="enableKeyboardShortcuts" onclick="showKbdWarning(); updateSettingsState()"/>
   </span>
-  <span id="keyboardAssignmentPrompt" style="font-size:14px;" class="border-top bd-dialog">Click below to assign a new Keyboard Shortcut to each action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
+  <span id="keyboardAssignmentPrompt" style="font-size:14px;">Click below to assign a new Keyboard Shortcut to each action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
   <div class="p-0 mt-2" style="overflow-y:auto; height:400px;">
     <form id="keyboardAssignmentForm" style="padding:3px 0px;">
     </form>
@@ -208,6 +208,7 @@ function applyAppSettings() {
   }
 
   applyKeyboardSettings();
+  updateButtonTooltips();
 
   if (reload) {
     location.reload();

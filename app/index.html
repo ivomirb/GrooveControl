@@ -323,7 +323,7 @@ The spindle will automatically start when the job is resumed.">
               </div>
 
               <div class="group estop">
-                <button class="ribbon-button" id="unlockBtn2" onclick="socket.emit('clearAlarm', 2)">
+                <button class="ribbon-button" id="unlockBtn" onclick="socket.emit('clearAlarm', 2)">
                   <span class="icon">
                     <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
                       <i id="navbellBtn2" class="fas fa-bell fg-red" style="display: none;"></i>
@@ -332,7 +332,7 @@ The spindle will automatically start when the job is resumed.">
                   </span>
                   <span class="caption">Unlock<br>Alarm</span>
                 </button>
-                <button class="ribbon-button" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', { stop: false, jog: false, abort: true});">
+                <button class="ribbon-button" id="abortBtn" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', { stop: false, jog: false, abort: true});">
                   <span class="icon">
                     <span class="fa-layers fa-fw">
                       <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
@@ -437,7 +437,7 @@ The spindle will automatically start when the job is resumed.">
                 <span class="title">Firmware Reset Defaults</span>
               </div>
               <div class="group estop">
-                <button class="ribbon-button" id="unlockBtn" onclick="socket.emit('clearAlarm', 2)">
+                <button class="ribbon-button" id="unlockBtn2" onclick="socket.emit('clearAlarm', 2)">
                   <span class="icon">
                     <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
                       <i id="navbellBtn3" class="fas fa-bell fg-red" style="display: none;"></i>
@@ -446,7 +446,7 @@ The spindle will automatically start when the job is resumed.">
                   </span>
                   <span class="caption">Unlock<br>Alarm</span>
                 </button>
-                <button class="ribbon-button" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', { stop: false, jog: false, abort: true});">
+                <button class="ribbon-button" id="abortBtn2" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', { stop: false, jog: false, abort: true});">
                   <span class="icon">
                     <span class="fa-layers fa-fw">
                       <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
@@ -510,7 +510,7 @@ The spindle will automatically start when the job is resumed.">
                   </span>
                   <span class="caption">Unlock<br>Alarm</span>
                 </button>
-                <button class="ribbon-button" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', { stop: false, jog: false, abort: true})">
+                <button class="ribbon-button" id="abortBtn3" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', { stop: false, jog: false, abort: true})">
                   <span class="icon">
                     <span class="fa-layers fa-fw">
                       <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
@@ -753,7 +753,7 @@ Restore previous origins from history.">
                             <li onclick="sendGcode('G0 G90 G21 X0 Y0')"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>Goto XY Zero (Work Coord) (G0 X0 Y0)</a></li>
                             <li class="divider fg-gray bg-gray bd-gray"></li>
                             <li class="disabled"><a href="#"><span style="font-size: 14px; font-weight: 800; color: orangered !important;">These commands can plunge down unsafely (use with caution)</span></a></li>
-                            <li id="gotozeroWPos"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>Goto Zero (Work Coord) (G0 Z5, G0 X0 Y0, G0 Z0) (Retract Z to Work Coord Z5)</a></li>
+                            <li id="gotozeroWPos"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>Goto Zero (Work Coord) (G0 Z5, G0 X0 Y0, G0 Z0) (Retract Z to Work Coord Z5)<span id="gotozeroWPosHotkey" style="position:absolute; right:20px;">(Ctrl+Shift+Q)</span></a></li>
                             <li id="gotozeroZmPosXYwPos"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>Goto Zero (Z Machine Coord, XY Work Coord) (G0 G53 Z<span class="coord">0</span>, G0 X0 Y0, G0 Z0) (Retract Z to Machine Coord)</a></li>
                             <li id="gotozeroMPos"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>Goto Zero (Machine Coord) (<span class="gcode">G0 G53 Z0, G0 G53 X0 Y0</span>)</a></li>
                           </ul>
@@ -894,7 +894,7 @@ Restore previous origins from history.">
                             <td><span class="text-small jogbtn">Incremental Jog</span>
                             </td>
                             <td class="pb-1">
-                              <label class="toggle">
+                              <label class="toggle" id="toggleJogMode">
                                 <input class=" jogbtn" type="checkbox" id="jogTypeContinuous" />
                                 <div></div>
                               </label>
@@ -1575,7 +1575,7 @@ Restore previous origins from history.">
                       <input id="probediameterxyz" type="number" value="6.35" data-role="input" data-prepend="<i class='fas fa-pencil-ruler'></i>" data-clear-button="false">
                     </div>
                     <div class="cell-sm-5">
-                      <select data-role="select" data-filter="false" id="probeunitxyz" data-editable="true">
+                      <select data-role="select" data-filter="false" id="probeunitxyz" data-editable="true" class="compact-options">
                         <option value="mm" selected>mm</option>
                         <option value="inch">inch</option>
                       </select>
