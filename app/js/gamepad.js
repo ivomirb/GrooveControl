@@ -1,23 +1,30 @@
 "use strict";
 
 var disableGamepad = true;
-var buttonShortcuts = {};
-var focusedButtonAction = undefined;
+var gamepadShortcuts = {};
+var focusedGamepadAction = undefined;
 var gamepadWarningShown = false;
-var gamepadEditorPreset = undefined;
+var gamepadUpAction = undefined;
+var gamepadPreset = undefined;
+var gamepadComboIdx = -1;
 
 var gamepadId = null;
-var controllerButtons = [];
+var gamepadButtonState = [];
 
 var analogJogActive = false;
 var analogJogActiveStart = false;
-var analogStickDeadzone = 10;
-var analogStickInvertX = false;
-var analogStickInvertY = false;
-var analogStickInvertZ = false;
 var ANALOG_JOG_TIMEOUT = 10000; // deactivate after 10 seconds of inactivity
+var analogStickSettings = {
+  deadzone: 10,
+  invertX: false,
+  invertY: false,
+  invertZ: false,
+};
 
 var gamepadEditorActive = false;
+var gamepadEditorPreset = undefined;
+var gamepadEditorComboIdx = undefined;
+var gamepadEditorShortcuts = undefined;
 var analogViewCtx;
 var analogViewSize;
 
@@ -45,59 +52,64 @@ const gamepadPresets = [
   {name: "Xbox One", preset: gamepadPresetXbox},
 ];
 
-var gamepadPreset = gamepadPresets[0];
-
-function encodeButtonName(button, preset) {
-	preset = preset || gamepadPreset;
+function getGamepadButtonName(button) {
+  const preset = gamepadEditorActive ? gamepadEditorPreset : gamepadPreset;
+  let prefix = "";
+  if (button[0] == '*') {
+    button = button.substr(1);
+    const comboIdx = gamepadEditorActive ? gamepadEditorComboIdx : gamepadComboIdx;
+    if (comboIdx >= 0) {
+      prefix = comboIdx < preset.preset.length ? preset.preset[comboIdx] : ("Button " + (comboIdx+1));
+      prefix += " + ";
+    } else {
+      prefix = "Combo + ";
+    }
+  }
   if (button.startsWith("button ")) {
     const index = parseInt(button.substr(7));
     if (index > 0 && index <= preset.preset.length) {
       const name = preset.preset[index - 1];
       if (name) {
-        return name;
+        return prefix + name;
       }
     }
-    return "Button " + index;
+    return prefix + "Button " + index;
   }
-  return "";
-}
-
-function decodeButtonName(name, preset) {
-	preset = preset || gamepadPreset;
-  const index = preset.preset.indexOf(name);
-  if (index >= 0) {
-    return "button " + (index+1);
-  }
-  return name.toLowerCase();
+  return prefix + button;
 }
 
 function onButtonGetFocus(name) {
-  const action = findKeyboardAction(name);
-  if (focusedButtonAction != action) {
-    if (focusedButtonAction) {
-      const oldInput = $('#' + focusedButtonAction.name + 'newButton');
+  const action = findInputAction(name);
+  if (focusedGamepadAction != action) {
+    if (focusedGamepadAction) {
+      const oldInput = $('#' + focusedGamepadAction.name + 'newButton');
       oldInput.parent().removeClass('primary').removeClass('alert');
     }
     const input = $('#' + name + 'newButton');
     input.parent().removeClass('alert').addClass('primary');
     $('#alreadyAssignedWarnButton').hide();
-    focusedButtonAction = action;
+    focusedGamepadAction = action;
   }
 }
 
 function onButtonLoseFocus() {
-  if (focusedButtonAction) {
-    const input = $('#' + focusedButtonAction.name + 'newButton');
+  if (focusedGamepadAction) {
+    const input = $('#' + focusedGamepadAction.name + 'newButton');
     input.parent().removeClass('primary').removeClass('alert');
     $('#alreadyAssignedWarnButton').hide();
-    focusedButtonAction = undefined;
+    focusedGamepadAction = undefined;
   }
 }
 
 function onButtonInputChange(name) {
-  const action = findKeyboardAction(name);
+  const action = findInputAction(name);
   const input = $('#' + action.name + 'newButton');
   if (input.val() == "") {
+    gamepadEditorShortcuts[action.name] = "";
+    if (name == "combo") {
+      gamepadEditorComboIdx = -1;
+      onGamepadPresetChange();
+    }
     input.parent().removeClass('alert');
     $('#alreadyAssignedWarnButton').hide();
   }
@@ -109,7 +121,7 @@ function buttonInUse(newVal, forMacro) {
 
   // Check currently assigned Macros
   for (const macro of buttonsarray) {
-    if (macro != currentEditMacro && newVal == macro.macrokeyboardshortcut) {
+    if (macro != currentEditMacro && newVal == macro.shortcut) {
       inUse = true;
       usedBy = "macro: " + macro.title;
       break;
@@ -119,7 +131,7 @@ function buttonInUse(newVal, forMacro) {
   if (forMacro) {
     // Check currently saved button assignments
     for (const action of inputActions) {
-      if (buttonShortcuts[action.name] == newVal) {
+      if (gamepadShortcuts[action.name] == newVal) {
         inUse = true;
         usedBy = "action: " + action.friendlyName;
         break;
@@ -128,9 +140,8 @@ function buttonInUse(newVal, forMacro) {
   } else {
     // Check currently edited buttons, not saved yet
     for (const action of inputActions) {
-      if (action != focusedButtonAction) {
-        const input = $('#' + action.name + 'newButton');
-        if (decodeButtonName(input.val()) == newVal) {
+      if (action != focusedGamepadAction) {
+        if (gamepadEditorShortcuts[action.name] == newVal) {
           inUse = true;
           usedBy = "action: " + action.friendlyName;
           break;
@@ -149,28 +160,31 @@ function handleButtonPress(button) {
   if ($('#macrokeyboardshortcut').is(':focus')) {
     const inUse = buttonInUse(button, true).inUse;
     if (inUse) {
-      $('#alreadyAssignedWarnMacro').html("\"" + encodeButtonName(button) + "\" is already assigned to " + buttonInUse(button, true).source + "<br>");
+      $('#alreadyAssignedWarnMacro').html("\"" + getGamepadButtonName(button) + "\" is already assigned to " + buttonInUse(button, true).source + "<br>");
       $('#alreadyAssignedWarnMacro').show();
       $('#macrokeyboardshortcut').parent().removeClass("primary").addClass("alert");
     } else {
       $('#alreadyAssignedWarnMacro').hide();
-      $('#macrokeyboardshortcut').val(encodeButtonName(button));
+      $('#macrokeyboardshortcut').val(getGamepadButtonName(button));
       $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
-			currentShortcutIsButton = true;
+      currentEditMacroButton = button;
     }
-    return;
-  }
-
-  if (disableGamepad) {
     return;
   }
 
   const dlgVisible = $('.dialog').filter((i, dlg) => { return $(dlg).css('visibility') == 'visible'}).length > 0;
 
   for (const action of inputActions) {
-    if (buttonShortcuts[action.name] == button && action.keydown) {
+    if (gamepadShortcuts[action.name] == button && action.keydown) {
       if (!dlgVisible || dlgContext[action.dlgContext]) {
+        if (gamepadUpAction) {
+          gamepadUpAction.keyup();
+          gamepadUpAction = undefined;
+        }
         action.keydown();
+        if (action.keyup) {
+          gamepadUpAction = action;
+        }
       }
       return;
     }
@@ -178,19 +192,10 @@ function handleButtonPress(button) {
 
   if (!dlgVisible) {
     for (const macro of buttonsarray) {
-      if (macro.macrokeyboardshortcut == button) {
+      if (macro.shortcut == button) {
         runMacro(macro);
         return;
       }
-    }
-  }
-}
-
-function handleButtonRelease(button) {
-  for (const action of inputActions) {
-    if (buttonShortcuts[action.name] == button && action.keyup) {
-      action.keyup();
-      return;
     }
   }
 }
@@ -205,43 +210,51 @@ function adjustDeadzone(value, deadzone) {
 }
 
 function updateGamepad() {
-  if (gamepadEditorActive) return;
+  if (gamepadUpAction && !dlgContext[gamepadUpAction.dlgContext]) {
+    const dlgVisible = $('.dialog').filter((i, dlg) => { return $(dlg).css('visibility') == 'visible'}).length > 0;
+    if (dlgVisible) {
+      gamepadUpAction.keyup();
+      gamepadUpAction = undefined;
+    }
+  }
+
+  if (gamepadEditorActive || disableGamepad) return;
+
   if (gamepadId !== null) {
     const gamepad = navigator.getGamepads()[gamepadId];
-    
+
     if (gamepad) {
+      const isComboPressed = gamepadComboIdx >= 0 && gamepad.buttons[gamepadComboIdx].pressed;
+
+      if (gamepadUpAction) {
+        let name = gamepadShortcuts[gamepadUpAction.name];
+        const isCombo = (name[0] == '*');
+        const idx = parseInt(name.substr(isCombo ? 8 : 7)) - 1;
+        if ((isCombo && !isComboPressed) || !gamepad.buttons[idx].pressed) {
+          gamepadUpAction.keyup();
+          gamepadUpAction = undefined;
+        }
+      }
 
       for (let i = 0; i < gamepad.buttons.length; i++) {
         const button = gamepad.buttons[i];
-        if ((i < controllerButtons.length ? controllerButtons[i] : false) != button.pressed) {
-          const name = "button " + (i+1);
+        if (i != gamepadComboIdx && (i < gamepadButtonState.length ? gamepadButtonState[i] : false) != button.pressed) {
           if (button.pressed) {
+            let name = "button " + (i+1);
+            if (isComboPressed) {
+              name = '*' + name;
+            }
             handleButtonPress(name);
-          } else {
-            handleButtonRelease(name);
           }
         }
       }
 
-      const previousButtons = controllerButtons;
-      controllerButtons = gamepad.buttons.map((x) => x.pressed);
-
-      if (disableGamepad) {
-        return;
-      }
-
-      let activateIdx = -1;
-      if (buttonShortcuts.analogJogActivate.startsWith("button ")) {
-        const idx = parseInt(buttonShortcuts.analogJogActivate.substr(7)) - 1;
-        if (idx >= 0 && idx < controllerButtons.length) {
-          activateIdx = idx;
-        }
-      }
+      gamepadButtonState = gamepad.buttons.map((x) => x.pressed);
 
       let preciseIdx = -1;
-      if (buttonShortcuts.analogJogPrecise.startsWith("button ")) {
-        const idx = parseInt(buttonShortcuts.analogJogPrecise.substr(7)) - 1;
-        if (idx >= 0 && idx < controllerButtons.length) {
+      if (gamepadShortcuts.analogJogPrecise.startsWith("button ")) {
+        const idx = parseInt(gamepadShortcuts.analogJogPrecise.substr(7)) - 1;
+        if (idx >= 0 && idx < gamepad.buttons.length) {
           preciseIdx = idx;
         }
       }
@@ -250,35 +263,26 @@ function updateGamepad() {
       if (enableAnalogJog && $('.dialog').filter((i, dlg) => { return $(dlg).css('visibility') == 'visible'}).length > 0) {
         enableAnalogJog = dlgContext.probe;
       }
-      if (enableAnalogJog) {
-        if (activateIdx != -1) {
-          if (controllerButtons[activateIdx] && !previousButtons[activateIdx]) {
-            gamepad.vibrationActuator.playEffect("dual-rumble", {startDelay: 0, duration: 75, strongMagnitude: 0, weakMagnitude: 0.75});
-            analogJogActiveStart = new Date().getTime();
-          } else if (analogJogActiveStart + ANALOG_JOG_TIMEOUT < new Date().getTime()) {
-            enableAnalogJog = false; // timer expired
-          }
-        } else {
-          analogJogActiveStart = false;
-        }
+      if (enableAnalogJog && analogJogActiveStart + ANALOG_JOG_TIMEOUT < new Date().getTime()) {
+        enableAnalogJog = false; // timer expired
       }
 
       let stickX = 0, stickY = 0, stickZ = 0;
       if (enableAnalogJog) {
-        const deadzone = analogStickDeadzone / 100;
+        const deadzone = analogStickSettings.deadzone / 100;
         stickX = adjustDeadzone(gamepad.axes[0], deadzone);
-        if (analogStickInvertX) {
+        if (analogStickSettings.invertX) {
           stickX = -stickX;
         }
         stickY = -adjustDeadzone(gamepad.axes[1], deadzone);
-        if (analogStickInvertY) {
+        if (analogStickSettings.invertY) {
           stickY = -stickY;
         }
         stickZ = -adjustDeadzone(gamepad.axes[3], deadzone);
-        if (analogStickInvertZ) {
+        if (analogStickSettings.invertZ) {
           stickZ = -stickZ;
         }
-        if (preciseIdx != -1 && controllerButtons[preciseIdx]) {
+        if (preciseIdx != -1 && gamepadButtonState[preciseIdx]) {
           stickX *= 0.25;
           stickY *= 0.25;
           stickZ *= 0.25;
@@ -310,7 +314,6 @@ function updateGamepad() {
       gamepadId = null;
     }
   }
-
 }
 
 function onGamepadConnected(event) {
@@ -340,23 +343,36 @@ function updateGamepadEditor() {
     const gamepad = navigator.getGamepads()[gamepadId];
     
     if (gamepad) {
+        if (focusedGamepadAction != undefined) {
+        let isComboPressed = gamepadEditorComboIdx >= 0 && gamepad.buttons[gamepadEditorComboIdx].pressed;
 
-      if (focusedButtonAction != undefined) {
         for (let i = 0; i < gamepad.buttons.length; i++) {
           const button = gamepad.buttons[i];
-          if ((i < controllerButtons.length ? controllerButtons[i] : false) != button.pressed) {
-            const name = "button " + (i+1);
+          if (i != gamepadEditorComboIdx && (i < gamepadButtonState.length ? gamepadButtonState[i] : false) != button.pressed) {
             if (button.pressed) {
-              const input = $('#' + focusedButtonAction.name + 'newButton');
+              let name = "button " + (i+1);
+              if (isComboPressed) {
+                name = '*' + name;
+              }
+              const input = $('#' + focusedGamepadAction.name + 'newButton');
               const inUse = buttonInUse(name, false).inUse;
-              if (inUse) {
-                $('#alreadyAssignedWarnButton').html("\"" + encodeButtonName(name) + "\" is already assigned to " + buttonInUse(name, false).source);
+              if (isComboPressed && focusedGamepadAction.singleKey) {
+                $('#alreadyAssignedWarnButton').html("This action does not support button combos");
+                $('#alreadyAssignedWarnButton').show();
+                input.parent().removeClass('primary').addClass('alert');
+              } else if (inUse) {
+                $('#alreadyAssignedWarnButton').html("\"" + getGamepadButtonName(name) + "\" is already assigned to " + buttonInUse(name, false).source);
                 $('#alreadyAssignedWarnButton').show();
                 input.parent().removeClass('primary').addClass('alert');
               } else {
                 $('#alreadyAssignedWarnButton').hide();
-                input.val(encodeButtonName(name));
+                gamepadEditorShortcuts[focusedGamepadAction.name] = name;
+                input.val(getGamepadButtonName(name));
                 input.parent().removeClass('alert').addClass('primary');
+                if (focusedGamepadAction.name == "combo") {
+                  gamepadEditorComboIdx = i;
+                  onGamepadPresetChange();
+                }
               }
               break;
             }
@@ -364,7 +380,7 @@ function updateGamepadEditor() {
         }
       }
 
-      controllerButtons = gamepad.buttons.map((x) => x.pressed);
+      gamepadButtonState = gamepad.buttons.map((x) => x.pressed);
 
       if (analogViewCtx) {
         analogViewCtx.clearRect(0, 0, analogViewSize.width, analogViewSize.height);
@@ -434,33 +450,33 @@ function updateGamepadEditor() {
 }
 
 function onGamepadPresetChange() {
-	const newPreset = gamepadPresets[parseInt($('#selectButtonPreset').val())];
+  gamepadEditorPreset = gamepadPresets[parseInt($('#selectButtonPreset').val())];
   for (const action of inputActions) {
-		const input = $('#' + action.name + 'newButton');
-    const button = decodeButtonName(input.val(), gamepadEditorPreset);
-    input.val(encodeButtonName(button, newPreset));
+    const input = $('#' + action.name + 'newButton');
+    input.val(getGamepadButtonName(gamepadEditorShortcuts[action.name]));
   }
-	gamepadEditorPreset = newPreset;
 }
 
 function initGamepadEditor() {
+  gamepadEditorShortcuts = {};
   for (const action of inputActions) {
+    gamepadEditorShortcuts[action.name] = gamepadShortcuts[action.name];
     $('#gamepadAssignmentForm').append(`
       <div class="row mt-1 ml-1 mr-1">
         <label class="cell-sm-6" style="margin-top:4px">` + action.label + `</label>
         <div class="cell-sm-6">
           <input type="text" readonly data-role="input" data-clear-button="true" data-editable="true"
               onfocus="onButtonGetFocus('` + action.name + `')" onblur="onButtonLoseFocus()" onchange="onButtonInputChange('` + action.name + `')"
-              id="` + action.name + `newButton" value="` + encodeButtonName(buttonShortcuts[action.name]) + `" />
+              id="` + action.name + `newButton" value="` + getGamepadButtonName(gamepadShortcuts[action.name]) + `" />
         </div>
       </div>`);
   }
 
   $('#enableGamepad').prop('checked', !disableGamepad);
-  $('#analogDeadzone').val(analogStickDeadzone);
-  $('#gamepadInvertX').prop('checked', analogStickInvertX);
-  $('#gamepadInvertY').prop('checked', analogStickInvertY);
-  $('#gamepadInvertZ').prop('checked', analogStickInvertZ);
+  $('#analogDeadzone').val(analogStickSettings.deadzone);
+  $('#gamepadInvertX').prop('checked', analogStickSettings.invertX);
+  $('#gamepadInvertY').prop('checked', analogStickSettings.invertY);
+  $('#gamepadInvertZ').prop('checked', analogStickSettings.invertZ);
   gamepadWarningShown = !disableGamepad;
 
   const canvas = document.getElementById("gamepadViewCanvas");
@@ -470,16 +486,18 @@ function initGamepadEditor() {
     analogJogActive = false;
     socket.emit('analogJog', {stop: true});
   }
-  gamepadEditorActive = true;
-  if (gamepadId !== null) {
-    requestAnimationFrame(updateGamepadEditor);
-  }
 
   for (let i = 0; i < gamepadPresets.length; i++) {
     $('#selectButtonPreset').append('<option value="' + i + '">' + gamepadPresets[i].name + '</option>');
   }
   $('#selectButtonPreset').val(gamepadPresets.indexOf(gamepadPreset));
-	gamepadEditorPreset = gamepadPreset;
+
+  gamepadEditorPreset = gamepadPreset;
+  gamepadEditorComboIdx = gamepadComboIdx;
+  gamepadEditorActive = true;
+  if (gamepadId !== null) {
+    requestAnimationFrame(updateGamepadEditor);
+  }
 }
 
 function closeGamepadEditor() {
@@ -488,28 +506,28 @@ function closeGamepadEditor() {
   if (gamepadId !== null && !disableGamepad) {
     requestAnimationFrame(updateGamepad);
   }
+  gamepadEditorPreset = undefined;
+  gamepadEditorComboIdx = undefined;
+  gamepadEditorShortcuts = undefined;
 }
 
 function applyGamepadSettings() {
-	if (gamepadPreset != gamepadEditorPreset) {
-		gamepadPreset = gamepadEditorPreset;
-		populateMacroButtons();
-	}
+  if (gamepadPreset != gamepadEditorPreset) {
+    gamepadPreset = gamepadEditorPreset;
+    populateMacroButtons();
+  }
+  gamepadComboIdx = gamepadEditorComboIdx;
   for (const action of inputActions) {
-    const newButton = decodeButtonName($('#' + action.name + 'newButton').val());
-    buttonShortcuts[action.name] = newButton;
+    gamepadShortcuts[action.name] = gamepadEditorShortcuts[action.name];
   }
 
-  localStorage.setItem('buttonShortcuts', JSON.stringify(buttonShortcuts));
+  localStorage.setItem('gamepadShortcuts', JSON.stringify(gamepadShortcuts));
 
-  analogStickDeadzone = Math.max(Math.min(parseInt($('#analogDeadzone').val()), 100), 0);
-  localStorage.setItem('analogStickDeadzone', JSON.stringify(analogStickDeadzone));
-  analogStickInvertX = $('#gamepadInvertX').prop('checked');
-  analogStickInvertY = $('#gamepadInvertY').prop('checked');
-  analogStickInvertZ = $('#gamepadInvertZ').prop('checked');
-  localStorage.setItem('analogStickInvertX', analogStickInvertX);
-  localStorage.setItem('analogStickInvertY', analogStickInvertY);
-  localStorage.setItem('analogStickInvertZ', analogStickInvertZ);
+  analogStickSettings.deadzone = Math.max(Math.min(parseInt($('#analogDeadzone').val()), 100), 0);
+  analogStickSettings.invertX = $('#gamepadInvertX').prop('checked');
+  analogStickSettings.invertY = $('#gamepadInvertY').prop('checked');
+  analogStickSettings.invertZ = $('#gamepadInvertZ').prop('checked');
+  localStorage.setItem('analogStickSettings', JSON.stringify(analogStickSettings));
 
   const disable = !$('#enableGamepad').prop('checked');
 
@@ -523,8 +541,8 @@ function applyGamepadSettings() {
     $('#gamepadDisplay').hide();
   }
   disableGamepad = disable;
-
   localStorage.setItem('disableGamepad', disableGamepad);
+
   localStorage.setItem('gamepadPreset', gamepadPreset.name);
   closeGamepadEditor();
 }
@@ -559,34 +577,44 @@ function showGamepadWarning() {
 
 function initGamepadActions() {
   for (const action of inputActions) {
-    buttonShortcuts[action.name] = "";
+    gamepadShortcuts[action.name] = "";
   }
 
   disableGamepad = localStorage.getItem('disableGamepad') == null || JSON.parse(localStorage.getItem('disableGamepad')) == true;
-  $('#gamepadDisplay').toggle(!disableGamepad);
 
-  if (localStorage.getItem('buttonShortcuts')) {
-    const settings = JSON.parse(localStorage.getItem('buttonShortcuts'));
+  if (localStorage.getItem('gamepadShortcuts')) {
+    const settings = JSON.parse(localStorage.getItem('gamepadShortcuts'));
     for (const action of inputActions) {
       if (settings[action.name] != undefined) {
-        buttonShortcuts[action.name] = settings[action.name];
+        gamepadShortcuts[action.name] = settings[action.name];
       }
     }
   }
 
+  if (localStorage.getItem('analogStickSettings')) {
+    const settings = JSON.parse(localStorage.getItem('analogStickSettings'));
+    if (settings.deadzone != undefined) { analogStickSettings.deadzone = settings.deadzone; }
+    if (settings.invertX != undefined) { analogStickSettings.invertX = settings.invertX; }
+    if (settings.invertY != undefined) { analogStickSettings.invertY = settings.invertY; }
+    if (settings.invertZ != undefined) { analogStickSettings.invertZ = settings.invertZ; }
+  }
+
+  $('#gamepadDisplay').toggle(!disableGamepad);
   window.addEventListener("gamepadconnected", onGamepadConnected);
   window.addEventListener("gamepaddisconnected", onGamepadDisconnected);
   onGamepadDisconnected();
 
-  if (localStorage.getItem('analogStickDeadzone')) {
-    analogStickDeadzone = Math.max(Math.min(parseInt(localStorage.getItem('analogStickDeadzone')), 100), 0);
+  gamepadPreset = gamepadPresets[0];
+  const presetName = localStorage.getItem('gamepadPreset');
+  for (const preset of gamepadPresets) {
+    if (preset.name == presetName) {
+      gamepadPreset = preset;
+      break;
+    }
   }
 
-	const presetName = localStorage.getItem('gamepadPreset');
-	for (const preset of gamepadPresets) {
-		if (preset.name == presetName) {
-			gamepadPreset = preset;
-			break;
-		}
-	}
+  gamepadComboIdx = -1;
+  if (gamepadShortcuts.combo.startsWith("button ")) {
+    gamepadComboIdx = parseInt(gamepadShortcuts.combo.substr(7)) - 1;
+  }
 }

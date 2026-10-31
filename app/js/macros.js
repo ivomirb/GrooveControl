@@ -3,7 +3,7 @@
 var buttonsarray = [];
 var macroCodeType = "gcode";
 var currentEditMacro = undefined;
-var currentShortcutIsButton = false;
+var currentEditMacroButton = false;
 
 // eslint-disable-next-line no-unused-vars
 var macroMenuIdx = undefined; // used in context menus
@@ -29,8 +29,13 @@ function populateMacroButtons(runStartups) {
     let shortcut = "";
     let shortcutIcon = "";
     if (button.shortcut && button.shortcut.length > 0) {
-      shortcut = ": [" + capitalizeShortcut(button.shortcut) + "]";
-      shortcutIcon = "macrokbd-icon far fa-keyboard fa-fw";
+      if (button.shortcut.startsWith("button ") || button.shortcut.startsWith("*button ")) {
+        shortcut = ": [" + getGamepadButtonName(button.shortcut) + "]";
+        shortcutIcon = "macrokbd-icon fas fa-gamepad fa-fw";
+      } else {
+        shortcut = ": [" + capitalizeShortcut(button.shortcut) + "]";
+        shortcutIcon = "macrokbd-icon far fa-keyboard fa-fw";
+      }
     }
 
     let codetype, codetypeDisplay;
@@ -127,7 +132,7 @@ function onMacroShorcutKeyDown(event) {
       $('#alreadyAssignedWarnMacro').hide();
       $('#macrokeyboardshortcut').val(capitalizeShortcut(newVal));
       $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
-			currentShortcutIsButton = false;
+      currentEditMacroButton = false;
     }
   }
 }
@@ -160,7 +165,7 @@ function editMacro(buttonIdx, fileName, script) {
   let tooltip = "";
   let shortcut = "";
   let jsrunonstartup = "";
-	currentShortcutIsButton = false;
+  currentEditMacroButton = false;
 
   if (buttonIdx >= 0) {
     button = buttonsarray[buttonIdx];
@@ -172,7 +177,13 @@ function editMacro(buttonIdx, fileName, script) {
     cls = button.class;
     tooltip = button.tooltip;
     if (button.shortcut && button.shortcut.length > 0) {
-      shortcut = capitalizeShortcut(button.shortcut);
+      shortcut = button.shortcut;
+      if (shortcut.startsWith("button ") || shortcut.startsWith("*button ")) {
+        shortcut = getGamepadButtonName(shortcut);
+        currentEditMacroButton = shortcut;
+      } else {
+        shortcut = capitalizeShortcut(shortcut);
+      }
     }
     jsrunonstartup = button.jsrunonstartup ? "checked" : "";
   } else {
@@ -297,7 +308,7 @@ function editMacro(buttonIdx, fileName, script) {
           button.javascript = $('#macrojs').val();
           button.class = $('#macrocls').val();
           button.tooltip = $('#macrotooltip').val();
-          button.shortcut = $('#macrokeyboardshortcut').val().toLowerCase();
+          button.shortcut = currentEditMacroButton || $('#macrokeyboardshortcut').val().toLowerCase();
           button.jsrunonstartup = $('#jsRunOnStartup').is(':checked')
           populateMacroButtons();
           currentEditMacro = undefined;

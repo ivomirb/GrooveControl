@@ -8,7 +8,9 @@ const inputActions = [
     friendlyName: "Activate Joystick Move",
     label: `Activate Joystick Move<br><span class="text-small">Click to activate joysticks</span>`,
     defaultKey: "",
+    keydown: activateAnalogJog,
     gamepad: true,
+    dlgContext: "probe",
   },
 
   { // Precise Joystick Move (25% speed)
@@ -17,6 +19,16 @@ const inputActions = [
     label: `Precise Joystick Move<br><span class="text-small">Press and hold to move at 25% speed</span>`,
     defaultKey: "",
     gamepad: true,
+    singleKey: true,
+  },
+
+  { // Combo Button
+    name: "combo",
+    friendlyName: "Combo Button",
+    label: `Combo Button<br><span class="text-small">Press and hold for 2-button combos</span>`,
+    defaultKey: "",
+    gamepad: true,
+    singleKey: true,
   },
 
   { // X+
@@ -439,7 +451,7 @@ function replaceHotkeyTokens(tooltip, forMenu) {
         }
       }
       if (!disableGamepad) {
-        const button = encodeButtonName(buttonShortcuts[action.name]);
+        const button = getGamepadButtonName(gamepadShortcuts[action.name]);
         if (button != "") {
           if (hotkey != "") {
             hotkey += ", ";
@@ -524,6 +536,16 @@ function advanceProbeSequence() {
       $('#confirmNewProbeBtn').click();
     } else if (!$('#runNewProbeBtn').hasClass('disabled')) {
       $('#runNewProbeBtn').click();
+    }
+  }
+}
+
+function activateAnalogJog() {
+  if (gamepadId !== null && laststatus && laststatus.comms.connectionStatus == 2) {
+    const gamepad = navigator.getGamepads()[gamepadId];
+    if (gamepad) {
+      gamepad.vibrationActuator.playEffect("dual-rumble", {startDelay: 0, duration: 75, strongMagnitude: 0, weakMagnitude: 0.75});
+      analogJogActiveStart = new Date().getTime();
     }
   }
 }

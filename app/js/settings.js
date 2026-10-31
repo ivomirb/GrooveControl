@@ -162,7 +162,7 @@ Ignored in Laser mode."></span>
     <canvas id="gamepadViewCanvas" width="130" height="110" />
   </div>
 
-  <div class="row mt-1 ml-1 mr-1" id="gamepadSettingsPanel">
+  <div class="row mt-1 ml-3 mr-1" id="gamepadSettingsPanel">
     <div>
       <div class="row" style="align-items:center;">
         <label style="margin-top:4px; padding-left:4px; width:160px;">Invert Axis</label>
