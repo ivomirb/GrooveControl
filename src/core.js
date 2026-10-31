@@ -242,8 +242,8 @@ function loadPersistentConfig() {
     debug_log(err);
   }
 
-  persistentConfig.grblWaitTime1 = Math.max(persistentConfig.grblWaitTime1, 0.1);
-  persistentConfig.grblWaitTime2 = Math.max(persistentConfig.grblWaitTime2, 0.1);
+  persistentConfig.grblWaitResponse = Math.max(persistentConfig.grblWaitResponse, 0.1);
+  persistentConfig.grblWaitReboot = Math.max(persistentConfig.grblWaitReboot, 0.1);
 
   if (persistentConfig.spindleDelay != 3 && persistentConfig.spindleDelay != 5 && persistentConfig.spindleDelay != 8) {
     persistentConfig.spindleDelay = 0;

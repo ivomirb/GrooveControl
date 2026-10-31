@@ -6,9 +6,11 @@ It is the spiritual successor of the popular OpenBuilds CONTROL software.
 It builds on what made the original great - its simple and extremely approachable interface -
 and takes it to the next level of polish, safety and usability.
 
-Every feature has been enhanced. Frustrating bugs and quirks have been fixed. The job controls are improved and more reliable.
+Every feature has been enhanced. Frustrating bugs and quirks have been fixed.
+
 New features like the file history, origin history, a macro manager, a heightmap tool,
 and a slick job simulator fit seamlessly into the existing design.
+
 More major features are in the works or planned for future releases.
 
 ![Screenshot](docs/screenshot.png)
@@ -59,6 +61,7 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** Removed the dropdown menu from the Open G-code button to save unnecessary mouse click
 * **Improvement:** New dialog for editing all application settings in one place
 * **Improvement:** Allow clearing the key assignment in the keyboard shortcut editor and the macro editor
+* **Improvement:** The keyboard shortcuts are listed in the button tooltips to make them more discoverable
 * **Improvement:** New settings to disable the autostart and the tray icon, making it behave like a regular desktop app
 * **Improvement:** Windows installer setting to control the file associations for G-code file extensions
 * **Improvement:** The dialogs for opening files remember their directory, with separate settings for G-code, macros and grbl settings
@@ -112,7 +115,7 @@ Last but not least, there have been countless improvements to the codebase behin
 The goal is to improve the readability and maintainability for long-term development.
 
 * Removal of dead, redundant or duplicated code
-* Simplification of convoluted logic with better handling of edge cases
+* Simplification of convoluted logic with better handling of edge cases and race conditions
 * Use of safer language practices like strict mode and scoped variables
 * Static code analysis using ESLint
 * Upgrade to the latest Electron framework
@@ -130,7 +133,7 @@ Some are standalone versions of the new Groove features, which can be added to t
 * **Heightmap** - Probes the height at points on a grid and modifies the G-code to follow the surface
 * **Smart Home** - Prevents accidental homing and allows homing single axis if supported
 * **Open File** - Removes the dropdown from the Open G-code button
-* **StoreWcs** - Stores the work origin of the last job. This is a simplified version of the new WCS history feature
+* **StoreWcs** - Stores the work origin of the last job. This is a simplified version of the new origin history feature
 
 Others are new features that can be added to either Groove or the original OpenBuilds:
 
@@ -166,7 +169,7 @@ I have seen too many apps get bloated over time to an unusable mess because of t
 
 The benefits of any additions will be weighed against their impact on the overall usability. Here are a few things I am considering:
 
-* **Gamepad support** - will allow you to jog the machine using the analog stick, maybe let you assign actions to buttons
+* **Gamepad support** - will allow you to jog the machine using the analog stick and assign actions to buttons
 
 * **Rotary preview** - correctly show toolpaths that use the A axis in the 3d view
 

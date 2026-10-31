@@ -149,6 +149,14 @@ function onDocReady(data) {
 
     setChangelog(data.changelogText);
   }
+
+  if (localStorage.getItem('previousVersion')) {
+		let version = parseFloat(localStorage.getItem('previousVersion'));
+		if (APP_VERSION > version) {
+			// new version detected, show critical what's new info
+		}
+	}
+	localStorage.setItem('previousVersion', APP_VERSION.toFixed(3));
 }
 
 function onFirstStatus(status) {
