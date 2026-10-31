@@ -79,17 +79,8 @@ function probeDlgOnClose() {
 function initProbeDialog() {
   addDlgContext("probe");
   Metro.dialog.open("#xyzProbeWindow");
-  $('#confirmNewProbeBtn')[0].innerHTML = "Confirm Probe Position";
 
-  probemode.interval = setInterval(() => {
-    if (laststatus.machine.inputs.contains("P")) {
-      $('#confirmNewProbeBtn').addClass("disabled");
-      $('#confirmNewProbeBtn')[0].innerHTML = "Touched";
-      $('#runNewProbeBtn').removeClass("disabled").focus();
-      clearInterval(probemode.interval);
-      probemode.interval = undefined;
-    }
-  }, 100);
+  pollProbeInPlace();
 
   storedJro = $('#jro').data('slider').val();
   $('#probeJro').data('slider').val(storedJro);
@@ -217,8 +208,7 @@ function probeautotab() {
   $("#toggle-probe-advanced-content").data('collapse').collapse()
   $("#endmilldiameterform").hide();
   probemode.stock.position == "fl"
-  $('#runNewProbeBtn').addClass("disabled")
-  $('#confirmNewProbeBtn').removeClass("disabled")
+  pollProbeInPlace();
   $('.probetabxyz').removeClass('active');
   $('#probeautotab').addClass('active');
 }
@@ -239,8 +229,7 @@ function probexyztab() {
   } else {
     $("#toggle-probe-advanced-content").data('collapse').expand()
   }
-  $('#runNewProbeBtn').addClass("disabled")
-  $('#confirmNewProbeBtn').removeClass("disabled")
+  pollProbeInPlace();
   $('.probetabxyz').removeClass('active');
   $('#probexyztab').addClass('active');
 }
@@ -257,8 +246,7 @@ function probextab() {
   $("#toggle-probe-advanced").hide();
   $("#endmilldiameterform").show();
   $("#toggle-probe-advanced-content").data('collapse').collapse()
-  $('#runNewProbeBtn').addClass("disabled")
-  $('#confirmNewProbeBtn').removeClass("disabled")
+  pollProbeInPlace();
 }
 
 function probeytab() {
@@ -273,8 +261,7 @@ function probeytab() {
   $("#toggle-probe-advanced").hide();
   $("#endmilldiameterform").show();
   $("#toggle-probe-advanced-content").data('collapse').collapse()
-  $('#runNewProbeBtn').addClass("disabled")
-  $('#confirmNewProbeBtn').removeClass("disabled")
+  pollProbeInPlace();
 }
 
 function probeztab() {
@@ -290,8 +277,7 @@ function probeztab() {
   $("#toggle-probe-advanced").hide();
   $("#endmilldiameterform").hide();
   $("#toggle-probe-advanced-content").data('collapse').collapse()
-  $('#runNewProbeBtn').addClass("disabled")
-  $('#confirmNewProbeBtn').removeClass("disabled")
+  pollProbeInPlace();
 }
 
 function probezplatetab() {
@@ -306,8 +292,7 @@ function probezplatetab() {
   $("#toggle-probe-advanced").hide();
   $("#endmilldiameterform").hide();
   $("#toggle-probe-advanced-content").data('collapse').collapse()
-  $('#runNewProbeBtn').addClass("disabled")
-  $('#confirmNewProbeBtn').removeClass("disabled")
+  pollProbeInPlace();
   $('#z0platethickness').val(zprobeplate.zoffset)
   $('.probetabxyz').removeClass('active');
   $('#probezplatetab').addClass('active');
@@ -331,8 +316,7 @@ function probeendmilltab() {
   $("#toggle-probe-advanced").hide();
   $("#endmilldiameterform").hide();
   $("#toggle-probe-advanced-content").data('collapse').collapse()
-  $('#runNewProbeBtn').addClass("disabled")
-  $('#confirmNewProbeBtn').removeClass("disabled")
+  pollProbeInPlace();
 }
 
 function resetOffsetFL() {
@@ -407,6 +391,21 @@ function probetype(type) {
   }
 }
 
+function pollProbeInPlace() {
+  $('#confirmNewProbeBtn').removeClass("disabled").html("Confirm Probe Position");
+  $('#runNewProbeBtn').addClass("disabled");
+  if (probemode.interval == undefined) {
+    probemode.interval = setInterval(() => {
+      if (laststatus.machine.inputs.contains("P")) {
+        $('#confirmNewProbeBtn').addClass("disabled").html("Touched");
+        $('#runNewProbeBtn').removeClass("disabled").focus();
+        clearInterval(probemode.interval);
+        probemode.interval = undefined;
+      }
+    }, 100);
+  }
+}
+
 function confirmProbeInPlace() {
   $('#confirmNewProbeBtn').addClass("disabled");
   $('#runNewProbeBtn').removeClass("disabled").focus();
@@ -415,14 +414,14 @@ function confirmProbeInPlace() {
 }
 
 function resetJogModeAfterProbe() {
-  $('#confirmNewProbeBtn').removeClass("disabled")
+  $('#confirmNewProbeBtn').removeClass("disabled");
   clearInterval(probemode.interval)
   probemode.interval = undefined;
 }
 
 
 function runProbeNew() {
-  $('#confirmNewProbeBtn')[0].innerHTML = "Confirm Probe Position";
+  $('#confirmNewProbeBtn').html("Confirm Probe Position");
   resetJogModeAfterProbe();
   activateContentTab("consoletab");
   probemode.stock.x = $("#stockwidth").val();

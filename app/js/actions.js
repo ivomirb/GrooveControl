@@ -125,10 +125,10 @@ const inputActions = [
     },
   },
 
-  { // Abort / Emergency
+  { // Abort
     name: "estop",
-    friendlyName: "Stop / Abort",
-    label: `<i class="far fa-hand-paper fg-red fa-fw"></i> Stop / Abort`,
+    friendlyName: "Abort",
+    label: `<i class="far fa-hand-paper fg-red fa-fw"></i> Abort`,
     defaultKey: "esc",
     keydown: () => {
       socket.emit('stop', {stop: false, jog: false, abort: true});
@@ -141,7 +141,7 @@ const inputActions = [
     label: `<i class="fas fa-bell fg-openbuilds fa-fw"></i> Unlock Alarm`,
     defaultKey: "end",
     keydown: () => {
-      if (laststatus.comms.connectionStatus == 5) {
+      if (laststatus && laststatus.comms.connectionStatus == 5) {
         Metro.dialog.close($('.closeAlarmBtn').parent().parent());
         socket.emit('clearAlarm', 2);
       }
@@ -155,18 +155,40 @@ const inputActions = [
     label: `<i class="fas fa-play fg-openbuilds fa-fw"></i> Run / <i class="fas fa-pause fg-openbuilds fa-fw"></i> Pause`,
     defaultKey: "space",
     keydown: () => {
-      if (laststatus.comms.connectionStatus == 2) {
+      if (laststatus && laststatus.comms.connectionStatus == 2) {
         const hasJob = (useEditor && editor && editor.session.getLength() > 1) || (!useEditor && currentGcode != "");
         const doorOpen = laststatus.machine.inputs.includes('D');
         if (hasJob && !doorOpen) {
           runJobFile();
         }
-      } else if (laststatus.comms.connectionStatus == 3 && laststatus.misc.jobStatus != 2) {
+      } else if (laststatus && laststatus.comms.connectionStatus == 3 && laststatus.misc.jobStatus != 2) {
         socket.emit('pause', true);
-      } else if (laststatus.comms.connectionStatus == 4) {
+      } else if (laststatus && laststatus.comms.connectionStatus == 4) {
         socket.emit('resume', true);
       }
     },
+  },
+
+  { // Stop
+    name: "stop",
+    friendlyName: "Stop",
+    label: `<i class="fas fa-stop fg-openbuilds fa-fw"></i> Stop`,
+    defaultKey: "y",
+    keydown: () => {
+      if (laststatus && (laststatus.comms.connectionStatus == 3 || laststatus.comms.connectionStatus == 4)) {
+        socket.emit('stop', { stop: true, jog: false, abort: false});
+      }
+    },
+  },
+
+  // Probe
+  {
+    name: "probe",
+    friendlyName: "Probe",
+    label: `<i class="fas fa-podcast fa-rotate-180 fg-openbuilds fa-fw"></i> Probe`,
+    defaultKey: "z",
+    keydown: advanceProbeSequence,
+    dlgContext: "probe",
   },
 
   { // Home All
@@ -207,7 +229,9 @@ const inputActions = [
     label: `<i class="fas fa-level-up-alt fg-openbuilds fa-fw"></i> Increase Feed`,
     defaultKey: "q",
     keydown: () => {
-      feedOverride(laststatus.machine.overrides.feedOverride + 10);
+      if (laststatus && laststatus.comms.connectionStatus >= 2) {
+        feedOverride(laststatus.machine.overrides.feedOverride + 10);
+      }
     },
   },
 
@@ -217,7 +241,9 @@ const inputActions = [
     label: `<i class="fas fa-level-down-alt fg-openbuilds fa-fw"></i> Decrease Feed`,
     defaultKey: "a",
     keydown: () => {
-      feedOverride(laststatus.machine.overrides.feedOverride - 10);
+      if (laststatus && laststatus.comms.connectionStatus >= 2) {
+        feedOverride(laststatus.machine.overrides.feedOverride - 10);
+      }
     },
   },
 
@@ -227,7 +253,9 @@ const inputActions = [
     label: `<i class="far fa-hand-point-up fg-openbuilds fa-fw"></i> Increase Speed`,
     defaultKey: "w",
     keydown: () => {
-      spindleOverride(laststatus.machine.overrides.spindleOverride + 10);
+      if (laststatus && laststatus.comms.connectionStatus >= 2) {
+        spindleOverride(laststatus.machine.overrides.spindleOverride + 10);
+      }
     },
   },
 
@@ -237,7 +265,9 @@ const inputActions = [
     label: `<i class="far fa-hand-point-down fg-openbuilds fa-fw"></i> Decrease Speed`,
     defaultKey: "s",
     keydown: () => {
-      spindleOverride(laststatus.machine.overrides.spindleOverride - 10);
+      if (laststatus && laststatus.comms.connectionStatus >= 2) {
+        spindleOverride(laststatus.machine.overrides.spindleOverride - 10);
+      }
     },
   },
 
@@ -324,6 +354,11 @@ const shortcutTooltips = [
     tooltip2: "$playpause",
   },
   {
+    id: '#stopBtn',
+    tooltip: "Stops the running job",
+    tooltip2: "$stop",
+  },
+  {
     id: '#abortBtn, #abortBtn2, #abortBtn3',
     tooltip: "Emergency stop",
     tooltip2: "$estop",
@@ -332,6 +367,20 @@ const shortcutTooltips = [
     id: '#unlockBtn, #unlockBtn2, #unlockBtn3',
     tooltip: "Clear the alarm and unlock the controller",
     tooltip2: "$unlockAlarm",
+  },
+  {
+    id: "#grblProbeMenu",
+    tooltip: "Open the Probe dialog",
+    tooltip2: "$probe",
+  },
+  {
+    id: "#confirmNewProbeBtn",
+    tooltip2: "Confirm Probe Position\n$probe",
+  },
+  {
+    id: "#runNewProbeBtn",
+    tooltip: "Run Probe Sequence",
+    tooltip2: "$probe",
   },
   {
     id: '#homeBtn',
@@ -432,6 +481,18 @@ function jogToggleMode() {
   localStorage.setItem('continuousJog', continuousJogMode);
   $('#jogTypeContinuous').prop('checked', continuousJogMode);
   $('.distbtn').toggle(!continuousJogMode);
+}
+
+function advanceProbeSequence() {
+  if (laststatus && laststatus.comms.connectionStatus == 2) {
+    if (!Metro.dialog.isOpen("#xyzProbeWindow")) {
+      openProbeDialog();
+    } else if (!$('#confirmNewProbeBtn').hasClass('disabled')) {
+      $('#confirmNewProbeBtn').click();
+    } else if (!$('#runNewProbeBtn').hasClass('disabled')) {
+      $('#runNewProbeBtn').click();
+    }
+  }
 }
 
 function addDlgContext(context) {

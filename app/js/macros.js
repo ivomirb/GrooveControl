@@ -312,7 +312,7 @@ function editMacro(buttonIdx, fileName, script) {
 
   $('#jsedit').val(javascript);
 
-  $('#macrokeyboardshortcut').bind('keydown', null, onMacroShorcutKeyDown);
+  $('#macrokeyboardshortcut').on('keydown', onMacroShorcutKeyDown);
 
   IconPicker.Init({
     // Required: You have to set the path of IconPicker JSON file to "jsonUrl" option. e.g. '/content/plugins/IconPicker/dist/iconpicker-1.5.0.json'
