@@ -46,7 +46,7 @@ function updateSettingsState() {
   const enableGamepad = $('#enableGamepad').prop('checked');
   enableViaClass("#gamepadAssignmentPrompt", enableGamepad);
   enableViaClass("#gamepadAssignmentForm", enableGamepad);
-  enableViaClass("#analogSettingsRow", enableGamepad);
+  enableViaClass("#gamepadSettingsPanel", enableGamepad);
 }
 
 const appSettingsDlg = `
@@ -155,34 +155,46 @@ Ignored in Laser mode."></span>
 </div>
 
 <div class="section" id="gamepadSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
-  <span>
+  <span class="border-bottom bd-dialog">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Gamepad" id="enableGamepad" onclick="showGamepadWarning(); updateSettingsState()"/>
   </span>
-  <div style="width:120px; height:100px; position:absolute; top:8px; right:100px;">
-    <canvas id="gamepadViewCanvas" width="120" height="100" />
+  <div style="width:120px; height:100px; position:absolute; top:48px; right:40px;">
+    <canvas id="gamepadViewCanvas" width="130" height="110" />
   </div>
 
-  <div class="row mt-1 ml-1 mr-1" id="analogSettingsRow">
-    <div class="cell-sm-7">
-      <div class="row">
-        <label style="margin-top:4px; padding-left:4px;">Joystick Deadzone</label>
-        <div style="margin-left:10px; width:140px;">
-          <input type="number" style="text-align:right;" data-role="input" data-editable="true" data-clear-button="false" data-append="%" id="analogDeadzone" />
-        </div>
-      </div>
-      <div class="row mt-2 mb-1">
-        <span class="text-small" style="padding-left:4px">Invert X</span>
+  <div class="row mt-1 ml-1 mr-1" id="gamepadSettingsPanel">
+    <div>
+      <div class="row" style="align-items:center;">
+        <label style="margin-top:4px; padding-left:4px; width:160px;">Invert Axis</label>
+        <span class="text-small" style="margin-left:12px">X</span>
         <label class="toggle contrast" style="padding-left:4px;">
           <input type="checkbox" id="gamepadInvertX"/><div></div>
         </label>
-        <span class="text-small" style="padding-left:18px">Invert Y</span>
+        <span class="text-small" style="padding-left:28px">Y</span>
         <label class="toggle contrast" style="padding-left:4px;">
           <input type="checkbox" id="gamepadInvertY"/><div></div>
         </label>
-        <span class="text-small" style="padding-left:18px">Invert Z</span>
+        <span class="text-small" style="padding-left:28px">Z</span>
         <label class="toggle contrast" style="padding-left:4px;">
           <input type="checkbox" id="gamepadInvertZ"/><div></div>
         </label>
+      </div>
+      <div class="row mb-1">
+        <label style="margin-top:4px; padding-left:4px; width:160px;">Joystick Deadzone</label>
+        <div style="margin-left:10px; width:200px;">
+          <input type="number" style="text-align:right;" data-role="input" data-editable="true" data-clear-button="false" data-append="%" id="analogDeadzone" />
+        </div>
+      </div>
+      <div class="row mb-1">
+        <label style="margin-top:4px; padding-left:4px; width:160px;">Button Name Set
+          <span class="far fa-question-circle ml-1" title="Select the button name set that best fits your controller.
+The choice doesn't change how the gamepad will function, only how the button names are shown in the UI.
+More button sets can be added in future versions as needed."></span>
+        </label>
+        <div style="margin-left:10px; width:200px;">
+          <select data-role="select" id="selectButtonPreset" data-filter="false" data-on-change="onGamepadPresetChange" class="compact-options">
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -198,7 +210,7 @@ Ignored in Laser mode."></span>
 </div>
 
 <div class="section" id="rotarySettings" style="height:500px; flex-direction:column; border-bottom:0px;">
-  <div class="row ml-2" title="Hide the 4th axis controls if the controller supports a 4th axis but it is not currently in use">
+  <div class="row ml-2">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Hide 4th Axis Controls" id="disable4thAxisCheck" />
     <span class="far fa-question-circle ml-1 mt-2" title="Hide the 4th axis controls if the controller supports a 4th axis but it is not currently in use"></span>
   </div>

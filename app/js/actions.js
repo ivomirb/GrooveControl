@@ -378,15 +378,30 @@ function replaceHotkeyTokens(tooltip, forMenu) {
       let hotkey = "";
       if (!disableKeyboardShortcuts) {
         hotkey = keyboardShortcuts[action.name];
+        if (hotkey != "") {
+          if (forMenu) {
+            hotkey = capitalizeShortcut(hotkey);
+          }
+          else {
+            hotkey = "Shortcut: " + capitalizeShortcut(hotkey);
+          }
+        }
+      }
+      if (!disableGamepad) {
+        const button = encodeButtonName(buttonShortcuts[action.name]);
+        if (button != "") {
+          if (hotkey != "") {
+            hotkey += ", ";
+          }
+          if (forMenu && button.length > 2) {
+            hotkey += button;
+          } else {
+            hotkey += "Gamepad: " + button;
+          }
+        }
       }
       if (hotkey == "") {
         return "";
-      }
-      if (forMenu) {
-        hotkey = capitalizeShortcut(hotkey);
-      }
-      else {
-        hotkey = "Shortcut: " + capitalizeShortcut(hotkey);
       }
       tooltip = tooltip.replace(token, hotkey);
     }
@@ -481,6 +496,7 @@ function runMacro(macro) {
 
 function actionsDocReady() {
   initKeyboardActions();
+  initGamepadActions();
 
   if (!isJogWidget) {
     updateButtonTooltips();

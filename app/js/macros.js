@@ -3,6 +3,7 @@
 var buttonsarray = [];
 var macroCodeType = "gcode";
 var currentEditMacro = undefined;
+var currentShortcutIsButton = false;
 
 // eslint-disable-next-line no-unused-vars
 var macroMenuIdx = undefined; // used in context menus
@@ -27,7 +28,14 @@ function populateMacroButtons(runStartups) {
 
     let keyboardAssignment = "none";
     if (button.macrokeyboardshortcut && button.macrokeyboardshortcut.length) {
-      keyboardAssignment = capitalizeShortcut(button.macrokeyboardshortcut);
+      if (button.macrokeyboardshortcut.startsWith("button ")) {
+				keyboardAssignment = encodeButtonName(button.macrokeyboardshortcut);
+				if (keyboardAssignment.length <= 2) {
+					keyboardAssignment = "Gamepad: " + keyboardAssignment;
+				}
+			} else {
+	      keyboardAssignment = capitalizeShortcut(button.macrokeyboardshortcut);
+			}
     }
 
     let codetype, codetypeDisplay;
@@ -124,6 +132,7 @@ function onMacroShorcutKeyDown(event) {
       $('#alreadyAssignedWarnMacro').hide();
       $('#macrokeyboardshortcut').val(capitalizeShortcut(newVal));
       $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
+			currentShortcutIsButton = false;
     }
   }
 }
@@ -154,8 +163,9 @@ function editMacro(buttonIdx, fileName, script) {
   let javascript = "";
   let cls = "";
   let tooltip = "";
-  let macrokeyboardshortcut = "";
+  let shortcut = "";
   let jsrunonstartup = "";
+	currentShortcutIsButton = false;
 
   if (buttonIdx >= 0) {
     button = buttonsarray[buttonIdx];
@@ -167,9 +177,15 @@ function editMacro(buttonIdx, fileName, script) {
     cls = button.class;
     tooltip = button.tooltip;
     if (button.macrokeyboardshortcut && button.macrokeyboardshortcut.length > 0) {
-      macrokeyboardshortcut = button.macrokeyboardshortcut;
+      shortcut = button.macrokeyboardshortcut;
+      if (shortcut.startsWith("button ")) {
+				shortcut = encodeButtonName(shortcut);
+				currentShortcutIsButton = true;
+			} else {
+	      shortcut = capitalizeShortcut(shortcut);
+			}
     } else {
-      macrokeyboardshortcut = "";
+      shortcut = "";
     }
     jsrunonstartup = button.jsrunonstartup ? "checked" : "";
   } else {
@@ -259,12 +275,12 @@ function editMacro(buttonIdx, fileName, script) {
       </div>
       <div class="row mb-2">
 
-          <label class="cell-sm-3">Keyboard Shortcut</label>
+          <label class="cell-sm-3">Shortcut</label>
           <div class="cell-sm-9" >
-            <input id="macrokeyboardshortcut" readonly class="macrokeyboardshortcutinput" type="text" value="` + capitalizeShortcut(macrokeyboardshortcut) + `" data-role="input" data-clear-button="true" data-editable="true"
+            <input id="macrokeyboardshortcut" readonly class="macrokeyboardshortcutinput" type="text" value="` + shortcut + `" data-role="input" data-clear-button="true" data-editable="true"
               onfocus="onMacroShortcutGetFocus()" onblur="onMacroShortcutLoseFocus()" onchange="onMacroShortcutInputChange()">
             <span class="text-small fg-red" id="alreadyAssignedWarnMacro" style="display: none; position:absolute; bottom:-20px;"></span>
-            <span class="text-small">Click above to assign a new Keyboard Shortcut to the action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
+            <span class="text-small">Click above to assign a new Keyboard / Gamepad Shortcut to the action.<br>Ctrl, Alt and Shift can be added to create key combinations.</span>
           </div>
       </div>
     </div>
@@ -294,7 +310,12 @@ function editMacro(buttonIdx, fileName, script) {
           button.javascript = $('#macrojs').val();
           button.class = $('#macrocls').val();
           button.tooltip = $('#macrotooltip').val();
-          button.macrokeyboardshortcut = $('#macrokeyboardshortcut').val().toLowerCase();
+					shortcut = $('#macrokeyboardshortcut').val();
+					if (currentShortcutIsButton) {
+	          button.macrokeyboardshortcut = decodeButtonName(shortcut);
+					} else {
+		        button.macrokeyboardshortcut = shortcut.toLowerCase();
+					}
           button.jsrunonstartup = $('#jsRunOnStartup').is(':checked')
           populateMacroButtons();
           currentEditMacro = undefined;

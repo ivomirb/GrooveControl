@@ -4,6 +4,7 @@ var disableGamepad = true;
 var buttonShortcuts = {};
 var focusedButtonAction = undefined;
 var gamepadWarningShown = false;
+var gamepadEditorPreset = undefined;
 
 var gamepadId = null;
 var controllerButtons = [];
@@ -19,6 +20,56 @@ var ANALOG_JOG_TIMEOUT = 10000; // deactivate after 10 seconds of inactivity
 var gamepadEditorActive = false;
 var analogViewCtx;
 var analogViewSize;
+
+const gamepadPresetXbox = [
+  "A",
+  "B",
+  "X",
+  "Y",
+  "LB",
+  "RB",
+  "LT",
+  "RT",
+  "View",
+  "Menu",
+  "Left Stick",
+  "Right Stick",
+  "D-Pad Up",
+  "D-Pad Down",
+  "D-Pad Left",
+  "D-Pad Right",
+];
+
+const gamepadPresets = [
+  {name: "Default", preset: []},
+  {name: "Xbox One", preset: gamepadPresetXbox},
+];
+
+var gamepadPreset = gamepadPresets[0];
+
+function encodeButtonName(button, preset) {
+	preset = preset || gamepadPreset;
+  if (button.startsWith("button ")) {
+    const index = parseInt(button.substr(7));
+    if (index > 0 && index <= preset.preset.length) {
+      const name = preset.preset[index - 1];
+      if (name) {
+        return name;
+      }
+    }
+    return "Button " + index;
+  }
+  return "";
+}
+
+function decodeButtonName(name, preset) {
+	preset = preset || gamepadPreset;
+  const index = preset.preset.indexOf(name);
+  if (index >= 0) {
+    return "button " + (index+1);
+  }
+  return name.toLowerCase();
+}
 
 function onButtonGetFocus(name) {
   const action = findKeyboardAction(name);
@@ -79,7 +130,7 @@ function buttonInUse(newVal, forMacro) {
     for (const action of inputActions) {
       if (action != focusedButtonAction) {
         const input = $('#' + action.name + 'newButton');
-        if (input.val().toLowerCase() == newVal) {
+        if (decodeButtonName(input.val()) == newVal) {
           inUse = true;
           usedBy = "action: " + action.friendlyName;
           break;
@@ -98,13 +149,14 @@ function handleButtonPress(button) {
   if ($('#macrokeyboardshortcut').is(':focus')) {
     const inUse = buttonInUse(button, true).inUse;
     if (inUse) {
-      $('#alreadyAssignedWarnMacro').html("\"" + capitalizeShortcut(button) + "\" is already assigned to " + buttonInUse(button, true).source + "<br>");
+      $('#alreadyAssignedWarnMacro').html("\"" + encodeButtonName(button) + "\" is already assigned to " + buttonInUse(button, true).source + "<br>");
       $('#alreadyAssignedWarnMacro').show();
       $('#macrokeyboardshortcut').parent().removeClass("primary").addClass("alert");
     } else {
       $('#alreadyAssignedWarnMacro').hide();
-      $('#macrokeyboardshortcut').val(capitalizeShortcut(button));
+      $('#macrokeyboardshortcut').val(encodeButtonName(button));
       $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
+			currentShortcutIsButton = true;
     }
     return;
   }
@@ -298,12 +350,12 @@ function updateGamepadEditor() {
               const input = $('#' + focusedButtonAction.name + 'newButton');
               const inUse = buttonInUse(name, false).inUse;
               if (inUse) {
-                $('#alreadyAssignedWarnButton').html("\"" + capitalizeShortcut(name) + "\" is already assigned to " + buttonInUse(name, false).source);
+                $('#alreadyAssignedWarnButton').html("\"" + encodeButtonName(name) + "\" is already assigned to " + buttonInUse(name, false).source);
                 $('#alreadyAssignedWarnButton').show();
                 input.parent().removeClass('primary').addClass('alert');
               } else {
                 $('#alreadyAssignedWarnButton').hide();
-                input.val(capitalizeShortcut(name));
+                input.val(encodeButtonName(name));
                 input.parent().removeClass('alert').addClass('primary');
               }
               break;
@@ -348,7 +400,8 @@ function updateGamepadEditor() {
           analogViewCtx.lineTo(ZOffset + 2*MarkerSize, Center + Deadzone);
           analogViewCtx.stroke();
 
-          analogViewCtx.strokeStyle = ThemeData.currentThemeId == "light" ? "#000000" : "#FFFFFF";
+          analogViewCtx.strokeStyle = ThemeData.currentThemeId == "light" ? "#444" : "#ddd";
+          analogViewCtx.fillStyle = analogViewCtx.strokeStyle;
           analogViewCtx.beginPath();
           analogViewCtx.rect(0, 0, analogViewSize.height, analogViewSize.height);
           analogViewCtx.stroke();
@@ -378,7 +431,16 @@ function updateGamepadEditor() {
       gamepadId = null;
     }
   }
+}
 
+function onGamepadPresetChange() {
+	const newPreset = gamepadPresets[parseInt($('#selectButtonPreset').val())];
+  for (const action of inputActions) {
+		const input = $('#' + action.name + 'newButton');
+    const button = decodeButtonName(input.val(), gamepadEditorPreset);
+    input.val(encodeButtonName(button, newPreset));
+  }
+	gamepadEditorPreset = newPreset;
 }
 
 function initGamepadEditor() {
@@ -389,7 +451,7 @@ function initGamepadEditor() {
         <div class="cell-sm-6">
           <input type="text" readonly data-role="input" data-clear-button="true" data-editable="true"
               onfocus="onButtonGetFocus('` + action.name + `')" onblur="onButtonLoseFocus()" onchange="onButtonInputChange('` + action.name + `')"
-              id="` + action.name + `newButton" value="` + capitalizeShortcut(buttonShortcuts[action.name]) + `" />
+              id="` + action.name + `newButton" value="` + encodeButtonName(buttonShortcuts[action.name]) + `" />
         </div>
       </div>`);
   }
@@ -412,6 +474,12 @@ function initGamepadEditor() {
   if (gamepadId !== null) {
     requestAnimationFrame(updateGamepadEditor);
   }
+
+  for (let i = 0; i < gamepadPresets.length; i++) {
+    $('#selectButtonPreset').append('<option value="' + i + '">' + gamepadPresets[i].name + '</option>');
+  }
+  $('#selectButtonPreset').val(gamepadPresets.indexOf(gamepadPreset));
+	gamepadEditorPreset = gamepadPreset;
 }
 
 function closeGamepadEditor() {
@@ -423,8 +491,12 @@ function closeGamepadEditor() {
 }
 
 function applyGamepadSettings() {
+	if (gamepadPreset != gamepadEditorPreset) {
+		gamepadPreset = gamepadEditorPreset;
+		populateMacroButtons();
+	}
   for (const action of inputActions) {
-    const newButton = $('#' + action.name + 'newButton').val().toLowerCase();
+    const newButton = decodeButtonName($('#' + action.name + 'newButton').val());
     buttonShortcuts[action.name] = newButton;
   }
 
@@ -453,6 +525,7 @@ function applyGamepadSettings() {
   disableGamepad = disable;
 
   localStorage.setItem('disableGamepad', disableGamepad);
+  localStorage.setItem('gamepadPreset', gamepadPreset.name);
   closeGamepadEditor();
 }
 
@@ -482,4 +555,38 @@ function showGamepadWarning() {
       }
     }]
   });
+}
+
+function initGamepadActions() {
+  for (const action of inputActions) {
+    buttonShortcuts[action.name] = "";
+  }
+
+  disableGamepad = localStorage.getItem('disableGamepad') == null || JSON.parse(localStorage.getItem('disableGamepad')) == true;
+  $('#gamepadDisplay').toggle(!disableGamepad);
+
+  if (localStorage.getItem('buttonShortcuts')) {
+    const settings = JSON.parse(localStorage.getItem('buttonShortcuts'));
+    for (const action of inputActions) {
+      if (settings[action.name] != undefined) {
+        buttonShortcuts[action.name] = settings[action.name];
+      }
+    }
+  }
+
+  window.addEventListener("gamepadconnected", onGamepadConnected);
+  window.addEventListener("gamepaddisconnected", onGamepadDisconnected);
+  onGamepadDisconnected();
+
+  if (localStorage.getItem('analogStickDeadzone')) {
+    analogStickDeadzone = Math.max(Math.min(parseInt(localStorage.getItem('analogStickDeadzone')), 100), 0);
+  }
+
+	const presetName = localStorage.getItem('gamepadPreset');
+	for (const preset of gamepadPresets) {
+		if (preset.name == presetName) {
+			gamepadPreset = preset;
+			break;
+		}
+	}
 }
