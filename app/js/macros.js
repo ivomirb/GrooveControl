@@ -27,7 +27,7 @@ function populateMacroButtons(runStartups) {
 
     let keyboardAssignment = "none";
     if (button.macrokeyboardshortcut && button.macrokeyboardshortcut.length) {
-      keyboardAssignment = button.macrokeyboardshortcut;
+      keyboardAssignment = capitalizeShortcut(button.macrokeyboardshortcut);
     }
 
     let codetype, codetypeDisplay;

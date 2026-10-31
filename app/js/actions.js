@@ -222,8 +222,8 @@ const inputActions = [
   },
 
   { // Increase Tool Speed Override
-    name: "toInc",
-    friendlyName: "Decrease Speed",
+    name: "troInc",
+    friendlyName: "Increase Speed",
     label: `<i class="far fa-hand-point-up fg-openbuilds fa-fw"></i> Increase Speed`,
     defaultKey: "w",
     keydown: () => {
@@ -232,7 +232,7 @@ const inputActions = [
   },
 
   { // Decrease Tool Speed Override
-    name: "toDec",
+    name: "troDec",
     friendlyName: "Decrease Speed",
     label: `<i class="far fa-hand-point-down fg-openbuilds fa-fw"></i> Decrease Speed`,
     defaultKey: "s",
@@ -249,6 +249,156 @@ const inputActions = [
     keydown: loadJobFile,
   },
 ];
+
+const shortcutTooltips = [
+  {
+    id: "#xP, #probexP",
+    tooltip2: "$xP",
+  },
+  {
+    id: "#xM, #probexM",
+    tooltip2: "$xM",
+  },
+  {
+    id: "#yP, #probeyP",
+    tooltip2: "$yP",
+  },
+  {
+    id: "#yM, #probeyM",
+    tooltip2: "$yM",
+  },
+  {
+    id: "#zP, #probezP",
+    tooltip2: "$zP",
+  },
+  {
+    id: "#zM, #probezM",
+    tooltip2: "$zM",
+  },
+  {
+    id: "#axP",
+    tooltip2: "$aP",
+  },
+  {
+    id: "#aM",
+    tooltip2: "$aM",
+  },
+  {
+    id: '#toggleJogMode',
+    tooltip: "Toggle between Incremental and Continuous jog",
+    tooltip2: "$jogToggleMode",
+  },
+  {
+    id: '#dist01label, #dist1label, #dist10label, #dist100label',
+    tooltip: "Select step size for incremental jog",
+    tooltip2: "Decrease $stepM\nIncrease $stepP",
+  },
+  {
+    id: '*:has(>#jro)',
+    tooltip: "Jog speed",
+    tooltip2: "Decrease $jogSpeedM\nIncrease $jogSpeedP",
+  },
+  {
+    id: '*:has(>#fro)',
+    tooltip: "Feed rate override",
+    tooltip2: "Decrease $froDec\nIncrease $froInc",
+  },
+  {
+    id: '*:has(>#tro)',
+    tooltip: "Tool speed override",
+    tooltip2: "Decrease $troDec\nIncrease $troInc",
+  },
+  {
+    id: '#runBtn',
+    tooltip: "Start the job",
+    tooltip2: "$playpause",
+  },
+  {
+    id: '#resumeBtn',
+    tooltip: "Resume the paused job",
+    tooltip2: "$playpause",
+  },
+  {
+    id: '#pauseBtn',
+    tooltip: "Pause the running job",
+    tooltip2: "$playpause",
+  },
+  {
+    id: '#abortBtn, #abortBtn2, #abortBtn3',
+    tooltip: "Emergency stop",
+    tooltip2: "$estop",
+  },
+  {
+    id: '#unlockBtn, #unlockBtn2, #unlockBtn3',
+    tooltip: "Clear the alarm and unlock the controller",
+    tooltip2: "$unlockAlarm",
+  },
+  {
+    id: '#homeBtn',
+    tooltip: "Home all axes",
+    tooltip2: "$home",
+  },
+  {
+    id: '#setZeroXYZ',
+    tooltip: "Zero X, Y and Z",
+    tooltip2: "$setzeroxyz",
+  },
+  {
+    id: '#gotozeroWPosHotkey',
+    menu: "$gotozeroxyz",
+  },
+  {
+    id: '#openGcodeBtn',
+    tooltip: "Open a G-code file",
+    tooltip2: "$openFile",
+  }
+];
+
+// returns "" if one more more hotkey is not set
+function replaceHotkeyTokens(tooltip, forMenu) {
+  for (const action of inputActions) {
+    const token = '$' + action.name;
+    if (tooltip.indexOf(token) >= 0) {
+      let hotkey = "";
+      if (!disableKeyboardShortcuts) {
+        hotkey = keyboardShortcuts[action.name];
+      }
+      if (hotkey == "") {
+        return "";
+      }
+      if (forMenu) {
+        hotkey = capitalizeShortcut(hotkey);
+      }
+      else {
+        hotkey = "Shortcut: " + capitalizeShortcut(hotkey);
+      }
+      tooltip = tooltip.replace(token, hotkey);
+    }
+  }
+  return tooltip;
+}
+
+function updateButtonTooltips() {
+  for (const tip of shortcutTooltips) {
+    if (tip.tooltip2) {
+      let tooltip2 = replaceHotkeyTokens(tip.tooltip2, false);
+      if (tooltip2) {
+        if (tip.tooltip) {
+          $(tip.id).attr('title', tip.tooltip + "\n" + tooltip2);
+        } else {
+          $(tip.id).attr('title', tooltip2);
+        }
+      } else if (tip.tooltip) {
+        $(tip.id).attr('title', tip.tooltip);
+      } else {
+        $(tip.id).attr('title', "");
+      }
+    } else if (tip.menu) {
+      let menu = replaceHotkeyTokens(tip.menu, true);
+      $(tip.id).html(menu);
+    }
+  }
+}
 
 function jogKeyDown(name) {
   if (laststatus && laststatus.comms.connectionStatus == 2) {
@@ -339,4 +489,8 @@ function actionsDocReady() {
 
   $(document).on('keydown', onDocKeyDown);
   $(document).on('keyup', onDocKeyUp);
+
+  if (!isJogWidget) {
+    updateButtonTooltips();
+  }
 }
