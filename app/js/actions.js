@@ -483,35 +483,8 @@ function actionsDocReady() {
   for (const action of inputActions) {
     keyboardShortcuts[action.name] = action.defaultKey;
     buttonShortcuts[action.name] = "";
-}
-
-  if (localStorage.getItem('keyboardShortcuts')) {
-    let settings = JSON.parse(localStorage.getItem('keyboardShortcuts'));
-    for (const action of inputActions) {
-      if (settings[action.name] != undefined) {
-        keyboardShortcuts[action.name] = settings[action.name];
-      }
-    }
   }
-
-  disableKeyboardShortcuts = localStorage.getItem('disableKeyboardShortcuts') == null || (JSON.parse(localStorage.getItem('disableKeyboardShortcuts')) == true);
   disableGamepad = localStorage.getItem('disableGamepad') == null || JSON.parse(localStorage.getItem('disableGamepad')) == true;
-
-  analogStickInvertX = localStorage.getItem('analogStickInvertX') != null && JSON.parse(localStorage.getItem('analogStickInvertX')) == true;
-  analogStickInvertY = localStorage.getItem('analogStickInvertY') != null && JSON.parse(localStorage.getItem('analogStickInvertY')) == true;
-  analogStickInvertZ = localStorage.getItem('analogStickInvertZ') != null && JSON.parse(localStorage.getItem('analogStickInvertZ')) == true;
-
-  // Remove Keyboard Bindings from Override Sliders
-  $("#jrocell").find(".marker").unbind(Metro.events.keydown);
-  $("#trocell").find(".marker").unbind(Metro.events.keydown);
-  $("#frocell").find(".marker").unbind(Metro.events.keydown);
-  $("#jrocell").find(".marker").unbind(Metro.events.keyup);
-  $("#trocell").find(".marker").unbind(Metro.events.keyup);
-  $("#frocell").find(".marker").unbind(Metro.events.keyup);
-
-  $(document).on('keydown', onDocKeyDown);
-  $(document).on('keyup', onDocKeyUp);
-
   if (localStorage.getItem('buttonShortcuts')) {
     const settings = JSON.parse(localStorage.getItem('buttonShortcuts'));
     for (const action of inputActions) {
