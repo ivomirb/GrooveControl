@@ -1,5 +1,7 @@
 "use strict";
 
+var dlgContext = {};
+
 const inputActions = [
   { // X+
     name: "xP",
@@ -411,15 +413,17 @@ function replaceHotkeyTokens(tooltip, forMenu) {
       let hotkey = "";
       if (!disableKeyboardShortcuts) {
         hotkey = keyboardShortcuts[action.name];
+        if (hotkey != "") {
+          if (forMenu) {
+            hotkey = capitalizeShortcut(hotkey);
+          }
+          else {
+            hotkey = "Shortcut: " + capitalizeShortcut(hotkey);
+          }
+        }
       }
       if (hotkey == "") {
         return "";
-      }
-      if (forMenu) {
-        hotkey = capitalizeShortcut(hotkey);
-      }
-      else {
-        hotkey = "Shortcut: " + capitalizeShortcut(hotkey);
       }
       tooltip = tooltip.replace(token, hotkey);
     }
@@ -503,7 +507,7 @@ function removeDlgContext(context) {
   dlgContext[context] = false;
 }
 
-function findKeyboardAction(name) {
+function findInputAction(name) {
   for (const action of inputActions) {
     if (action.name == name) {
       return action;

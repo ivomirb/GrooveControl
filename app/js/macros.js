@@ -25,9 +25,11 @@ function populateMacroButtons(runStartups) {
       button.tooltip = "";
     }
 
-    let keyboardAssignment = "none";
-    if (button.macrokeyboardshortcut && button.macrokeyboardshortcut.length) {
-      keyboardAssignment = capitalizeShortcut(button.macrokeyboardshortcut);
+    let shortcut = "";
+    let shortcutIcon = "";
+    if (button.shortcut && button.shortcut.length > 0) {
+      shortcut = ": [" + capitalizeShortcut(button.shortcut) + "]";
+      shortcutIcon = "macrokbd-icon far fa-keyboard fa-fw";
     }
 
     let codetype, codetypeDisplay;
@@ -49,7 +51,7 @@ function populateMacroButtons(runStartups) {
         <span class="` + button.icon + ` icon"></span>
         <span class="caption mt-2">` + button.title + `</span>
         <span title="Code Type: ` + codetype + `" class="macrotype">` + codetype + `</span>
-        <span class="macrokbd"><i class="far fa-fw fa-keyboard"></i>: [` + keyboardAssignment + `]</span>
+        <span class="macrokbd"><i class="` + shortcutIcon + `"></i>` + shortcut + `</span>
       </button>
       `
     } else if (codetype == "javascript") {
@@ -64,7 +66,7 @@ function populateMacroButtons(runStartups) {
           ` + button.title + `
         </span>
         <span title="Code Type: ` + codetype + `" class="macrotype">` + codetypeDisplay + `</span>
-        <span class="macrokbd"><i class="far fa-fw fa-keyboard"></i>: [` + keyboardAssignment + `]</span>
+        <span class="macrokbd"><i class="` + shortcutIcon + `"></i>` + shortcut + `</span>
       </button>
       `
     }
@@ -154,7 +156,7 @@ function editMacro(buttonIdx, fileName, script) {
   let javascript = "";
   let cls = "";
   let tooltip = "";
-  let macrokeyboardshortcut = "";
+  let shortcut = "";
   let jsrunonstartup = "";
 
   if (buttonIdx >= 0) {
@@ -166,10 +168,8 @@ function editMacro(buttonIdx, fileName, script) {
     javascript = button.javascript;
     cls = button.class;
     tooltip = button.tooltip;
-    if (button.macrokeyboardshortcut && button.macrokeyboardshortcut.length > 0) {
-      macrokeyboardshortcut = button.macrokeyboardshortcut;
-    } else {
-      macrokeyboardshortcut = "";
+    if (button.shortcut && button.shortcut.length > 0) {
+      shortcut = capitalizeShortcut(button.shortcut);
     }
     jsrunonstartup = button.jsrunonstartup ? "checked" : "";
   } else {
@@ -197,8 +197,8 @@ function editMacro(buttonIdx, fileName, script) {
   const macroTemplate = `<form id="macroEditForm">
   <div class="p-1 m-0">
       <div class="row mb-2" style="align-items:center;">
-          <label class="cell-sm-3">Icon</label>
-          <div class="cell-sm-4">
+          <label class="cell-sm-2">Icon</label>
+          <div class="cell-sm-5">
             <form class="inline-form">
               <div class="inline-form">
                 <button class="button outline dark " type="button" id="GetIconPicker" data-iconpicker-input="#macroicon" data-iconpicker-preview="#IconPreview">Select Icon</button>
@@ -226,25 +226,25 @@ function editMacro(buttonIdx, fileName, script) {
           </div>
       </div>
       <div class="row mb-2">
-          <label class="cell-sm-3">Label</label>
-          <div class="cell-sm-9">
+          <label class="cell-sm-2">Label</label>
+          <div class="cell-sm-10">
               <input id="macrotitle" type="text" value="` + title + `" data-editable="true">
           </div>
       </div>
       <div class="row mb-2">
-          <label class="cell-sm-3">Tooltip</label>
-          <div class="cell-sm-9">
+          <label class="cell-sm-2">Tooltip</label>
+          <div class="cell-sm-10">
               <input id="macrotooltip" type="text" value="` + tooltip + `" data-editable="true">
           </div>
       </div>
       <div class="row mb-2">
-          <div class="cell-sm-3">
+          <div class="cell-sm-2" style="padding:0px;">
             <ul data-tabs-position="vertical" data-role="tabs">
               <li id="editorGcodeModeTab" onclick="editorGcodeMode();"><a href="#">G-code</a></li>
               <li id="editorJavascriptModeTab" onclick="editorJavascriptMode();"><a href="#">JavaScript</a></li>
             </ul>
           </div>
-          <div class="cell-sm-9">
+          <div class="cell-sm-10">
             <div id="macroGcodeEditField">
               <span class="text-small">Enter G-code to execute</span>
               <textarea  wrap="off" id="macrogcode" type="text" value="` + gcode + `" style="overflow-y: auto; height: calc(100vh - 540px); resize: none;" rows="4"  data-editable="true"></textarea>
@@ -259,12 +259,12 @@ function editMacro(buttonIdx, fileName, script) {
       </div>
       <div class="row mb-2">
 
-          <label class="cell-sm-3">Keyboard Shortcut</label>
-          <div class="cell-sm-9" >
-            <input id="macrokeyboardshortcut" readonly class="macrokeyboardshortcutinput" type="text" value="` + capitalizeShortcut(macrokeyboardshortcut) + `" data-role="input" data-clear-button="true" data-editable="true"
+          <label class="cell-sm-2">Shortcut</label>
+          <div class="cell-sm-10">
+            <input id="macrokeyboardshortcut" readonly class="macrokeyboardshortcutinput" type="text" value="` + shortcut + `" data-role="input" data-clear-button="true" data-editable="true"
               onfocus="onMacroShortcutGetFocus()" onblur="onMacroShortcutLoseFocus()" onchange="onMacroShortcutInputChange()">
             <span class="text-small fg-red" id="alreadyAssignedWarnMacro" style="display: none; position:absolute; bottom:-20px;"></span>
-            <span class="text-small">Click above to assign a new Keyboard Shortcut to the action.<br>Ctrl, Alt and Shift can be added to create combinations.</span>
+            <span class="text-small">Click above to assign a new Keyboard Shortcut to the action.<br>Ctrl, Alt and Shift can be added to create key combinations.</span>
           </div>
       </div>
     </div>
@@ -294,7 +294,7 @@ function editMacro(buttonIdx, fileName, script) {
           button.javascript = $('#macrojs').val();
           button.class = $('#macrocls').val();
           button.tooltip = $('#macrotooltip').val();
-          button.macrokeyboardshortcut = $('#macrokeyboardshortcut').val().toLowerCase();
+          button.shortcut = $('#macrokeyboardshortcut').val().toLowerCase();
           button.jsrunonstartup = $('#jsRunOnStartup').is(':checked')
           populateMacroButtons();
           currentEditMacro = undefined;
