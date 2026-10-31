@@ -144,11 +144,25 @@ const inputActions = [
   { // Abort / Emergency
     name: "estop",
     friendlyName: "Stop / Abort",
-    label: `<i class="fas fa-stop fg-openbuilds fa-fw"></i> Stop / Abort`,
+    label: `<i class="far fa-hand-paper fg-red fa-fw"></i> Stop / Abort`,
     defaultKey: "esc",
     keydown: () => {
       socket.emit('stop', {stop: false, jog: false, abort: true});
     },
+  },
+
+  { // Clear Alarm
+    name: "unlockAlarm",
+    friendlyName: "Unlock Alarm",
+    label: `<i class="fas fa-bell fg-openbuilds fa-fw"></i> Unlock Alarm`,
+    defaultKey: "end",
+    keydown: () => {
+      if (laststatus.comms.connectionStatus == 5) {
+        Metro.dialog.close($('.closeAlarmBtn').parent().parent());
+        socket.emit('clearAlarm', 2);
+      }
+    },
+    dlgContext: "alarm",
   },
 
   { // Start, Pause, Resume
@@ -169,20 +183,6 @@ const inputActions = [
         socket.emit('resume', true);
       }
     },
-  },
-
-  { // Clear Alarm
-    name: "unlockAlarm",
-    friendlyName: "Unlock Alarm",
-    label: `<i class="fas fa-bell fg-openbuilds fa-fw"></i> Unlock Alarm`,
-    defaultKey: "end",
-    keydown: () => {
-      if (laststatus.comms.connectionStatus == 5) {
-        Metro.dialog.close($('.closeAlarmBtn').parent().parent());
-        socket.emit('clearAlarm', 2);
-      }
-    },
-    dlgContext: "alarm",
   },
 
   { // Home All
