@@ -8,14 +8,14 @@
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="metro4:init" content="true">
-    <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
-    <link rel="stylesheet" href="lib/metro4/css/metro-all.min.css" />
-    <link rel="stylesheet" href="css/splash.css" />
-    <link rel="stylesheet" href="css/main.css" />
-    <link rel="stylesheet" href="css/buttons.css" />
-    <link rel="stylesheet" href="css/probev2.css" />
-    <link rel="stylesheet" href="/lib/furcanIconPicker/iconpicker-1.5.0.css" />
-    <link type="text/css" rel="stylesheet" media="all" href="css/image-checkbox.css" />
+    <script type="text/javascript" src="./lib/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="./lib/metro4/css/metro-all.min.css" />
+    <link rel="stylesheet" href="./css/splash.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/buttons.css" />
+    <link rel="stylesheet" href="./css/probev2.css" />
+    <link rel="stylesheet" href="./lib/furcanIconPicker/iconpicker-1.5.0.css" />
+    <link type="text/css" rel="stylesheet" media="all" href="./css/image-checkbox.css" />
 
   </head>
 
@@ -32,7 +32,7 @@
     <div class="window bd-black" style="height: 100vh; overflow-y: hidden;">
       <div id="windowtitlebar" class="window-caption bg-black bd-black" style="-webkit-app-region: drag; height: 42px; padding-left: 3px;">
         <!-- <span class="icon mif-cog"></span> -->
-        <span><img src="/img/groove-control-logo.svg" height="40" /></span>
+        <span><img src="./img/groove-control-logo.svg" height="40" /></span>
         <span class="title" id="windowtitle" style="padding-left: 10px;">Groove Control</span>
 
         <div class="buttons" style="-webkit-app-region: no-drag">
@@ -467,8 +467,8 @@ The spindle will automatically start when the job is resumed.">
               <div class="group">
                 <button class="ribbon-button" onclick="socket.emit('opengroove', true);">
                   <span class="icon" style="justify-items:center;">
-                    <img class="light_theme_only" src="img/groove-logo_b.svg">
-                    <img class="dark_theme_only" src="img/groove-logo_w.svg">
+                    <img class="light_theme_only" src="./img/groove-logo_b.svg">
+                    <img class="dark_theme_only" src="./img/groove-logo_w.svg">
                   </span>
                   <span class="caption">Groove<br>Control</span>
                 </button>
@@ -493,7 +493,7 @@ The spindle will automatically start when the job is resumed.">
                 </button>
                 <button class="ribbon-button" onclick="socket.emit('openbuilds');">
                   <span class="icon">
-                    <img src="img/openbuilds-logo.svg">
+                    <img src="./img/openbuilds-logo.svg">
                   </span>
                   <span class="caption">OpenBuilds<br>Archive</span>
                 </button>
@@ -1412,12 +1412,12 @@ Restore previous origins from history.">
 
     <div id="hiddendivs" style="display:none;">
 
-      <div class="dialog dark" data-overlay-click-close="false" data-role="dialog" data-to-top="true" id="jogWidgetDialog">
+      <div class="dialog dark" data-overlay-click-close="false" data-role="dialog" id="jogWidgetDialog">
         <div class="dialog-title"><i class="fas fa-mobile-alt"></i> Jog Widget</div>
         <div class="dialog-content" style="max-height: calc(100vh - 200px);overflow-y: auto; overflow-x: hidden;">
           <div class="row">
             <div class="cell-4">
-              <img src="img/widget.png" />
+              <img src="./img/widget.png" />
             </div>
             <div class="cell-8">
               <div class="row">
@@ -1770,87 +1770,87 @@ Restore previous origins from history.">
   </script>
 
 
-  <script type="text/javascript" src="lib/fontawesome5/js/all.min.js"></script>
-  <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
-  <script type="text/javascript" src="lib/jquery/jquery-ui.js"></script>
-  <script type="text/javascript" src="lib/jquery/jquery-input-history.min.js"></script>
+  <script type="text/javascript" src="./lib/fontawesome5/js/all.min.js"></script>
+  <script type="text/javascript" src="./lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="./lib/jquery/jquery-ui.js"></script>
+  <script type="text/javascript" src="./lib/jquery/jquery-input-history.min.js"></script>
 
   <!-- Theme  -->
-  <script type="text/javascript" src="js/ui.js"></script>
+  <script type="text/javascript" src="./js/ui.js"></script>
 
-  <script type="text/javascript" src="js/theme.js"></script>
+  <script type="text/javascript" src="./js/theme.js"></script>
 
-  <script type="text/javascript" src="js/settings.js"></script>
+  <script type="text/javascript" src="./js/settings.js"></script>
 
-  <script type="text/javascript" src="lib/qrcode/qrcode.min.js"></script>
+  <script type="text/javascript" src="./lib/qrcode/qrcode.min.js"></script>
 
-  <script type="text/javascript" src="lib/yamljs/yaml.min.js"></script>
+  <script type="text/javascript" src="./lib/yamljs/yaml.min.js"></script>
 
-  <script type="text/javascript" src="lib/ace/src-noconflict/ace.js"></script>
+  <script type="text/javascript" src="./lib/ace/src-noconflict/ace.js"></script>
   <script>
     METRO_HOTKEYS_FILTER_CONTENT_EDITABLE = false;
     METRO_HOTKEYS_FILTER_INPUT_ACCEPTING_ELEMENTS = true;
     METRO_HOTKEYS_FILTER_TEXT_INPUTS = true;
   </script>
-  <script type="text/javascript" src="lib/metro4/js/metro.min.js"></script>
+  <script type="text/javascript" src="./lib/metro4/js/metro.min.js"></script>
 
-  <script type="text/javascript" src="/lib/lodash.core.js"></script>
-  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="./lib/lodash.core.js"></script>
+  <script type="text/javascript" src="./lib/socket.io/socket.io.min.js"></script>
 
-  <script type="text/javascript" src="js/macros.js"></script>
+  <script type="text/javascript" src="./js/macros.js"></script>
 
-  <script type="text/javascript" src="lib/threejs/three.min.js"></script>
-  <script type="text/javascript" src="lib/threejs/GridRect.js"></script>
-  <script type="text/javascript" src="lib/threejs/OrbitControls.js"></script>
-  <script type="text/javascript" src="lib/threejs/DragControls.js"></script>
-  <script type="text/javascript" src="lib/threejs/Projector.js"></script>
-  <script type="text/javascript" src="lib/threejs/CanvasRenderer.js"></script>
-  <script type="text/javascript" src="lib/threejs/TransformControls.js"></script>
-  <script type="text/javascript" src="lib/threejs/TweenMax.min.js"></script>
-  <script type="text/javascript" src="lib/threejs/STLLoader.js"></script>
+  <script type="text/javascript" src="./lib/threejs/three.min.js"></script>
+  <script type="text/javascript" src="./lib/threejs/GridRect.js"></script>
+  <script type="text/javascript" src="./lib/threejs/OrbitControls.js"></script>
+  <script type="text/javascript" src="./lib/threejs/DragControls.js"></script>
+  <script type="text/javascript" src="./lib/threejs/Projector.js"></script>
+  <script type="text/javascript" src="./lib/threejs/CanvasRenderer.js"></script>
+  <script type="text/javascript" src="./lib/threejs/TransformControls.js"></script>
+  <script type="text/javascript" src="./lib/threejs/TweenMax.min.js"></script>
+  <script type="text/javascript" src="./lib/threejs/STLLoader.js"></script>
 
-  <script type="text/javascript" src="js/viewer.js"></script>
-  <script type="text/javascript" src="js/viewer-ruler.js"></script>
+  <script type="text/javascript" src="./js/viewer.js"></script>
+  <script type="text/javascript" src="./js/viewer-ruler.js"></script>
 
-  <script type="text/javascript" src="js/main.js"></script>
-  <script type="text/javascript" src="js/updates.js"></script>
+  <script type="text/javascript" src="./js/main.js"></script>
+  <script type="text/javascript" src="./js/updates.js"></script>
 
-  <script type="text/javascript" src="js/grbl-settings-templates.js"></script>
-  <script type="text/javascript" src="js/grbl-settings.js"></script>
+  <script type="text/javascript" src="./js/grbl-settings-templates.js"></script>
+  <script type="text/javascript" src="./js/grbl-settings.js"></script>
 
-  <script type="text/javascript" src="js/websocket.js"></script>
+  <script type="text/javascript" src="./js/websocket.js"></script>
 
-  <script type="text/javascript" src="js/metroactions.js"></script>
-  <script type="text/javascript" src="js/jog.js"></script>
-  <script type="text/javascript" src="js/servo.js"></script>
+  <script type="text/javascript" src="./js/metroactions.js"></script>
+  <script type="text/javascript" src="./js/jog.js"></script>
+  <script type="text/javascript" src="./js/servo.js"></script>
 
-  <script type="text/javascript" src="js/widget.js"></script>
+  <script type="text/javascript" src="./js/widget.js"></script>
 
-  <script type="text/javascript" src="js/actions.js"></script>
-  <script type="text/javascript" src="js/keyboard.js"></script>
+  <script type="text/javascript" src="./js/actions.js"></script>
+  <script type="text/javascript" src="./js/keyboard.js"></script>
 
-  <script type="text/javascript" src="lib/3dview/3dview.js"></script>
+  <script type="text/javascript" src="./lib/3dview/3dview.js"></script>
 
   <!-- Wizards -->
-  <script type="text/javascript" src="wizards/calibration/calibrate.js"></script>
-  <script type="text/javascript" src="wizards/calibration/calibrate-x.js"></script>
-  <script type="text/javascript" src="wizards/calibration/calibrate-y.js"></script>
-  <script type="text/javascript" src="wizards/calibration/calibrate-z.js"></script>
-  <script type="text/javascript" src="wizards/calibration/calibrate-servo.js"></script>
+  <script type="text/javascript" src="./wizards/calibration/calibrate.js"></script>
+  <script type="text/javascript" src="./wizards/calibration/calibrate-x.js"></script>
+  <script type="text/javascript" src="./wizards/calibration/calibrate-y.js"></script>
+  <script type="text/javascript" src="./wizards/calibration/calibrate-z.js"></script>
+  <script type="text/javascript" src="./wizards/calibration/calibrate-servo.js"></script>
 
-  <script type="text/javascript" src="wizards/probe/probev2.js"></script>
-  <script type="text/javascript" src="wizards/probe/holefinder.js"></script>
+  <script type="text/javascript" src="./wizards/probe/probev2.js"></script>
+  <script type="text/javascript" src="./wizards/probe/holefinder.js"></script>
 
-  <script type="text/javascript" src="wizards/surfacing/surfacing.js"></script>
-  <script type="text/javascript" src="wizards/heightmap/heightmap.js"></script>
+  <script type="text/javascript" src="./wizards/surfacing/surfacing.js"></script>
+  <script type="text/javascript" src="./wizards/heightmap/heightmap.js"></script>
 
-  <script type="text/javascript" src="wizards/jobstats/jobstats.js"></script>
+  <script type="text/javascript" src="./wizards/jobstats/jobstats.js"></script>
 
-  <script type="text/javascript" src="wizards/resume/resume.js"></script>
+  <script type="text/javascript" src="./wizards/resume/resume.js"></script>
 
-  <script type="text/javascript" src="js/toolchange.js"></script>
+  <script type="text/javascript" src="./js/toolchange.js"></script>
 
-  <script src="/lib/furcanIconPicker/iconpicker-1.5.0.js"></script>
+  <script src="./lib/furcanIconPicker/iconpicker-1.5.0.js"></script>
 
 </html>
 <!--  -->

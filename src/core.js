@@ -85,7 +85,6 @@ const status = {
   driver: {
     version: require('../package').version,
     ipaddress: findLocalIpAddress(),
-    webport: config.webPort,
     platform: process.platform,
     operatingsystem: false,
     powersettings: {

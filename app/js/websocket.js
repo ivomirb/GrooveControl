@@ -1,7 +1,8 @@
 "use strict";
 
 var socket, laststatus, lastsysinfo;
-var server = ''; //192.168.14.100';
+var serverPort;
+var serverURL;
 var grblParams = {}
 var nostatusyet = true;
 var bellstate = false;
@@ -725,10 +726,10 @@ function onFeatures(data) {
 }
 
 function initSocket() {
-  socket = io.connect(server, {
-    'timeout': 60000,
-    'connect timeout': 60000
-  }); // socket.io init
+  const urlParams = new URLSearchParams(window.location.search);
+  serverPort = urlParams.get("port");
+  serverURL = "http://localhost:" + serverPort;
+  socket = io.connect(serverURL, {timeout: 60000});
   const icon = ''
   const source = "websocket"
   const string = "Bidirectional Websocket Interface Started Succesfully"
@@ -974,7 +975,7 @@ function spindleDelay(sec) {
 
 function pauseSpindle() {
   if (socket) {
-    socket.emit('serialInject', String.fromCharCode(0x84));
+    socket.emit('serialInject', String.fromCharCode(0x84)); // unlike 0x9E (stop spindle), 0x84 (door opened) inserts a delay after the spindle starts up
 
     if (!disabledWarnings.pauseSpindleDlg) {
       Metro.dialog.create({
