@@ -2,398 +2,1369 @@
 <html lang="en">
 
   <head>
-    <title>Jog Widget</title>
+    <title>Groove Control</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="author" content="ivomirb">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="HandheldFriendly" content="true" />
-    <meta name="mobile-web-app-capable" content="yes">
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/jog/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/jog/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/jog/favicon-16x16.png">
-    <link rel="manifest" href="/jog/manifest.json">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="metro4:init" content="true">
-    <script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
-    <link rel="stylesheet" href="/lib/metro4/css/metro-all.css" />
-    <link rel="stylesheet" href="/css/buttons.css" />
-    <link rel="stylesheet" href="/css/main.css" />
+    <script type="text/javascript" src="./lib/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="./lib/metro4/css/metro-all.min.css" />
+    <link rel="stylesheet" href="./css/splash.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/buttons.css" />
+    <link rel="stylesheet" href="./css/probev2.css" />
+    <link rel="stylesheet" href="./lib/furcanIconPicker/iconpicker-1.5.0.css" />
+    <link type="text/css" rel="stylesheet" media="all" href="./css/image-checkbox.css" />
+
   </head>
 
   <body>
 
-    <style>
-      .button.square.large {
-        margin: 0px 5px;
-      }
+    <div class="pos-fixed pos-center" id="splash">
+      <center>
+        <div id="logosplash" style="display: none;">
+        </div>
+      </center>
+    </div>
 
-      .distbtn {
-        width: 65px;
-        height: 30px;
-        line-height: 28px;
-        padding:0;
-        margin-right:8px;
-      }
-    </style>
 
-    <div class="window" style="height: 100vh;">
-      <div class="window-caption bg-openbuilds" style="-webkit-app-region: drag;">
-        <span class="icon"><img src="/icon_w.png" style="vertical-align:baseline;"/></span>
-        <span class="title" id="windowtitle">Groove Control</span>
+    <div class="window bd-black" style="height: 100vh; overflow-y: hidden;">
+      <div id="windowtitlebar" class="window-caption bg-black bd-black" style="-webkit-app-region: drag; height: 42px; padding-left: 3px;">
+        <!-- <span class="icon mif-cog"></span> -->
+        <span><img src="./img/groove-control-logo.svg" height="40" /></span>
+        <span class="title" id="windowtitle" style="padding-left: 10px;">Groove Control</span>
+
         <div class="buttons" style="-webkit-app-region: no-drag">
+          <span title="Minimize" class="btn-custom" onclick="socket.emit('minimize')"><i class="fas fa-window-minimize"></i></span>
+          <span title="Maximize" class="btn-custom" onclick="socket.emit('maximize')"><i class="fas fa-window-maximize"></i></span>
+          <span title="Toggle Fullscreen" class="btn-custom" onclick="socket.emit('fullscreen')"><i class="fas fa-desktop"></i></span>
+          <span title="Close to Tray" class="btn-custom" onclick="socket.emit('minimisetotray')" id="mainCloseBtn"><i class="fas fa-window-close"></i></span>
         </div>
       </div>
       <div class="window-content" style="height: 100%; overflow: hidden  !important;">
+        <nav data-role="ribbonmenu" class="mt-1">
+          <ul class="tabs-holder">
+            <li><a id="controlTab" href="#section-jog" onclick="manualcontrolPanel();"><i class="fas fa-fw fa-play"></i> Machine Control</a></li>
+            <li id="grblSettings" style="display: none;"><a id="grblTab" href="#section-grbl" onclick="grblPanel();"><i class="fas fa-fw fa-sliders-h"></i> <span id="grbl-settings-tab-title">Grbl Settings</span></a></li>
+            <li><a href="#section-troubleshooting" id="troubleshootingTab" onclick="troubleshootingPanel();"><i class="fas fa-fw fa-file-medical-alt"></i> Help &amp; Troubleshooting</a></li>
+          </ul>
+          <div class="content-holder">
 
-        <div class="toolbar" data-role="buttongroup">
+            <!-- Start Jog/Main -->
 
-          <select class="success" data-role="select" data-filter="false" id="portUSB" disabled>
-            <option value="">Waiting for USB</option>
-          </select>
-          <button class="button success mb-2 mr-1" onclick="selectPort()" id="connectBtn" type="button" disabled><i class="fas fa-plug"></i></button>
-          <button class="button alert mb-2 mr-1" style="display:none;" onclick="closePort()" id="disconnectBtn" type="button"><i class="fas fa-plug"></i> Disconnect</button>
+            <div class="section" id="section-jog">
+              <div class="group">
+                <div class="form-group">
+                  <form class="form">
+                    <select data-prepend="&nbsp;<i class='fab fa-usb'></i>" class="success" style="width:450px" data-role="select" data-filter="false" id="portUSB" disabled>
+                      <option value="">Waiting for USB</option>
+                    </select>
 
-          <button class="button mr-1" onclick="socket.emit('clearAlarm', 2)">
-            <span class="icon">
-              <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
-                <i id="navbellBtn3" class="fas fa-bell fg-red" style="display: none;"></i>
-                <i class="far fa-bell"></i>
-              </span>
-            </span>
-            Unlock
-          </button>
-          <button class="button mr-1" onclick="socket.emit('stop', { stop: false, jog: false, abort: true})">
-            <span class="icon">
-              <span class="fa-layers fa-fw">
-                <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
-                <i class="fa-inverse far fa-hand-paper" data-fa-transform="grow-1 left-0.5"></i>
-              </span>
-            </span>
-          </button>
+                    <button class="button small success float-right" onclick="selectPort()" id="connectBtn" type="button" style="margin-top:5px;" disabled>Connect</button>
+                    <button class="button small alert" style="display:none; padding:0px 14px; margin:0 3px;" onclick="closePort()" id="disconnectBtn" type="button">Disconnect</button>
+                    <button class="button small outline success float-right" onclick="scanNetwork();" id="scanBtn" type="button" style="margin:5px;">Scan Network</button>
+
+                    <div class="ribbon-group" id="grblButtons">
+                      <hr>
+                      <button id="resetGrblBtn" class="ribbon-icon-button" onclick="socket.emit('resetMachine')">
+                        <span class="icon">
+                          <span class="mif-loop"></span>
+                        </span>
+                        <span class="caption">Restart Grbl</span>
+                      </button>
 
 
+                    </div>
+                  </form>
+
+                </div>
+                <span class="title">Machine Connection</span>
+              </div>
+
+              <div class="group">
+                <button id="openGcodeBtn" onclick="loadJobFile()" class="ribbon-button" title="Open a G-code file">
+                  <span class="icon">
+                    <span class="fas fa-folder-open fg-amber"></span>
+                  </span>
+                  <span class="caption" style="white-space: nowrap;">Open<br>G-code</span>
+                </button>
+                <button id="reloadGcodeBtn" onclick="reloadJobFile()" class="ribbon-button" disabled>
+                  <span class="icon">
+                    <span class="fas fa-undo-alt"></span>
+                  </span>
+                  <span class="caption" style="white-space: nowrap;">Reload<br>G-code</span>
+                </button>
+                <div>
+                  <button id="recentFilesBtn" class="ribbon-button dropdown-toggle" style="padding-left:10px; height:78px; margin-left:-4px;" title="Open recent G-code file">
+                  </button>
+                  <ul class="ribbon-dropdown drop-shadow no-checkmarks" data-role="dropdown" style="width:max-content; min-width:130px;">
+                    <li class="menu-title" id="recentFilesList">Recent files
+                      <button id="clearRecentBtn" class="button small light" style="position:absolute; right:0px; height:100%; pointer-events:all;" title="Clear recent files list" onclick="socket.emit('clearRecentFiles')">
+                        <span class="fa fa-trash" style="vertical-align: baseline;"></span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+                <span class="title">File</span>
+              </div>
+
+              <div class="group" id="controlBtnGrp">
+
+                <button id="runBtn" class="ribbon-button" onclick="runJobFile()" title="Run a Job">
+                  <span class="icon">
+                    <i class="fas fa-play"></i>
+                  </span>
+                  <span class="caption">Run<br>Job</span>
+                </button>
+
+                <div>
+                  <button id="runToolsBtn" class="ribbon-button dropdown-toggle" title="Run a Job with Toolchanges" style="display:none">
+                    <span class="icon">
+                      <i class="fas fa-play"></i>
+                    </span>
+                    <span class="caption">Run<br>Job</span>
+                  </button>
+                  <ul class="ribbon-dropdown" data-role="dropdown" data-duration="100" id="toolChangesMenu">
+                    <li class="" onclick="socket.emit('opencam', true);"><a href="#"><i class="fas fa-link fa-fw"></i> Open browser to https://cam.openbuilds.com</a></li>
+                  </ul>
+                </div>
+
+                <button id="resumeBtn" class="ribbon-button" onclick="socket.emit('resume', true)">
+                  <span class="icon">
+                    <i class="fas fa-play"></i>
+                  </span>
+                  <span class="caption">Resume<br>Job</span>
+                </button>
+                <button id="pauseBtn" class="ribbon-button" onclick="socket.emit('pause', true)">
+                  <span class="icon">
+                    <i class="fas fa-pause"></i>
+                  </span>
+                  <span class="caption">Pause<br>Job</span>
+                </button>
+                <button id="stopBtn" class="ribbon-button" onclick="socket.emit('stop', { stop: true, jog: false, abort: false});">
+                  <span class="icon">
+                    <i class="fas fa-stop"></i>
+                  </span>
+                  <span class="caption">Stop<br>Job</span>
+                </button>
+
+                <div>
+                  <button id="toolBtn" class="ribbon-button dropdown-toggle">
+                    <span class="icon">
+                      <span class="fa-layers fa-fw">
+                        <i class="fas fa-bookmark" data-fa-transform="rotate-180"></i>
+                        <i class="fas fa-screwdriver" data-fa-transform="rotate-135 down-3"></i>
+                        <i class="fas fa-check fg-green" data-fa-transform="down-3"></i>
+                      </span>
+                    </span>
+                    <span class="caption">Tool<br>On</span>
+                  </button>
+                  <ul class="ribbon-dropdown grblmode" data-role="dropdown" data-duration="100">
+                    <li class="spindleMode" onclick="sendGcode('M3 S'+parseInt(grblParams.$30).toFixed(0)+'\nG1F1000')"><a class="grblmode" href="#">Spindle On (M3 S<span class="ToolOnS100">1000</span>)</a></li>
+                    <li class="spindleMode">
+                      <a href="#" class="dropdown-toggle">VFD Spindle On (M3 Sxxx)</a>
+                      <ul class="ribbon-dropdown" data-role="dropdown">
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.05).toFixed(0)+'\nG1F1000')"><a href="#">Spindle On 5% RPM (M3 S<span class="ToolOnS5">50</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.1).toFixed(0)+'\nG1F1000')"><a href="#">Spindle On 10% RPM (M3 S<span class="ToolOnS10">100</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.25).toFixed(0)+'\nG1F1000')"><a href="#">Spindle On 25% RPM (M3 S<span class="ToolOnS25">250</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.5).toFixed(0)+'\nG1F1000')"><a href="#">Spindle On 50% RPM (M3 S<span class="ToolOnS50">500</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.75).toFixed(0)+'\nG1F1000')"><a href="#">Spindle On 75% RPM (M3 S<span class="ToolOnS75">750</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+parseInt(grblParams.$30).toFixed(0)+'\nG1F1000')"><a href="#">Spindle On 100% RPM (M3 S<span class="ToolOnS100">1000</span>)</a></li>
+                      </ul>
+                    </li>
+
+                    <li class="laserMode" onclick="sendGcode('M3 S'+parseInt(grblParams.$30).toFixed(0)+'\nG1F1000')"><a class="grblmode" href="#">Laser On (M3 S<span class="ToolOnS100">1000</span>)</a></li>
+                    <li class="laserMode">
+                      <a href="#" class="dropdown-toggle">Laser On (M3 Sxxx)</a>
+                      <ul class="ribbon-dropdown" data-role="dropdown">
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.01).toFixed(0)+'\nG1F1000')"><a href="#">Laser On 1% Power (M3 S<span class="ToolOnS1">10</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.05).toFixed(0)+'\nG1F1000')"><a href="#">Laser On 5% Power (M3 S<span class="ToolOnS5">50</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.1).toFixed(0)+'\nG1F1000')"><a href="#">Laser On 10% Power (M3 S<span class="ToolOnS10">100</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.25).toFixed(0)+'\nG1F1000')"><a href="#">Laser On 25% Power (M3 S<span class="ToolOnS25">250</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.5).toFixed(0)+'\nG1F1000')"><a href="#">Laser On 50% Power (M3 S<span class="ToolOnS50">500</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 0.75).toFixed(0)+'\nG1F1000')"><a href="#">Laser On 75% Power (M3 S<span class="ToolOnS75">750</span>)</a></li>
+                        <li onclick="sendGcode('M3 S'+(parseInt(grblParams.$30) * 1).toFixed(0)+'\nG1F1000')"><a href="#">Laser On 100% Power (M3 S<span class="ToolOnS100">1000</span>)</a></li>
+                      </ul>
+                    </li>
+
+                    <li class="divider fg-gray"></li>
+                    <li id="menuMisting" style="display: none;" onclick="sendGcode('M7')"><a class="grblmode" href="#">Misting On (M7)</a></li>
+                    <li onclick="sendGcode('M8')"><a class="grblmode" href="#">Coolant On (M8)</a></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <button id="toolBtn2" class="ribbon-button dropdown-toggle">
+                    <span class="icon">
+                      <span class="fa-layers fa-fw">
+                        <i class="fas fa-bookmark" data-fa-transform="rotate-180"></i>
+                        <i class="fas fa-screwdriver" data-fa-transform="rotate-135 down-3"></i>
+                        <i class="fas fa-times fg-red" data-fa-transform="down-3"></i>
+                      </span>
+                    </span>
+                    <span class="caption">Tool<br>Off</span>
+                  </button>
+                  <ul class="ribbon-dropdown grblmode" data-role="dropdown" data-duration="100">
+                    <li class="spindleMode" onclick="sendGcode('M5')"><a class="grblmode" href="#">Spindle Off (M5)</a></li>
+                    <li class="laserMode" onclick="sendGcode('M5')"><a class="grblmode" href="#">Laser Off (M5)</a></li>
+                    <li class="divider fg-gray"></li>
+                    <li onclick="sendGcode('M9')"><a class="grblmode" href="#">Coolant Off (M9)</a></li>
+
+                  </ul>
+                </div>
+
+                <div>
+                  <button id="toolBtn3" class="ribbon-button" onclick="pauseSpindle()" title="Stops the spindle while the job is paused.
+The spindle will automatically start when the job is resumed.">
+                    <span class="icon">
+                      <span class="fa-layers fa-fw">
+                        <i class="fas fa-bookmark" data-fa-transform="rotate-180"></i>
+                        <i class="fas fa-screwdriver" data-fa-transform="rotate-135 down-3"></i>
+                        <i class="fas fa-times fg-red" data-fa-transform="down-3"></i>
+                      </span>
+                    </span>
+                    <span class="caption">Tool<br>Off</span>
+                  </button>
+                </div>
+
+                <button id="grblProbeMenu" class="ribbon-button" onclick="openProbeDialog();" disabled>
+                  <span class="icon">
+                    <span class="fa-layers fa-fw">
+                      <i class="fas fa-podcast fa-rotate-180"></i>
+                    </span>
+                  </span>
+                  <span class="caption grblmode">Probe<br>&nbsp;</span>
+                </button>
+
+
+                <button id="chkSize" class="ribbon-button">
+                  <span class="icon">
+                    <i class="far fa-square"></i>
+                  </span>
+                  <span class="caption">Check<br>Size</span>
+                </button>
+
+                <button id="homeBtn" class="ribbon-button">
+                  <span class="icon">
+                    <i class="fas fa-home"></i>
+                  </span>
+                  <span class="caption grblmode">Home<br>All</span>
+                </button>
+                <div style="display:none">
+                  <button id="homeSingleMenu" class="ribbon-button dropdown-toggle" style="padding-left:10px; height:78px; margin-left:-4px;" title="Home single axis">
+                  </button>
+                  <ul class="ribbon-dropdown grblmode" data-role="dropdown" data-duration="100">
+                    <li onclick="sendGcode('$HX');"><a href="#"><span class="fg-red" style="font-weight:900;padding-right:5px;">X</span> Home X axis</a></li>
+                    <li onclick="sendGcode('$HY');"><a href="#"><span class="fg-green" style="font-weight: 900; padding-right: 5px; ">Y</span> Home Y axis</a></li>
+                    <li onclick="sendGcode('$HZ');"><a href="#"><span class="fg-blue" style="font-weight: 900; padding-right: 5px; ">Z</span> Home Z axis</a></li>
+                    <li class="4thaxis-active" onclick="sendGcode('$HA');" style="display:none;"><a href="#"><span class="fg-orange" style="font-weight: 900; padding-right: 5px; ">A</span> Home A axis</a></li>
+                  </ul>
+                </div>
+
+                <span class="title">Control</span>
+              </div>
+
+              <div class="group">
+
+                <div>
+                  <button id="" class="ribbon-button dropdown-toggle">
+                    <span class="icon">
+                      <span class="fa-layers fa-fw">
+                        <i class="fas fa-hat-wizard"></i>
+                      </span>
+                    </span>
+                    <span class="caption">Wizards<br>& Tools</span>
+                  </button>
+                  <ul class="ribbon-dropdown grblmode" data-role="dropdown" data-duration="100">
+                    <li onclick="populateSurfaceToolForm();"><a href="#"><i class="fas fa-exchange-alt"></i> Surfacing / Flattening Wizard</a></li>
+                    <li onclick="toggleHeightmapTools()" id="toggleHeightmapTools"><a href="#"><i class="mif-chart-bars"></i> Heightmap Tools</a></li>
+                    <li onclick="recoverCrashedJob();"><a href="#"><i class="fas fa-fw fa-route"></i> Recover stopped/crashed job </a></li>
+                    <li class="divider fg-gray"></li>
+                    <li class="disabled grblCalibrationMenu" onclick="xstepscalibrate();"><a href="#"><i class="fas fa-arrows-alt-h fa-fw"></i> Calibrate X-Axes Steps/mm</a></li>
+                    <li class="disabled grblCalibrationMenu" onclick="ystepscalibrate();"><a href="#"><i class="fas fa-arrows-alt-v fa-fw"></i> Calibrate Y-Axes Steps/mm</a></li>
+                    <li class="disabled grblCalibrationMenu" onclick="zstepscalibrate();"><a href="#"><i class="fas fas fa-sort-amount-down-alt fa-fw"></i> Calibrate Z-Axes Steps/mm</a></li>
+                    <li class="disabled grblCalibrationMenu servo-active" onclick="servocalibrate();"><a href="#"><i class="fas fa-pen fa-fw"></i> Calibrate Servo Pen Up/Down</a></li>
+                    <li class="divider fg-gray"></li>
+                    <li onclick="showJobLog();"><a href="#"><i class="fas fa-history fa-fw"></i> Job Log</a></li>
+                    <li class="divider fg-gray"></li>
+                    <li onclick="jogWidget();"><a href="#"><i class="fas fa-mobile-alt"></i> Mobile Jog Widget</a></li>
+                  </ul>
+                </div>
+
+                <span class="title">Wizards</span>
+              </div>
+
+              <div class="group">
+                <div class="ribbon-split-button">
+                  <button class="ribbon-main" onclick="showAppSettings()" style="padding-bottom:5px;">
+                    <span class="icon">
+                      <span class="fa-layers fa-fw">
+                        <i class="fas fa-cog"></i>
+                      </span>
+                    </span><br>
+                    <span class="caption">Settings<br></span>
+                  </button>
+                  <style>#settingsMore::after {left:initial; right:4px; top: 8px;}</style>
+                  <span id="settingsMore" class="ribbon-split dropdown-toggle" style="padding-bottom:1px; padding-right:8px !important;">More</span>
+                  <ul class="ribbon-dropdown" data-role="dropdown" data-duration="100" style="text-align:start;">
+                    <li onclick="showAppSettings('main')"><a href="#"><i class="fas fa-sliders-h"></i> Main Settings</a></li>
+                    <li onclick="showAppSettings('keyboard')"><a href="#"><i class="fas fa-keyboard"></i> Keyboard Settings</a></li>
+<!--                    <li onclick="showAppSettings('gamepad')"><a href="#"><i class="fas fa-gamepad"></i> Gamepad Settings</a></li> -->
+                    <li onclick="showAppSettings('rotary')"><a href="#"><i class="fab fa-ubuntu"></i> Rotary Settings</a></li>
+<!--                    <li onclick="showAppSettings('toolchange')"><a href="#"><i class="fas fa-tools"></i> Toolchange Settings</a></li> -->
+                    <li><a a href="#" class="dropdown-toggle"><i class="fas fa-palette"></i> Color Theme</a>
+                      <ul id="ddTheme" class="ribbon-dropdown" data-role="dropdown" data-duration="100" style="text-align:start; right:100%; left:auto;">
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+                <span class="title">Settings</span>
+              </div>
+
+              <div class="group estop">
+                <button class="ribbon-button" id="unlockBtn" onclick="socket.emit('clearAlarm', 2)">
+                  <span class="icon">
+                    <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
+                      <i id="navbellBtn2" class="fas fa-bell fg-red" style="display: none;"></i>
+                      <i class="far fa-bell"></i>
+                    </span>
+                  </span>
+                  <span class="caption">Unlock<br>Alarm</span>
+                </button>
+                <button class="ribbon-button" id="abortBtn" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', { stop: false, jog: false, abort: true});">
+                  <span class="icon">
+                    <span class="fa-layers fa-fw">
+                      <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
+                      <i class="fa-inverse far fa-hand-paper" data-fa-transform="grow-1 left-0.5"></i>
+                    </span>
+                  </span>
+                  <span class="caption">Abort<br>&nbsp;</span>
+                </button>
+                <span class="title">E-Stop</span>
+              </div>
+
+            </div>
+
+            <!-- End Jog/Main -->
+
+            <!-- Start Grbl Settings -->
+
+            <div class="section" id="section-grbl">
+              <div class="group" id="backupSettingsGroup">
+                <button class="ribbon-button disabled" onclick="grblSaveSettings();" id="saveBtn" disabled>
+                  <span class="icon">
+                    <span class="fa-layers fa-fw">
+                      <i id="saveBtnIcon" class="fas fa-save fg-gray" data-fa-transform="grow-8"></i>
+                      <i id="grblSettingsBadge" class="fas fa-exclamation-circle fg-red" data-fa-transform="shrink-4 right-10 up-10" style="display: none;"></i>
+                    </span>
+                  </span>
+                  <span class="caption">Save<br> to Firmware</span>
+                </button>
+
+                <button class="ribbon-button" onclick="backupGrblSettings()">
+                  <span class="icon">
+                    <i class="fas fa-download fg-lightOrange"></i>
+                  </span>
+                  <span class="caption">Backup<br>Settings</span>
+                </button>
+
+                <div>
+                  <button id="" class="ribbon-button dropdown-toggle">
+                    <span class="icon">
+                      <span class="fa-layers fa-fw">
+                        <i class="fas fa-upload"></i>
+                      </span>
+                    </span>
+                    <span class="caption">Restore<br>Backup</span>
+                  </button>
+                  <ul class="ribbon-dropdown" data-role="dropdown" data-duration="100">
+                    <li onclick="loadGrblBackupFile()"><a href="#"><i class="fas fa-folder-open"></i> Restore Backup File</a>
+                    </li>
+                    <li class="divider fg-gray"></li>
+                    <div id="restoreBackupMenu">
+                    </div>
+                  </ul>
+                </div>
+
+                <span class="title">Grbl Settings</span>
+              </div>
+              <div class="group">
+                <div class="ribbon-group" style="width: 90px;">
+                  <button class="ribbon-icon-button" onclick="socket.emit('resetMachine')">
+                    <span class="icon">
+                      <span class="mif-loop"></span>
+                    </span>
+                    <span class="caption">Restart</span>
+                  </button>
+                  <button class="ribbon-icon-button" onclick="sendGcode('$X')">
+                    <span class="icon">
+                      <span class="mif-unlock"></span>
+                    </span>
+                    <span class="caption">Unlock</span>
+                  </button>
+                  <button class="ribbon-icon-button" onclick="refreshGrblSettings();">
+                    <span class="icon">
+                      <i class="fas fa-sync-alt"></i>
+                    </span>
+                    <span class="caption">Refresh</span>
+                  </button>
+
+                </div>
+                <span class="title">Grbl</span>
+              </div>
+              <div class="group">
+                <div class="ribbon-group">
+                  <button class="ribbon-icon-button" title="Reset settings to factory defaults ($RST=$)" onclick="clearSettings();">
+                    <span class="icon">
+                      <i class="fas fa-sliders-h"></i>
+                    </span>
+                    <span class="caption">Reset&nbsp;Settings</span>
+                  </button><br>
+                  <button class="ribbon-icon-button" title="Clear coordinate system offsets, set G28 and G30 to zero ($RST=#)" onclick="clearWCO();">
+                    <span class="icon">
+                      <i class="fas fa-layer-group"></i>
+                    </span>
+                    <span class="caption">Reset&nbsp;WCOs</span>
+                  </button><br>
+                  <button class="ribbon-icon-button" title="Reset all settings, coordinate systems, $N lines, $I info ($RST=*)" onclick="clearEEPROM();">
+                    <span class="icon">
+                      <i class="fas fa-microchip"></i>
+                    </span>
+                    <span class="caption">Reset&nbsp;EEPROM</span>
+                  </button>
+                </div>
+                <span class="title">Firmware Reset Defaults</span>
+              </div>
+              <div class="group estop">
+                <button class="ribbon-button" id="unlockBtn2" onclick="socket.emit('clearAlarm', 2)">
+                  <span class="icon">
+                    <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
+                      <i id="navbellBtn3" class="fas fa-bell fg-red" style="display: none;"></i>
+                      <i class="far fa-bell"></i>
+                    </span>
+                  </span>
+                  <span class="caption">Unlock<br>Alarm</span>
+                </button>
+                <button class="ribbon-button" id="abortBtn2" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', { stop: false, jog: false, abort: true});">
+                  <span class="icon">
+                    <span class="fa-layers fa-fw">
+                      <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
+                      <i class="fa-inverse far fa-hand-paper" data-fa-transform="grow-1 left-0.5"></i>
+                    </span>
+                  </span>
+                  <span class="caption">Abort<br>&nbsp;</span>
+                </button>
+                <span class="title">E-Stop</span>
+              </div>
+            </div>
+
+            <!-- End Grbl Settings -->
+
+            <!-- Start Troubleshooting -->
+
+            <div class="section" id="section-troubleshooting">
+              <div class="group">
+                <button class="ribbon-button" onclick="socket.emit('opengroove', true);">
+                  <span class="icon" style="justify-items:center;">
+                    <img class="light_theme_only" src="./img/groove-logo_b.svg">
+                    <img class="dark_theme_only" src="./img/groove-logo_w.svg">
+                  </span>
+                  <span class="caption">Groove<br>Control</span>
+                </button>
+                <span class="title">Website</span>
+              </div>
+
+              <div class="group">
+                <button class="ribbon-button" onclick="socket.emit('openwiki');">
+                  <span class="icon">
+                    <i class="fas fa-book"></i>
+                  </span>
+                  <span class="caption">Groove<br>Docs</span>
+                </button>
+                <button class="ribbon-button" onclick="socket.emit('openforum');">
+                  <span class="icon">
+                    <span class="fa-layers fa-fw">
+                      <i class="far fa-comment-alt"></i>
+                      <i class="fas fa-question" data-fa-transform="shrink-8 up-1"></i>
+                    </span>
+                  </span>
+                  <span class="caption">Groove<br>Forum</span>
+                </button>
+                <button class="ribbon-button" onclick="socket.emit('openbuilds');">
+                  <span class="icon">
+                    <img src="./img/openbuilds-logo.svg">
+                  </span>
+                  <span class="caption">OpenBuilds<br>Archive</span>
+                </button>
+                <span class="title">Support</span>
+              </div>
+
+              <div class="group">
+                <button class="ribbon-button" id="unlockBtn3" onclick="socket.emit('clearAlarm', 2)">
+                  <span class="icon">
+                    <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
+                      <i id="navbellBtn1" class="fas fa-bell fg-red" style="display: none;"></i>
+                      <i class="far fa-bell"></i>
+                    </span>
+                  </span>
+                  <span class="caption">Unlock<br>Alarm</span>
+                </button>
+                <button class="ribbon-button" id="abortBtn3" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', { stop: false, jog: false, abort: true})">
+                  <span class="icon">
+                    <span class="fa-layers fa-fw">
+                      <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
+                      <i class="fa-inverse far fa-hand-paper" data-fa-transform="grow-1 left-0.5"></i>
+                    </span>
+                  </span>
+                  <span class="caption">Abort<br>&nbsp;</span>
+                </button>
+                <span class="title">E-Stop</span>
+              </div>
+
+            </div>
+
+            <!-- End Troubleshooting -->
+
+          </div>
+        </nav>
+
+        <div id="manualControlPanel">
+          <center>
+            <div id="jogcontrols" class="mt-1">
+              <div class="row flex-align-start" style="width: 100%; height: 100%; flex-wrap:nowrap;">
+                <div class="cell border-right bd-gray" style="max-width:300px;">
+
+                  <table class="drotable" style="margin-top:-4px;">
+                    <tr>
+                      <td>
+                        <div class="pos-relative">
+                          <!-- special styling for the dropdown arrow to set a contrast color and adjust the position -->
+                          <style>
+                            .button.light.dropdown-toggle::before {
+                              border-color: #1d1d1d !important;
+                              margin-left: -11px;
+                            }
+                            .theme_dark .button.light.dropdown-toggle::before {
+                              border-color: #fff !important;
+                            }
+                          </style>
+                          <button class="button mini light jogbtn dropdown-toggle" style="width: 60px; height: 24px;" id="wcsBtn"
+                            title="Show/change current Work Coordinate System.
+Restore previous origins from history.">
+                            <span class="fas fa-fw fa-layer-group icon fg-darkGray"></span> <span class="wcsText">G54</span></button>
+                          <ul class="ribbon-dropdown drop-shadow" data-role="dropdown" style="width:max-content;">
+                            <li class="menu-title">Current Coordinate System</li>
+                            <li class="checked" id="wcsItemG54" onclick="sendGcode('G54')"><a href="#"><span class="fas fa-fw fa-layer-group icon fg-darkGray"></span> G54</a></li>
+                            <li id="wcsItemG55" onclick="sendGcode('G55')"><a href="#"><span class="fas fa-fw fa-layer-group icon fg-darkGray"></span> G55</a></li>
+                            <li id="wcsItemG56" onclick="sendGcode('G56')"><a href="#"><span class="fas fa-fw fa-layer-group icon fg-darkGray"></span> G56</a></li>
+                            <li id="wcsItemG57" onclick="sendGcode('G57')"><a href="#"><span class="fas fa-fw fa-layer-group icon fg-darkGray"></span> G57</a></li>
+                            <li id="wcsItemG58" onclick="sendGcode('G58')"><a href="#"><span class="fas fa-fw fa-layer-group icon fg-darkGray"></span> G58</a></li>
+                            <li id="wcsItemG59" onclick="sendGcode('G59')"><a href="#"><span class="fas fa-fw fa-layer-group icon fg-darkGray"></span> G59</a></li>
+                            <li class="menu-title" id="wcsHistory"><span class="wcsText">G54</span> Origin History</li>
+                            <li class="disabled">G54 history will show here</li>
+                          </ul>
+                        </div>
+
+
+                      </td>
+                      <td colspan="2">
+                        <div style="display:flex; flex-direction: row; align-items:flex-end;">
+                          <button id="mcsBtn" class="button light" onclick="toggleWCS()" title="Toggles between Work Coordinate System (WCS) and Machine Coordinate System (MCS)"
+                              style="width:51px; height:24px; line-height:24px; padding:0; margin-right:6px;">WCS</button>
+                          <nav data-role="ribbonmenu" class="mt-1">
+                            <ul class="tabs-holder">
+                              <li onclick="mmMode()"><a id="mmMode" style="padding:0 25px" href="#tab-mm">mm</a></li>
+                              <li onclick="inMode()"><a id="inMode" style="padding:0 25px" href="#tab-inch">inch</a></li>
+                            </ul>
+                          </nav>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <button class="button light jogbtn setzero" id="setZeroX" onclick="captureWcsHistory('Before <b>Set Zero X</b>'); sendGcode('G10 P0 L20 X0')" style="width: 60px;" data-role="ripple" data-ripple-color="#e21b1b">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-crosshairs fg-openbuilds" data-fa-transform="shrink-2 down-8 left-12"></i>
+                            <span class="fa-layers-text fg-red" data-fa-transform="down-9 right-8" style="font-weight:900; font-family: Arial; font-size: 12px;">X</span>
+                            <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">setzero</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td>
+                        <div class="dro" id="xPosDro" onclick="onDroClick('x')">
+                          <div class="float-left fg-red" data-fa-transform="right-15">
+                            <span class="fa-layers fa-fw">
+                              <span class="fa-layers-text fg-red" data-fa-transform="right-3">X</span>
+                              <span class="fa-layers-text fg-red" id="Xwork" data-fa-transform="left-18 rotate-270" style="font-family: Arial; font-size: 8px;">WORK</span>
+                            </span>
+                          </div>
+                          <div class="float-right fg-red" id="xPos" data-editable>0.000</div>
+                          <input id="xPosInput" class="m-0 p-0 droInput float-right fg-red" data-editable="true" onkeydown="onDroKeydown('x', event)" onblur="onDroBlur('x')"/>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="pos-relative">
+                          <button class="button light jogbtn" style="width: 42px;"><i class="fas fa-caret-down fg-openbuilds"></i></button>
+                          <ul class="d-menu context drop-shadow drop-right" data-role="dropdown">
+                            <li><a href="#" onclick="sendGcode('G0 G90 G21 X0')"><span class="fas fa-chart-line fg-red icon"></span>Goto X0 (Work Coord) (G0 X0)</a></li>
+                            <li id="gotoXMinMpos"><a href="#"><span class="fas fa-chart-line fg-red icon"></span>Goto Machine Left (G0 G53 X<span class="coord">0</span>)</a></li>
+                            <li id="gotoXMaxMpos"><a href="#"><span class="fas fa-chart-line fg-red icon"></span>Goto Machine Right (G0 G53 X<span class="coord">0</span>)</a></li>
+                            <li class="divider"></li>
+                            <li class="needsXYZProbe"><a href="#" onclick="openProbeXDialog()"><span class="fas fa-podcast fa-rotate-180 fg-red icon"></span>Probe X-Zero Wizard</a></li>
+                            <li class="needsXYZProbe"><a href="#" onclick="openProbeDialog()"><span class="fas fa-podcast fa-rotate-180 fg-red icon"></span>Probe XYZ-Zero Wizard</a></li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <button class="button light jogbtn setzero" id="setZeroY" onclick="captureWcsHistory('Before <b>Set Zero Y</b>'); sendGcode('G10 P0 L20 Y0')" style="width: 60px;" data-role="ripple" data-ripple-color="#5de21b">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-crosshairs fg-openbuilds" data-fa-transform="shrink-2 down-8 left-12"></i>
+                            <span class="fa-layers-text fg-green" data-fa-transform="down-9 right-8" style="font-weight:900; font-family: Arial; font-size: 12px;">Y</span>
+                            <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">setzero</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td>
+                        <div class="dro" id="yPosDro" onclick="onDroClick('y')">
+                          <div class="float-left fg-green">
+                            <span class="fa-layers fa-fw">
+                              <span class="fa-layers-text fg-green" data-fa-transform="right-3">Y</span>
+                              <span class="fa-layers-text fg-green" id="Ywork" data-fa-transform="left-18 rotate-270" style="font-family: Arial; font-size: 8px;">WORK</span>
+                            </span>
+                          </div>
+                          <div class="float-right fg-green" id="yPos" data-editable>0.000</div>
+                          <input id="yPosInput" class="m-0 p-0 droInput float-right fg-green" data-editable="true" onkeydown="onDroKeydown('y', event)" onblur="onDroBlur('y')"/>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="pos-relative">
+                          <button class="button light jogbtn" style="width: 42px;"><i class="fas fa-caret-down fg-openbuilds"></i></button>
+                          <ul class="d-menu context drop-shadow drop-right" data-role="dropdown">
+                            <li><a href="#" onclick="sendGcode('G0 G90 G21 Y0')"><span class="fas fa-chart-line fg-green icon"></span>Goto Y0 (Work Coord) (G0 Y0)</a></li>
+                            <li id="gotoYMinMpos"><a href="#"><span class="fas fa-chart-line fg-green icon"></span>Goto Machine Front (G0 G53 Y<span class="coord">0</span>)</a></li>
+                            <li id="gotoYMaxMpos"><a href="#"><span class="fas fa-chart-line fg-green icon"></span>Goto Machine Rear (G0 G53 Y<span class="coord">0</span>)</a></li>
+                            <li class="divider"></li>
+                            <li class="needsXYZProbe"><a href="#" onclick="openProbeYDialog()"><span class="fas fa-podcast fa-rotate-180 fg-green icon"></span>Probe Y-Zero Wizard</a></li>
+                            <li class="needsXYZProbe"><a href="#" onclick="openProbeDialog()"><span class="fas fa-podcast fa-rotate-180 fg-green icon"></span>Probe XYZ-Zero Wizard</a></li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <button class="button light jogbtn setzero" id="setZeroZ" onclick="captureWcsHistory('Before <b>Set Zero Z</b>'); sendGcode('G10 P0 L20 Z0')" style="width: 60px;" data-role="ripple" data-ripple-color="#1ba1e2">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-crosshairs fg-openbuilds" data-fa-transform="shrink-2 down-8 left-12"></i>
+                            <span class="fa-layers-text fg-blue" data-fa-transform="down-9 right-8" style="font-weight:900; font-family: Arial; font-size: 12px;">Z</span>
+                            <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">setzero</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td>
+                        <div class="dro" id="zPosDro" onclick="onDroClick('z')">
+                          <div class="float-left fg-blue">
+                            <span class="fa-layers fa-fw">
+                              <span class="fa-layers-text fg-blue" data-fa-transform="right-3">Z</span>
+                              <span class="fa-layers-text fg-blue" id="Zwork" data-fa-transform="left-18 rotate-270" style="font-family: Arial; font-size: 8px;">WORK</span>
+                            </span>
+                          </div>
+                          <div class="float-right fg-blue" id="zPos" data-editable>0.000</div>
+                          <input id="zPosInput" class="m-0 p-0 droInput float-right fg-blue" data-editable="true" onkeydown="onDroKeydown('z', event)" onblur="onDroBlur('z')"/>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="pos-relative">
+                          <button class="button light jogbtn" style="width: 42px;"><i class="fas fa-caret-down fg-openbuilds"></i></button>
+                          <ul class="d-menu context drop-shadow drop-right" data-role="dropdown">
+                            <li><a href="#" onclick="sendGcode('G0 G90 G21 Z0')"><span class="fas fa-chart-line fg-blue icon"></span>Goto Z0 (Work Coord) (G0 Z0)</a></li>
+                            <li id="gotoZMaxMpos"><a href="#"><span class="fas fa-chart-line fg-blue icon"></span>Goto Machine Top (G0 G53 Z<span class="coord">0</span>)</a></li>
+                            <li id="gotoZMinMpos"><a href="#"><span class="fas fa-chart-line fg-blue icon"></span>Goto Machine Bottom (G0 G53 Z<span class="coord">0</span>) <span style="font-size: 14px; font-weight: 800; color: orangered; ">(use with caution)</span></a></li>
+                            <li class="divider"></li>
+                            <li><a href="#" onclick="openProbeZDialog()"><span class="fas fa-podcast fa-rotate-180 fg-blue icon"></span>Probe Z-Zero Wizard</a></li>
+                            <li class="needsXYZProbe"><a href="#" onclick="openProbeDialog()"><span class="fas fa-podcast fa-rotate-180 fg-blue icon"></span>Probe XYZ-Zero Wizard</a></li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr class="4thaxis-active" style="display: none;">
+                      <td>
+                        <button class="button light jogbtn setzero" id="setZeroA" onclick="captureWcsHistory('Before <b>Set Zero A</b>'); sendGcode('G10 P0 L20 A0')" style="width: 60px;" data-role="ripple" data-ripple-color="#1ba1e2">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-crosshairs fg-openbuilds" data-fa-transform="shrink-2 down-8 left-12"></i>
+                            <span class="fa-layers-text fg-orange" data-fa-transform="down-9 right-8" style="font-weight:900; font-family: Arial; font-size: 12px;">A</span>
+                            <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">setzero</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td>
+                        <div class="dro" id="aPosDro" onclick="onDroClick('a')">
+                          <div class="float-left fg-orange">
+                            <span class="fa-layers fa-fw">
+                              <span class="fa-layers-text fg-orange" data-fa-transform="right-3">A</span>
+                              <span class="fa-layers-text fg-orange" id="Awork" data-fa-transform="left-18 rotate-270" style="font-family: Arial; font-size: 8px;">WORK</span>
+                            </span>
+                          </div>
+                          <div class="float-right fg-orange" id="aPos" data-editable>0.000</div>
+                          <input id="aPosInput" class="m-0 p-0 droInput float-right fg-orange" data-editable="true" onkeydown="onDroKeydown('a', event)" onblur="onDroBlur('a')"/>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="pos-relative">
+                          <button class="button light jogbtn" style="width: 42px;"><i class="fas fa-caret-down fg-openbuilds"></i></button>
+                          <ul class="d-menu context drop-shadow drop-right" data-role="dropdown">
+                            <li><a href="#" onclick="sendGcode('G0 G90 G21 A0')"><span class="fas fa-chart-line fg-orange icon"></span>Goto A0 (Work Coord) (G0 A0)</a></li>
+                            <li><a href="#" onclick="sendGcode('G0 G53 G90 G21 A0')"><span class="fas fa-chart-line fg-orange icon"></span>Goto A0 (Machine Coord) (G0 G53 A0)</a></li>
+                            <li id="gotoAMinMpos"><a href="#"><span class="fas fa-chart-line fg-orange icon"></span>Goto CCW limit (G0 G53 A<span class="coord">0</span>)</a></li>
+                            <li id="gotoAMaxMpos"><a href="#"><span class="fas fa-chart-line fg-orange icon"></span>Goto CW limit (G0 G53 A<span class="coord">0</span>)</a></li>
+                        </div>
+                        </ul>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <button class="button light jogbtn setzero" id="setZeroXYZ" onclick="captureWcsHistory('Before <b>Set Zero XYZ</b>'); sendGcode('G10 P0 L20 X0 Y0 Z0')" style="width: 60px;" data-role="ripple">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-crosshairs fg-openbuilds" data-fa-transform="shrink-2 down-8 left-18"></i>
+                            <span class="fa-layers-text fg-red" data-fa-transform="down-9 right-2" style="font-weight:900; font-family: Arial; font-size: 12px;">X</span>
+                            <span class="fa-layers-text fg-green" data-fa-transform="down-9 right-12" style="font-weight:900; font-family: Arial; font-size: 12px;">Y</span>
+                            <span class="fa-layers-text fg-blue" data-fa-transform="down-9 right-22" style="font-weight:900; font-family: Arial; font-size: 12px;">Z</span>
+                            <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">setzero</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td>
+                        <div class="pos-relative">
+                          <button class="button light jogbtn" style="width: 161px;" data-role="ripple">
+                            <span class="fa-layers fa-fw">
+                              <i class="fas fa-chart-line fg-openbuilds" data-fa-transform="shrink-2 down-8 left-12"></i>
+                              <i class="fas fa-caret-down fg-openbuilds" data-fa-transform="shrink-2 right-70"></i>
+                              <span class="fa-layers-text fg-red" data-fa-transform="down-9 right-8" style="font-weight:900; font-family: Arial; font-size: 12px;">X</span>
+                              <span class="fa-layers-text fg-green" data-fa-transform="down-9 right-19" style="font-weight:900; font-family: Arial; font-size: 12px;">Y</span>
+                              <span class="fa-layers-text fg-blue" data-fa-transform="down-9 right-29" style="font-weight:900; font-family: Arial; font-size: 12px;">Z</span>
+                              <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">gotozero</span>
+                            </span>
+                          </button>
+                          <ul class="d-menu context drop-shadow" data-role="dropdown">
+                            <li onclick="sendGcode('G0 G90 G21 X0 Y0')"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>Goto XY Zero (Work Coord) (G0 X0 Y0)</a></li>
+                            <li class="divider fg-gray bg-gray bd-gray"></li>
+                            <li class="disabled"><a href="#"><span style="font-size: 14px; font-weight: 800; color: orangered !important;">These commands can plunge down unsafely (use with caution)</span></a></li>
+                            <li id="gotozeroWPos"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>Goto Zero (Work Coord) (G0 Z5, G0 X0 Y0, G0 Z0) (Retract Z to Work Coord Z5)<span id="gotozeroWPosHotkey" style="position:absolute; right:20px;">(Ctrl+Shift+Q)</span></a></li>
+                            <li id="gotozeroZmPosXYwPos"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>Goto Zero (Z Machine Coord, XY Work Coord) (G0 G53 Z<span class="coord">0</span>, G0 X0 Y0, G0 Z0) (Retract Z to Machine Coord)</a></li>
+                            <li id="gotozeroMPos"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>Goto Zero (Machine Coord) (<span class="gcode">G0 G53 Z0, G0 G53 X0 Y0</span>)</a></li>
+                          </ul>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="pos-relative">
+                          <button class="button light jogbtn" style="width: 42px;"></i>
+                            <span class="fa-layers fa-fw">
+                              <i class="fas fa-layer-group fg-openbuilds" data-fa-transform="shrink-2 up-3"></i>
+                              <i class="fas fa-caret-down fg-openbuilds" data-fa-transform="down-8"></i>
+                            </span>
+                          </button>
+                          <ul class="d-menu context drop-shadow drop-right" data-role="dropdown">
+                            <li><a href="#" onclick="sendGcode('G28')"><span class="fas fa-layer-group fg-grayBlue icon"></span>Go to Pre-Defined Position (G28)</a></li>
+                            <li><a href="#" onclick="sendGcode('G30')"><span class="fas fa-layer-group fg-grayBlue icon"></span>Go to Pre-Defined Position (G30)</a></li>
+                            <li class="divider fg-gray bg-gray bd-gray"></li>
+                            <li><a href="#" onclick="sendGcode('G28.1')"><span class="fas fa-tasks fg-grayBlue icon"></span>Set Pre-Defined Position (G28.1)</a></li>
+                            <li><a href="#" onclick="sendGcode('G30.1')"><span class="fas fa-tasks fg-grayBlue icon"></span>Set Pre-Defined Position (G30.1)</a></li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <div class="cell" id="jogcell" style="max-width:350px; padding-top: 1px;">
+
+                  <table class="jogtable">
+                    <tr>
+
+                      <td class="4thaxis-active" style="display: none;">
+                        <button class="button light square xlarge m-0 jogbtn aP jogcursorbtn" id="aP">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-redo fg-orange" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-orange" data-fa-transform="shrink-5 up-8" style="font-weight:600">A+</span>
+                          </span>
+                        </button>
+                      </td>
+
+                      <td>
+
+                      </td>
+
+                      <td>
+                        <button class="button light square xlarge m-0 jogbtn yP jogcursorbtn" id="yP">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-arrow-up fg-green" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-green" data-fa-transform="shrink-5 up-8" style="font-weight:600">Y+</span>
+                          </span>
+                        </button>
+                      </td>
+
+                      <td>
+                      </td>
+
+
+                      <td>
+                        <button class="button light square xlarge m-0 ml-2 jogbtn zP jogcursorbtn" id="zP">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-arrow-up fg-blue" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-blue" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z+</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td class="servo-active" style="display: none;">
+                        <button class="button light square xlarge m-0 jogbtn pP jogcursorbtn" id="pP" data-role="ripple" data-ripple-color="#1ba1e2">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-pen fg-darkBlue" data-fa-transform="shrink-2 down-8.5 left-6"></i>
+                            <i class="fas fa-arrow-up fg-red" data-fa-transform="shrink-0.5 down-8.5 right-6"></i>
+                            <span class="fa-layers-text fg-darkBlue" data-fa-transform="shrink-10 up-12" style="font-weight:600">PEN</span>
+                            <span class="fa-layers-text fg-darkBlue" data-fa-transform="shrink-10 up-6" style="font-weight:600">UP</span>
+                          </span>
+                        </button>
+                      </td>
+
+                    </tr>
+                    <tr>
+
+                      <td class="4thaxis-active" style="display: none;">
+                        <button class="button light square xlarge m-0 jogbtn aM jogcursorbtn" id="aM">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-undo fg-orange" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-orange" data-fa-transform="shrink-5 up-8" style="font-weight:600">A-</span>
+                          </span>
+                        </button>
+                      </td>
+
+                      <td>
+                        <button class="button light square xlarge m-0 jogbtn xM jogcursorbtn" id="xM">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-arrow-left fg-red" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-red" data-fa-transform="shrink-5 up-8" style="font-weight:600">X-</span>
+                          </span>
+                        </button>
+                      </td>
+
+                      <td>
+                        <button class="button light square xlarge m-0 jogbtn yM jogcursorbtn" id="yM">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-arrow-down fg-green" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-green" data-fa-transform="shrink-5 up-8" style="font-weight:600">Y-</span>
+                          </span>
+                        </button>
+                      </td>
+
+                      <td>
+                        <button class="button light square xlarge m-0 jogbtn xP jogcursorbtn" id="xP">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-arrow-right fg-red" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-red" data-fa-transform="shrink-5 up-8" style="font-weight:600">X+</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td>
+                        <button class="button light square xlarge m-0 ml-2 jogbtn zM jogcursorbtn" id="zM">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-arrow-down fg-blue" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-blue" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z-</span>
+                          </span>
+                        </button>
+                      </td>
+                      <td class="servo-active" style="display: none;">
+                        <button class="button light square xlarge m-0 jogbtn pM jogcursorbtn" id="pM" data-role="ripple" data-ripple-color="#1ba1e2">
+                          <span class="fa-layers fa-fw">
+                            <i class="fas fa-pen fg-darkBlue" data-fa-transform="shrink-2 down-8.5 left-6"></i>
+                            <i class="fas fa-arrow-down fg-green" data-fa-transform="shrink-0.5 down-8.5 right-6"></i>
+                            <span class="fa-layers-text fg-darkBlue" data-fa-transform="shrink-10 up-12" style="font-weight:600">PEN</span>
+                            <span class="fa-layers-text fg-darkBlue" data-fa-transform="shrink-10 up-6" style="font-weight:600">DOWN</span>
+                          </span>
+                        </button>
+                      </td>
+
+                    </tr>
+                    <tr>
+                      <td colspan='5'>
+                        <table style="width: 100%;">
+                          <tr>
+                            <td><span class="text-small jogbtn">Incremental Jog</span>
+                            </td>
+                            <td class="pb-1">
+                              <label class="toggle" id="toggleJogMode">
+                                <input class=" jogbtn" type="checkbox" id="jogTypeContinuous" />
+                                <div></div>
+                              </label>
+                            </td>
+                            <td><span class="text-small jogbtn">Continuous Jog</span>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="4thaxis-active" style="display: none;">
+
+                        <div class="pos-relative">
+                          <button class="button light jogbtn distbtn" id="distAAxis" style="width: 100%; height: 25px; line-height: 25px;">
+                            <span id="distAAxislabel" class="fg-openbuilds jogdistA" style="font-weight:900; font-family: Arial; font-size: 12px;">A: 10&deg;</span>
+                          </button>
+                          <ul class="d-menu context drop-shadow drop-bottom" data-role="dropdown">
+                            <li><a href="#" onclick="setADist('0.1')">0.1&deg;</a></li>
+                            <li><a href="#" onclick="setADist('1')">1&deg;</a></li>
+                            <li><a href="#" onclick="setADist('10')">10&deg;</a></li>
+                            <li><a href="#" onclick="setADist('100')">100&deg;</a></li>
+                            <li class="divider fg-gray bg-gray bd-gray"></li>
+                            <li><a href="#" onclick="setADist('30')">30&deg;</a></li>
+                            <li><a href="#" onclick="setADist('45')">45&deg;</a></li>
+                            <li><a href="#" onclick="setADist('60')">60&deg;</a></li>
+                            <li><a href="#" onclick="setADist('90')">90&deg;</a></li>
+                            <li><a href="#" onclick="setADist('180')">180&deg;</a></li>
+                            <li><a href="#" onclick="setADist('270')">270&deg;</a></li>
+                            <li><a href="#" onclick="setADist('360')">360&deg;</a></li>
+                          </ul>
+                        </div>
+
+                      </td>
+                      <td>
+                        <button class="button light jogbtn distbtn" id="dist01" style="width: 100%; height: 25px; line-height: 25px;">
+                          <span id="dist01label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">0.1mm</span>
+                        </button>
+                      </td>
+                      <td>
+                        <button class="button light jogbtn distbtn" id="dist1" style="width: 100%; height: 25px; line-height: 25px;">
+                          <span id="dist1label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">1mm</span>
+                        </button>
+                      </td>
+                      <td>
+                        <button class="button light jogbtn distbtn bd-openbuilds" id="dist10" style="width: 100%; height: 25px; line-height: 25px;">
+                          <span id="dist10label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">10mm</span>
+                        </button>
+                      </td>
+                      <td>
+                        <button class="button light jogbtn distbtn" id="dist100" style="width: 100%; height: 25px; line-height: 25px;">
+                          <span id="dist100label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">100mm</span>
+                        </button>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+
+                <div class="cell border-left bd-gray" id="jrocell" style="min-width:75px; max-width:100px; display:flex; flex-direction:column; align-items:center; padding-top:3px;">
+                  <button class="button light mini mb-1" onclick="jogOverride(100);">reset</button>
+                  <input id="jro" data-on-stop="jogOverride(arguments[0])" data-role="slider" data-accuracy="1" data-vertical="true" data-size="170" data-min="1" data-max="100" data-value="100" data-hint="true" data-hint-always="true"
+                    data-hint-position="bottom" data-hint-mask="Jog: $1%" data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>
+                  <span class="tally text-small bg-openbuilds fg-white" id="realJog" style="display:none;"></span>
+                </div>
+
+                <div class="cell border-left bd-gray" id="frocell" style="min-width:75px; max-width:100px; display:flex; flex-direction:column; align-items:center; padding-top:3px;">
+                  <button class="button light mini mb-1" onclick="feedOverride(100);">reset</button>
+                  <input id="fro" data-on-stop="feedOverride(arguments[0])" data-role="slider" data-accuracy="5" data-vertical="true" data-size="170" data-accuracy="1" data-min="10" data-max="200" data-value="100" data-hint="true"
+                    data-hint-always="true" data-hint-position="bottom" data-hint-mask="Feed: $1%" data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>
+                  <span class="tally text-small bg-openbuilds fg-white" id="realFeed" style="width:64px; height:fit-content; vertical-align:top; padding-bottom:3px; margin-top:2px;"></span>
+                </div>
+                <div class="cell border-left bd-gray" id="trocell" style="min-width:75px; max-width:100px; display:flex; flex-direction:column; align-items:center; padding-top:3px;">
+                  <button class="button light mini  mb-1" onclick="spindleOverride(100);">reset</button>
+                  <input id="tro" data-on-stop="spindleOverride(arguments[0])" data-role="slider" data-accuracy="5" data-vertical="true" data-size="170" data-accuracy="1" data-min="10" data-max="200" data-value="100" data-hint="true"
+                    data-hint-always="true" data-hint-position="bottom" data-hint-mask="Tool: $1%" data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>
+                  <span class="tally text-small bg-openbuilds fg-white" id="realSpeed" style="width:64px; height:fit-content; vertical-align:top; padding-bottom:3px; margin-top:2px;"></span>
+                </div>
+                <div></div>
+              </div>
+            </div>
+
+
+            <div id="controlLogs" class="mt-0">
+
+              <nav data-role="ribbonmenu" style="height: calc(100vh - 465px); display:flex; flex-direction:column;">
+                <ul class="tabs-holder">
+                  <li><a href="#tab-three" id="gcodeviewertab"><i class="mif-3d-rotation fa-fw fg-blue" id="3dviewicon"></i><span id="3dviewlabel"> 3D View</span></a></li>
+                  <li><a href="#tab-one" id="consoletab"><i class="fas fa-fw fa-terminal fg-darkGreen"></i> Console</a></li>
+                  <li><a href="#tab-four" id="macrostab"><i class="fas fa-th fa-fw fg-darkOrange"></i> Macros</a></li>
+                  <li><a href="#tab-two" id="gcodeeditortab"><i class="far fa-fw fa-edit fg-darkLime"></i> G-code Editor</a></li>
+                </ul>
+                <div class="content-holder" id="mainTabHolder" style="flex-grow:1; min-height:0;">
+                  <div class="section" id="tab-one" style="height:100%; flex-direction:column;">
+                    <div id="console"></div>
+                    <div class="mt-1">
+                      <form class="inline-form" id="commandform" autocomplete="off">
+                        <div style="margin:3px 0px 0px 3px; min-width:100px; max-width:800px; flex-grow:1;">
+                          <input title="Tip: Press F6 anywhere to quickly jump to this input" data-prepend="&nbsp;<i class='fas fa-terminal'></i>" data-role="input" data-clear-button="false" data-role="input" id="command"
+                            type="text" autocomplete="on" class=" dark needs-connection" style="margin:0;" data-editable="true" placeholder="Enter G-code commands to send to your machine" />
+                        </div>
+                        <div style="display:flex; flex-wrap:nowrap; margin:3px 0px 0px 3px;">
+                          <button id="sendCommand" class="button dark needs-connection" type="button" title="Execute command">
+                            <i class="fa fa-play" style="margin-right: 10px;"></i> Send
+                          </button>
+                          <button class="button dark emptylog" type="button" onclick="$('#console').empty();" title="Clear the Log screen">
+                            <i class="fa fa-trash"></i>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                  <div class="section" id="tab-two" style="height:100%; flex-direction:column;">
+                    <div id="editor"></div>
+
+                    <div class="mt-1" style="display:flex; flex-direction:row; flex-wrap: wrap; justify-content: center;">
+                      <button style="margin:1px;" title="Update the 3D View with the edited G-code" class="button success editorEnabled" onclick="previewGcode()"><i class="mif-3d-rotation fa-fw"></i> Update 3D View</button>&nbsp;
+                      <button style="margin:1px;" title="Save G-code to file" class="button primary editorEnabled" onclick="saveGcode();"><i class="fa fa-save icon"></i></button>&nbsp;
+                      <button style="margin:1px;" title="Find and Replace" class="button dark editorEnabled" onclick="editor.execCommand('replace')"><i class="fas fa-search"></i> Find/Replace</button>&nbsp;
+                      <button style="margin:1px;" title="Select All" class="button dark editorEnabled" onclick="editor.execCommand('selectall')"><i class="far fa-check-square"></i> Select All</button>&nbsp;
+                      <button style="margin:1px;" title="Undo" class="button dark editorEnabled" onclick="editor.execCommand('undo')"><i class="fas fa-undo"></i> Undo</button>&nbsp;
+                      <button style="margin:1px;" title="Redo" class="button dark editorEnabled" onclick="editor.execCommand('redo')"><i class="fas fa-redo"></i> Redo</button>&nbsp;
+                      <button style="margin:1px;" title="Go to End" class="button dark editorEnabled" onclick="editor.execCommand('gotoend')"><i class="fas fa-chevron-down"></i></button>&nbsp;
+                      <button style="margin:1px;" title="Go to Start" class="button dark editorEnabled" onclick="editor.execCommand('gotostart')"><i class="fas fa-chevron-up"></i></button>&nbsp;
+                      <button style="margin:1px;" title="Clear Editor" class="button dark" onclick="clearGcode()"><i class="fas fa-eraser"></i>Clear</button>
+                    </div>
+                  </div>
+
+
+                  <div class="section" id="tab-three" style="height:100%">
+                    <div id="renderArea"></div>
+                    <div id="renderToolbar" class="toolbar no-divider" style="height:39px; position:absolute; padding:0px; margin:6px;">
+                      <div>
+                        <button title="3D View settings" class="button dark dropdown-toggle">
+                          <i class="fas fa-eye"></i> View
+                        </button>
+                        <table id="viewSettingsTable" class="ribbon-dropdown" data-role="dropdown" style="display:none; width:max-content;">
+                          <tr onclick="event.stopPropagation()">
+                            <td style="vertical-align:middle;">
+                              <label class="toggle contrast"><input type="checkbox" id="viewGridSetting" onchange="changeViewSettings()"/><div></div></label>
+                            </td>
+                            <td style="vertical-align:middle;">
+                              <span class="text-small" style="padding: 6px; display:inline-block;">Grid</span>
+                            </td>
+                          </tr>
+                          <tr onclick="event.stopPropagation()">
+                            <td style="vertical-align:middle;">
+                              <label class="toggle contrast"><input type="checkbox" id="viewRulerSetting" onchange="changeViewSettings()"/><div></div></label>
+                            </td>
+                            <td style="vertical-align:middle;">
+                              <span class="text-small" style="padding: 6px; display:inline-block;">Ruler</span>
+                            </td>
+                          </tr>
+                          <tr onclick="event.stopPropagation()">
+                            <td style="vertical-align:middle;">
+                              <label class="toggle contrast"><input type="checkbox" id="viewToolpathSetting" onchange="changeViewSettings()"/><div></div></label>
+                            </td>
+                            <td style="vertical-align:middle;">
+                              <span class="text-small" style="padding: 6px; display:inline-block;">Toolpath</span>
+                            </td>
+                          </tr>
+                          <tr onclick="event.stopPropagation()">
+                            <td style="vertical-align:middle;">
+                              <label class="toggle contrast"><input type="checkbox" id="viewToolSetting" onchange="changeViewSettings()"/><div></div></label>
+                            </td>
+                            <td style="vertical-align:middle;">
+                              <span class="text-small" style="padding: 6px; display:inline-block;">Tool marker</span>
+                            </td>
+                          </tr>
+                          <tr onclick="event.stopPropagation()">
+                            <td style="vertical-align:middle;">
+                              <label class="toggle contrast"><input type="checkbox" id="viewMachineSetting" onchange="changeViewSettings()"/><div></div></label>
+                            </td>
+                            <td style="vertical-align:middle;">
+                              <span class="text-small" style="padding: 6px; display:inline-block;">Machine Extents</span>
+                            </td>
+                          </tr>
+                          <tr onclick="event.stopPropagation()" class="heightmap" style="display:none;">
+                            <td style="vertical-align:middle;">
+                              <label class="toggle contrast"><input type="checkbox" id="viewHeighmtapSetting" onchange="changeViewSettings()"/><div></div></label>
+                            </td>
+                            <td style="vertical-align:middle;">
+                              <span class="text-small" style="padding: 6px; display:inline-block;">Heightmap</span>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                      <button id="resetViewBtn" style="margin-left:3px;" title="Resets camera angle and zoom" class="button dark" onclick="resetView(object, true)">
+                        <i class="fas fa-undo"></i> Reset
+                      </button>
+                      <div>
+                        <button id="heightmapBtn" onclick="updateHeightmapMenu()" style="margin-left:3px; display:none;" class="button dark dropdown-toggle heightmap"><i class="mif-chart-bars"></i> Heightmap</button>
+                        <ul class="ribbon-dropdown drop-down" id="heightmapMenu" data-role="dropdown" role="menu">
+                          <style>#heightmapMenu > li {text-align: left;}</style>
+                          <li onclick="editHeightmapSettings()" id="editHeightmapSettings"><a href="#">Heightmap Settings</a></li>
+                          <li class="divider"></li>
+                          <li onclick="generateHeightmap()" id="generateHeightmap"><a href="#">Generate Heightmap</a></li>
+                          <li onclick="loadHeightmap();"><a href="#">Load Heightmap</a></li>
+                          <li onclick="saveHeightmap()" id="saveHeightmap"><a href="#">Save Heightmap</a></li>
+                          <li onclick="clearHeightmapData()" id="clearHeightmap"><a href="#">Clear Heightmap</a></li>
+                          <li class="divider"></li>
+                          <li onclick="applyHeightmap()" id="applyHeightmap"><a href="#">Apply Heightmap</a></li>
+                          <li onclick="revertHeightmap()" id="revertHeightmap"><a href="#">Revert G-code changes</a></li>
+                          <li class="divider"></li>
+                          <li onclick="socket.emit('openheightmap')"><a href="#">Documentation</a></li>
+                        </ul>
+                      </div>
+                    </div>
+
+
+                    <div class="fixed-bottom" style="position:absolute; left:10px; bottom:0px; display:flex; flex-direction:row; align-items:self-end; justify-content:flex-start;">
+                      <button id="runSimBtn" style="margin-right:11px; margin-bottom:10px;" title="Run simulation" class="button dark" onclick="sim(0, true)"><i class="fas fa-fighter-jet"></i> Simulate</button>
+                      <div id="simControls" style="display:none; height: auto; padding:5px; margin-left:-6px; margin-bottom:4px; border: 1px solid; text-wrap:nowrap;">
+                        <input id="simProgress" class="thin cycle-marker" data-on-start="simDragStart()" data-on-stop="simDragStop()" data-on-change="if (typeof simSetProgress == 'function') simSetProgress(arguments[0])" data-role="slider" data-accuracy="1" data-vertical="false" data-size="100%" data-min="0" data-max="100" data-value="0" data-hint="true"
+                         data-hint-position="top" data-hint-always="true" data-hint-mask="$1%" data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>
+                        <button id="stopSimBtn" title="Stop Sim" class="button dark" onclick="simstop()"><i class="fas fa-stop"></i> Stop Sim</button>
+                        <button id="simBackBtn" disabled title="Previous Line" class="button dark" onclick="simStepBack()"><i class="fas fa-step-backward"></i></button>
+                        <button id="pauseSimBtn" title="Pause Sim" class="button dark" onclick="simpause()"><i class="fas fa-pause"></i></button>
+                        <button id="resumeSimBtn" title="Play Sim" class="button dark" onclick="simresume()"><i class="fas fa-play"></i></button>
+                        <button id="simForwardBtn" disabled title="Next Line" class="button dark" onclick="simStepForward()"><i class="fas fa-step-forward"></i></button>
+                        <div class="pos-relative" style="display:inline-block; margin-right:1px;">
+                          <button class="button dark" title="Select Speed" style=""><span class="icon"><span class="fas fa-tachometer-alt"></span></span> <span class="caption"><span id="simspeedval">1</span>x</span></button>
+                          <ul class="d-menu context drop-up" id="simSpeedMenu" data-role="dropdown" data-duration="100" style="margin-bottom:5px;">
+                            <li onclick="simSpeed(0.1)"><a style="padding:0px 26px;line-height:24px;height:24px;" href="#">0.1x</a></li>
+                            <li onclick="simSpeed(1)"><a style="padding:0px 26px;line-height:24px;height:24px;" href="#">1x</a></li>
+                            <li onclick="simSpeed(10)"><a style="padding:0px 26px;line-height:24px;height:24px;" href="#">10x</a></li>
+                            <li onclick="simSpeed(100)"><a style="padding:0px 26px;line-height:24px;height:24px;" href="#">100x</a></li>
+                            <li onclick="simSpeed(1000)"><a style="padding:0px 26px;line-height:24px;height:24px;" href="#">1000x</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div id="simText" style="display:none; height:auto; padding:5px; margin-left:2px; margin-bottom:4px; border: 1px solid; z-index:100;">
+                        <span style="display:block; height:auto; text-align:left; line-height:1; font-size:0.75rem; font-weight:600;"></span>
+                      </div>
+                    </div>
+                    <div id="conetext" style="position:absolute; top:0px; left:0px; padding:2px; display:none; z-index:100;"></div>
+                  </div>
+
+
+                  <div class="section" id="tab-four" style="height:100%">
+                    <ul id="macroVerticalTabs" data-tabs-position="vertical" data-role="tabs" data-expand="true" vertical></ul>
+                    <div style="flex:1">
+                      <ul id="macroHorizontalTabs" data-role="tabs" data-expand="true"></ul>
+                      <div id="macros" style="overflow-y:clip; display:flex; align-content:flex-start; flex-wrap:wrap;">
+                        <div class="pos-relative">
+                          <button id="macroToolsBtn" class="button light dropdown-toggle"
+                              style="width:80px; height:70px; top:4px; left:4px; line-height:1.1; margin-right:10px; box-shadow:2px 2px 1px 0 rgba(0,0,0,.4);">
+                            <span class="fas fa-toolbox icon" style="width:24px; height:24px; margin-bottom:4px;"></span><br>Macro<br>Tools
+                          </button>
+                          <ul class="d-menu context drop-shadow" data-role="dropdown" style="top:74px; text-align: start;">
+                            <li onclick="createMacro()"><a href="#"><i class="fas fa-plus icon" style="margin-top:-7px;"></i> Create New Macro</a></li>
+                            <li onclick="createMacroFromFile()"><a href="#"><i class="mif-note-add mif-1g icon" style="margin-top:-7px;"></i> Create From Script</a></li>
+                            <li class="divider"></li>
+                            <li onclick="importMacroBackupFile()"><a href="#"><i class="fas fa-upload icon" style="margin-top:-8px;"></i> Import Macro</a></li>
+                            <li onclick="importMacroAll()"><a href="#"><i class="mif-folder-upload icon"></i> Import All Macros</a></li>
+                            <li onclick="backupMacroAll()"><a href="#"><i class="fas fa-save icon" style="margin-top:-8px;"></i> Export All Macros</a></li>
+                            <li class="divider"></li>
+                            <li>
+                              <a href="#" class="dropdown-toggle"><i class="mif-books mif-1g icon" style="margin-top:-8px;"></i> Group View</a>
+                              <ul class="d-menu" data-role="dropdown">
+                                <li id="macroHorGroups"  onclick="setMacroGroupView(1)"><a href="#"><i class="mif-checkmark mif-1g icon" style="display:none;"></i> Horizontal Group Tabs</a></li>
+                                <li id="macroVertGroups" onclick="setMacroGroupView(2)"><a href="#"><i class="mif-checkmark mif-1g icon" style="display:none;"></i> Vertical Group Tabs</a></li>
+                                <li id="macroHideGroups" onclick="setMacroGroupView(0)"><a href="#"><i class="mif-checkmark mif-1g icon" style="display:none;"></i> Disable Groups</a></li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+            </div>
+            <!-- End controlLogs -->
+          </center>
+        </div>
+        <div id="grblPanel" style="display: none;">
+          <div id="grblconfig"></div>
         </div>
 
-        <div style="overflow-y: auto; height: calc(100vh - 100px);">
-
-          <center>
-            <table class="drotable mt-1">
-              <tr>
-                <td class="p-2">
-                  <div class="pos-relative">
-                    <button id="mcsBtn" class="button light" onclick="toggleWCS()" style="width: 60px; height: 24px; line-height: 24px; padding: 0;">WCS</button>
+        <div id="troubleshootingPanel" style="display: none;">
+          <div class="grid p-0 m-0">
+            <div class="row  p-0 m-0">
+              <div class="cell p-0 m-0">
+                <div class="card">
+                  <div class="card-header p-1 m-0">
+                    <i class="fas fa-fw fa-bolt"></i>&nbsp;Inputs / Endstops
                   </div>
-                </td>
-                <td class="p-2">
-                  <nav data-role="ribbonmenu" class="mt-1">
-                    <ul class="tabs-holder">
-                      <li onclick="mmMode()"><a id="mmMode" style="padding:0 25px" href="#tab-mm">mm</a></li>
-                      <li onclick="inMode()"><a id="inMode" style="padding:0 25px" href="#tab-inch">inch</a></li>
-                    </ul>
-                  </nav>
-                </td>
-              </tr>
-              <tr>
-                <td class="p-2">
-                  <button class="button light jogbtn setzero" onclick="captureWcsHistory('Before <b>Set Zero X</b>'); sendGcode('G10 P0 L20 X0')" style="width: 60px;" data-role="ripple" data-ripple-color="#e21b1b">
-                    <span class="fa-layers fa-fw">
-                      <i class="fas fa-crosshairs fg-openbuilds" data-fa-transform="shrink-2 down-8 left-12"></i>
-                      <span class="fa-layers-text fg-red" data-fa-transform="down-9 right-8" style="font-weight:900; font-family: Arial; font-size: 12px;">X</span>
-                      <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">setzero</span>
-                    </span>
-                  </button>
-                </td>
-                <td class="p-2">
-                  <div class="dro">
-                    <div class="float-left fg-red" data-fa-transform="right-15">
-                      <span class="fa-layers fa-fw">
-                        <span class="fa-layers-text fg-red" data-fa-transform="right-3">X</span>
-                        <span class="fa-layers-text fg-red" id="Xwork" data-fa-transform="left-18 rotate-270" style="font-family: Arial; font-size: 8px;">WORK</span>
-                      </span>
-                    </div>
-                    <div class="float-right fg-red" id="xPos" data-editable>0.000</div>
-                  </div>
-                </td>
-                <td class="p-2">
-                  <div class="pos-relative">
-                    <button class="button light jogbtn" style="width: 42px;"><i class="fas fa-caret-down fg-openbuilds"></i></button>
-                    <ul class="d-menu context drop-shadow drop-left" data-role="dropdown">
-                      <li><a href="#" style="padding:0 1rem 0 2.5rem;" onclick="sendGcode('G0 G90 G21 X0')"><span class="fas fa-chart-line fg-red icon"></span>Goto X0 (Work Coord) (G0 X0)</a></li>
-                      <li id="gotoXMinMpos"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-chart-line fg-red icon"></span>Goto Machine Left (G53 X<span class="coord">0</span>)</a></li>
-                      <li id="gotoXMaxMpos"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-chart-line fg-red icon"></span>Goto Machine Right (G53 X<span class="coord">0</span>)</a></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="p-2">
-                  <button class="button light jogbtn setzero" onclick="captureWcsHistory('Before <b>Set Zero Y</b>'); sendGcode('G10 P0 L20 Y0')" style="width: 60px;" data-role="ripple" data-ripple-color="#5de21b">
-                    <span class="fa-layers fa-fw">
-                      <i class="fas fa-crosshairs fg-openbuilds" data-fa-transform="shrink-2 down-8 left-12"></i>
-                      <span class="fa-layers-text fg-green" data-fa-transform="down-9 right-8" style="font-weight:900; font-family: Arial; font-size: 12px;">Y</span>
-                      <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">setzero</span>
-                    </span>
-                  </button>
-                </td>
-                <td class="p-2">
-                  <div class="dro">
-                    <div class="float-left fg-green">
-                      <span class="fa-layers fa-fw">
-                        <span class="fa-layers-text fg-green" data-fa-transform="right-3">Y</span>
-                        <span class="fa-layers-text fg-green" id="Ywork" data-fa-transform="left-18 rotate-270" style="font-family: Arial; font-size: 8px;">WORK</span>
-                      </span>
-                    </div>
-                    <div class="float-right fg-green" id="yPos" data-editable>0.000</div>
-                  </div>
-                </td>
-                <td class="p-2">
-                  <div class="pos-relative">
-                    <button class="button light jogbtn" style="width: 42px;"><i class="fas fa-caret-down fg-openbuilds"></i></button>
-                    <ul class="d-menu context drop-shadow drop-left" data-role="dropdown">
-                      <li><a href="#" style="padding:0 1rem 0 2.5rem;" onclick="sendGcode( 'G90\nG21\nG0 Y0')"><span class="fas fa-chart-line fg-green icon"></span>Goto Y0 (Work Coord) (G0 Y0)</a></li>
-                      <li id="gotoYMinMpos"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-chart-line fg-green icon"></span>Goto Machine Front (G53 Y<span class="coord">0</span>)</a></li>
-                      <li id="gotoYMaxMpos"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-chart-line fg-green icon"></span>Goto Machine Rear (G53 Y<span class="coord">0</span>)</a></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="p-2">
-                  <button class="button light jogbtn setzero" onclick="captureWcsHistory('Before <b>Set Zero Z</b>'); sendGcode('G10 P0 L20 Z0')" style="width: 60px;" data-role="ripple" data-ripple-color="#1ba1e2">
-                    <span class="fa-layers fa-fw">
-                      <i class="fas fa-crosshairs fg-openbuilds" data-fa-transform="shrink-2 down-8 left-12"></i>
-                      <span class="fa-layers-text fg-blue" data-fa-transform="down-9 right-8" style="font-weight:900; font-family: Arial; font-size: 12px;">Z</span>
-                      <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">setzero</span>
-                    </span>
-                  </button>
-                </td>
-                <td class="p-2">
-                  <div class="dro">
-                    <div class="float-left fg-blue">
-                      <span class="fa-layers fa-fw">
-                        <span class="fa-layers-text fg-blue" data-fa-transform="right-3">Z</span>
-                        <span class="fa-layers-text fg-blue" id="Zwork" data-fa-transform="left-18 rotate-270" style="font-family: Arial; font-size: 8px;">WORK</span>
-                      </span>
-                    </div>
-                    <div class="float-right fg-blue" id="zPos" data-editable>0.000</div>
-                  </div>
-                </td>
-                <td class="p-2">
-                  <div class="pos-relative">
-                    <button class="button light jogbtn" style="width: 42px;"><i class="fas fa-caret-down fg-openbuilds"></i></button>
-                    <ul class="d-menu context drop-shadow drop-left" data-role="dropdown">
-                      <li><a href="#" style="padding:0 1rem 0 2.5rem;" onclick="sendGcode('G0 G90 G21 Z0')"><span class="fas fa-chart-line fg-blue icon"></span>Goto Z0 (Work Coord) (G0 Z0)</a></li>
-                      <li id="gotoZMaxMpos"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-chart-line fg-blue icon"></span>Goto Machine Top (G53 Z<span class="coord">0</span>)</a></li>
-                      <li id="gotoZMinMpos"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-chart-line fg-blue icon"></span>Goto Machine Bottom (G53 Z<span class="coord">0</span>) <span style="font-size: 14px; font-weight: 800; color: orangered; ">(caution)</span></a></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="p-2">
-                  <button class="button light jogbtn setzero" onclick="captureWcsHistory('Before <b>Set Zero XYZ</b>'); sendGcode('G10 P0 L20 X0 Y0 Z0')" style="width: 60px;" data-role="ripple">
-                    <span class="fa-layers fa-fw">
-                      <i class="fas fa-crosshairs fg-openbuilds" data-fa-transform="shrink-2 down-8 left-18"></i>
-                      <span class="fa-layers-text fg-red" data-fa-transform="down-9 right-2" style="font-weight:900; font-family: Arial; font-size: 12px;">X</span>
-                      <span class="fa-layers-text fg-green" data-fa-transform="down-9 right-12" style="font-weight:900; font-family: Arial; font-size: 12px;">Y</span>
-                      <span class="fa-layers-text fg-blue" data-fa-transform="down-9 right-22" style="font-weight:900; font-family: Arial; font-size: 12px;">Z</span>
-                      <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">setzero</span>
-                    </span>
-                  </button>
-                </td>
-                <td class="p-2">
-                  <div class="pos-relative">
-                    <button class="button light jogbtn" style="width: 161px;" data-role="ripple">
-                      <span class="fa-layers fa-fw">
-                        <i class="fas fa-chart-line fg-openbuilds" data-fa-transform="shrink-2 down-8 left-12"></i>
-                        <i class="fas fa-caret-down fg-openbuilds" data-fa-transform="shrink-2 right-70"></i>
-                        <span class="fa-layers-text fg-red" data-fa-transform="down-9 right-8" style="font-weight:900; font-family: Arial; font-size: 12px;">X</span>
-                        <span class="fa-layers-text fg-green" data-fa-transform="down-9 right-19" style="font-weight:900; font-family: Arial; font-size: 12px;">Y</span>
-                        <span class="fa-layers-text fg-blue" data-fa-transform="down-9 right-29" style="font-weight:900; font-family: Arial; font-size: 12px;">Z</span>
-                        <span class="fa-layers-text fg-openbuilds" data-fa-transform="up-8 " style="font-weight:900; font-family: Arial; font-size: 12px;">gotozero</span>
-                      </span>
-                    </button>
-                    <ul class="d-menu context drop-shadow" data-role="dropdown" style="left:-100px;">
-
-                      <li onclick="sendGcode('G0 G90 G21 X0 Y0')"><a href="#"><span class="fas fa-chart-line fg-openbuilds icon"></span>(G0 X0 Y0) (Work Zero XY)</a></li>
-                      <li class="divider"></li>
-                      <li class="disabled"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-exclamation-triangle fg-red icon"></span><span style="font-size: 14px; font-weight: 800; color: orangered !important;">These commands can plunge down unsafely</span></a></li>
-                      <li id="gotozeroWPos"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-chart-line fg-openbuilds icon"></span>(G0 Z5, G0 X0 Y0, G0 Z0) (Retract Z to Work Coord Z5)</a></li>
-                      <li id="gotozeroZmPosXYwPos"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-chart-line fg-openbuilds icon"></span>(G53 Z<span class="coord">0</span>, G0 X0 Y0, G0 Z0) (Retract Z to Machine Coord)</a></li>
-                      <li id="gotozeroMPos"><a href="#" style="padding:0 1rem 0 2.5rem;"><span class="fas fa-chart-line fg-openbuilds icon"></span>(<span class="gcode">G53 Z0, G53 X0 Y0</span>) (Machine Zero XYZ)</a></li>
-                    </ul>
-                  </div>
-                </td>
-                <td class="p-2">
-                  <div class="pos-relative">
-                    <button class="button light jogbtn" style="width: 42px;"></i>
-                      <span class="fa-layers fa-fw">
-                        <i class="fas fa-layer-group fg-openbuilds" data-fa-transform="shrink-2 up-3"></i>
-                        <i class="fas fa-caret-down fg-openbuilds" data-fa-transform="down-8"></i>
-                      </span>
-                    </button>
-                    <ul class="d-menu context drop-shadow drop-left" data-role="dropdown">
-                      <li><a href="#" style="padding:0 1rem 0 2.5rem;" onclick="sendGcode('G28')"><span class="fas fa-layer-group fg-grayBlue icon"></span>Go to Pre-Defined Position (G28)</a></li>
-                      <li><a href="#" style="padding:0 1rem 0 2.5rem;" onclick="sendGcode('G28.1')"><span class="fas fa-tasks fg-grayBlue icon"></span>Set Pre-Defined Position (G28.1)</a></li>
-                      <li class="divider"></li>
-                      <li><a href="#" style="padding:0 1rem 0 2.5rem;" onclick="sendGcode('G30')"><span class="fas fa-layer-group fg-grayBlue icon"></span>Go to Pre-Defined Position (G30)</a></li>
-                      <li><a href="#" style="padding:0 1rem 0 2.5rem;" onclick="sendGcode('G30.1')"><span class="fas fa-tasks fg-grayBlue icon"></span>Set Pre-Defined Position (G30.1)</a></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </center>
-
-          <hr class="border-bottom bd-lightGray ml-4 mr-4" />
-
-          <div id="buttonview">
-            <center>
-              <table class="jogtable">
-                <tr>
-                  <td class="p-2">
-                  </td>
-
-                  <td class="p-2">
-                    <button class="button light square large jogbtn yP" id="yP">
-                      <span class="fa-layers fa-fw">
-                        <i class="fas fa-arrow-up fg-green" data-fa-transform="shrink-2 down-8.5"></i>
-                        <span class="fa-layers-text fg-green" data-fa-transform="shrink-5 up-8" style="font-weight:600">Y+</span>
-                      </span>
-                    </button>
-                  </td>
-
-                  <td class="p-2">
-                  </td>
-
-                  <td class="p-2">
-                    <button class="button light square large jogbtn zP" id="zP">
-                      <span class="fa-layers fa-fw">
-                        <i class="fas fa-arrow-up fg-blue" data-fa-transform="shrink-2 down-8.5"></i>
-                        <span class="fa-layers-text fg-blue" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z+</span>
-                      </span>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="p-2">
-                    <button class="button light square large jogbtn xM" id="xM">
-                      <span class="fa-layers fa-fw">
-                        <i class="fas fa-arrow-left fg-red" data-fa-transform="shrink-2 down-8.5"></i>
-                        <span class="fa-layers-text fg-red" data-fa-transform="shrink-5 up-8" style="font-weight:600">X-</span>
-                      </span>
-                    </button>
-                  </td>
-
-                  <td class="p-2">
-                    <button class="button light square large jogbtn yM" id="yM">
-                      <span class="fa-layers fa-fw">
-                        <i class="fas fa-arrow-down fg-green" data-fa-transform="shrink-2 down-8.5"></i>
-                        <span class="fa-layers-text fg-green" data-fa-transform="shrink-5 up-8" style="font-weight:600">Y-</span>
-                      </span>
-                    </button>
-                  </td>
-
-                  <td class="p-2">
-                    <button class="button light square large jogbtn xP" id="xP">
-                      <span class="fa-layers fa-fw">
-                        <i class="fas fa-arrow-right fg-red" data-fa-transform="shrink-2 down-8.5"></i>
-                        <span class="fa-layers-text fg-red" data-fa-transform="shrink-5 up-8" style="font-weight:600">X+</span>
-                      </span>
-                    </button>
-                  </td>
-                  <td class="p-2">
-                    <button class="button light square large jogbtn zM" id="zM">
-                      <span class="fa-layers fa-fw">
-                        <i class="fas fa-arrow-down fg-blue" data-fa-transform="shrink-2 down-8.5"></i>
-                        <span class="fa-layers-text fg-blue" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z-</span>
-                      </span>
-                    </button>
-                  </td>
-                </tr>
-              </table>
-              <table class="jogtable">
-                <tr>
-                  <td class="p-2">
-                    <table style="width: 100%;">
-                      <tr>
-                        <td><span class="text-small">Incremental Jog</span>
-                        </td>
-                        <td class="pb-1">
-                          <label class="toggle">
-                            <input type="checkbox" id="jogTypeContinuous" />
-                            <div>app-notifition</div>
-                          </label>
-                        </td>
-                        <td><span class="text-small">Continuous Jog</span>
-                        </td>
-                      </tr>
+                  <div class="card-content">
+                    <table class="table striped compact">
+                      <thead>
+                        <tr>
+                          <th style="width: 40%;">PIN</th>
+                          <th style="width: 60%;">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="pt-1 mt-1 mb-1 pb-0 pt-0" colspan="2">Manually activate inputs you want to test</td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">X-Limit</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span class="tally alert pinstatus" id="xpin">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Y-Limit</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span class="tally alert pinstatus" id="ypin">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Z-Limit</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span class="tally alert pinstatus" id="zpin">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Probe</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span class="tally alert pinstatus" id="prbpin">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Door Sensor</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span class="tally alert pinstatus" id="doorpin">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Buttons</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0">
+                            <span class="tally alert pinstatus" id="startpin">NOCOMM</span>
+                            <span class="tally alert pinstatus" id="holdpin">NOCOMM</span>
+                            <span class="tally alert pinstatus" id="resetpin">NOCOMM</span>
+                          </td>
+                        </tr>
+                      </tbody>
                     </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td ="p-2">
-                    <button class="button light jogbtn distbtn" id="dist01" style="margin-left:0;">
-                      <span id="dist01label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">0.1mm</span>
-                    </button>
-                    <button class="button light jogbtn distbtn" id="dist1">
-                      <span id="dist1label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">1mm</span>
-                    </button>
-                    <button class="button light jogbtn distbtn" id="dist10">
-                      <span id="dist10label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">10mm</span>
-                    </button>
-                    <button class="button light jogbtn distbtn" id="dist100" style="margin-right:0;">
-                      <span id="dist100label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">100mm</span>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div id="jrocell" style="width: 280px;">
+                  </div>
+                </div>
 
-                      <input id="jro" data-on-stop="jogOverride(arguments[0])" data-role="slider" data-accuracy="1" data-vertical="false" data-min="1" data-max="100" data-value="100" data-hint="true" data-hint-always="true"
-                        data-hint-position="bottom" data-hint-mask="Jog Rate: $1%" data-cls-hint="bg-light
-                            fg-dark shadow-1" data-cls-complete="bg-openbuilds">
-                      <button class="button light jogbtn distbtn mb-1" onclick="jogOverride(100);" style="font-weight:900; font-family:Arial; font-size:12px; color:#444;">reset</button>
+                <div class="card" id="powerSettingsCard">
+                  <div class="card-header p-1 m-0">
+                    <i class="fas fa-fw fa-power-off"></i>&nbsp;Power Settings
+                  </div>
+                  <div class="card-content">
+                    <table class="table striped compact">
+                      <thead>
+                        <tr>
+                          <th style="width: 70%;">Setting</th>
+                          <th style="width: 30%;">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="pt-1 mt-1 mb-1 pb-0" colspan="2">We recommend USB Selective Suspend be Disabled to avoid USB issues</td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0">USB Selective Suspend on AC Power</td>
+                          <td class="pt-1 mt-0 pb-0"><span class="tally alert powerstatus" id="selectivesuspendAC">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0">USB Selective Suspend on Battery Power</td>
+                          <td class="pt-1 mt-0 pb-0"><span class="tally alert powerstatus" id="selectivesuspendDC">NOCOMM</span></td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="card" id="powerSettingsCard">
+                  <div class="card-header p-1 m-0">
+                    <i class="fas fa-fw fa-laptop"></i>&nbsp;Computer
+                  </div>
+                  <div class="card-content">
+                    <div class="p-2 text-small">
+                      <b>Motherboard:</b> <span id="mobospecs">NOCOMM</span><br>
+                      <b>CPU:</b> <span id="cpuspecs">NOCOMM</span><br>
+                      <b>GPU:</b> <span id="gpuspecs">NOCOMM</span>
+                      <span class="tally info" style="margin-left:4px; line-height:20px" onclick="socket.emit('gpuinfo')">VIEW GPU REPORT</span><br>
+                      <b>Memory:</b> <span id="memoryspecs">NOCOMM</span><br>
+                      <b>OS:</b> <span id="osspecs">NOCOMM</span><br>
+                      <b>Network:</b> <span id="ipspecs">NOCOMM</span><br>
                     </div>
-                  </td>
-                </tr>
-              </table>
-            </center>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="cell p-0 m-0">
+                <div class="card">
+                  <div class="card-header p-1 m-0">
+                    <i class="fab fa-fw fa-usb"></i>&nbsp;Communications
+                  </div>
+                  <div class="card-content" style="min-height: 90px; overflow-x: auto;">
+                    <table class="table striped compact">
+                      <thead>
+                        <tr>
+                          <th style="width: 40%;">Value</th>
+                          <th style="width: 60%;">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Installed Version</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span id="driverver">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Backend Queue Blocked</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span id="commblocked">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Connection Status</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span id="commstatus">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Connected To</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span id="activeportstatus">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Serial Queue</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span id="drvqueue">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Websocket Status</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span id="websocketstatus">NOCOMM</span></td>
+                        </tr>
+                        <tr>
+                          <td class="pt-1 mt-0 pb-0 pt-0">Firmware</td>
+                          <td class="pt-1 mt-0 pb-0 pt-0"><span id="firmwareversionstatus">NOCOMM</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header p-1 m-0">
+                    <i class="fas fa-fw fa-history"></i>&nbsp;What's new in this version
+                  </div>
+                  <div class="card-content" style="height: calc(100vh - 530px); min-height: 120px; overflow-x: auto;">
+                    <div id="changelog" class="text-small" style="padding:2px 8px;"></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
           </div>
         </div>
 
+        <!-- Bottom StatusBar -->
         <div class="fixed-bottom">
           <div class="row">
-            <div class="cell-3 pl-1 pr-1">
+            <div class="cell-3">
               <div>
-                <span class="badge inline bg-openbuilds fg-white" style="width: 100%; font-size: 0.5em;">
+                <span class="badge inline bg-openbuilds fg-white" style="width: 100%;">
                   <span class="fa-layers" data-toggle="tooltip" data-placement="bottom" title="Flashes red when machine has entered ALARM state, click Clear Alarm button">
                     <i id="navbell" class="fas fa-bell fg-red" style="display: none;"></i>
                     <i class="far fa-bell"></i>
                   </span>
+                  <span id="timeRemaining"></span>
                 </span>
               </div>
             </div>
-            <div class="cell-3  pl-1 pr-1">
+            <div class="cell-3">
               <div>
-                <span class="badge inline bg-openbuilds fg-white" id="connectStatus" style="width: 100%; font-size: 0.5em;">Not Connected</span>
+                <span class="badge inline bg-openbuilds fg-white" id="connectStatus" style="width: 100%;">Not Connected</span>
               </div>
             </div>
-            <div class="cell-3  pl-1 pr-1">
+            <div class="cell-3">
               <div>
-                <span class="badge inline bg-openbuilds fg-white" id="runStatus" style="width: 100%; font-size: 0.5em;">Not Connected</span>
+                <span class="badge inline bg-openbuilds fg-white" id="runStatus" style="width: 100%;">Not Connected</span>
               </div>
             </div>
-            <div class="cell-3  pl-1 pr-1">
+            <div class="cell-3">
               <div>
-                <span class="badge inline bg-openbuilds fg-white" id="gcodesent" style="width: 100%; font-size: 0.5em;">Job Queue: 0</span>
+                <span class="badge inline bg-openbuilds fg-white" id="gcodesent" style="width: 100%;">Job Queue: 0</span>
               </div>
             </div>
           </div>
@@ -403,38 +1374,484 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
+    <!-- Editor Context Menu -->
+    <div id="editorContextToggle">
+      <ul class="d-menu context drop-shadow pos-fixed" id="editorContextMenu" data-role="dropdown" data-toggle-element="#editorContextToggle">
+        <li onclick="startFromHere(editor.getSelectionRange().start.row + 1);"><a href="#"><i class='fas fa-fw fa-route icon'></i> Recover job from Line: <span class="linenumber"></span></a></li>
+        <li class="divider"></li>
+        <li onclick="runSimFrom(editor.getSelectionRange().start.row + 1);"><a href="#"><i class="fas fa-fighter-jet icon"></i> Simulate from line <span class="linenumber"></span></a></li>
+      </ul>
+    </div>
+
+    <!-- Macro Context Menus -->
+    <div id="macroContextToggle">
+      <ul class="d-menu context drop-shadow pos-fixed" id="macroContextMenu" data-role="dropdown" data-toggle-element="#macroContextToggle">
+        <li onclick="editMacro(macroMenuIdx)"><a href="#"><i class="fas fa-edit icon"></i> Edit Macro</span></a></li>
+        <li class="divider"></li>
+        <li id="moveMacroLeft" onclick="moveMacro(macroMenuIdx, -1)"><a href="#"><i class='fas fa-fw fa-arrow-left icon'></i> Sort: Move Left</a></li>
+        <li id="moveMacroRight" onclick="moveMacro(macroMenuIdx, 1)"><a href="#"><i class='fas fa-fw fa-arrow-right icon'></i> Sort: Move Right</a></li>
+        <li class="divider"></li>
+        <li onclick="backupMacro(macroMenuIdx)"><a href="#"><i class="fas fa-save icon"></i> Export Macro</span></a></li>
+        <li class="divider"></li>
+        <li onclick="confirmMacroDelete(macroMenuIdx)" class="fg-red"><a href="#"><i class="fas fa-trash icon"></i> Delete Macro</span></a></li>
+        <li class="divider"></li>
+        <li onclick="moveMacroToGroup(macroMenuIdx)"><a href="#"><i class="mif-books mif-1g icon" style="margin-top:-8px;"></i> Move To Group</span></a></li>
+        <span id="macroContextMenuItems">
+          <!-- Items here -->
+        </span>
+      </ul>
+    </div>
+    <div id="macroTabContextToggle">
+      <ul class="d-menu context drop-shadow pos-fixed" id="macroTabContextMenu" data-role="dropdown" data-duration="40" data-toggle-element="#macroTabContextToggle">
+        <li onclick="renameMacroGroup(selectedMacroGroup)"><a href="#">Rename Group</a></li>
+      </ul>
+    </div>
+
+    <div id="hiddendivs" style="display:none;">
+
+      <div class="dialog dark" data-overlay-click-close="false" data-role="dialog" id="jogWidgetDialog">
+        <div class="dialog-title"><i class="fas fa-mobile-alt"></i> Jog Widget</div>
+        <div class="dialog-content" style="max-height: calc(100vh - 200px);overflow-y: auto; overflow-x: hidden;">
+          <div class="row">
+            <div class="cell-4">
+              <img src="./img/widget.png" />
+            </div>
+            <div class="cell-8">
+              <div class="row">
+                <div class="cell">
+                  <center>
+                    <small>You can use your mobile device as an handheld Jog interface. To get started, open a web-browser on your Mobile device and navigate to <br></small>
+                    <span id="jogip" style="user-select:text;">http://0.0.0.0:3000/jog.html</span><br>
+                    <small> or scan the QR Code below</small>
+                  </center>
+                  <hr class='thin bg-gray'>
+                </div>
+              </div>
+              <div class="row">
+                <div class="cell-3"></div>
+                <div class="cell-4" id="qrcode">
+                </div>
+                <div class="cell-5"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="dialog-actions ">
+          <button class="button js-dialog-close">Close</button>
+        </div>
       </div>
 
+      <!-- XYZ Probe -->
+      <div class="dialog dark" id="xyzProbeWindow" data-role="dialog" data-on-close="probeDlgOnClose"
+          data-overlay-click-close="false" data-to-top="true" data-width="800">
+        <div class="dialog-title">Probing Wizard</div>
+        <div class="dialog-content" style="max-height: calc(100vh - 100px);overflow-y: auto; overflow-x: hidden;">
+          <nav data-role="ribbonmenu">
+            <ul class="tabs-holder">
+              <li onclick="probeautotab();" class="probetabxyz" id="probeautotab"><a href="#">Automatic</a></li>
+              <li onclick="probexyztab();" class="probetabxyz" id="probexyztab"><a href="#">XYZ&nbsp;Zero</a></li>
+              <li onclick="probextab();" class="probetabxyz" id="probextab"><a href="#">X&nbsp;Zero</a></li>
+              <li onclick="probeytab();" class="probetabxyz" id="probeytab"><a href="#">Y&nbsp;Zero</a></li>
+              <li onclick="probeztab();" class="probetabxyz" id="probeztab"><a href="#">Z&nbsp;Zero</a></li>
+              <li onclick="probezplatetab();" class="probetabz" id="probezplatetab" style="display: none;"><a href="#">Z&nbsp;Touch&nbsp;Plate</a></li>
+            </ul>
+          </nav>
+
+          <table>
+            <tr>
+
+              <td>
+                <div id="xyzprobeimages">
+                  <img src="./img/xyzprobe/auto.png" alt="probe-auto" height="450" id="img-probe-auto" class="img-probe" style="display: none;">
+                  <img src="./img/xyzprobe/xyz.png" alt="probe-xyz" height="450" id="img-probe-xyz" class="img-probe" style="display: none;">
+                  <img src="./img/xyzprobe/x.png" alt="probe-x" height="450" id="img-probe-x" class="img-probe" style="display: none;">
+                  <img src="./img/xyzprobe/y.png" alt="probe-y" height="450" id="img-probe-y" class="img-probe" style="display: none;">
+                  <img src="./img/xyzprobe/z.png" alt="probe-z" height="450" id="img-probe-z" class="img-probe" style="display: none;">
+                  <img src="./img/xyzprobe/zplate.png" alt="probe-zplate" height="450" id="img-probe-zplate" class="img-probe" style="display: none;">
+                  <img src="./img/xyzprobe/endmill.png" alt="probe-endmill" height="450" id="img-probe-endmill" class="img-probe" style="display: none;">
+                </div>
+
+              </td>
+
+              <td style="padding: 4px; padding-left: 15px; vertical-align: top;">
+
+                <div id="probe-auto" class="probe-tab-content" style="display: none;">
+                  <small>Automatic Probe Routine: This routine is used to find the XYZ origins, as well as automatically
+                    determine endmill diameter. </small>
+                  <hr>
+                  <small>Position the endmill above the hole in the probe plate as shown, just above the plate, clip
+                    the magnet to the collet, then click the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
+                </div>
+                <div id="probe-xyz" class="probe-tab-content">
+                  <small>XYZ Probe Routine: This routine is used to find the XYZ origins</small>
+                  <hr>
+                  <small>Position the endmill above the hole in the probe plate as shown, just above the plate, clip
+                    the magnet to the collet, then click the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
+                </div>
+                <div id="probe-x" class="probe-tab-content" style="display: none;">
+                  <small>X Probe Routine: This routine is used to find the X origin</small>
+                  <hr>
+                  <small>Position the endmill to the left of the probe plate as shown, clip the magnet to the collet,
+                    then click the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
+                </div>
+                <div id="probe-y" class="probe-tab-content" style="display: none;">
+                  <small>Y Probe Routine: This routine is used to find the Y origin</small>
+                  <hr>
+                  <small>Position the endmill in front of the probe plate as shown, clip the magnet to the collet, then
+                    click the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
+                </div>
+                <div id="probe-z" class="probe-tab-content" style="display: none;">
+                  <small>Z Probe Routine: This routine is used to find the Z origin</small>
+                  <hr>
+                  <small>Position the endmill above the probe plate as shown, clip the magnet to the collet or the alligator clip to the bit, then click
+                    the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
+                </div>
+                <div id="probe-endmill" class="probe-tab-content" style="display: none;">
+                  <small>Endmill Probe Routine: This routine is used to find the Endmill Diameter</small>
+                  <hr>
+                  <small>Position the endmill above the hole in the probe plate as shown, just above the plate, clip
+                    the magnet to the collet, then click the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
+                  <hr>
+                  <small>
+                    This operation will perform an XYZ probe to establish the plate position, then using the hole in the plate,
+                    it will measure and calculate the Endmill Diameter and display it onscreen. <br>This operation will NOT set
+                    any work-coordinates!
+                  </small>
+                </div>
+                <div id="probeJogWindow">
+                  <hr>
+                  <table>
+                    <tr>
+                      <td>
+                        &nbsp;
+                      </td>
+                      <td>
+                        <button class="button success small rounded outline m-1 yP" id="probeyP" style="width: 40px;">Y+</button>
+                      </td>
+                      <td>
+                        &nbsp;
+                      </td>
+                      <td>
+                        <button class="button primary small rounded outline m-1 zP" id="probezP" style="width: 40px;">Z+</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <button class="button alert small rounded outline m-1 xM" id="probexM" style="width: 40px;">X-</button>
+                      </td>
+                      <td>
+                        <button class="button success small rounded outline m-1 yM" id="probeyM" style="width: 40px;">Y-</button>
+                      </td>
+                      <td>
+                        <button class="button alert small rounded outline m-1 xP" id="probexP" style="width: 40px;">X+</button>
+                      </td>
+                      <td>
+                        <button class="button primary small rounded outline m-1 zM" id="probezM" style="width: 40px;">Z-</button>
+                      </td>
+                      <td rowspan="2" style="vertical-align:bottom; padding-left:30px;">
+                        <input id="probeJro" class="thin" data-on-stop="jogOverride(arguments[0], true)" data-role="slider" data-accuracy="1" data-vertical="false" data-size="170"
+                           data-min="1" data-max="100" data-value="100" data-hint="true" data-hint-position="top" data-hint-always="true" data-hint-mask="Jog: $1%"
+                           data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="4">
+                        <center>
+                          <span class="text-small">Or use the Keyboard to Jog</span>
+                        </center>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <hr>
+                <div id="endmilldiameterform">
+                  <label>Endmill Diameter</label>
+
+                  <div class="row">
+                    <div class="cell-sm-7">
+                      <input id="probediameterxyz" type="number" value="6.35" data-role="input" data-prepend="<i class='fas fa-pencil-ruler'></i>" data-clear-button="false">
+                    </div>
+                    <div class="cell-sm-5">
+                      <select data-role="select" data-filter="false" id="probeunitxyz" data-editable="true" class="compact-options">
+                        <option value="mm" selected>mm</option>
+                        <option value="inch">inch</option>
+                      </select>
+                    </div>
+                  </div>
+
+
+                </div>
+                <div id="zplatesettings" class="probe-tab-content">
+                  <label>Plate Thickness</label>
+                  <input id="z0platethickness" type="number" value="20" data-role="input" data-append="mm" data-prepend="<i class='fas fa-ruler-vertical'></i>" data-clear-button="false">
+                </div>
+                <hr>
+                <button class="button" id="toggle-probe-advanced"><i class="fas fa-fw fa-cogs"></i> Advanced</button>
+                <div class="pos-relative">
+                  <div data-role="collapse" data-toggle-element="#toggle-probe-advanced" data-collapsed="true" id="toggle-probe-advanced-content">
+                    <div id="xyzdatum" class="probe-tab-content">
+
+                      <small>Where is the XY Zero Datum / Origin in your CAM setup, relative to the front-left corner we are
+                        probing? </small>
+                      <br>
+
+                      <svg xmlns="http://www.w3.org/2000/svg" width="300" height="180" viewBox="0 0 79.375 47.625">
+                        <style>
+
+                        </style>
+                        <defs>
+                          <marker id="A" orient="auto" class="J">
+                            <path transform="matrix(.4 0 0 .4 2.96 .4)" d="m-2.5-1c0 2.76-2.24 5-5 5s-5-2.24-5-5 2.24-5 5-5 5 2.24 5 5z" class="D K L" />
+                          </marker>
+                          <marker id="B" orient="auto" class="J">
+                            <path transform="matrix(.4 0 0 .4 2.96 .4)" d="m-2.5-1c0 2.76-2.24 5-5 5s-5-2.24-5-5 2.24-5 5-5 5 2.24 5 5z" class="D K L" />
+                          </marker>
+                          <marker id="C" orient="auto" class="J">
+                            <path transform="matrix(.8 0 0 .8 10 0)" d="M0 0l5-5-17.5 5L5 5z" class="D K L" />
+                          </marker>
+                          <marker id="D" orient="auto" class="J">
+                            <path transform="matrix(.8 0 0 .8 10 0)" d="M0 0l5-5-17.5 5L5 5z" class="D K L" />
+                          </marker>
+                        </defs>
+                        <g fill="#fff" class="D">
+                          <g stroke-width=".132" class="B">
+                            <path d="M7.195 7.363l15.94 28.46L70.758 31.1 47.99 5.015z" fill="#999" />
+                            <path d="M23.133 35.823l-1.257 8.313 47.7-5.284 1.172-7.752z" fill="#ececec" />
+                            <path d="M7.195 7.363l15.94 28.46-1.257 8.313-15.722-29.89z" fill="#ccc" />
+                          </g>
+                          <g stroke-width=".049" class="C N">
+                            <path d="M7.198 7.363l63.74 25.952" />
+                            <path d="M23.322 38.1L47.993 5.093" />
+                          </g>
+                          <g fill="none" stroke-width=".197" class="N">
+                            <path d="M3.942 15.993L19.16 45.07" marker-start="url(#C)" marker-end="url(#A)" />
+                            <path d="M70.118 41.003l-47.624 5.73" marker-start="url(#D)" marker-end="url(#B)" />
+                          </g>
+                          <g transform="matrix(.24595 -.020313 .020313 .24595 108.29 -158.287)">
+                            <rect class="probe-label" id="probe-c" rx="5.925" height="16.422" width="59.717" y="682.21" x="-368.93" stroke-width=".987" class="B" />
+                            <text id="probe-c-text" xml:space="preserve" letter-spacing="0" font-size="2.229" y="694.532" x="-339.852" class="C E F G H">
+                              <tspan y="694.532" x="-330.852" class="I">CENTER</tspan>
+                            </text>
+                            <rect class="probe-label areaactive" id="probe-fl" rx="6.543" height="30.532" width="43.617" y="742.64" x="-423.17" class="B M" />
+                            <text id="probe-fl-text" xml:space="preserve" letter-spacing="0" y="755.631" x="-401.459" class="C E F G H I">
+                              <tspan y="755.631" x="-350">FRONT</tspan>
+                              <tspan y="768.172" x="-350">LEFT</tspan>
+                            </text>
+                            <rect class="probe-label" id="probe-fr" rx="6.543" height="30.532" width="43.617" y="733.68" x="-239.82" class="B M" />
+                            <text id="probe-fr-text" xml:space="preserve" letter-spacing="0" y="746.284" x="-217.439" class="C E F G H I">
+                              <tspan y="746.284" x="-166">FRONT</tspan>
+                              <tspan y="758.824" x="-169">RIGHT</tspan>
+                            </text>
+                            <rect class="probe-label" id="probe-rr" rx="6.543" height="30.532" width="43.617" y="621.52" x="-312.72" class="B M" />
+                            <text id="probe-rr-text" xml:space="preserve" letter-spacing="0" y="633.759" x="-290.442" class="C E F G H I">
+                              <tspan y="633.759" x="-239.442">REAR</tspan>
+                              <tspan y="646.3" x="-242.442">RIGHT</tspan>
+                            </text>
+                            <rect class="probe-label" id="probe-rl" rx="6.543" height="30.532" width="43.617" y="616.07" x="-476.33" class="B M" />
+                            <text id="probe-rl-text" xml:space="preserve" letter-spacing="0" y="628.815" x="-455.49" class="C E F G H I">
+                              <tspan y="628.815" x="-404">REAR</tspan>
+                              <tspan y="641.356" x="-404">LEFT</tspan>
+                            </text></g>
+                        </g>
+                      </svg>
+
+                      <br>
+                      <small>If the origin is not Front, Left (Default): Then provide stock dimensions to calculate correct
+                        offset of X0, Y0:</small>
+                      <br>
+                      <label>Width</label>
+                      <input id="stockwidth" type="number" value="200" data-role="input" data-append="mm" data-prepend="<i class='fas fa-arrows-alt-h'></i>" data-clear-button="false">
+                      <label>Length</label>
+                      <input id="stocklength" type="number" value="200" data-role="input" data-append="mm" data-prepend="<i class='fas fa-arrows-alt-v'></i>" data-clear-button="false">
+
+                    </div>
+                    <!-- end xyzdatum-->
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="dialog-actions">
+
+          <div class="pos-relative">
+            <label>Probe Type: </label>
+
+            <a class="button" id="context_toggle"><span id="probetypebtn"><span class="icon"><img src="./img/xyzprobe/xyztouch.png" /></span> OpenBuilds XYZ Probe Plus</a>
+            <ul class="d-menu context" data-role="dropdown" data-toggle-element="#context_toggle">
+              <li onclick="probetype('xyz');"><a href="#"><span class="icon"><img src="./img/xyzprobe/xyztouch.png" /></span> OpenBuilds XYZ Probe Plus</a></li>
+              <li onclick="probetype('z');"><a href="#"><span class="icon"><img src="./img/xyzprobe/ztouch.png" /></span> Z Touch Plate</a></li>
+              <li onclick="probetype('custom');"><a href="#"><span class="icon"><img src="./img/xyzprobe/custom.png" /></span> Custom XYZ Probe</a></li>
+            </ul>
+          </div>
+          <button title="Configure Custom Probe parameters" class="button" onclick="editCustomProbe();" id="editCustomProbeBtn" style="display: none;"><i class="fas fa-cogs"></i></button>
+          <span style="padding-left: 50px;" id="ProbeButtonBarSpacer"></span>
+          <button class="button alert js-dialog-close" onclick="resetJogModeAfterProbe(); Metro.dialog.close('#xyzProbeWindow');">Cancel</button>
+          <button class="button primary" onclick="confirmProbeInPlace();" id="confirmNewProbeBtn">Confirm Probe Position</button>
+          <button class="button success js-dialog-close disabled" onclick="runProbeNew();" id="runNewProbeBtn">Probe</button>
+
+        </div>
+      </div>
+      <!-- End XYZ Probe -->
+
+      <!-- Edit Custom Probe -->
+      <div class="dialog dark" data-role="dialog" id="editCustomProbeDialog" data-role="dialog" data-overlay-click-close="false" data-leave-overlay-on-close="true">
+        <div class="dialog-title"><i class="fas fa-cogs"></i> Edit Custom Probe</div>
+        <div class="dialog-content">
+          <input type="text" data-role="input" class="mb-1" data-prepend="X Offset" data-append="mm" id="customProbeXOffset">
+          <input type="text" data-role="input" class="mb-1" data-prepend="Y Offset" data-append="mm" id="customProbeYOffset">
+          <input type="text" data-role="input" class="mb-1" data-prepend="Z Offset" data-append="mm" id="customProbeZOffset">
+        </div>
+        <div class="dialog-actions ">
+          <button class="button primary js-dialog-close" onclick="saveEditCustomProbe()">Save</button>
+          <button class="button js-dialog-close" onclick="resetJogModeAfterProbe()">Cancel</button>
+        </div>
+      </div>
+      <!-- End Edit Custom Probe -->
+
+      <!-- job completion confirmation -->
+      <div class="dialog dark" id="completeMsgModal" data-role="dialog" data-overlay-click-close="false">
+        <div class="dialog-title"><i class='far fa-check-square'></i> Completed</div>
+        <div class="dialog-content" id="completeMsgDiv">
+        </div>
+        <div class="dialog-actions ">
+          <div class="float-right">
+            <button class="button primary js-dialog-close" id="jobCompleteBtnOk">OK</button>
+          </div>
+        </div>
+      </div>
+      <!-- end job completion confirmation -->
+
+      <!-- Saving Grbl Parameters Progress -->
+      <div class="dialog dark" data-role="dialog" id="savingGrblSettingsProgress" data-role="dialog" data-overlay-click-close="false" data-close-button="false" data-width="600">
+        <div class="dialog-title"><i class="fas fa-microchip"></i> Saving Grbl Settings</div>
+        <div class="dialog-content">
+
+          Writing changed parameters to controller's onboard memory:<p>
+
+            <table class="table striped compact">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>New Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="pt-1 mt-0 pb-0 pt-0"><span id="grblNewParam"></span></td>
+                  <td class="pt-1 mt-0 pb-0 pt-0"><span id="grblNewParamVal"></span></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div data-role="progress" id="grblSaveProgress" data-value="0"></div>
+
+        </div>
+        <div class="dialog-actions ">
+          <button class="button" disabled>please wait...</button>
+
+        </div>
+      </div>
+      <!-- End Saving Grbl Parameters Progress -->
+
     </div>
-
-    <div style="display: none;">
-      <!-- Hidden stuff -->
-    </div>
-
-
   </body>
 
-  <script type="text/javascript" src="/lib/fontawesome5/js/all.min.js"></script>
-  <script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
-  <script type="text/javascript" src="/lib/jquery/jquery-ui.js"></script>
-  <script type="text/javascript" src="/lib/jquery/jquery-input-history.min.js"></script>
+  <script type="x-shader/x-vertex" id="vertexShader">
+    varying vec3 vWorldPosition; void main() { vec4 worldPosition = modelMatrix * vec4( position, 1.0 ); vWorldPosition = worldPosition.xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); }
+  </script>
+  <script type="x-shader/x-fragment" id="fragmentShader">
+    uniform vec3 topColor; uniform vec3 bottomColor; uniform float offset; uniform float exponent; varying vec3 vWorldPosition; void main() { float h = normalize( vWorldPosition + offset ).z; gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max(
+    h , 0.0), exponent ), 0.0 ) ), 1.0 ); }
 
-  <script type="text/javascript" src="/lib/metro4/js/metro.min.js"></script>
+  </script>
 
-  <script type="text/javascript" src="/lib/lodash.core.js"></script>
-  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-  <script type="text/javascript" src="/js/ui.js"></script>
-  <script type="text/javascript" src="/js/settings.js"></script>
-  <script type="text/javascript" src="/js/toolchange.js"></script>
+  <script type="text/javascript" src="./lib/fontawesome5/js/all.min.js"></script>
+  <script type="text/javascript" src="./lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="./lib/jquery/jquery-ui.js"></script>
+  <script type="text/javascript" src="./lib/jquery/jquery-input-history.min.js"></script>
 
-  <script type="text/javascript" src="/js/main.js"></script>
-  <script type="text/javascript" src="/js/websocket.js"></script>
-  <script type="text/javascript" src="/js/grbl-settings.js"></script>
-  <script type="text/javascript" src="/js/grbl-settings-templates.js"></script>
-  <script type="text/javascript" src="/js/metroactions.js"></script>
-  <script type="text/javascript" src="/js/jog.js"></script>
-  <script type="text/javascript" src="/js/mobilejog.js"></script>
+  <!-- Theme  -->
+  <script type="text/javascript" src="./js/ui.js"></script>
+
+  <script type="text/javascript" src="./js/theme.js"></script>
+
+  <script type="text/javascript" src="./js/settings.js"></script>
+
+  <script type="text/javascript" src="./lib/qrcode/qrcode.min.js"></script>
+
+  <script type="text/javascript" src="./lib/yamljs/yaml.min.js"></script>
+
+  <script type="text/javascript" src="./lib/ace/src-noconflict/ace.js"></script>
+  <script>
+    METRO_HOTKEYS_FILTER_CONTENT_EDITABLE = false;
+    METRO_HOTKEYS_FILTER_INPUT_ACCEPTING_ELEMENTS = true;
+    METRO_HOTKEYS_FILTER_TEXT_INPUTS = true;
+  </script>
+  <script type="text/javascript" src="./lib/metro4/js/metro.min.js"></script>
+
+  <script type="text/javascript" src="./lib/lodash.core.js"></script>
+  <script type="text/javascript" src="../node_modules/socket.io/client-dist/socket.io.min.js"></script>
+
+  <script type="text/javascript" src="./js/macros.js"></script>
+
+  <script type="text/javascript" src="./lib/threejs/three.min.js"></script>
+  <script type="text/javascript" src="./lib/threejs/GridRect.js"></script>
+  <script type="text/javascript" src="./lib/threejs/OrbitControls.js"></script>
+  <script type="text/javascript" src="./lib/threejs/DragControls.js"></script>
+  <script type="text/javascript" src="./lib/threejs/Projector.js"></script>
+  <script type="text/javascript" src="./lib/threejs/CanvasRenderer.js"></script>
+  <script type="text/javascript" src="./lib/threejs/TransformControls.js"></script>
+  <script type="text/javascript" src="./lib/threejs/TweenMax.min.js"></script>
+  <script type="text/javascript" src="./lib/threejs/STLLoader.js"></script>
+
+  <script type="text/javascript" src="./js/viewer.js"></script>
+  <script type="text/javascript" src="./js/viewer-ruler.js"></script>
+
+  <script type="text/javascript" src="./js/main.js"></script>
+  <script type="text/javascript" src="./js/updates.js"></script>
+
+  <script type="text/javascript" src="./js/grbl-settings-templates.js"></script>
+  <script type="text/javascript" src="./js/grbl-settings.js"></script>
+
+  <script type="text/javascript" src="./js/websocket.js"></script>
+
+  <script type="text/javascript" src="./js/metroactions.js"></script>
+  <script type="text/javascript" src="./js/jog.js"></script>
+  <script type="text/javascript" src="./js/servo.js"></script>
+
+  <script type="text/javascript" src="./js/widget.js"></script>
+
+  <script type="text/javascript" src="./js/actions.js"></script>
+  <script type="text/javascript" src="./js/keyboard.js"></script>
+
+  <script type="text/javascript" src="./lib/3dview/3dview.js"></script>
+
+  <!-- Wizards -->
+  <script type="text/javascript" src="./wizards/calibration/calibrate.js"></script>
+  <script type="text/javascript" src="./wizards/calibration/calibrate-x.js"></script>
+  <script type="text/javascript" src="./wizards/calibration/calibrate-y.js"></script>
+  <script type="text/javascript" src="./wizards/calibration/calibrate-z.js"></script>
+  <script type="text/javascript" src="./wizards/calibration/calibrate-servo.js"></script>
+
+  <script type="text/javascript" src="./wizards/probe/probev2.js"></script>
+  <script type="text/javascript" src="./wizards/probe/holefinder.js"></script>
+
+  <script type="text/javascript" src="./wizards/surfacing/surfacing.js"></script>
+  <script type="text/javascript" src="./wizards/heightmap/heightmap.js"></script>
+
+  <script type="text/javascript" src="./wizards/jobstats/jobstats.js"></script>
+
+  <script type="text/javascript" src="./wizards/resume/resume.js"></script>
+
+  <script type="text/javascript" src="./js/toolchange.js"></script>
+
+  <script src="./lib/furcanIconPicker/iconpicker-1.5.0.js"></script>
 
 </html>
+<!--  -->
