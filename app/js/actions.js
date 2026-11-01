@@ -1,5 +1,7 @@
 "use strict";
 
+var dlgContext = {};
+
 const inputActions = [
   { // X+
     name: "xP",
@@ -125,33 +127,13 @@ const inputActions = [
     },
   },
 
-  { // Abort / Emergency
+  { // Abort
     name: "estop",
-    friendlyName: "Stop / Abort",
-    label: `<i class="fas fa-stop fg-openbuilds fa-fw"></i> Stop / Abort`,
+    friendlyName: "Abort",
+    label: `<i class="far fa-hand-paper fg-red fa-fw"></i> Abort`,
     defaultKey: "esc",
     keydown: () => {
       socket.emit('stop', {stop: false, jog: false, abort: true});
-    },
-  },
-
-  { // Start, Pause, Resume
-    name: "playpause",
-    friendlyName: "Run/Pause",
-    label: `<i class="fas fa-play fg-openbuilds fa-fw"></i> Run / <i class="fas fa-pause fg-openbuilds fa-fw"></i> Pause`,
-    defaultKey: "space",
-    keydown: () => {
-      if (laststatus.comms.connectionStatus == 2) {
-        const hasJob = (useEditor && editor && editor.session.getLength() > 1) || (!useEditor && currentGcode != "");
-        const doorOpen = laststatus.machine.inputs.includes('D');
-        if (hasJob && !doorOpen) {
-          runJobFile();
-        }
-      } else if (laststatus.comms.connectionStatus == 3 && laststatus.misc.jobStatus != 2) {
-        socket.emit('pause', true);
-      } else if (laststatus.comms.connectionStatus == 4) {
-        socket.emit('resume', true);
-      }
     },
   },
 
@@ -161,12 +143,54 @@ const inputActions = [
     label: `<i class="fas fa-bell fg-openbuilds fa-fw"></i> Unlock Alarm`,
     defaultKey: "end",
     keydown: () => {
-      if (laststatus.comms.connectionStatus == 5) {
+      if (laststatus && laststatus.comms.connectionStatus == 5) {
         Metro.dialog.close($('.closeAlarmBtn').parent().parent());
         socket.emit('clearAlarm', 2);
       }
     },
     dlgContext: "alarm",
+  },
+
+  { // Start, Pause, Resume
+    name: "playpause",
+    friendlyName: "Run/Pause",
+    label: `<i class="fas fa-play fg-openbuilds fa-fw"></i> Run / <i class="fas fa-pause fg-openbuilds fa-fw"></i> Pause`,
+    defaultKey: "space",
+    keydown: () => {
+      if (laststatus && laststatus.comms.connectionStatus == 2) {
+        const hasJob = (useEditor && editor && editor.session.getLength() > 1) || (!useEditor && currentGcode != "");
+        const doorOpen = laststatus.machine.inputs.includes('D');
+        if (hasJob && !doorOpen) {
+          runJobFile();
+        }
+      } else if (laststatus && laststatus.comms.connectionStatus == 3 && laststatus.misc.jobStatus != 2) {
+        socket.emit('pause', true);
+      } else if (laststatus && laststatus.comms.connectionStatus == 4) {
+        socket.emit('resume', true);
+      }
+    },
+  },
+
+  { // Stop
+    name: "stop",
+    friendlyName: "Stop",
+    label: `<i class="fas fa-stop fg-openbuilds fa-fw"></i> Stop`,
+    defaultKey: "y",
+    keydown: () => {
+      if (laststatus && (laststatus.comms.connectionStatus == 3 || laststatus.comms.connectionStatus == 4)) {
+        socket.emit('stop', { stop: true, jog: false, abort: false});
+      }
+    },
+  },
+
+  // Probe
+  {
+    name: "probe",
+    friendlyName: "Probe",
+    label: `<i class="fas fa-podcast fa-rotate-180 fg-openbuilds fa-fw"></i> Probe`,
+    defaultKey: "z",
+    keydown: advanceProbeSequence,
+    dlgContext: "probe",
   },
 
   { // Home All
@@ -207,7 +231,9 @@ const inputActions = [
     label: `<i class="fas fa-level-up-alt fg-openbuilds fa-fw"></i> Increase Feed`,
     defaultKey: "q",
     keydown: () => {
-      feedOverride(laststatus.machine.overrides.feedOverride + 10);
+      if (laststatus && laststatus.comms.connectionStatus >= 2) {
+        feedOverride(laststatus.machine.overrides.feedOverride + 10);
+      }
     },
   },
 
@@ -217,27 +243,33 @@ const inputActions = [
     label: `<i class="fas fa-level-down-alt fg-openbuilds fa-fw"></i> Decrease Feed`,
     defaultKey: "a",
     keydown: () => {
-      feedOverride(laststatus.machine.overrides.feedOverride - 10);
+      if (laststatus && laststatus.comms.connectionStatus >= 2) {
+        feedOverride(laststatus.machine.overrides.feedOverride - 10);
+      }
     },
   },
 
   { // Increase Tool Speed Override
-    name: "toInc",
-    friendlyName: "Decrease Speed",
+    name: "troInc",
+    friendlyName: "Increase Speed",
     label: `<i class="far fa-hand-point-up fg-openbuilds fa-fw"></i> Increase Speed`,
     defaultKey: "w",
     keydown: () => {
-      spindleOverride(laststatus.machine.overrides.spindleOverride + 10);
+      if (laststatus && laststatus.comms.connectionStatus >= 2) {
+        spindleOverride(laststatus.machine.overrides.spindleOverride + 10);
+      }
     },
   },
 
   { // Decrease Tool Speed Override
-    name: "toDec",
+    name: "troDec",
     friendlyName: "Decrease Speed",
     label: `<i class="far fa-hand-point-down fg-openbuilds fa-fw"></i> Decrease Speed`,
     defaultKey: "s",
     keydown: () => {
-      spindleOverride(laststatus.machine.overrides.spindleOverride - 10);
+      if (laststatus && laststatus.comms.connectionStatus >= 2) {
+        spindleOverride(laststatus.machine.overrides.spindleOverride - 10);
+      }
     },
   },
 
@@ -249,6 +281,177 @@ const inputActions = [
     keydown: loadJobFile,
   },
 ];
+
+const shortcutTooltips = [
+  {
+    id: "#xP, #probexP",
+    tooltip2: "$xP",
+  },
+  {
+    id: "#xM, #probexM",
+    tooltip2: "$xM",
+  },
+  {
+    id: "#yP, #probeyP",
+    tooltip2: "$yP",
+  },
+  {
+    id: "#yM, #probeyM",
+    tooltip2: "$yM",
+  },
+  {
+    id: "#zP, #probezP",
+    tooltip2: "$zP",
+  },
+  {
+    id: "#zM, #probezM",
+    tooltip2: "$zM",
+  },
+  {
+    id: "#axP",
+    tooltip2: "$aP",
+  },
+  {
+    id: "#aM",
+    tooltip2: "$aM",
+  },
+  {
+    id: '#toggleJogMode',
+    tooltip: "Toggle between Incremental and Continuous jog",
+    tooltip2: "$jogToggleMode",
+  },
+  {
+    id: '#dist01label, #dist1label, #dist10label, #dist100label',
+    tooltip: "Select step size for incremental jog",
+    tooltip2: "Decrease $stepM\nIncrease $stepP",
+  },
+  {
+    id: '*:has(>#jro)',
+    tooltip: "Jog speed",
+    tooltip2: "Decrease $jogSpeedM\nIncrease $jogSpeedP",
+  },
+  {
+    id: '*:has(>#fro)',
+    tooltip: "Feed rate override",
+    tooltip2: "Decrease $froDec\nIncrease $froInc",
+  },
+  {
+    id: '*:has(>#tro)',
+    tooltip: "Tool speed override",
+    tooltip2: "Decrease $troDec\nIncrease $troInc",
+  },
+  {
+    id: '#runBtn',
+    tooltip: "Start the job",
+    tooltip2: "$playpause",
+  },
+  {
+    id: '#resumeBtn',
+    tooltip: "Resume the paused job",
+    tooltip2: "$playpause",
+  },
+  {
+    id: '#pauseBtn',
+    tooltip: "Pause the running job",
+    tooltip2: "$playpause",
+  },
+  {
+    id: '#stopBtn',
+    tooltip: "Stops the running job",
+    tooltip2: "$stop",
+  },
+  {
+    id: '#abortBtn, #abortBtn2, #abortBtn3',
+    tooltip: "Emergency stop",
+    tooltip2: "$estop",
+  },
+  {
+    id: '#unlockBtn, #unlockBtn2, #unlockBtn3',
+    tooltip: "Clear the alarm and unlock the controller",
+    tooltip2: "$unlockAlarm",
+  },
+  {
+    id: "#grblProbeMenu",
+    tooltip: "Open the Probe dialog",
+    tooltip2: "$probe",
+  },
+  {
+    id: "#confirmNewProbeBtn",
+    tooltip2: "Confirm Probe Position\n$probe",
+  },
+  {
+    id: "#runNewProbeBtn",
+    tooltip: "Run Probe Sequence",
+    tooltip2: "$probe",
+  },
+  {
+    id: '#homeBtn',
+    tooltip: "Home all axes",
+    tooltip2: "$home",
+  },
+  {
+    id: '#setZeroXYZ',
+    tooltip: "Zero X, Y and Z",
+    tooltip2: "$setzeroxyz",
+  },
+  {
+    id: '#gotozeroWPosHotkey',
+    menu: "$gotozeroxyz",
+  },
+  {
+    id: '#openGcodeBtn',
+    tooltip: "Open a G-code file",
+    tooltip2: "$openFile",
+  }
+];
+
+// returns "" if one more more hotkey is not set
+function replaceHotkeyTokens(tooltip, forMenu) {
+  for (const action of inputActions) {
+    const token = '$' + action.name;
+    if (tooltip.indexOf(token) >= 0) {
+      let hotkey = "";
+      if (!disableKeyboardShortcuts) {
+        hotkey = keyboardShortcuts[action.name];
+        if (hotkey != "") {
+          if (forMenu) {
+            hotkey = capitalizeShortcut(hotkey);
+          }
+          else {
+            hotkey = "Shortcut: " + capitalizeShortcut(hotkey);
+          }
+        }
+      }
+      if (hotkey == "") {
+        return "";
+      }
+      tooltip = tooltip.replace(token, hotkey);
+    }
+  }
+  return tooltip;
+}
+
+function updateButtonTooltips() {
+  for (const tip of shortcutTooltips) {
+    if (tip.tooltip2) {
+      let tooltip2 = replaceHotkeyTokens(tip.tooltip2, false);
+      if (tooltip2) {
+        if (tip.tooltip) {
+          $(tip.id).attr('title', tip.tooltip + "\n" + tooltip2);
+        } else {
+          $(tip.id).attr('title', tooltip2);
+        }
+      } else if (tip.tooltip) {
+        $(tip.id).attr('title', tip.tooltip);
+      } else {
+        $(tip.id).attr('title', "");
+      }
+    } else if (tip.menu) {
+      let menu = replaceHotkeyTokens(tip.menu, true);
+      $(tip.id).html(menu);
+    }
+  }
+}
 
 function jogKeyDown(name) {
   if (laststatus && laststatus.comms.connectionStatus == 2) {
@@ -284,6 +487,18 @@ function jogToggleMode() {
   $('.distbtn').toggle(!continuousJogMode);
 }
 
+function advanceProbeSequence() {
+  if (laststatus && laststatus.comms.connectionStatus == 2) {
+    if (!Metro.dialog.isOpen("#xyzProbeWindow")) {
+      openProbeDialog();
+    } else if (!$('#confirmNewProbeBtn').hasClass('disabled')) {
+      $('#confirmNewProbeBtn').click();
+    } else if (!$('#runNewProbeBtn').hasClass('disabled')) {
+      $('#runNewProbeBtn').click();
+    }
+  }
+}
+
 function addDlgContext(context) {
   dlgContext[context] = true;
 }
@@ -292,7 +507,7 @@ function removeDlgContext(context) {
   dlgContext[context] = false;
 }
 
-function findKeyboardAction(name) {
+function findInputAction(name) {
   for (const action of inputActions) {
     if (action.name == name) {
       return action;
@@ -314,29 +529,9 @@ function runMacro(macro) {
 }
 
 function actionsDocReady() {
-  for (const action of inputActions) {
-    keyboardShortcuts[action.name] = action.defaultKey;
+  initKeyboardActions();
+
+  if (!isJogWidget) {
+    updateButtonTooltips();
   }
-
-  if (localStorage.getItem('keyboardShortcuts')) {
-    let settings = JSON.parse(localStorage.getItem('keyboardShortcuts'));
-    for (const action of inputActions) {
-      if (settings[action.name] != undefined) {
-        keyboardShortcuts[action.name] = settings[action.name];
-      }
-    }
-  }
-
-  disableKeyboardShortcuts = localStorage.getItem('disableKeyboardShortcuts') == null || (JSON.parse(localStorage.getItem('disableKeyboardShortcuts')) == true);
-
-  // Remove Keyboard Bindings from Override Sliders
-  $("#jrocell").find(".marker").unbind(Metro.events.keydown);
-  $("#trocell").find(".marker").unbind(Metro.events.keydown);
-  $("#frocell").find(".marker").unbind(Metro.events.keydown);
-  $("#jrocell").find(".marker").unbind(Metro.events.keyup);
-  $("#trocell").find(".marker").unbind(Metro.events.keyup);
-  $("#frocell").find(".marker").unbind(Metro.events.keyup);
-
-  $(document).on('keydown', onDocKeyDown);
-  $(document).on('keyup', onDocKeyUp);
 }

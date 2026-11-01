@@ -3,8 +3,8 @@
 var disableKeyboardShortcuts = true;
 var keyboardShortcuts = {};
 var focusedKbdAction = undefined;
-var dlgContext = {};
 var kbdWarningShown = false;
+var keyboardUpAction = undefined;
 
 // Copied from metro.js - filters for text fields for which to suppress global hotkeys
 // excludes: button, checkbox, file, hidden, image, password, radio, reset, search, submit, url
@@ -67,7 +67,14 @@ function onDocKeyDown(event) {
     if (keyboardShortcuts[action.name] == key && action.keydown) {
       if (!dlgVisible || dlgContext[action.dlgContext]) {
         event.preventDefault();
+        if (keyboardUpAction) {
+          keyboardUpAction.keyup();
+          keyboardUpAction = undefined;
+        }
         action.keydown();
+        if (action.keyup) {
+          keyboardUpAction = action;
+        }
       }
       return;
     }
@@ -76,7 +83,7 @@ function onDocKeyDown(event) {
   // Bind for Macro keys
   if (!dlgVisible) {
     for (const macro of buttonsarray) {
-      if (macro.macrokeyboardshortcut == key) {
+      if (macro.shortcut == key) {
         event.preventDefault();
         runMacro(macro);
         return;
@@ -86,21 +93,16 @@ function onDocKeyDown(event) {
 }
 
 function onDocKeyUp(event) {
-  if (textInputNodeNames.includes(event.target.nodeName.toLowerCase()) ||
-      textInputTypes.includes(event.target.type) ||
-      event.target.hasAttribute('contenteditable')) {
-    return;
-  }
-
-  let key = keyNameFromDownEvent(event);
-  if (key == "") {
-    return;
-  }
-  for (const action of inputActions) {
-    if (keyboardShortcuts[action.name] == key && action.keyup) {
+  if (keyboardUpAction) {
+    const shortcut = keyboardShortcuts[keyboardUpAction.name];
+    const keyLower = event.key.toLowerCase();
+    if (shortcut == keyNameFromDownEvent(event) || // relese the main key while all modifiers are active
+        (keyLower == 'alt' && shortcut.indexOf('alt+') >= 0) || // or release any of the modifiers
+        (keyLower == 'control' && shortcut.indexOf('ctrl+') >= 0) ||
+        (keyLower == 'shift' && shortcut.indexOf('shift+') >= 0)) {
       event.preventDefault();
-      action.keyup();
-      return;
+      keyboardUpAction.keyup();
+      keyboardUpAction = undefined;
     }
   }
 }
@@ -119,7 +121,7 @@ function keyNameFromDownEvent(event) {
     keyName += 'shift+'
   }
 
-  let keyLower = event.key.toLowerCase();
+  const keyLower = event.key.toLowerCase();
   if (keyLower != 'alt' && keyLower != 'control' && keyLower != 'shift') {
     // Handle MetroUI naming non-standards of some keys
     if (event.keyCode == 32) {
@@ -170,7 +172,7 @@ function onShorcutKeyDown(event) {
 }
 
 function onShortcutGetFocus(name) {
-  const action = findKeyboardAction(name);
+  const action = findInputAction(name);
 
   if (focusedKbdAction != action) {
     if (focusedKbdAction) {
@@ -197,7 +199,7 @@ function onShortcutLoseFocus() {
 }
 
 function onShortcutInputChange(name) {
-  const action = findKeyboardAction(name);
+  const action = findInputAction(name);
   const input = $('#' + action.name + 'newKey');
   if (input.val() == "") {
     input.parent().removeClass('alert');
@@ -225,7 +227,7 @@ function keyInUse(newVal, forMacro) {
 
   // Check currently assigned Macros
   for (const macro of buttonsarray) {
-    if (macro != currentEditMacro && newVal == macro.macrokeyboardshortcut) {
+    if (macro != currentEditMacro && newVal == macro.shortcut) {
       inUse = true;
       usedBy = "macro: " + macro.title;
       break;
@@ -314,4 +316,32 @@ function showKbdWarning() {
       }
     }]
   });
+}
+
+function initKeyboardActions() {
+  for (const action of inputActions) {
+    keyboardShortcuts[action.name] = action.defaultKey;
+  }
+
+  if (localStorage.getItem('keyboardShortcuts')) {
+    let settings = JSON.parse(localStorage.getItem('keyboardShortcuts'));
+    for (const action of inputActions) {
+      if (settings[action.name] != undefined) {
+        keyboardShortcuts[action.name] = settings[action.name];
+      }
+    }
+  }
+
+  disableKeyboardShortcuts = localStorage.getItem('disableKeyboardShortcuts') == null || (JSON.parse(localStorage.getItem('disableKeyboardShortcuts')) == true);
+
+  // Remove Keyboard Bindings from Override Sliders
+  $("#jrocell").find(".marker").unbind(Metro.events.keydown);
+  $("#trocell").find(".marker").unbind(Metro.events.keydown);
+  $("#frocell").find(".marker").unbind(Metro.events.keydown);
+  $("#jrocell").find(".marker").unbind(Metro.events.keyup);
+  $("#trocell").find(".marker").unbind(Metro.events.keyup);
+  $("#frocell").find(".marker").unbind(Metro.events.keyup);
+
+  $(document).on('keydown', onDocKeyDown);
+  $(document).on('keyup', onDocKeyUp);
 }

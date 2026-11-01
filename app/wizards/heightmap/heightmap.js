@@ -66,7 +66,7 @@ const heightmapSettingsDlg = `
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3 pt-1" style="padding-left:30px;" title="Starting corner of the heightmap grid">Start</label>
+  <label class="cell-sm-3 pt-1" style="padding-left:30px;">Start <span class="far fa-question-circle ml-1" title="Starting front left corner of the heightmap grid"></span></label>
   <div class="cell-sm-4">
     <input id="heightmapX" type="number" style="text-align:right;" data-role="input" data-prepend="X" data-append="mm" data-clear-button="false" data-editable="true" onchange="heightmapSettingChange()"/>
   </div>
@@ -76,8 +76,9 @@ const heightmapSettingsDlg = `
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3 pt-1" style="padding-left:30px;" title="Total size of the heightmap grid">Size<button
-    id="heightmapAutoSize" class="button" onclick="heightmapAutoSize();" title="Updates the grid dimensions from the bounding box of the G-code" style="margin-left:50px; margin-top:-5px; margin-bottom:-5px;">Auto Size</button>
+  <label class="cell-sm-3 pt-1" style="padding-left:30px;">Size <span class="far fa-question-circle ml-1" title="Total size of the heightmap grid.
+Click on the Auto Size button to use the bounding box of the loaded G-code"></span>
+    <button id="heightmapAutoSize" class="button" onclick="heightmapAutoSize();" style="margin-left:20px; margin-top:-5px; margin-bottom:-5px;">Auto Size</button>
   </label>
   <div class="cell-sm-4">
     <input id="heightmapW" type="number" style="text-align:right;" data-role="input" data-prepend="X (Width)" data-append="mm" data-clear-button="false" data-editable="true"  onchange="heightmapSettingChange()"/>
@@ -88,7 +89,7 @@ const heightmapSettingsDlg = `
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3 pt-1" style="padding-left:30px;" title="Number of probe points along X and Y">Probe Point Count</label>
+  <label class="cell-sm-3 pt-1" style="padding-left:30px;">Probe Point Count <span class="far fa-question-circle ml-1" title="Number of probe points along X and Y"></span></label>
   <div class="cell-sm-4">
     <input id="heightmapNX" type="number" style="text-align:right;" data-role="input" data-prepend="X" data-append="points" data-clear-button="false" data-editable="true"  onchange="heightmapSettingChange()"/>
   </div>
@@ -98,8 +99,8 @@ const heightmapSettingsDlg = `
 </div>
 
 <div class="row mb-3">
-  <label class="cell-sm-3 pt-1" style="padding-left:30px;" title="The anchor point is the location where the initial Z0 measurement will be taken.
-It has to match the Z0 of the G-code.">Anchor Point</label>
+  <label class="cell-sm-3 pt-1" style="padding-left:30px;">Anchor Point <span class="far fa-question-circle ml-1" title="The anchor point is the location where the initial Z0 measurement will be taken.
+It has to match the Z0 of the G-code."></span></label>
   <div class="cell-sm-4">
     <input id="heightmapAX" type="number" style="text-align:right;" data-role="input" data-prepend="X" data-append="mm" data-clear-button="false" data-editable="true"  onchange="heightmapSettingChange()"/>
   </div>
@@ -113,7 +114,7 @@ It has to match the Z0 of the G-code.">Anchor Point</label>
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3 pt-1" style="padding-left:30px;" title="Downward distance and feed rate to use during probing.">Seek</label>
+  <label class="cell-sm-3 pt-1" style="padding-left:30px;">Seek <span class="far fa-question-circle ml-1" title="Downward distance and feed rate to use during probing."></span></label>
   <div class="cell-sm-4">
     <input id="heightmapSeek" type="number" style="text-align:right;" data-role="input" data-prepend="Travel" data-append="mm" data-clear-button="false" data-editable="true" />
   </div>
@@ -123,55 +124,55 @@ It has to match the Z0 of the G-code.">Anchor Point</label>
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3 pt-1" style="padding-left:30px;" title="Retraction height after probing.
+  <label class="cell-sm-3 pt-1" style="padding-left:30px;">Retract <span class="far fa-question-circle ml-1" title="Retraction height after probing.
 The height needs to be large enough to safely move above the material surface.
 For flatter surfaces use smaller numbers to speed up the process.
-This number should be smaller than the Seek distance.">Retract</label>
+This number should be smaller than the Seek distance."></span></label>
   <div class="cell-sm-4">
     <input id="heightmapRetract" type="number" style="text-align:right;" data-role="input" data-prepend="Travel" data-append="mm" data-clear-button="false" data-editable="true" />
   </div>
 </div>
 
 <div class="row mb-3">
-  <label class="cell-sm-3 pt-1" style="padding-left:30px;" title="Horizontal speed for getting from point to point.
-Higher speed will make the probing faster, but will make potential collisions with the material more serious.">Horizontal Move</label>
+  <label class="cell-sm-3 pt-1" style="padding-left:30px;">Horizontal Move <span class="far fa-question-circle ml-1" title="Horizontal speed for getting from point to point.
+Higher speed will make the probing faster, but will make potential collisions with the material more serious."></span></label>
   <div class="cell-sm-4">
     <input id="heightmapFeedXY" type="number" style="text-align:right;" data-role="input" data-prepend="Feed" data-append="mm/min" data-clear-button="false" data-editable="true" />
   </div>
 </div>
 
 <div class="row mb-2 border-top bd-dialog">
-  <label class="cell-sm-3" title="The heightmap tool needs to subdivide the toolpaths into small linear segments to follow the surface.
-Smaller numbers will produce more accurate results, but will generate larger and slower G-code."><b>Toolpath Settings</b></label>
+  <label class="cell-sm-3"><b>Toolpath Settings</b> <span class="far fa-question-circle ml-1" title="The heightmap tool needs to subdivide the toolpaths into small linear segments to follow the surface.
+Smaller numbers will produce more accurate results, but will generate larger and slower G-code."></span></label>
   <label class="cell-sm-9" style="margin-left:-30px;"><small class="dark"><i>These settings are global, independent of the current heightmap</i></small></label>
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3" style="padding-top:6px; padding-left:30px;" title="Minimum segment length for linear and arc segments">Min Segment Length</label>
+  <label class="cell-sm-3" style="padding-top:6px; padding-left:30px; padding-right:0px;">Min Segment Length <span class="far fa-question-circle ml-1" title="Minimum segment length for linear and arc segments"></span></label>
   <div class="cell-sm-3">
     <input id="heightmapMinLength" type="number" style="text-align:right;" data-role="input" data-append="mm" data-clear-button="false" data-editable="true" />
   </div>
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3" style="margin-bottom:0; padding-top:6px; padding-left:30px;" title="How closely the path will follow the surface">Z Threshold</label>
+  <label class="cell-sm-3" style="margin-bottom:0; padding-top:6px; padding-left:30px;">Z Threshold <span class="far fa-question-circle ml-1" title="How closely the path will follow the surface"></span></label>
   <div class="cell-sm-3">
     <input id="heightmapZThreshold" type="number" style="text-align:right;" data-role="input" data-append="mm" data-clear-button="false" data-editable="true" />
   </div>
-  <label style="-webkit-box-flex:0; -ms-flex:0 0 18%; flex:0 0 18%; max-width:18%; text-align:right; margin-bottom:0; padding-top:6px;" title="How closely the path will follow the arcs">Arc Threshold</label>
+  <label style="-webkit-box-flex:0; -ms-flex:0 0 18%; flex:0 0 18%; max-width:18%; text-align:right; margin-bottom:0; padding-top:6px;">Arc Threshold <span class="far fa-question-circle ml-1" title="How closely the path will follow the arcs"></span></label>
   <div class="cell-sm-3">
     <input id="heightmapArcThreshold" type="number" style="text-align:right; max-width:170px;" data-role="input" data-append="mm" data-clear-button="false" data-editable="true" />
   </div>
 </div>
 
 <div class="row mb-2">
-  <label class="cell-sm-3" style="margin-bottom:0; padding-top:6px; padding-left:30px;" title="When this is checked, the rapid moves will also be modified to follow the surface.
-This could be useful for very uneven heightmaps.">Apply To Rapids</label>
+  <label class="cell-sm-3" style="margin-bottom:0; padding-top:6px; padding-left:30px;">Apply To Rapids <span class="far fa-question-circle ml-1" title="When this is checked, the rapid moves will also be modified to follow the surface.
+This could be useful for very uneven heightmaps or low clearance height."></span></label>
   <div class="cell-sm-4" style="margin-left:-3px; margin-right:3px;">
     <input id="heightmapRapids" type="checkbox" data-role="checkbox" data-style="2"/>
   </div>
-  <label class="cell-sm-3" style="margin-bottom:0; padding-top:6px;" title="When this is checked, the original G-code lines will be preserved as comments and the changes can be undone.
-You can uncheck it for large files to reduce the final size.">Preserve Original Lines</label>
+  <label class="cell-sm-3" style="margin-bottom:0; padding-top:6px; padding-right:0px;">Preserve Original Lines <span class="far fa-question-circle ml-1" title="When this is checked, the original G-code lines will be preserved as comments and the changes can be undone.
+You can uncheck it for large files to reduce the final size."></span></label>
   <div class="cell-sm-1" style="padding-left:30px;">
     <input id="heightmapAllowRevert" type="checkbox" data-role="checkbox" data-style="2"/>
   </div>

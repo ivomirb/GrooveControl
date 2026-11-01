@@ -1,7 +1,8 @@
 "use strict";
 
 var socket, laststatus, lastsysinfo;
-var server = ''; //192.168.14.100';
+var serverPort;
+var serverURL;
 var grblParams = {}
 var nostatusyet = true;
 var bellstate = false;
@@ -413,6 +414,7 @@ function onStatus(status) {
     featuresChanged = !_.isEqual(status.machine.firmware.features, laststatus.machine.firmware.features);
     offsetChanged = !_.isEqual(status.machine.position.offset, laststatus.machine.position.offset);
 
+    let refreshPorts = false;
     if (!_.isEqual(status.comms.interfaces.ports, laststatus.comms.interfaces.ports)) {
       let string = "Detected a change in available ports: ";
       for (const port of status.comms.interfaces.ports) {
@@ -427,12 +429,12 @@ function onStatus(status) {
       const printLogCls = "fg-dark"
       printLogModern(icon, source, string, printLogCls)
       laststatus.comms.interfaces.ports = status.comms.interfaces.ports;
-      populatePortsMenu();
+      refreshPorts = true;
     }
 
     if (!_.isEqual(status.comms.interfaces.networkDevices, laststatus.comms.interfaces.networkDevices)) {
       let string = "Detected a change in IP devices: ";
-      for (const device in status.comms.interfaces.networkDevices) {
+      for (const device of status.comms.interfaces.networkDevices) {
         string += "[" + device.ip + "]"
       }
 
@@ -445,6 +447,9 @@ function onStatus(status) {
       const printLogCls = "fg-dark"
       printLogModern(icon, source, string, printLogCls)
       laststatus.comms.interfaces.networkDevices = status.comms.interfaces.networkDevices;
+      refreshPorts = true;
+    }
+    if (refreshPorts) {
       populatePortsMenu();
     }
   }
@@ -721,10 +726,10 @@ function onFeatures(data) {
 }
 
 function initSocket() {
-  socket = io.connect(server, {
-    'timeout': 60000,
-    'connect timeout': 60000
-  }); // socket.io init
+  const urlParams = new URLSearchParams(window.location.search);
+  serverPort = urlParams.get("port");
+  serverURL = "http://localhost:" + serverPort;
+  socket = io.connect(serverURL, {timeout: 60000});
   const icon = ''
   const source = "websocket"
   const string = "Bidirectional Websocket Interface Started Succesfully"
@@ -877,7 +882,6 @@ function selectPort(port) {
       baud: 115200,
       type: "usb"
     };
-    localStorage.setItem('lastUsedPort', port);
   }
   if (port.length > 1) {
     socket.emit('connectTo', data);
@@ -905,23 +909,13 @@ function populatePortsMenu() {
     } else {
       response += `<optgroup label="USB Ports">`
       for (const port of laststatus.comms.interfaces.ports) {
-        const lastUsedPort = localStorage.getItem('lastUsedPort');
-        if (port.path == lastUsedPort) {
-          response += `<option value="` + port.path + `" selected>` + port.path.replace("/dev/tty.", "") + ": " + port.note + `</option>`;
-        } else {
-          response += `<option value="` + port.path + `">` + port.path.replace("/dev/tty.", "") + ": " + port.note + `</option>`;
+        response += `<option value="` + port.path + `">` + port.path.replace("/dev/tty.", "") + ": " + port.note + `</option>`;
+        if (lastGrblPort == port.path) {
+          foundPort = true;
         }
-
       }
     }
     response += `</optgroup>`
-
-    // Set USB Ports menu for Firmware Flashing tool before we add the Network ports - you cannot flash over the network
-    const select2 = $("#portUSB2").data("select");
-    if (select2) {
-      select2.data(response);
-    }
-    $('#portUSB2').parent(".select").removeClass('disabled')
 
     // Add the Network Ports to the list then populate the Machine Connection selection
     if (laststatus.comms.interfaces.networkDevices.length == 0) {
@@ -936,7 +930,7 @@ function populatePortsMenu() {
         } else {
           response += `<option value="` + name + `">` + name + `</option>`;
         }
-        if (name == lastGrblPort) {
+        if (lastGrblPort == name) {
           foundPort = true;
         }
       };
@@ -981,7 +975,7 @@ function spindleDelay(sec) {
 
 function pauseSpindle() {
   if (socket) {
-    socket.emit('serialInject', String.fromCharCode(0x84));
+    socket.emit('serialInject', String.fromCharCode(0x84)); // unlike 0x9E (stop spindle), 0x84 (door opened) inserts a delay after the spindle starts up
 
     if (!disabledWarnings.pauseSpindleDlg) {
       Metro.dialog.create({
