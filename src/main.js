@@ -383,7 +383,7 @@ function createJogWindow() {
   if (safeMode) {
     options.query.safeMode = true;
   }
-  jogWindow.loadFile(path.join(__dirname, "../app/index.html"), options);
+  jogWindow.loadFile(path.join(__dirname, "../app/main.html"), options);
 
   if (process.argv.indexOf("-debug") > 0) {
     jogWindow.webContents.openDevTools();

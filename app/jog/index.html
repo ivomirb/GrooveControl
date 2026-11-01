@@ -2,7 +2,7 @@
 <html lang="en">
 
   <head>
-    <title>Groove Control Jog</title>
+    <title>Jog Widget</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="author" content="ivomirb">
@@ -12,7 +12,6 @@
     <meta name="HandheldFriendly" content="true" />
     <meta name="mobile-web-app-capable" content="yes">
 
-
     <link rel="apple-touch-icon" sizes="180x180" href="/jog/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/jog/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/jog/favicon-16x16.png">
@@ -21,18 +20,31 @@
     <meta name="theme-color" content="#ffffff">
 
     <meta name="metro4:init" content="true">
-    <script type="text/javascript" src="../lib/jquery/jquery.min.js"></script>
-    <link rel="stylesheet" href="../lib/metro4/css/metro-all.css" />
-    <link rel="stylesheet" href="../css/buttons.css" />
-    <link rel="stylesheet" href="../css/main.css" />
+    <script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="/lib/metro4/css/metro-all.css" />
+    <link rel="stylesheet" href="/css/buttons.css" />
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
 
   <body>
 
+    <style>
+      .button.square.large {
+        margin: 0px 5px;
+      }
+
+      .distbtn {
+        width: 65px;
+        height: 30px;
+        line-height: 28px;
+        padding:0;
+        margin-right:8px;
+      }
+    </style>
 
     <div class="window" style="height: 100vh;">
       <div class="window-caption bg-openbuilds" style="-webkit-app-region: drag;">
-        <span class="icon"><img src="../icon_w.png" style="vertical-align:baseline;"/></span>
+        <span class="icon"><img src="/icon_w.png" style="vertical-align:baseline;"/></span>
         <span class="title" id="windowtitle">Groove Control</span>
         <div class="buttons" style="-webkit-app-region: no-drag">
         </div>
@@ -260,7 +272,6 @@
                   <td class="p-2">
                   </td>
 
-
                   <td class="p-2">
                     <button class="button light square large jogbtn zP" id="zP">
                       <span class="fa-layers fa-fw">
@@ -306,8 +317,10 @@
                     </button>
                   </td>
                 </tr>
+              </table>
+              <table class="jogtable">
                 <tr>
-                  <td colspan="4" class="p-2">
+                  <td class="p-2">
                     <table style="width: 100%;">
                       <tr>
                         <td><span class="text-small">Incremental Jog</span>
@@ -325,35 +338,29 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="p-2">
-                    <button class="button light jogbtn distbtn" id="dist01" style="width: 100%; height: 30px; line-height: 28px;">
+                  <td ="p-2">
+                    <button class="button light jogbtn distbtn" id="dist01" style="margin-left:0;">
                       <span id="dist01label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">0.1mm</span>
                     </button>
-                  </td>
-                  <td class="p-2">
-                    <button class="button light jogbtn distbtn" id="dist1" style="width: 100%; height: 30px; line-height: 28px;">
+                    <button class="button light jogbtn distbtn" id="dist1">
                       <span id="dist1label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">1mm</span>
                     </button>
-                  </td>
-                  <td class="p-2">
-                    <button class="button light jogbtn distbtn" id="dist10" style="width: 100%; height: 30px; line-height: 28px;">
+                    <button class="button light jogbtn distbtn" id="dist10">
                       <span id="dist10label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">10mm</span>
                     </button>
-                  </td>
-                  <td class="p-2">
-                    <button class="button light jogbtn distbtn" id="dist100" style="width: 100%; height: 30px; line-height: 28px;">
+                    <button class="button light jogbtn distbtn" id="dist100" style="margin-right:0;">
                       <span id="dist100label" class="fg-gray" style="font-weight:900; font-family: Arial; font-size: 12px;">100mm</span>
                     </button>
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="4">
+                  <td>
                     <div id="jrocell" style="width: 280px;">
 
                       <input id="jro" data-on-stop="jogOverride(arguments[0])" data-role="slider" data-accuracy="1" data-vertical="false" data-min="1" data-max="100" data-value="100" data-hint="true" data-hint-always="true"
                         data-hint-position="bottom" data-hint-mask="Jog Rate: $1%" data-cls-hint="bg-light
                             fg-dark shadow-1" data-cls-complete="bg-openbuilds">
-                      <button class="button light mini mb-1" onclick="jogOverride(100);">reset</button>
+                      <button class="button light jogbtn distbtn mb-1" onclick="jogOverride(100);" style="font-weight:900; font-family:Arial; font-size:12px; color:#444;">reset</button>
                     </div>
                   </td>
                 </tr>
@@ -408,26 +415,26 @@
 
   </body>
 
-  <script type="text/javascript" src="../lib/fontawesome5/js/all.min.js"></script>
-  <script type="text/javascript" src="../lib/jquery/jquery.min.js"></script>
-  <script type="text/javascript" src="../lib/jquery/jquery-ui.js"></script>
-  <script type="text/javascript" src="../lib/jquery/jquery-input-history.min.js"></script>
+  <script type="text/javascript" src="/lib/fontawesome5/js/all.min.js"></script>
+  <script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/jquery/jquery-ui.js"></script>
+  <script type="text/javascript" src="/lib/jquery/jquery-input-history.min.js"></script>
 
-  <script type="text/javascript" src="../lib/metro4/js/metro.min.js"></script>
+  <script type="text/javascript" src="/lib/metro4/js/metro.min.js"></script>
 
-  <script type="text/javascript" src="../lib/lodash.core.js"></script>
+  <script type="text/javascript" src="/lib/lodash.core.js"></script>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-  <script type="text/javascript" src="../js/ui.js"></script>
-  <script type="text/javascript" src="../js/settings.js"></script>
-  <script type="text/javascript" src="../js/toolchange.js"></script>
+  <script type="text/javascript" src="/js/ui.js"></script>
+  <script type="text/javascript" src="/js/settings.js"></script>
+  <script type="text/javascript" src="/js/toolchange.js"></script>
 
-  <script type="text/javascript" src="../js/main.js"></script>
-  <script type="text/javascript" src="../js/websocket.js"></script>
-  <script type="text/javascript" src="../js/grbl-settings.js"></script>
-  <script type="text/javascript" src="../js/grbl-settings-templates.js"></script>
-  <script type="text/javascript" src="../js/metroactions.js"></script>
-  <script type="text/javascript" src="../js/jog.js"></script>
-  <script type="text/javascript" src="../js/mobilejog.js"></script>
+  <script type="text/javascript" src="/js/main.js"></script>
+  <script type="text/javascript" src="/js/websocket.js"></script>
+  <script type="text/javascript" src="/js/grbl-settings.js"></script>
+  <script type="text/javascript" src="/js/grbl-settings-templates.js"></script>
+  <script type="text/javascript" src="/js/metroactions.js"></script>
+  <script type="text/javascript" src="/js/jog.js"></script>
+  <script type="text/javascript" src="/js/mobilejog.js"></script>
 
 </html>

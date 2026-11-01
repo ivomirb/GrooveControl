@@ -557,14 +557,15 @@ function handleAlarm(data, command) {
     status.machine.modals.homedRecently = false;
   }
 
+  const commandMsg = command == undefined ? "" : (" [ " + command + " ]");
   debug_log('ALARM: ' + alarmMessage);
   status.comms.alarm = alarmMessage;
   if (alarmCode != 5) {
-    serverEmit("toastErrorAlarm", 'ALARM: ' + alarmMessage + " [ " + command + " ]")
+    serverEmit("toastErrorAlarm", 'ALARM: ' + alarmMessage + commandMsg);
   }
   serverEmitOutput({
     command: '',
-    response: 'ALARM: ' + alarmMessage + " [ " + command + " ]",
+    response: 'ALARM: ' + alarmMessage + commandMsg,
     type: 'error'
   });
 
@@ -594,15 +595,15 @@ function handleError(data, command) {
   if (errorCode == 9 && status.comms.connectionStatus == 5 && status.comms.alarm.length > 0) {
     lastAlarm = "<hr>This error may just be a symptom of an earlier event:<br> ALARM: " + status.comms.alarm
   }
-  debug_log('error: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + " [ " + command + " ]");
+  const commandMsg = command == undefined ? "" : (" [ " + command + " ]");
+  debug_log('ERROR: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + commandMsg);
   serverEmitOutput({
     command: '',
-    response: 'error: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + " [ " + command + " ]" + lastAlarm,
+    response: 'ERROR: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + commandMsg + lastAlarm,
     type: 'error'
   });
-  serverEmit("toastError", 'error: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + " [ " + command + " ]" + lastAlarm)
+  serverEmit("toastError", 'ERROR: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + commandMsg + lastAlarm);
 
-  debug_log("error;")
   clearGcodeQueue(false);
   analogJogState = 0;
   mpgJogState = 0;
@@ -1084,9 +1085,9 @@ function stop(data) {
         addQRealtime(String.fromCharCode(0x18)); // ctrl-x
         debug_log('Sent: Code(0x18)');
       }, 200);
+      status.comms.alarm = "";
     }
 
-    status.comms.alarm = "";
     sentBuffer.length = 0; // Dump the queue
     status.comms.blocked = false;
     status.comms.paused = false;
@@ -1334,6 +1335,7 @@ function clearAlarm(data) {
         });
         break;
     }
+
     status.comms.alarm = "";
     serverEmit('errorsCleared', true);
   } else {
