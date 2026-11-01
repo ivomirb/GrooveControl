@@ -82,9 +82,9 @@ The editor is currently disabled. You can click the Clear button to clear the cu
     useEditor = true;
   }
 
-  setWindowTitle()
-  $('#reloadGcodeBtn').attr('title', "Reload " + loadedFileName);
-  $('#reloadGcodeBtn').removeClass('disabled');
+  setWindowTitle();
+  updateButtonTooltips();
+  $('#reloadGcodeBtn').attr('disabled', false);
   parseGcodeInWebWorker(gcode);
   $('#controlTab').click()
   if (webgl) {
