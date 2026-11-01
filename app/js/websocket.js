@@ -726,9 +726,15 @@ function onFeatures(data) {
 }
 
 function initSocket() {
-  const urlParams = new URLSearchParams(window.location.search);
-  serverPort = urlParams.get("port");
-  serverURL = "http://localhost:" + serverPort;
+  if (window.location.protocol == "http:") {
+    // the jog widget uses the http: protocol already, so just use the default server settings
+    serverURL = '';
+  } else {
+    // the desktop app uses the file: protocol, so it needs to construct the correct url to access the server
+    const urlParams = new URLSearchParams(window.location.search);
+    serverPort = urlParams.get("port");
+    serverURL = "http://localhost:" + serverPort;
+  }
   socket = io.connect(serverURL, {timeout: 60000});
   const icon = ''
   const source = "websocket"
