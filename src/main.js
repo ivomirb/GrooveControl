@@ -372,12 +372,18 @@ function createJogWindow() {
   if (!electronApp.isPackaged) {
     jogWindow.setOverlayIcon(nativeImage.createFromPath(iconPath), 'Icon');
   }
-
+/*
   let url = `http://localhost:${config.webPort}/`;
   if (safeMode) {
     url += "?safeMode=true";
   }
   jogWindow.loadURL(url);
+*/
+  let options = {query: { port: config.webPort }};
+  if (safeMode) {
+    options.query.safeMode = true;
+  }
+  jogWindow.loadFile(path.join(__dirname, "../app/index.html"), options);
 
   if (process.argv.indexOf("-debug") > 0) {
     jogWindow.webContents.openDevTools();

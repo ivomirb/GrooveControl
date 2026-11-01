@@ -214,7 +214,7 @@ function parseStatusReport(data) {
 
       if (pins.includes('R')) {
         // abort
-        stop(true);
+        stop({stop: false, jog: false, abort: true});
         serverEmitOutput({
           command: '[external from hardware]',
           response: "Groove Control received a RESET/ABORT notification from Grbl: This could be due to someone pressing the RESET/ABORT button (if connected)",
@@ -1068,7 +1068,7 @@ function stop(data) {
       debug_log(queuePointer, gcodeQueue)
     }
 
-    if (!data.abort && !data.jog) { // pause motion first.
+    if (data.stop) { // pause motion first.
       addQRealtime('!'); // hold
       debug_log('Sent: !');
     }

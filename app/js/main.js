@@ -16,7 +16,6 @@ document.addEventListener("contextmenu", function(e) {
 }, false);
 
 function setWindowTitle(status) {
-
   let string = ""
 
   if (status) {
@@ -24,7 +23,6 @@ function setWindowTitle(status) {
   } else if (laststatus) {
     string += " v" + laststatus.driver.version;
   }
-
 
   if (loadedFileName.length > 0) {
     string += " / " + loadedFileName;
@@ -54,7 +52,7 @@ function animateSplash() {
 }
 
 async function initSplash() {
-  const svgImage = await fetch('/img/groove-control-logo_anim.svg');
+  const svgImage = await fetch('./img/groove-control-logo_anim.svg');
   const svgSrc = await svgImage.text();
   $('#logosplash').html(svgSrc);
   animateSplash();
@@ -186,7 +184,7 @@ function runJobFileInternal(gcode) {
   const xhr = new XMLHttpRequest();
 
   captureWcsHistory("", "", true);
-  xhr.open('POST', '/runjob', true);
+  xhr.open('POST', serverURL + "/runjob", true);
   xhr.send(formData);
   if (useEditor) {
     printLog(`<span class="fg-darkRed">[ g-code parser ]</span><span class='fg-darkGray'> G-code File (from gcode editor) sent to backend </span>`);
@@ -360,7 +358,7 @@ function saveBlobToDisk(blob, filePath, params) {
       resolve(xhr.response);
     };
   });
-  xhr.open('POST', '/saveFile', true);
+  xhr.open('POST', serverURL + "/saveFile", true);
   xhr.send(formData);
 
   return promise;
