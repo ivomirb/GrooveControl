@@ -191,9 +191,9 @@ function handleButtonPress(button) {
   }
 
   if (!dlgVisible) {
-    for (const macro of buttonsarray) {
-      if (macro.shortcut == button) {
-        runMacro(macro);
+    for (let macroIdx = 0; macroIdx < buttonsarray.length; macroIdx++) {
+      if (buttonsarray[macroIdx].shortcut == button) {
+        runMacro(macroIdx);
         return;
       }
     }
@@ -561,7 +561,8 @@ function showGamepadWarning() {
     leaveOverlayOnClose: true,
     title: "<i class='fas fa-exclamation-triangle'></i> Gamepad Enabled",
     content: `To prevent unwanted movement when the analog sticks are bumped accidentally, it is recommended that you assign a button to the ` +
-      `<b>Activate Joystick Move</b> action. The button will activate the sticks and allow you to jog. The sticks will be deactivated after 10 seconds of inactivity.<br><br>` +
+      `<b>Activate Joystick Move</b> action. If a button is assigned to that action, the sticks will be inactive until the button is pressed. ` +
+      `The sticks will be deactivated after 10 seconds of inactivity.<br><br>` +
       `<input id="disableGamepadDlg" type="checkbox" data-role="checkbox" data-style="2" data-caption="Don't show this again"/>`,
     actions: [{
       caption: "OK",
