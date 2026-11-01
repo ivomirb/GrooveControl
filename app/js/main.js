@@ -16,24 +16,23 @@ document.addEventListener("contextmenu", function(e) {
 }, false);
 
 function setWindowTitle(status) {
-  let string = ""
+  let string = "Groove Control";
 
+  status = status || laststatus;
   if (status) {
     string += " v" + status.driver.version;
-  } else if (laststatus) {
-    string += " v" + laststatus.driver.version;
   }
 
   if (loadedFileName.length > 0) {
     string += " / " + loadedFileName;
   }
 
-  if (!nostatusyet && laststatus.comms.interfaces.activePort) {
-    string += " / connected to " + laststatus.comms.interfaces.activePort;
+  if (status && status.comms.interfaces.activePort) {
+    string += " / connected to " + status.comms.interfaces.activePort;
   }
 
-  $('#windowtitle').html(string)
-  document.title = "Groove Control" + string;
+  $('#windowtitle').html(string);
+  document.title = string;
 }
 
 function resetSplash() {
@@ -84,6 +83,14 @@ $(document).ready(function() {
       return false;
     });
 
+    $(document).on('copy', function (event) {
+      if ($('#console')[0].contains(event.target)) {
+        // remove extra new lines when copying text from the console
+        event.originalEvent.clipboardData.setData('text/plain', document.getSelection().toString().replaceAll('\n\n', '\n'));
+        event.preventDefault();
+      }
+    });
+
     if (typeof ace !== 'undefined') {
       editor = ace.edit("editor");
       editor.$blockScrolling = Infinity;
@@ -119,10 +126,6 @@ $(document).ready(function() {
     }
   }
 
-  setInterval(function() {
-    setWindowTitle();
-  }, 1000)
-
   initSocket();
   socket.emit('docReady', onDocReady);
 });
@@ -149,21 +152,27 @@ function onDocReady(data) {
   }
 
   if (localStorage.getItem('previousVersion')) {
-		let version = parseFloat(localStorage.getItem('previousVersion'));
-		if (APP_VERSION > version) {
-			// new version detected, show critical what's new info
-		}
-	}
-	localStorage.setItem('previousVersion', APP_VERSION.toFixed(3));
+    let version = parseFloat(localStorage.getItem('previousVersion'));
+    if (APP_VERSION > version) {
+      // new version detected, show critical what's new info
+    }
+  }
+  localStorage.setItem('previousVersion', APP_VERSION.toFixed(3));
 }
 
 function onFirstStatus(status) {
-  const version = status.driver.version.split('.', 3).map((x) => parseInt(x));
-  if (version[0]*1000000 + version[1]*1000 + version[2] != Math.round(APP_VERSION*1000)) {
-    throw APP_NAME + ": APP_VERSION needs to be updated to " + (((version[0]*1000000 + version[1]*1000 + version[2])/1000).toFixed(3));
-  }
+  if (!isJogWidget) {
+    const version = status.driver.version.split('.', 3).map((x) => parseInt(x));
+    if (version[0]*1000000 + version[1]*1000 + version[2] != Math.round(APP_VERSION*1000)) {
+      throw APP_NAME + ": APP_VERSION needs to be updated to " + (((version[0]*1000000 + version[1]*1000 + version[2])/1000).toFixed(3));
+    }
 
-  updatesFirstStatus(status);
+    if (status.driver.operatingsystem == "rpi") {
+      $('#windowtitlebar').hide();
+    }
+
+    updatesFirstStatus(status);
+  }
 }
 
 function runJobFile() {
@@ -331,6 +340,7 @@ function saveGcode() {
     saveBlobToDisk(blob, filePath, saveFileParams).then((err) => {
       if (!err) {
         loadedFileName = filePath.split(/[/\\]/).at(-1);
+        setWindowTitle();
       }
     });
   });
