@@ -31,17 +31,7 @@ const inputActions = [
     singleKey: true,
   },
 
-  { // X+
-    name: "xP",
-    friendlyName: "Jog X+",
-    label: `<i class="fas fa-arrow-right fg-red fa-fw"></i> Jog X+`,
-    defaultKey: "right",
-    keydown: () => { jogKeyDown("xP") },
-    keyup: () => { jogKeyUp("xP") },
-    dlgContext: "probe",
-  },
-
-  { // X-
+    { // X-
     name: "xM",
     friendlyName: "Jog X-",
     label: `<i class="fas fa-arrow-left fg-red fa-fw"></i> Jog X-`,
@@ -51,13 +41,13 @@ const inputActions = [
     dlgContext: "probe",
   },
 
-  { // Y+
-    name: "yP",
-    friendlyName: "Jog Y+",
-    label: `<i class="fas fa-arrow-up fg-green fa-fw"></i> Jog Y+`,
-    defaultKey: "up",
-    keydown: () => { jogKeyDown("yP") },
-    keyup: () => { jogKeyUp("yP") },
+  { // X+
+    name: "xP",
+    friendlyName: "Jog X+",
+    label: `<i class="fas fa-arrow-right fg-red fa-fw"></i> Jog X+`,
+    defaultKey: "right",
+    keydown: () => { jogKeyDown("xP") },
+    keyup: () => { jogKeyUp("xP") },
     dlgContext: "probe",
   },
 
@@ -71,13 +61,13 @@ const inputActions = [
     dlgContext: "probe",
   },
 
-  { // Z+
-    name: "zP",
-    friendlyName: "Jog Z+",
-    label: `<i class="fas fa-arrow-up fg-blue fa-fw"></i> Jog Z+`,
-    defaultKey: "pageup",
-    keydown: () => { jogKeyDown("zP") },
-    keyup: () => { jogKeyUp("zP") },
+  { // Y+
+    name: "yP",
+    friendlyName: "Jog Y+",
+    label: `<i class="fas fa-arrow-up fg-green fa-fw"></i> Jog Y+`,
+    defaultKey: "up",
+    keydown: () => { jogKeyDown("yP") },
+    keyup: () => { jogKeyUp("yP") },
     dlgContext: "probe",
   },
 
@@ -91,13 +81,14 @@ const inputActions = [
     dlgContext: "probe",
   },
 
-  { // A+
-    name: "aP",
-    friendlyName: "Jog A+",
-    label: `<i class="fas fa-redo fg-orange fa-fw"></i> Jog A+`,
-    defaultKey: "2",
-    keydown: () => { jogKeyDown("aP") },
-    keyup: () => { jogKeyUp("aP") },
+  { // Z+
+    name: "zP",
+    friendlyName: "Jog Z+",
+    label: `<i class="fas fa-arrow-up fg-blue fa-fw"></i> Jog Z+`,
+    defaultKey: "pageup",
+    keydown: () => { jogKeyDown("zP") },
+    keyup: () => { jogKeyUp("zP") },
+    dlgContext: "probe",
   },
 
   { // A-
@@ -107,6 +98,15 @@ const inputActions = [
     defaultKey: "1",
     keydown: () => { jogKeyDown("aM") },
     keyup: () => { jogKeyUp("aM") },
+  },
+
+  { // A+
+    name: "aP",
+    friendlyName: "Jog A+",
+    label: `<i class="fas fa-redo fg-orange fa-fw"></i> Jog A+`,
+    defaultKey: "2",
+    keydown: () => { jogKeyDown("aP") },
+    keyup: () => { jogKeyUp("aP") },
   },
 
   { // Toggle Jog Mode
@@ -221,6 +221,14 @@ const inputActions = [
     dlgContext: "probe",
   },
 
+  { // Check Size
+    name: "checkSize",
+    friendlyName: "Check Size",
+    label: `<i class="far fa-square fg-openbuilds fa-fw"></i> Check Size`,
+    defaultKey: "",
+    keydown: reloadJobFile,
+  },
+
   { // Home All
     name: "home",
     friendlyName: "Home",
@@ -307,6 +315,14 @@ const inputActions = [
     label: `<i class="fas fa-folder-open fg-openbuilds fa-fw"></i> Open File`,
     defaultKey: "ctrl+o",
     keydown: loadJobFile,
+  },
+
+  { // Reload File
+    name: "reloadFile",
+    friendlyName: "Reload File",
+    label: `<i class="fas fa-undo-alt fg-openbuilds fa-fw"></i> Reload File`,
+    defaultKey: "ctrl+r",
+    keydown: reloadJobFile,
   },
 ];
 
@@ -413,6 +429,11 @@ const shortcutTooltips = [
     tooltip2: "$probe",
   },
   {
+    id: '#chkSize',
+    tooltip: "Outlines the bounding area of the loaded job",
+    tooltip2: "$checkSize",
+  },
+  {
     id: '#homeBtn',
     tooltip: "Home all axes",
     tooltip2: "$home",
@@ -430,7 +451,12 @@ const shortcutTooltips = [
     id: '#openGcodeBtn',
     tooltip: "Open a G-code file",
     tooltip2: "$openFile",
-  }
+  },
+  {
+    id: '#reloadGcodeBtn',
+    tooltip: "Reload the last G-Code file",
+    tooltip2: "$reloadFile",
+  },
 ];
 
 // returns "" if one more more hotkey is not set
@@ -475,15 +501,19 @@ function replaceHotkeyTokens(tooltip, forMenu) {
 function updateButtonTooltips() {
   for (const tip of shortcutTooltips) {
     if (tip.tooltip2) {
+      let tooltip = tip.tooltip;
+      if (tip.id == '#reloadGcodeBtn' && loadedFileName) {
+        tooltip = "Reload " + loadedFileName;
+      }
       let tooltip2 = replaceHotkeyTokens(tip.tooltip2, false);
       if (tooltip2) {
-        if (tip.tooltip) {
-          $(tip.id).attr('title', tip.tooltip + "\n" + tooltip2);
+        if (tooltip) {
+          $(tip.id).attr('title', tooltip + "\n" + tooltip2);
         } else {
           $(tip.id).attr('title', tooltip2);
         }
-      } else if (tip.tooltip) {
-        $(tip.id).attr('title', tip.tooltip);
+      } else if (tooltip) {
+        $(tip.id).attr('title', tooltip);
       } else {
         $(tip.id).attr('title', "");
       }

@@ -166,7 +166,6 @@ function parseGcodeInWebWorker(gcode) {
     });
 
     $('#3dviewicon').addClass('fa-pulse');
-    $('#3dviewlabel').html(' 3D View (rendering, please wait...)')
 
     // populateToolChanges(gcode)
   }
