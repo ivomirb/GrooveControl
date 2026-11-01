@@ -516,18 +516,6 @@ function findInputAction(name) {
   return null;
 }
 
-function runMacro(macro) {
-  if (macro.codetype == "gcode") {
-    sendGcode(macro.gcode);
-  } else if (macro.codetype == "javascript") {
-    if (!macro.jsrunonstartup) {
-      executeJS(macro.javascript);
-    } else {
-      Metro.toast.create("Macro: <b>" + macro.title + "</b> is an autorun macro, it runs when CONTROL starts. You cannot run it using the button. You can edit or delete it using the <i class='fas fa-cogs'></i> Edit Macro tool", null, 3000, "bg-darkRed fg-white")
-    }
-  }
-}
-
 function actionsDocReady() {
   initKeyboardActions();
 

@@ -82,10 +82,10 @@ function onDocKeyDown(event) {
 
   // Bind for Macro keys
   if (!dlgVisible) {
-    for (const macro of buttonsarray) {
-      if (macro.shortcut == key) {
+    for (let macroIdx = 0; macroIdx < buttonsarray.length; macroIdx++) {
+      if (buttonsarray[macroIdx].shortcut == key) {
         event.preventDefault();
-        runMacro(macro);
+        runMacro(macroIdx);
         return;
       }
     }
