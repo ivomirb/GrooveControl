@@ -4,7 +4,6 @@ var socket, laststatus, lastsysinfo;
 var serverPort;
 var serverURL;
 var grblParams = {}
-var nostatusyet = true;
 var bellstate = false;
 var waitingForStatus = false;
 var openErrorDialogs = [];
@@ -66,6 +65,7 @@ function onGcodeUpload(gcode, filename) {
 
   currentGcode = gcode;
   loadedFileName = filename;
+  setWindowTitle();
 
   if (!editor) {
     useEditor = false;
@@ -82,7 +82,6 @@ The editor is currently disabled. You can click the Clear button to clear the cu
     useEditor = true;
   }
 
-  setWindowTitle();
   updateButtonTooltips();
   $('#reloadGcodeBtn').attr('disabled', false);
   parseGcodeInWebWorker(gcode);
@@ -398,14 +397,6 @@ function errorsCleared(data) {
 }
 
 function onStatus(status) {
-  if (nostatusyet && !isJogWidget) {
-    setWindowTitle(status);
-    if (status.driver.operatingsystem == "rpi") {
-      $('#windowtitlebar').hide();
-    }
-  }
-  nostatusyet = false;
-
   let featuresChanged = false;
   let offsetChanged = false;
 
@@ -580,8 +571,6 @@ function onStatus(status) {
   $('#commstatus').html(string);
   $('#drvqueue').html(status.comms.queue);
 
-  $('#activeportstatus').html(status.comms.interfaces.activePort || "none")
-
   // Only allow jogging during idle
   $('.jogbtn').attr('disabled', status.comms.connectionStatus != 2);
   $('.dro').attr('disconnected', status.comms.connectionStatus < 2 || status.comms.connectionStatus == 6);
@@ -627,6 +616,11 @@ function onStatus(status) {
     $('#mainCloseBtn').attr( "title", status.misc.trayIcon ? "Close to Tray" : "Close");
   }
 
+  if (!isJogWidget && (!laststatus || laststatus.comms.interfaces.activePort != status.comms.interfaces.activePort)) {
+    $('#activeportstatus').html(status.comms.interfaces.activePort || "none")
+    setWindowTitle(status);
+  }
+
   const firstStatus = !laststatus;
   laststatus = status;
 
@@ -640,9 +634,7 @@ function onStatus(status) {
 
   waitingForStatus = false;
   if (firstStatus) {
-    if (!isJogWidget) {
-      onFirstStatus(status);
-    }
+    onFirstStatus(status);
   }
 }
 
@@ -808,13 +800,11 @@ function initSocket() {
   });
 
   setInterval(function() {
-    if (!nostatusyet && laststatus) {
-      if (laststatus.comms.connectionStatus == 5) {
-        bellstate = !bellstate;
-        $('#navbell, #navbellBtn1, #navbellBtn2, #navbellBtn3').toggle(bellstate);
-      } else {
-        $('#navbell, #navbellBtn1, #navbellBtn2, #navbellBtn3').hide();
-      }
+    if (laststatus && laststatus.comms.connectionStatus == 5) {
+      bellstate = !bellstate;
+      $('#navbell, #navbellBtn1, #navbellBtn2, #navbellBtn3').toggle(bellstate);
+    } else {
+      $('#navbell, #navbellBtn1, #navbellBtn2, #navbellBtn3').hide();
     }
   }, 200);
 }
