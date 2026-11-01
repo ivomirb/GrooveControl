@@ -38,46 +38,28 @@ function populateMacroButtons(runStartups) {
       }
     }
 
-    let codetype, codetypeDisplay;
-    if (button.codetype && button.codetype.length) {
-      codetype = button.codetype;
-      codetypeDisplay = button.codetype;
-    } else {
-      button.codetype = "gcode";
-      codetype = "gcode";
-      codetypeDisplay = "gcode";
-    }
-    if (button.jsrunonstartup) {
-      codetypeDisplay = "js:autorun";
-    }
-    let buttonHtml;
-    if (codetype == "gcode") {
-      buttonHtml = `
-      <button id="macroBtn` + i + `" class="macrobtn m-1 command-button command-button-macro drop-shadow outline ` + button.class + `" title="` + button.tooltip + `" oncontextmenu="macroContextMenu(` + i + `)" onclick="sendGcode('` + button.gcode.replace(/(\r\n|\n|\r)/gm, "\\n") + `');">
-        <span class="` + button.icon + ` icon"></span>
-        <span class="caption mt-2">` + button.title + `</span>
-        <span title="Code Type: ` + codetype + `" class="macrotype">` + codetype + `</span>
-        <span class="macrokbd"><i class="` + shortcutIcon + `"></i>` + shortcut + `</span>
-      </button>
-      `
-    } else if (codetype == "javascript") {
-      if (codetype == "javascript" && button.javascript && button.javascript.startsWith(JAVASCRIPT_LOAD_PREFIX)) {
+    let codetypeDisplay = button.codetype;
+    if (button.codetype == "javascript") {
+      if (button.javascript && button.javascript.startsWith(JAVASCRIPT_LOAD_PREFIX)) {
         button.javascript = loadJavascriptFile(button.javascript);
       }
+      if (button.jsrunonstartup) {
+        codetypeDisplay = "js:autorun";
+      }
+    }
 
-      buttonHtml = `
-      <button id="macroBtn` + i + `" class="macrobtn m-1 command-button command-button-macro drop-shadow outline ` + button.class + `" title="` + button.tooltip + `" oncontextmenu="macroContextMenu(` + i + `)" onclick="runJsMacro('` + i + `');">
-        <span class="` + button.icon + ` icon"></span>
-        <span class="caption mt-2">
-          ` + button.title + `
-        </span>
-        <span title="Code Type: ` + codetype + `" class="macrotype">` + codetypeDisplay + `</span>
+    const buttonHtml = `
+      <button id="macroBtn` + i + `" class="macrobtn m-1 command-button command-button-macro drop-shadow outline ` + button.colorClass + `" title="` + button.tooltip + `" oncontextmenu="macroContextMenu(` + i + `)" onclick="runMacro('` + i + `');">
+        <span title="Code Type: ` + button.codetype + `" class="macrotype">` + codetypeDisplay + `</span>
+        <div class="macrotitle">
+          <span class="` + button.icon + ` icon"></span>
+          <span class="caption mt-2">` + button.title + `</span>
+        </div>
         <span class="macrokbd"><i class="` + shortcutIcon + `"></i>` + shortcut + `</span>
       </button>
-      `
-    }
-    $("#macros").append(buttonHtml);
+      `;
 
+    $("#macros").append(buttonHtml);
 
     if (button.jsrunonstartup && runStartups) {
       try {
@@ -161,7 +143,7 @@ function editMacro(buttonIdx, fileName, script) {
   let codetype = "gcode"
   let gcode = "";
   let javascript = "";
-  let cls = "";
+  let color = "";
   let tooltip = "";
   let shortcut = "";
   let jsrunonstartup = "";
@@ -174,7 +156,7 @@ function editMacro(buttonIdx, fileName, script) {
     codetype = button.codetype;
     gcode = button.gcode;
     javascript = button.javascript;
-    cls = button.class;
+    color = button.colorClass;
     tooltip = button.tooltip;
     if (button.shortcut && button.shortcut.length > 0) {
       shortcut = button.shortcut;
@@ -225,7 +207,7 @@ function editMacro(buttonIdx, fileName, script) {
           </div>
           <label class="cell-sm-1" style="padding:0;">Color</label>
           <div class="cell-sm-4">
-            <select data-role="select" id="macrocls" data-filter="false" class="compact-options">
+            <select data-role="select" id="macrocolor" data-filter="false" class="compact-options">
               <option value="" selected>Default</option>
               <option value="primary">Blue</option>
               <option value="info">Light Blue</option>
@@ -267,7 +249,7 @@ function editMacro(buttonIdx, fileName, script) {
               <span class="text-small">Enter Javascript to execute</span><br>
               <span class="text-small">Tip: Prototype your code using (Ctrl+Shift+i > Console)</span>
               <textarea  wrap="off" id="macrojs" type="text" value="" style="overflow-y: auto; height: calc(100vh - 600px); resize: none; tab-size: 2;" rows="4"  data-editable="true"></textarea>
-              <input type="checkbox" data-role="checkbox" data-caption="Run Macro on startup (use with caution, no serial comms)" data-caption-position="left" data-style="2" id="jsRunOnStartup" ` + jsrunonstartup + `>
+              <input type="checkbox" data-role="checkbox" data-caption="Run Macro on startup" data-caption-position="left" data-style="2" id="jsRunOnStartup" ` + jsrunonstartup + `>
             </div>
           </div>
       </div>
@@ -306,7 +288,7 @@ function editMacro(buttonIdx, fileName, script) {
           button.codetype = macroCodeType;
           button.gcode = $('#macrogcode').val();
           button.javascript = $('#macrojs').val();
-          button.class = $('#macrocls').val();
+          button.colorClass = $('#macrocolor').val();
           button.tooltip = $('#macrotooltip').val();
           button.shortcut = currentEditMacroButton || $('#macrokeyboardshortcut').val().toLowerCase();
           button.jsrunonstartup = $('#jsRunOnStartup').is(':checked')
@@ -340,7 +322,7 @@ function editMacro(buttonIdx, fileName, script) {
   // Select your Button element (ID or Class)
   IconPicker.Run('#GetIconPicker');
 
-  $("#macrocls").val(cls).trigger("change");
+  $("#macrocolor").val(color).trigger("change");
   $('#macrogcode').val(gcode);
   $('#macrojs').val(javascript);
 
@@ -400,19 +382,29 @@ function editorJavascriptMode() {
   $("#macroGcodeEditField").hide()
 }
 
-function runJsMacro(buttonIdx) {
-  if (!buttonsarray[buttonIdx].jsrunonstartup) {
-    executeJS(buttonsarray[buttonIdx].javascript)
-  } else {
-    Metro.toast.create("Macro: <b>" + buttonsarray[buttonIdx].title + "</b> is an autorun macro, it runs when CONTROL starts. You cannot run it using the button. You can edit or delete it using the <i class='fas fa-cogs'></i> Edit Macro tool", null, 3000, "bg-darkRed fg-white")
-  }
-}
-
 function executeJS(js) {
   Function(`
     "use strict";
     ` + js + `
   `)();
+}
+
+function runJsMacro(macroIdx) {
+  const macro = buttonsarray[macroIdx];
+  if (!macro.jsrunonstartup) {
+    executeJS(macro.javascript);
+  } else {
+    Metro.toast.create("Macro <b>" + macro.title + "</b> is an autorun macro, it runs when Groove Control starts. You cannot run it using the button.", null, 3000, "bg-darkRed fg-white")
+  }
+}
+
+function runMacro(macroIdx) {
+  const macro = buttonsarray[macroIdx];
+  if (macro.codetype == "gcode") {
+    sendGcode(macro.gcode);
+  } else if (macro.codetype == "javascript") {
+    runJsMacro(macroIdx);
+  }
 }
 
 function macroContextMenu(buttonIdx) {
