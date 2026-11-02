@@ -162,11 +162,11 @@ function handleButtonPress(button) {
     if (inUse) {
       $('#alreadyAssignedWarnMacro').html("\"" + getGamepadButtonName(button) + "\" is already assigned to " + buttonInUse(button, true).source + "<br>");
       $('#alreadyAssignedWarnMacro').show();
-      $('#macrokeyboardshortcut').parent().removeClass("primary").addClass("alert");
+      $('#macrokeyboardshortcut').parent().removeClass('primary').addClass('alert');
     } else {
       $('#alreadyAssignedWarnMacro').hide();
       $('#macrokeyboardshortcut').val(getGamepadButtonName(button));
-      $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
+      $('#macrokeyboardshortcut').parent().removeClass('alert').addClass('primary');
       currentEditMacroButton = button;
     }
     return;
@@ -479,7 +479,7 @@ function initGamepadEditor() {
   $('#gamepadInvertZ').prop('checked', analogStickSettings.invertZ);
   gamepadWarningShown = !disableGamepad;
 
-  const canvas = document.getElementById("gamepadViewCanvas");
+  const canvas = document.getElementById('gamepadViewCanvas');
   analogViewCtx = canvas.getContext("2d");
   analogViewSize = canvas.getBoundingClientRect();
   if (analogJogActive) {
@@ -601,8 +601,8 @@ function initGamepadActions() {
   }
 
   $('#gamepadDisplay').toggle(!disableGamepad);
-  window.addEventListener("gamepadconnected", onGamepadConnected);
-  window.addEventListener("gamepaddisconnected", onGamepadDisconnected);
+  window.addEventListener('gamepadconnected', onGamepadConnected);
+  window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
   onGamepadDisconnected();
 
   gamepadPreset = gamepadPresets[0];
