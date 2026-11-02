@@ -5,7 +5,6 @@
 // System dependencies
 var path = require("path");
 var fs = require("fs");
-var formidable = require('formidable');
 const multer = require('multer');
 const {
   dialog,
@@ -45,6 +44,12 @@ var uploadedWorkspace = ""; // var to store uploaded OpenBuildsCAM Workspace
 var bypassFileSec = false; // when false, only files from the allowedFilePaths set can be accessed
 var allowedFilePaths = new Set();
 
+const fileSecurityMessage = `
+
+For security reasons, only files that are picked from a file browser can be accessed.
+
+This could be caused by a buggy or malicious Javascript macro.`;
+
 // multer disk storage for saving files
 const saveFileStorage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -63,12 +68,6 @@ const saveFileStorage = multer.diskStorage({
     }
   }
 });
-
-const fileSecurityMessage = `
-
-For security reasons, only files that are picked from a file browser can be accessed.
-
-This could be caused by a buggy or malicious Javascript macro.`;
 
 function addRecentFile(filePath) {
   const file_path = filePath.toLowerCase();
@@ -278,55 +277,6 @@ function saveFileRequest(req, res) {
   });
 }
 
-// app.post('/upload')
-function uploadGcodeRequest(req, res) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-
-  let lastsentuploadprogress = 0;
-
-  const form = new formidable.IncomingForm();
-  form.maxFileSize = 300 * 1024 * 1024;
-
-  // eslint-disable-next-line no-unused-vars
-  form.parse(req, function(err, fields, files) {
-    // debug_log(files);
-  });
-
-  form.on('fileBegin', function(name, file) {
-    debug_log(JSON.stringify(name));
-    debug_log(JSON.stringify(file));
-    debug_log('Uploading ' + file.filepath);
-  });
-
-  form.on('progress', function(bytesReceived, bytesExpected) {
-    const uploadprogress = parseInt(((bytesReceived * 100) / bytesExpected).toFixed(0));
-    if (uploadprogress != lastsentuploadprogress) {
-      lastsentuploadprogress = uploadprogress;
-    }
-    debug_log('Progress ' + uploadprogress + "% / " + bytesReceived + "b");
-
-  });
-
-  form.on('file', function(name, file) {
-    debug_log('Uploaded ' + file.filepath);
-    jogWindowAPI.showJogWindow();
-    readGcodeFile(file.filepath, true);
-  });
-
-  form.on('aborted', function() {
-    // Emitted when the request was aborted by the user. Right now this can be due to a 'timeout' or 'close' event on the socket. After this event is emitted, an error event will follow. In the future there will be a separate 'timeout' event (needs a change in the node core).
-  });
-
-  form.on('end', function() {
-    //Emitted when the entire request has been received, and all contained files have finished flushing to disk. This is a great place for you to send your response.
-    res.end();
-
-  });
-
-  res.sendFile(rootDir + '/app/upload.html');
-}
-
 function onConnection(socket) {
   socket.on("saveFileDialog", saveFileDialog);
 
@@ -370,7 +320,6 @@ function initFiles() {
   })
 
   app.post('/saveFile', saveFileRequest);
-  app.post('/upload', uploadGcodeRequest);
 
   addConnectionHandler(onConnection);
   addDocReadyHandler(onDocReady);

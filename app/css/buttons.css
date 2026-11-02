@@ -204,6 +204,11 @@
 /* Custom size button for Macros */
 .command-button-macro {
   height: 70px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  padding: 4px;
 }
 
 hr {
