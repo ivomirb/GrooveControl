@@ -203,7 +203,7 @@ function parseStatusReport(data) {
 
       if (pins.includes('R')) {
         // abort
-        stop({stop: false, jog: false, abort: true});
+        stop({abort: true});
         serverEmitOutput({
           command: '[external from hardware]',
           response: "Groove Control received a RESET/ABORT notification from Grbl: This could be due to someone pressing the RESET/ABORT button (if connected)",
