@@ -61,7 +61,7 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** Removed the dropdown menu from the Open G-code button to save unnecessary mouse click
 * **Improvement:** New dialog for editing all application settings in one place
 * **Improvement:** Allow clearing the key assignment in the keyboard shortcut editor and the macro editor
-* **Improvement:** The keyboard shortcuts are listed in the button tooltips to make them more discoverable
+* **Improvement:** The keyboard shortcuts are included in the button tooltips to make them more discoverable
 * **Improvement:** New settings to disable the autostart and the tray icon, making it behave like a regular desktop app
 * **Improvement:** Windows installer setting to control the file associations for G-code file extensions
 * **Improvement:** The dialogs for opening files remember their directory, with separate settings for G-code, macros and grbl settings
@@ -85,6 +85,7 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** Added a new option to view only the modified settings, and buttons to revert each change
 * **Improvement:** Added more known GrblHAL settings and updated wrong descriptions
 * **Improvement:** Added support for a 4th axis in settings $3 and $23
+* **Improvement:** The step calculation wizards handle wider selection of hardware and now support the 4th axis setting $103
 * **Improvement:** Basic support for FluidNC that shows the configuration file
 * **Improvement:** The presets and flashing tools for OpenBuilds hardware have been removed, since it is no longer in production
 * **Bug Fix:** Fixed a bug where using the search filter loses all unsaved changes
@@ -103,6 +104,7 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** Added ability to create a new macro from existing G-code or JavaScript file
 * **Improvement:** Added ability to automatically reload JavaScript macros from external files in development mode
 * **Improvement:** Enabled security isolation measures to prevent scripts from accessing the operating system
+* **Improvement:** A new 'safe mode' switch to disable auto-start macros
 
 ### **New Feature:** Heightmap Tool
 
