@@ -1,6 +1,3 @@
-"use strict";
-var exports = module.exports = {};
-
 const grblErrorCodes = {
   0: "No error",
   1: "G-code words consist of a letter and a value. Letter was not found.",
@@ -92,9 +89,9 @@ const grblAlarmCodes = {
   18: "Homing fail. Bad configuration."
 };
 
-exports.errors = function(id) {
+export function errors(id) {
   return grblErrorCodes[id];
-};
-exports.alarms = function(id) {
+}
+export function alarms(id) {
   return grblAlarmCodes[id];
 };

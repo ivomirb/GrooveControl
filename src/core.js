@@ -1,19 +1,20 @@
 // core.js contains low-level core functionality and configurations, as well as the global "status"
 // It has no app dependencies
 
-"use strict";
-
 // System dependencies
-var fs = require('fs');
-var path = require("path");
-var ip = require('ip');
-var os = require('os');
-const {
-  app: electronApp,
-} = require('electron');
+import packageJson from '../package.json' with { type: 'json' }; // get the version
+import fs from 'fs';
+import path from 'path';
+import ip from 'ip';
+import os from 'os';
+import {
+  app as electronApp,
+} from 'electron';
 
+import { fileURLToPath } from 'url';
 
 // Global variables
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '..');
 
 // Config
@@ -72,18 +73,10 @@ function findLocalIpAddress() {
   return ip.address();
 }
 
-function getRepoName() {
-  let repo = require('../package').repository;
-  if (repo.startsWith('https://github.com/')) {
-    repo = repo.substring(19);
-  }
-  return repo;
-}
-
 // Main status
 const status = {
   driver: {
-    version: require('../package').version,
+    version: packageJson.version,
     ipaddress: findLocalIpAddress(),
     platform: process.platform,
     operatingsystem: false,
@@ -189,7 +182,6 @@ const status = {
     lastFilePath: "",
     spindleDelay: 0,
     laserMode: false,
-    repoName: getRepoName(),
   },
 };
 
@@ -254,7 +246,7 @@ function initCore() {
   loadPersistentConfig();
 }
 
-module.exports = {
+export {
   rootDir,
   debug_log,
   config,

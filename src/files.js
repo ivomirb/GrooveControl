@@ -1,42 +1,40 @@
 // files.js handles file operatons like browsing, loading, saving
 
-"use strict";
-
 // System dependencies
-var path = require("path");
-var fs = require("fs");
-const multer = require('multer');
-const {
+import path from "path";
+import fs from "fs";
+import multer from 'multer';
+import {
   dialog,
   shell,
-} = require('electron');
+} from 'electron';
 
 
 // App dependencies
-const {
+import {
   rootDir,
   debug_log,
   status,
   config,
   persistentConfig,
   savePersistentConfig,
-} = require('./core.js');
+} from './core.js';
 
-const {
+import {
   jogWindowAPI
-} = require('./jogWindowAPI.js');
+} from './jogWindowAPI.js';
 
-const {
+import {
   app,
   serverEmit,
   addConnectionHandler,
   addDocReadyHandler,
-} = require('./server.js');
+} from './server.js';
 
-const {
+import {
   getCurrentGcode,
   setCurrentGcode,
-} = require('./grblSender.js');
+} from './grblSender.js';
 
 
 // Global variables
@@ -327,7 +325,7 @@ function initFiles() {
   persistentConfig.recentFiles.forEach((x) => allowedFilePaths.add(x));
 }
 
-module.exports = {
+export {
   readGcodeFile,
   allowedFilePaths,
   addRecentFile,

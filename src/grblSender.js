@@ -1,44 +1,42 @@
 // grblSender.js handles communication with the grbl controller, as well as core functions like running, pausing, stopping
 
-"use strict";
-
 // System dependencies
-const _ = require('lodash');
-const multer = require('multer');
+import _ from 'lodash';
+import multer from 'multer';
 
-const {
+import {
   ReadlineParser
-} = require('@serialport/parser-readline')
+} from '@serialport/parser-readline'
 
 
 // App dependencies
-const grblStrings = require("./grblStrings.js");
+import * as grblStrings from "./grblStrings.js";
 
-const {
+import {
   debug_log,
   status,
   config,
   persistentConfig,
   savePersistentConfig,
-} = require('./core.js');
+} from './core.js';
 
-const {
+import {
   jogWindowProgress
-} = require('./jogWindowAPI.js');
+} from './jogWindowAPI.js';
 
-const {
+import {
   app,
   serverEmit,
   serverEmitOutput,
   addConnectionHandler,
   addDocReadyHandler,
-} = require('./server.js');
+} from './server.js';
 
-const {
+import {
   closePort,
   addPortOpenHandler,
   addPortCloseHandler,
-} = require('./grblPort.js');
+} from './grblPort.js';
 
 
 // Globals variables
@@ -1221,7 +1219,7 @@ function initGrblSender() {
   addPortCloseHandler(onPortClose);
 }
 
-module.exports = {
+export {
   addQToEnd,
   addQToEndAndKick,
   addQRealtime,

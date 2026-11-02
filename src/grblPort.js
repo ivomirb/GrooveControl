@@ -1,27 +1,25 @@
 // grblPort.js handles the connection port (USB, telnet) for the controller
 
-"use strict";
-
 // System dependencies
-const {
+import {
   SerialPort
-} = require('serialport')
+} from 'serialport';
 
-const _ = require('lodash');
-const net = require('net');
-const Evilscan = require('evilscan');
+import _ from 'lodash';
+import net from 'net';
+import Evilscan from 'evilscan';
 
 
 // App dependencies
-const {
+import {
   debug_log,
   status,
-} = require('./core.js');
+} from './core.js';
 
-const {
+import {
   serverEmitOutput,
   addConnectionHandler,
-} = require('./server.js');
+} from './server.js';
 
 
 // Global variables
@@ -311,7 +309,7 @@ function initGrblPort() {
   }, 1000);
 }
 
-module.exports = {
+export {
   closePort,
   addPortOpenHandler,
   addPortCloseHandler,

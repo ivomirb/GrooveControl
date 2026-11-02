@@ -1,22 +1,20 @@
 // main.js initialzies all modules and creates the main app
 
-"use strict";
-
 // System dependencies
-const path = require("path");
-const ip = require("ip");
-const {
+import path from "path";
+import ip from "ip";
+import {
   BrowserWindow,
   Tray,
   nativeImage,
   Menu,
   shell,
-  app: electronApp,
-} = require('electron');
+  app as electronApp,
+} from 'electron';
 
 
 // App dependencies
-const {
+import {
   rootDir,
   debug_log,
   status,
@@ -24,47 +22,47 @@ const {
   persistentConfig,
   savePersistentConfig,
   initCore
-} = require('./core.js');
+} from './core.js';
 
-const {
+import {
   initJogWindowAPI
-} = require('./jogWindowAPI.js');
+} from './jogWindowAPI.js';
 
-const {
+import {
   serverEmit,
   app,
   addConnectionHandler,
   addDocReadyHandler,
   removeDocReadyHandler,
   initServer
-} = require('./server.js');
+} from './server.js';
 
-const {
+import {
   readGcodeFile,
   allowedFilePaths,
   addRecentFile,
   initFiles
-} = require('./files.js');
+} from './files.js';
 
-const {
+import {
   initSystemInfo
-} = require('./systemInfo.js');
+} from './systemInfo.js';
 
-const {
+import {
   initGrblPort
-} = require('./grblPort.js');
+} from './grblPort.js';
 
-const {
+import {
   initGrblSender
-} = require('./grblSender.js');
+} from './grblSender.js';
 
-const {
+import {
   initGrblUtilities
-} = require('./grblUtilities.js');
+} from './grblUtilities.js';
 
-const {
+import {
   initUpdate
-} = require('./update.js');
+} from './update.js';
 
 
 // Global variables
@@ -383,7 +381,7 @@ function createJogWindow() {
   if (safeMode) {
     options.query.safeMode = true;
   }
-  jogWindow.loadFile(path.join(__dirname, "../app/main.html"), options);
+  jogWindow.loadFile(path.join(rootDir, "app/main.html"), options);
 
   if (process.argv.indexOf("-debug") > 0) {
     jogWindow.webContents.openDevTools();

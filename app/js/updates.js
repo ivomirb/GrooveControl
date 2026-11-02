@@ -1,7 +1,7 @@
 "use strict";
 
 function getReleaseStats() {
-  const url = "https://api.github.com/repos/" + laststatus.misc.repoName + "/releases/latest";
+  const url = "https://api.github.com/repos/ivomirb/GrooveControl/releases/latest";
   $.getJSON(url, function(data) {
 
     let downloadCount = 0;

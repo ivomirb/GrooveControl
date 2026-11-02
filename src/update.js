@@ -1,36 +1,32 @@
 // update.js initialzies handles the auto update feature
 
-"use strict";
-
 const MAX_CHANGELOG_LINES = 16;
 
 // System dependencies
-var fs = require('fs');
-var path = require('path');
+import fs from 'fs';
+import path from 'path';
 
-const {
+import {
   shell,
-} = require('electron');
+} from 'electron';
 
-const {
-  autoUpdater,
-  CancellationToken
-} = require('electron-updater');
-
+import electronUpdater from 'electron-updater';
+const { autoUpdater, CancellationToken } = electronUpdater;
 
 // App dependencies
-const {
+import {
+  rootDir,
   debug_log,
   status,
   persistentConfig,
   savePersistentConfig,
-} = require('./core.js');
+} from './core.js';
 
-const {
+import {
   serverEmit,
   addConnectionHandler,
   addDocReadyHandler,
-} = require('./server.js');
+} from './server.js';
 
 
 // Global variables
@@ -45,11 +41,7 @@ function createAutoUpdater(isPackaged) {
 
   if (!isPackaged) {
     autoUpdater.forceDevUpdateConfig = true;
-    let repo = require('../package').repository;
-    if (repo.startsWith('https://github.com/')) {
-      repo = repo.substring(19).split('/');
-      autoUpdater.setFeedURL({provider: "github", owner: repo[0], repo: repo[1]});
-    }
+    autoUpdater.setFeedURL({provider: "github", owner: "ivomirb", repo: "GrooveControl"});
   }
 
   autoUpdater.on('update-available', (info) => {
@@ -98,7 +90,7 @@ function createAutoUpdater(isPackaged) {
 
 function onConnection(socket) {
   socket.on("openUpdatePage", function() {
-    shell.openExternal("https://github.com/" + status.misc.repoName + "/releases/latest");
+    shell.openExternal("https://github.com/ivomirb/GrooveControl/releases/latest");
   });
 
   socket.on("cancelUpdate", function() {
@@ -128,7 +120,7 @@ function onDocReady(result) {
   result.changelogText = changelogText;
 }
 
-function initUpdate(isPackaged) {
+export function initUpdate(isPackaged) {
   addConnectionHandler(onConnection);
   addDocReadyHandler(onDocReady);
   if (persistentConfig.enableUpdates) {
@@ -137,7 +129,7 @@ function initUpdate(isPackaged) {
   status.misc.enableUpdates = persistentConfig.enableUpdates;
 
   try {
-    const changelog = path.join(__dirname, "..", "CHANGELOG.txt");
+    const changelog = path.join(rootDir, "CHANGELOG.txt");
     let text = fs.readFileSync(changelog, 'utf8');
     text = text.split(/\r?\n/, MAX_CHANGELOG_LINES);
     changelogText = text.join('\n');
@@ -145,7 +137,3 @@ function initUpdate(isPackaged) {
     debug_log(err);
   }
 }
-
-module.exports = {
-  initUpdate
-};
