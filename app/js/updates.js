@@ -24,7 +24,7 @@ function getReleaseStats() {
       }
     }
 
-    $("#releaseStats").html("The latest version has already been downloaded " + downloadCount +
+    $('#releaseStats').html("The latest version has already been downloaded " + downloadCount +
       " times since its release on " + new Date(data.published_at).toLocaleDateString() + ".");
   });
 }
@@ -61,7 +61,7 @@ function setChangelog(changelogText) {
     template += '<ul><br>\n';
   }
 
-  $("#changelog").html(template);
+  $('#changelog').html(template);
 }
 
 function downloadAndInstall() {

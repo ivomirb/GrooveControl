@@ -1,7 +1,7 @@
 "use strict";
 
 function jogWidget() {
-  // new QRCode(document.getElementById("qrcode"), "http://jindo.dev.naver.com/collie");
+  // new QRCode(document.getElementById('qrcode'), "http://jindo.dev.naver.com/collie");
 
   $('#jogip').html("http://" + laststatus.driver.ipaddress + ":" + serverPort)
   $('#qrcode').empty();

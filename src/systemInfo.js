@@ -92,12 +92,12 @@ async function getSystemInfo() {
     })),
   };
 
-  serverEmit("sysinfo", systemInformation);
+  serverEmit('sysinfo', systemInformation);
 
   // Timer to update free memory every minute
   setInterval(() => {
     systemInformation.hardware.memory.free = (os.freemem() / 1024 / 1024 / 1024).toFixed(2) + " GB";
-    serverEmit("sysinfo", systemInformation);
+    serverEmit('sysinfo', systemInformation);
   }, 60000); // 60,000 ms = 1 minute
 
   // Log the initial systemInformation object
@@ -196,7 +196,7 @@ function checkPowerSettings() {
 }
 
 function onConnection(socket) {
-  socket.on("gpuinfo", showGpuInfo);
+  socket.on('gpuinfo', showGpuInfo);
 }
 
 function onDocReady(result) {

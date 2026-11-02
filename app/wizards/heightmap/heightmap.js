@@ -207,7 +207,7 @@ function readHeightmapSettings() {
   heightmapSettings.modifyRapids = $('#heightmapRapids').prop('checked');
   heightmapSettings.allowRevert = $('#heightmapAllowRevert').prop('checked');
 
-  localStorage.setItem("heightmapSettings", JSON.stringify(heightmapSettings));
+  localStorage.setItem('heightmapSettings', JSON.stringify(heightmapSettings));
 }
 
 function heightmapAutoSize() {
@@ -1215,7 +1215,7 @@ function updateHeightmapMenu() {
 
 function toggleHeightmapTools() {
   heightmapSettings.enabled = !heightmapSettings.enabled;
-  localStorage.setItem("heightmapSettings", JSON.stringify(heightmapSettings));
+  localStorage.setItem('heightmapSettings', JSON.stringify(heightmapSettings));
 
   addRemoveClass('#toggleHeightmapTools', 'checked', heightmapSettings.enabled);
   $('.heightmap').toggle(heightmapSettings.enabled);
@@ -1232,7 +1232,7 @@ function toggleHeightmapTools() {
 
 function heightmapDocReady() {
   // read settings
-  const settings = JSON.parse(localStorage.getItem("heightmapSettings"));
+  const settings = JSON.parse(localStorage.getItem('heightmapSettings'));
   if (settings) {
     for (let prop in settings) {
       if (prop in heightmapSettings && typeof(settings[prop]) == typeof(heightmapSettings[prop])) {

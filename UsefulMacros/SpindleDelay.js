@@ -19,7 +19,7 @@ $(document).ready(function()
 	{
 		if (typeof(command) == 'string' &&
 			(command.indexOf('M3') != -1 || command.indexOf('M4') != -1 || command.indexOf('M03') != -1 || command.indexOf('M04') != -1) &&
-			grblParams["$32"] == 0)
+			grblParams.$32 == 0)
 		{
 			socket.emit('pause');
 			printLog("PROGRAM PAUSED FOR SPINDLE DELAY");

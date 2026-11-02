@@ -52,7 +52,7 @@ function removeDocReadyHandler(handler) {
 }
 
 function onDocReady(callback) {
-  serverEmit("status", status);
+  serverEmit('status', status);
   const result = {
     platform: process.platform,
   };
@@ -115,7 +115,7 @@ that expire in 3 months. Besides, the private keys are included in the open sour
   io.attach(httpsSrever);
 */
 
-  io.on("connection", onConnection);
+  io.on('connection', onConnection);
 }
 
 function serverEmit(event, data) {

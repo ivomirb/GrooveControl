@@ -154,17 +154,17 @@ function connectTo(data) { // If a user picks a port to connect to, open a Node 
       port.isOpen = true;
     }
 
-    port.on("error", onPortError);
+    port.on('error', onPortError);
 
-    port.on("ready", function() {
+    port.on('ready', function() {
       portOpenHandlers.forEach((x) => x(port, data));
     });
 
-    port.on("open", function() {
+    port.on('open', function() {
       portOpenHandlers.forEach((x) => x(port, data));
     });
 
-    port.on("close", onPortClose);
+    port.on('close', onPortClose);
   }
 }
 
@@ -284,9 +284,9 @@ function scanForTelnetDevices(range) {
 }
 
 function onConnection(socket) {
-  socket.on("scannetwork", scanForTelnetDevices);
+  socket.on('scannetwork', scanForTelnetDevices);
 
-  socket.on("connectTo", connectTo);
+  socket.on('connectTo', connectTo);
 
   socket.on('closePort', function() { // Close machine port and dump queue
     if (status.comms.connectionStatus > 0) {

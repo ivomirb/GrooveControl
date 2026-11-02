@@ -469,31 +469,31 @@ function initElectron() {
 }
 
 function onConnection(socket) {
-  socket.on("opengroove", function() {
+  socket.on('opengroove', function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl')
   });
 
-  socket.on("opencam", function() {
+  socket.on('opencam', function() {
     shell.openExternal('https://github.com/OpenBuilds/OpenBuilds-CAM')
   });
 
-  socket.on("openwiki", function() {
+  socket.on('openwiki', function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl/wiki')
   });
 
-  socket.on("openbuilds", function() {
+  socket.on('openbuilds', function() {
     shell.openExternal('https://github.com/OpenBuilds/docs-migrated/wiki')
   });
 
-  socket.on("openforum", function() {
+  socket.on('openforum', function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl/discussions')
   });
 
-  socket.on("openheightmap", function() {
+  socket.on('openheightmap', function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl/wiki/Heightmap-Tool')
   });
 
-  socket.on("minimisetotray", function() {
+  socket.on('minimisetotray', function() {
     if (persistentConfig.trayIcon) {
       jogWindow.hide();
     } else {
@@ -501,11 +501,11 @@ function onConnection(socket) {
     }
   });
 
-  socket.on("minimize", function() {
+  socket.on('minimize', function() {
     jogWindow.minimize();
   });
 
-  socket.on("maximize", function() {
+  socket.on('maximize', function() {
     if (jogWindow.isFullScreen()) {
       jogWindow.setFullScreen(false);
     }
@@ -516,7 +516,7 @@ function onConnection(socket) {
     }
   });
 
-  socket.on("fullscreen", function() {
+  socket.on('fullscreen', function() {
     if (jogWindow.isFullScreen()) {
       jogWindow.setFullScreen(false);
     } else {
@@ -524,10 +524,10 @@ function onConnection(socket) {
     }
   });
 
-  socket.on("quit", exitApp);
+  socket.on('quit', exitApp);
 
-  socket.on("trayIcon", setTrayIcon);
-  socket.on("autoStart", setAutoStart);
+  socket.on('trayIcon', setTrayIcon);
+  socket.on('autoStart', setAutoStart);
 }
 
 function main() {
@@ -582,7 +582,7 @@ function main() {
 
   // Global Update loop
   setInterval(function() {
-    serverEmit("status", status);
+    serverEmit('status', status);
   }, 100);
 }
 

@@ -2,8 +2,8 @@
 
 var servo = false;
 
-if (localStorage.getItem("servo-calibration")) {
-  servo = JSON.parse(localStorage.getItem("servo-calibration"));
+if (localStorage.getItem('servo-calibration')) {
+  servo = JSON.parse(localStorage.getItem('servo-calibration'));
 }
 
 function servoDocReady() {
