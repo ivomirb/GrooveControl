@@ -53,7 +53,7 @@ function CleanupOldVersion()
 
 function StoreSettings()
 {
-	localStorage.setItem("MacroManagerSettings", JSON.stringify({tabVisibility: g_TabVisibility, currentGroupLower: g_CurrentGroupLower}));
+	localStorage.setItem('MacroManagerSettings', JSON.stringify({tabVisibility: g_TabVisibility, currentGroupLower: g_CurrentGroupLower}));
 }
 
 function StoreButtons()
@@ -173,11 +173,11 @@ window.MacroTabContextMenu = function(event, groupIdx)
 {
 	g_SelectedGroup = groupIdx;
 
-	$("#macroTabContextMenu").css({
+	$('#macroTabContextMenu').css({
 		left: event.clientX,
 		top: event.clientY
 	}).data('dropdown').close(true);
-	$("#macroTabContextToggle").click();
+	$('#macroTabContextToggle').click();
 }
 
 function CreateTabContents(tabs, activeIdx)
@@ -374,7 +374,7 @@ function MacroBackgroundContextMenu(event)
 {
 	if (event.target.id == 'macros' || event.target.id == 'macrostab')
 	{
-		var menu = $("#macroBackgroundContextMenu");
+		var menu = $('#macroBackgroundContextMenu');
 		menu.css({
 			visibility: "hidden",
 			display: "block",
@@ -389,7 +389,7 @@ function MacroBackgroundContextMenu(event)
 			top: top,
 			visibility: "visible",
 		}).data('dropdown').close(true);
-		$("#macroBackgroundContextToggle").click();
+		$('#macroBackgroundContextToggle').click();
 	}
 }
 
@@ -560,12 +560,12 @@ function setMacroContextMenuPositionNew(buttonIdx)
 		$('#moveMacroRight').removeClass('disabled');
 	}
 
-	var menu = $("#macroContextMenuNew");
+	var menu = $('#macroContextMenuNew');
 	menu.css({
 		visibility: "hidden",
 		display: "block",
 	});
-	const offset = $("#macroBtn" + buttonIdx).offset();
+	const offset = $('#macroBtn' + buttonIdx).offset();
 	const menuRect = menu[0].getBoundingClientRect();
 	const parentRect = document.body.getBoundingClientRect();
 	const left = Math.max(Math.min(offset.left + 20, parentRect.right - menuRect.width - 4), 0);
@@ -576,7 +576,7 @@ function setMacroContextMenuPositionNew(buttonIdx)
 		top: top,
 		visibility: "visible",
 	}).data('dropdown').close(true);
-	$("#macroContextToggle").click();
+	$('#macroContextToggle').click();
 }
 
 const contextMenusHtml = `
@@ -633,9 +633,9 @@ $(document).ready(function()
 	RebuildGroupNames();
 
 	// read and validate settings
-	if (localStorage.getItem("MacroManagerSettings"))
+	if (localStorage.getItem('MacroManagerSettings'))
 	{
-		var settings = JSON.parse(localStorage.getItem("MacroManagerSettings"));
+		var settings = JSON.parse(localStorage.getItem('MacroManagerSettings'));
 		g_TabVisibility = typeof(settings.tabVisibility) == "number" ? settings.tabVisibility : 2;
 		if (g_TabVisibility != 0 && typeof(settings.currentGroupLower) == "string" && g_GroupsLower.indexOf(settings.currentGroupLower) != -1)
 		{

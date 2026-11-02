@@ -30,16 +30,16 @@ function onDocKeyDown(event) {
     // F6 - switch to serial console and focus on Console Input
     event.preventDefault();
     if (!dlgVisible) {
-      $("#controlTab").click();
+      $('#controlTab').click();
       activateContentTab("consoletab");
-      $("#command").focus();
+      $('#command').focus();
     }
     return;
   } else if (event.which === 112) {
     // F1 - troubleshooting
     event.preventDefault();
     if (!dlgVisible) {
-      $("#troubleshootingTab").click();
+      $('#troubleshootingTab').click();
     }
     return;
   }
@@ -336,12 +336,12 @@ function initKeyboardActions() {
   disableKeyboardShortcuts = localStorage.getItem('disableKeyboardShortcuts') == null || (JSON.parse(localStorage.getItem('disableKeyboardShortcuts')) == true);
 
   // Remove Keyboard Bindings from Override Sliders
-  $("#jrocell").find(".marker").unbind(Metro.events.keydown);
-  $("#trocell").find(".marker").unbind(Metro.events.keydown);
-  $("#frocell").find(".marker").unbind(Metro.events.keydown);
-  $("#jrocell").find(".marker").unbind(Metro.events.keyup);
-  $("#trocell").find(".marker").unbind(Metro.events.keyup);
-  $("#frocell").find(".marker").unbind(Metro.events.keyup);
+  $('#jrocell').find('.marker').unbind(Metro.events.keydown);
+  $('#trocell').find('.marker').unbind(Metro.events.keydown);
+  $('#frocell').find('.marker').unbind(Metro.events.keydown);
+  $('#jrocell').find('.marker').unbind(Metro.events.keyup);
+  $('#trocell').find('.marker').unbind(Metro.events.keyup);
+  $('#frocell').find('.marker').unbind(Metro.events.keyup);
 
   $(document).on('keydown', onDocKeyDown);
   $(document).on('keyup', onDocKeyUp);

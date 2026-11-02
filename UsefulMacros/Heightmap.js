@@ -76,14 +76,14 @@ window.ShowHeightmap = function(show)
 			GenerateHeightmapMesh();
 		g_HeightmapGeo.visible = true;
 		g_bShowHeightmap = true;
-		$('#showHeightmap').addClass("checked");
+		$('#showHeightmap').addClass('checked');
 	}
 	else
 	{
 		if (g_HeightmapGeo != undefined)
 			g_HeightmapGeo.visible = false;
 		g_bShowHeightmap = false;
-		$('#showHeightmap').removeClass("checked");
+		$('#showHeightmap').removeClass('checked');
 	}
 }
 
@@ -256,7 +256,7 @@ function ReadHeightmapSettings()
 	g_HeightmapSettings.modifyRapids = $('#heightmapRapids').prop('checked');
 	g_HeightmapSettings.allowRevert = $('#heightmapAllowRevert').prop('checked');
 
-	localStorage.setItem("HeightmapSettings", JSON.stringify(g_HeightmapSettings));
+	localStorage.setItem('HeightmapSettings', JSON.stringify(g_HeightmapSettings));
 }
 
 window.HeightmapAutoSize = function()
@@ -1396,17 +1396,17 @@ window.ApplyHeightmap = function()
 function EnableMenuItem(name, state)
 {
 	if (state)
-		$(name).removeClass("disabled");
+		$(name).removeClass('disabled');
 	else
-		$(name).addClass("disabled");
+		$(name).addClass('disabled');
 }
 
 function CheckMenuItem(name, state)
 {
 	if (state)
-		$(name).addClass("checked");
+		$(name).addClass('checked');
 	else
-		$(name).removeClass("checked");
+		$(name).removeClass('checked');
 }
 
 window.UpdateHeightmapMenu =function()
@@ -1481,7 +1481,7 @@ $(document).ready(function()
 		$('#loadHeightmapFile').on('change', LoadHeightmapOld);
 	}
 
-	var settings = JSON.parse(localStorage.getItem("HeightmapSettings"));
+	var settings = JSON.parse(localStorage.getItem('HeightmapSettings'));
 	if (settings)
 	{
 		for (var prop in settings)

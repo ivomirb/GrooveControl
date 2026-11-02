@@ -29,7 +29,7 @@ function recoverCrashedJob() {
         caption: "Proceed to next step",
         cls: "js-dialog-close alert",
         onclick: function() {
-          startFromHere($("#selectedLineNumber").val());
+          startFromHere($('#selectedLineNumber').val());
         }
       },
       {

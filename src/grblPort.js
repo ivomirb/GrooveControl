@@ -1,27 +1,25 @@
 // grblPort.js handles the connection port (USB, telnet) for the controller
 
-"use strict";
-
 // System dependencies
-const {
+import {
   SerialPort
-} = require('serialport')
+} from 'serialport';
 
-const _ = require('lodash');
-const net = require('net');
-const Evilscan = require('evilscan');
+import _ from 'lodash';
+import net from 'net';
+import Evilscan from 'evilscan';
 
 
 // App dependencies
-const {
+import {
   debug_log,
   status,
-} = require('./core.js');
+} from './core.js';
 
-const {
+import {
   serverEmitOutput,
   addConnectionHandler,
-} = require('./server.js');
+} from './server.js';
 
 
 // Global variables
@@ -156,17 +154,17 @@ function connectTo(data) { // If a user picks a port to connect to, open a Node 
       port.isOpen = true;
     }
 
-    port.on("error", onPortError);
+    port.on('error', onPortError);
 
-    port.on("ready", function() {
+    port.on('ready', function() {
       portOpenHandlers.forEach((x) => x(port, data));
     });
 
-    port.on("open", function() {
+    port.on('open', function() {
       portOpenHandlers.forEach((x) => x(port, data));
     });
 
-    port.on("close", onPortClose);
+    port.on('close', onPortClose);
   }
 }
 
@@ -286,9 +284,9 @@ function scanForTelnetDevices(range) {
 }
 
 function onConnection(socket) {
-  socket.on("scannetwork", scanForTelnetDevices);
+  socket.on('scannetwork', scanForTelnetDevices);
 
-  socket.on("connectTo", connectTo);
+  socket.on('connectTo', connectTo);
 
   socket.on('closePort', function() { // Close machine port and dump queue
     if (status.comms.connectionStatus > 0) {
@@ -311,7 +309,7 @@ function initGrblPort() {
   }, 1000);
 }
 
-module.exports = {
+export {
   closePort,
   addPortOpenHandler,
   addPortCloseHandler,

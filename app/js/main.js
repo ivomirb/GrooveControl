@@ -11,7 +11,7 @@ var isJogWidget = false;
 var lastJobStartTime = false;
 
 // Disable global Right-click menu, so we can implement UI right click menus
-document.addEventListener("contextmenu", function(e) {
+document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
 }, false);
 
@@ -73,13 +73,13 @@ $(document).ready(function() {
     themeDocReady();
     heightmapDocReady();
 
-    $("#command").inputHistory({
+    $('#command').inputHistory({
       enter: function() {
-        $("#sendCommand").click();
+        $('#sendCommand').click();
       }
     });
 
-    $("form").submit(function() {
+    $('form').submit(function() {
       return false;
     });
 
@@ -99,20 +99,19 @@ $(document).ready(function() {
       editor.setAutoScrollEditorIntoView(true);
       editor.session.setValue('; No G-code yet - please Load a G-code file from the Open G-code button');
       editor.setShowPrintMargin(false);
-      $('#editor').addClass("editorEnabled");
+      $('#editor').addClass('editorEnabled');
 
       // The editor doesn't update when its text changes, unless it is visible.
       // The observer forces an update when the editor becomes visible.
       const observer = new ResizeObserver(() => { editor.resize(); });
-      observer.observe(document.getElementById("editor"));
+      observer.observe(document.getElementById('editor'));
 
-      editor.container.addEventListener("contextmenu", function(e) {
-
-        $("#editorContextMenu").css({
+      editor.container.addEventListener('contextmenu', function(e) {
+        $('#editorContextMenu').css({
           left: e.pageX,
           top: e.pageY
         }).data('dropdown').close(true);
-        $("#editorContextToggle").click();
+        $('#editorContextToggle').click();
 
         $('.linenumber').html((editor.getSelectionRange().start.row + 1));
       }, false);

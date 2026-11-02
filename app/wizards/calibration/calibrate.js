@@ -150,12 +150,12 @@ function zstepspermm() {
 }
 
 // function motorselect() {
-//   var select = $("#motorselect").data('select');
+//   var select = $('#motorselect').data('select');
 //   console.log("Current value: " + select.val());
 // }
 
 function actuatorselect() {
-  const select = $("#actuatorselect").data('select');
+  const select = $('#actuatorselect').data('select');
   console.log("Current value: " + select.val());
 
   if (select.val() == "belt") {
@@ -171,22 +171,22 @@ function actuatorselect() {
 }
 
 function processpreset() {
-  const actuatorselect = $("#actuatorselect").data('select');
+  const actuatorselect = $('#actuatorselect').data('select');
   // console.log("actuatorselect value: " + actuatorselect.val());
 
-  const motorselect = $("#motorselect").data('select');
+  const motorselect = $('#motorselect').data('select');
   // console.log("motorselect value: " + motorselect.val());
 
-  const microstepselect = $("#microstepselect").data('select');
+  const microstepselect = $('#microstepselect').data('select');
   // console.log("microstepselect value: " + microstepselect.val());
 
-  const beltselect = $("#beltselect").data('select');
+  const beltselect = $('#beltselect').data('select');
   // console.log("beltselect value: " + beltselect.val());
 
-  const pulleyselect = $("#pulleyselect").data('select');
+  const pulleyselect = $('#pulleyselect').data('select');
   // console.log("pulleyselect value: " + pulleyselect.val());
 
-  const leadscrewselect = $("#leadscrewselect").data('select');
+  const leadscrewselect = $('#leadscrewselect').data('select');
   // console.log("leadscrewselect value: " + leadscrewselect.val());
 
   if (actuatorselect.val() == "belt") {

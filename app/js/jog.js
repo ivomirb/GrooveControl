@@ -66,7 +66,7 @@ function setJogDist(index) {
 }
 
 function setADist(newADist) {
-  $("#distAAxislabel").html("A: " + newADist + "&deg;");
+  $('#distAAxislabel').html("A: " + newADist + "&deg;");
   jogdistA = newADist;
 }
 
@@ -109,25 +109,25 @@ function toggleWCS() {
   $('#mcsBtn').html(showMCS ? "MCS" : "WCS");
   $('#Xwork, #Ywork, #Zwork, #Awork').html(showMCS ? "MCS" : "WORK");
   addRemoveClass('#mcsBtn, .dro', 'droMCS', showMCS);
-  enableViaClass($(".setzero"), !showMCS);
+  enableViaClass($('.setzero'), !showMCS);
 
   updateDro(laststatus);
 }
 
 function cancelJog() {
-  socket.emit('stop', {stop: false, jog: true, abort: false});
+  socket.emit('stop', {jog: true});
   continuousJogRunning = false;
 }
 
 function onDroClick(axis) {
   if (!laststatus || laststatus.comms.connectionStatus != 2) return; // only allow during Idle
 
-  const main = $("#" + axis + "PosDro");
-  const view = $("#" + axis + "Pos");
-  const input = $("#" + axis + "PosInput");
+  const main = $('#' + axis + 'PosDro');
+  const view = $('#' + axis + 'Pos');
+  const input = $('#' + axis + 'PosInput');
 
   view.hide();
-  main.addClass("drop-shadow");
+  main.addClass('drop-shadow');
 
   let value = laststatus.machine.position.work[axis];
   if (showMCS) {
@@ -156,7 +156,7 @@ function prettyCoord(val, dec) {
 function updateDro(status) {
   if (!status || status.comms.connectionStatus == 0 || status.comms.connectionStatus == 6) {
     $('#xPos, #yPos, #zPos, #aPos').html('0.00');
-    $("#xPosDro, #yPosDro, #zPosDro, #aPosDro").attr('title', '');
+    $('#xPosDro, #yPosDro, #zPosDro, #aPosDro').attr('title', '');
     return;
   }
 
@@ -172,22 +172,22 @@ function updateDro(status) {
   }
 
   if (unit == "in") {
-    $(" #xPosDro").attr('title', 'X Machine: ' + ((status.machine.position.work.x + status.machine.position.offset.x) / 25.4).toFixed(3) + unit +
+    $('#xPosDro').attr('title', 'X Machine: ' + ((status.machine.position.work.x + status.machine.position.offset.x) / 25.4).toFixed(3) + unit +
       "\nX Work: " + (status.machine.position.work.x / 25.4).toFixed(3) + unit);
-    $(" #yPosDro").attr('title', 'Y Machine: ' + ((status.machine.position.work.y + status.machine.position.offset.y) / 25.4).toFixed(3) + unit +
+    $('#yPosDro').attr('title', 'Y Machine: ' + ((status.machine.position.work.y + status.machine.position.offset.y) / 25.4).toFixed(3) + unit +
       "\nY Work: " + (status.machine.position.work.y / 25.4).toFixed(3) + unit);
-    $(" #zPosDro").attr('title', 'Z Machine: ' + ((status.machine.position.work.z + status.machine.position.offset.z) / 25.4).toFixed(3) + unit +
+    $('#zPosDro').attr('title', 'Z Machine: ' + ((status.machine.position.work.z + status.machine.position.offset.z) / 25.4).toFixed(3) + unit +
       "\nZ Work: " + (status.machine.position.work.z / 25.4).toFixed(3) + unit);
 
     xpos = prettyCoord(xpos / 25.4, 3).toFixed(3) + unit;
     ypos = prettyCoord(ypos / 25.4, 3).toFixed(3) + unit;
     zpos = prettyCoord(zpos / 25.4, 3).toFixed(3) + unit;
   } else {
-    $("#xPosDro").attr('title', 'X Machine: ' + (status.machine.position.work.x + status.machine.position.offset.x).toFixed(3) + unit +
+    $('#xPosDro').attr('title', 'X Machine: ' + (status.machine.position.work.x + status.machine.position.offset.x).toFixed(3) + unit +
       "\nX Work: " + status.machine.position.work.x.toFixed(3) + unit);
-    $("#yPosDro").attr('title', 'Y Machine: ' + (status.machine.position.work.y + status.machine.position.offset.y).toFixed(3) + unit +
+    $('#yPosDro').attr('title', 'Y Machine: ' + (status.machine.position.work.y + status.machine.position.offset.y).toFixed(3) + unit +
       "\nY Work: " + status.machine.position.work.y.toFixed(3) + unit);
-    $("#zPosDro").attr('title', 'Z Machine: ' + (status.machine.position.work.z + status.machine.position.offset.z).toFixed(3) + unit +
+    $('#zPosDro').attr('title', 'Z Machine: ' + (status.machine.position.work.z + status.machine.position.offset.z).toFixed(3) + unit +
       "\nZ Work: " + status.machine.position.work.z.toFixed(3) + unit);
 
     xpos = prettyCoord(xpos, 2).toFixed(2) + unit;
@@ -195,7 +195,7 @@ function updateDro(status) {
     zpos = prettyCoord(zpos, 2).toFixed(2) + unit;
   }
 
-  $("#aPosDro").attr('title', 'A Machine: ' + (status.machine.position.work.a + status.machine.position.offset.a).toFixed(3) + "\u{00B0}" +
+  $('#aPosDro').attr('title', 'A Machine: ' + (status.machine.position.work.a + status.machine.position.offset.a).toFixed(3) + "\u{00B0}" +
     "\nA Work: " + status.machine.position.work.a.toFixed(3) + "\u{00B0}");
   apos = prettyCoord(apos, 2).toFixed(2) + "&deg;";
 
@@ -218,15 +218,15 @@ function onDroKeydown(axis, e) {
     if (e.ctrlKey) return; // ignore Ctrl to avoid confusion with Shift
     if (showMCS && e.shiftKey) return; // can't change the origin of MCS
 
-    const view = $("#" + axis + "Pos");
-    const input = $("#" + axis + "PosInput");
+    const view = $('#' + axis + 'Pos');
+    const input = $('#' + axis + 'PosInput');
 
     //Disable textbox to prevent multiple submit
-    input.attr("disabled", "disabled");
+    input.attr('disabled', 'disabled');
     view.show();
     input.hide();
     //Enable the textbox again if needed.
-    input.removeAttr("disabled");
+    input.removeAttr('disabled');
 
     if (e.key == "Escape") return;
 
@@ -252,11 +252,11 @@ function onDroKeydown(axis, e) {
 }
 
 function onDroBlur(axis) {
-  const main = $("#" + axis + "PosDro");
-  const view = $("#" + axis + "Pos");
-  const input = $("#" + axis + "PosInput");
+  const main = $('#' + axis + 'PosDro');
+  const view = $('#' + axis + 'Pos');
+  const input = $('#' + axis + 'PosInput');
 
-  main.removeClass("drop-shadow");
+  main.removeClass('drop-shadow');
   view.show();
   input.hide();
 }
@@ -293,8 +293,8 @@ function onJogAxisMinus(event, axis, jogdist, pulloffOverride, ripple, continuou
     sendGcode("$J=G91 G21 " + Axis + (-jogdist).toFixed(2) + " F" + jogRate[axis]);
     rippleEffect($(event.currentTarget), ripple);
   }
-  $('#runNewProbeBtn').addClass("disabled");
-  $('#confirmNewProbeBtn').removeClass("disabled");
+  $('#runNewProbeBtn').addClass('disabled');
+  $('#confirmNewProbeBtn').removeClass('disabled');
 }
 
 function onJogAxisPlus(event, axis, jogdist, pulloffOverride, ripple, continuousJog) {
@@ -329,8 +329,8 @@ function onJogAxisPlus(event, axis, jogdist, pulloffOverride, ripple, continuous
     sendGcode("$J=G91 G21 " + Axis + jogdist.toFixed(2) + " F" + jogRate[axis]);
     rippleEffect($(event.currentTarget), ripple);
   }
-  $('#runNewProbeBtn').addClass("disabled");
-  $('#confirmNewProbeBtn').removeClass("disabled");
+  $('#runNewProbeBtn').addClass('disabled');
+  $('#confirmNewProbeBtn').removeClass('disabled');
 }
 
 function onJogAxisCancel(event) {

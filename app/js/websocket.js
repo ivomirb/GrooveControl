@@ -12,7 +12,7 @@ var froBuffer = undefined, troBuffer = undefined;
 const MAX_GCODE_IN_EDITOR = 20 * 1024 * 1024;
 
 function printLogModern(icon, source, string, printLogCls) {
-  if (document.getElementById("console") !== null) {
+  if (document.getElementById('console') !== null) {
     if (string.isString) {
       string = string.replace(/\r\n|\n|\r/, "<br />");
     }
@@ -36,12 +36,12 @@ function printLogModern(icon, source, string, printLogCls) {
       template += "<span class='" + printLogCls + "'>" + string + "</span>"
     }
     $('#console').append(template);
-    $('#console').scrollTop(($("#console")[0].scrollHeight - $("#console").height()) + 20);
+    $('#console').scrollTop(($('#console')[0].scrollHeight - $('#console').height()) + 20);
   }
 }
 
 function printLog(string) {
-  if (document.getElementById("console") !== null) {
+  if (document.getElementById('console') !== null) {
     if (string.isString) {
       // split(/\r\n|\n|\r/);
       string = string.replace(/\r\n|\n|\r/, "<br />");
@@ -56,7 +56,7 @@ function printLog(string) {
     template += '<span class="fg-dark">[' + (time.getHours() < 10 ? '0' : '') + time.getHours() + ":" + (time.getMinutes() < 10 ? '0' : '') + time.getMinutes() + ":" + (time.getSeconds() < 10 ? '0' : '') + time.getSeconds() + ']</span> ';
     template += string;
     $('#console').append(template);
-    $('#console').scrollTop(($("#console")[0].scrollHeight - $("#console").height()) + 20);
+    $('#console').scrollTop(($('#console')[0].scrollHeight - $('#console').height()) + 20);
   }
 }
 
@@ -113,27 +113,27 @@ function onSysInfo(sysinfo) {
     lastsysinfo = sysinfo;
 
     const mobo = sysinfo.hardware.motherboard.manufacturer + " " + sysinfo.hardware.motherboard.model;
-    $("#mobospecs").html(mobo);
+    $('#mobospecs').html(mobo);
 
     const cpu = sysinfo.hardware.cpu[0].model;
-    $("#cpuspecs").html(cpu);
+    $('#cpuspecs').html(cpu);
 
     const gpu = sysinfo.hardware.gpu.length > 0 ? sysinfo.hardware.gpu[0].model + " (" + sysinfo.hardware.gpu[0].vram + "mb)" : "NONE";
-    $("#gpuspecs").html(gpu);
+    $('#gpuspecs').html(gpu);
 
     const memory = "Free: " + sysinfo.hardware.memory.free + " / Total: " + sysinfo.hardware.memory.total;
-    $("#memoryspecs").html(memory);
+    $('#memoryspecs').html(memory);
 
     const operatingsys = sysinfo.operatingSystem.distro + " / " + sysinfo.operatingSystem.arch + " (" + sysinfo.operatingSystem.version + ")";
-    $("#osspecs").html(operatingsys);
+    $('#osspecs').html(operatingsys);
 
     const ipaddresses = sysinfo.network.flatMap((iface) => iface.addresses.map(addr => addr.address)).join(' / ');
-    $("#ipspecs").html(ipaddresses);
+    $('#ipspecs').html(ipaddresses);
   }
 }
 
 function onSocketConnect() {
-  $("#websocketstatus").html("Connected")
+  $('#websocketstatus').html("Connected")
 }
 
 function onSocketDisconnect() {
@@ -143,15 +143,15 @@ function onSocketDisconnect() {
   const string = "Disconnected. Groove Control probably quit or crashed"
   const printLogCls = "fg-darkRed"
   printLogModern(icon, source, string, printLogCls)
-  $("#websocketstatus").html("Disconnected")
+  $('#websocketstatus').html("Disconnected")
 }
 
 function onInterfaceDrive(data) {
   console.log(data)
   if (data && data.length > 1) {
-    $("#interfaceDriveLetterBtn").html("<i class='fab fa-usb'></i> Selected: " + data)
-    if ($("#profileTargetController").val() != "") {
-      $(".interfaceCopyBtn").removeClass('disabled');
+    $('#interfaceDriveLetterBtn').html("<i class='fab fa-usb'></i> Selected: " + data)
+    if ($('#profileTargetController').val() != "") {
+      $('.interfaceCopyBtn').removeClass('disabled');
     }
   }
 }
@@ -214,8 +214,8 @@ function onGrbl(firmware) {
     sendGcode(firmware.platform == "FluidNC" ? '$$\n$I\n$CD' : '$$\n$I');
   }, 500);
 
-  $("#grblButtons").show();
-  $("#firmwarename").html(firmware.platform);
+  $('#grblButtons').show();
+  $('#firmwarename').html(firmware.platform);
   if (localStorage.getItem('jogOverride')) {
     jogOverride(localStorage.getItem('jogOverride'));
   }
@@ -258,10 +258,10 @@ function onJobComplete(data) {
     let runTime = undefined;
     if (data.jobStartTime && data.jobEndTime) {
       runTime = data.jobEndTime - data.jobStartTime;
-      $("#completeMsgDiv").html("Job completed in " + msToTime(runTime) + "<hr>" + data.jobCompletedMsg);
+      $('#completeMsgDiv').html("Job completed in " + msToTime(runTime) + "<hr>" + data.jobCompletedMsg);
       $('#timeRemaining').html("DONE: " + msToTime(runTime));
     } else {
-      $("#completeMsgDiv").html(data.jobCompletedMsg);
+      $('#completeMsgDiv').html(data.jobCompletedMsg);
       $('#timeRemaining').html("DONE: " + msToTime(runTime));
     }
     Metro.dialog.open("#completeMsgModal");
@@ -297,7 +297,7 @@ function onQueueCount(data) {
   const total = data[1]
   const done = total - left;
   const donepercent = done / total * 100
-  const progressbar = $("#progressbar").data("progress");
+  const progressbar = $('#progressbar').data('progress');
   if (progressbar) {
     progressbar.val(donepercent);
   }
@@ -359,7 +359,7 @@ function toastErrorAlarm(data) {
   }
 
   setTimeout(function() {
-    $(".closeAlarmBtn").focus();
+    $('.closeAlarmBtn').focus();
   }, 200);
 }
 
@@ -384,7 +384,7 @@ function toastError(data) {
   });
   openErrorDialogs.push(dialog);
   setTimeout(function() {
-    $(".closeErrorBtn").focus();
+    $('.closeErrorBtn').focus();
   }, 200);
 }
 
@@ -519,17 +519,17 @@ function onStatus(status) {
   } else {
     html = status.machine.overrides.realFeed.toFixed(0) + "<br>mm/min";
   }
-  if ($("#realFeed").html() != html) {
-    $("#realFeed").html(html);
+  if ($('#realFeed').html() != html) {
+    $('#realFeed').html(html);
   }
   html = status.machine.overrides.realSpindle.toFixed(0) + "<br>rpm";
-  if ($("#realSpeed").html() != html) {
-    $("#realSpeed").html(html);
+  if ($('#realSpeed').html() != html) {
+    $('#realSpeed').html(html);
   }
 
   // Windows Power Management
   if (status.driver.operatingsystem == "windows") {
-    $("#powerSettingsCard").show();
+    $('#powerSettingsCard').show();
     if (status.driver.powersettings.usbselectiveAC == false) {
       $('#selectivesuspendAC').removeClass('alert').addClass('success').html('DISABLED')
     } else if (status.driver.powersettings.usbselectiveAC == null) {
@@ -546,10 +546,10 @@ function onStatus(status) {
       $('#selectivesuspendDC').removeClass('success').addClass('alert').html('ENABLED')
     }
   } else {
-    $("#powerSettingsCard").hide();
+    $('#powerSettingsCard').hide();
   }
 
-  $("#firmwareversionstatus").html(status.machine.firmware.platform + " " + status.machine.firmware.version + " (" + status.machine.firmware.date + ")");
+  $('#firmwareversionstatus').html(status.machine.firmware.platform + " " + status.machine.firmware.version + " (" + status.machine.firmware.date + ")");
 
   // Grbl Pins Input Status
   updatePinStatus($('#xpin'), status.machine.inputs.includes('X'), 'TRIGGERED', 'OFF');
@@ -595,7 +595,7 @@ function onStatus(status) {
   $('.dro').attr('disconnected', status.comms.connectionStatus < 2 || status.comms.connectionStatus == 6);
 
   // Allow typing on the console only during idle or alarm
-  $("#command, #sendCommand").attr('disabled', status.comms.connectionStatus != 2 && status.comms.connectionStatus != 5);
+  $('#command, #sendCommand').attr('disabled', status.comms.connectionStatus != 2 && status.comms.connectionStatus != 5);
 
   // Set the Connection Toolbar option
   setConnectBar(status.comms.connectionStatus, status);
@@ -604,8 +604,8 @@ function onStatus(status) {
     bellstate = false
   }
   if (status.comms.connectionStatus == 0) {
-    $("#grblButtons").hide();
-    $("#firmwarename").html('');
+    $('#grblButtons').hide();
+    $('#firmwarename').html('');
     if (localStorage.getItem('jogOverride')) {
       jogOverride(localStorage.getItem('jogOverride'));
     }
@@ -626,9 +626,9 @@ function onStatus(status) {
   }
 
   // Enable or disable 4th axis UI elements
-  $(".4thaxis-present").toggle(status.machine.has4thAxis);
-  $(".4thaxis-active").toggle(status.machine.has4thAxis && !disable4thAxis);
-  $("#jogcell").css('max-width', (status.machine.has4thAxis && !disable4thAxis) ? "427px" : "348px");
+  $('.4thaxis-present').toggle(status.machine.has4thAxis);
+  $('.4thaxis-active').toggle(status.machine.has4thAxis && !disable4thAxis);
+  $('#jogcell').css('max-width', (status.machine.has4thAxis && !disable4thAxis) ? '427px' : '348px');
 
   if (!isJogWidget && (!laststatus || laststatus.misc.trayIcon != status.misc.trayIcon) &&
       (status.driver.platform == 'win32' || status.driver.platform == 'linux')) {
@@ -730,10 +730,10 @@ function onFeatures(data) {
   }
 */
   if (laststatus.machine.firmware.platform != "grblHAL") {
-    $(".servo-active").toggle(data.contains('Q')); // the grblHAL case is handled by setting $33
+    $('.servo-active').toggle(data.contains('Q')); // the grblHAL case is handled by setting $33
   }
   $('#menuMisting').toggle(data.contains('M'));
-  $("#homeSingleMenu").parent().toggle(data.contains('H'));
+  $('#homeSingleMenu').parent().toggle(data.contains('H'));
 }
 
 function initSocket() {
@@ -768,29 +768,29 @@ function initSocket() {
 
   socket.on('data', onSocketData);
 
-  socket.on("grbl", onGrbl);
+  socket.on('grbl', onGrbl);
 
   // eslint-disable-next-line no-unused-vars
-  socket.on("queueComplete", function(data) {});
+  socket.on('queueComplete', function(data) {});
 
-  socket.on("jobComplete", onJobComplete);
+  socket.on('jobComplete', onJobComplete);
 
   socket.on('status', onStatus);
 
   socket.on('features', onFeatures);
 
-  socket.on("queueCount", onQueueCount);
+  socket.on('queueCount', onQueueCount);
 
   socket.on('toastErrorAlarm', toastErrorAlarm);
 
   socket.on('toastError', toastError);
 
-  socket.on("errorsCleared", errorsCleared);
+  socket.on('errorsCleared', errorsCleared);
 
   if (!isJogWidget) {
     socket.on('sysinfo', onSysInfo);
 
-    socket.on("interfaceOutdated", function(status) {
+    socket.on('interfaceOutdated', function(status) {
       console.log("interfaceOutdated", status)
     })
 
@@ -810,11 +810,11 @@ function initSocket() {
 
   $('#command').on('keypress', function(e) {
     if (e.which === 13) {
-      $(this).attr("disabled", "disabled");
+      $(this).attr('disabled', 'disabled');
       const commandValue = $('#command').val();
       sendGcode(commandValue);
       $('#command').val('');
-      $(this).removeAttr("disabled");
+      $(this).removeAttr('disabled');
     }
   });
 
@@ -862,7 +862,7 @@ function scanNetwork() {
       caption: "Start Scan",
       cls: "js-dialog-close success",
       onclick: function() {
-        const network = $("#scanIp1").val() + '.' + $("#scanIp2").val() + '.' + $("#scanIp3").val();
+        const network = $('#scanIp1').val() + '.' + $('#scanIp2').val() + '.' + $('#scanIp3').val();
         const range = network + ".1-" + network + ".254"
         socket.emit('scannetwork', range)
         $('#controlTab').click();
@@ -880,7 +880,7 @@ function scanNetwork() {
 function selectPort(port) {
   activateContentTab('consoletab');
   if (port == undefined) {
-    port = $("#portUSB").val()
+    port = $('#portUSB').val()
   }
   let data;
   if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(port)) {
@@ -890,7 +890,7 @@ function selectPort(port) {
       baud: false,
       type: "telnet"
     };
-    localStorage.setItem("lastip", port);
+    localStorage.setItem('lastip', port);
   } else {
     data = {
       port: port,
@@ -900,7 +900,7 @@ function selectPort(port) {
   }
   if (port.length > 1) {
     socket.emit('connectTo', data);
-    localStorage.setItem("lastGrblPort", port);
+    localStorage.setItem('lastGrblPort', port);
   } else {
     printLog("[connect] No Ports/IP selected/entered")
   }
@@ -915,7 +915,7 @@ function closePort() {
 
 function populatePortsMenu() {
   if (laststatus) {
-    const lastGrblPort = localStorage.getItem("lastGrblPort");
+    const lastGrblPort = localStorage.getItem('lastGrblPort');
     let foundPort = false;
     let response = ``
     if (laststatus.comms.interfaces.ports.length == 0) {
@@ -951,14 +951,14 @@ function populatePortsMenu() {
       };
     }
     response += `</optgroup>`
-    const select = $("#portUSB").data("select");
+    const select = $('#portUSB').data('select');
     select.data(response);
     if (foundPort) {
       select.val(lastGrblPort);
     }
 
-    $('#portUSB').parent(".select").removeClass('disabled')
-    $("#connectBtn").attr('disabled', false);
+    $('#portUSB').parent('.select').removeClass('disabled')
+    $('#connectBtn').attr('disabled', false);
   }
 }
 

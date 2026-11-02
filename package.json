@@ -37,6 +37,7 @@
     "systeminformation": "^5.27.11",
     "xmodem.js": "^0.1.0"
   },
+  "type": "module",
   "main": "./src/main.js",
   "scripts": {
     "start": "echo \"Error: no start script specified\" && exit 0",
