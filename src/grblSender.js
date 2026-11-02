@@ -488,7 +488,7 @@ function handleOK(data, command) {
     serverEmit('fluidncConfig', fluidncConfig);
   }
   status.comms.blocked = false;
-  serverEmit("queueCount", [gcodeQueue.length + sentBuffer.length - queuePointer, gcodeQueue.length]);
+  serverEmit('queueCount', [gcodeQueue.length + sentBuffer.length - queuePointer, gcodeQueue.length]);
   if (queuePointer < gcodeQueue.length) {
     send1Q();
   }
@@ -516,7 +516,7 @@ function handleAlarm(data, command) {
   debug_log('ALARM: ' + alarmMessage);
   status.comms.alarm = alarmMessage;
   if (alarmCode != 5) {
-    serverEmit("toastErrorAlarm", 'ALARM: ' + alarmMessage + commandMsg);
+    serverEmit('toastErrorAlarm', 'ALARM: ' + alarmMessage + commandMsg);
   }
   serverEmitOutput({
     command: '',
@@ -542,7 +542,7 @@ function handleError(data, command) {
     response: 'ERROR: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + commandMsg + lastAlarm,
     type: 'error'
   });
-  serverEmit("toastError", 'ERROR: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + commandMsg + lastAlarm);
+  serverEmit('toastError', 'ERROR: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + commandMsg + lastAlarm);
 
   clearGcodeQueue(false);
   status.comms.connectionStatus = 5;
@@ -562,11 +562,11 @@ function onParserData(data) {
   }
   else if (data.startsWith("[VER:")) {
     parseVersion(data);
-    serverEmit("status", status);
+    serverEmit('status', status);
   }
   else if (data.startsWith("[OPT:")) {
     parseOptions(data);
-    serverEmit("features", status.machine.firmware.features);
+    serverEmit('features', status.machine.firmware.features);
   }
   else if (data.startsWith("[GC:")) {
     parseModals(data);
@@ -876,7 +876,7 @@ function calcBufferSpace() {
 function send1Q() {
   if (status.comms.connectionStatus > 0) {
     if (queuePointer == 0) {
-      serverEmit("queueCount", [gcodeQueue.length, gcodeQueue.length]);
+      serverEmit('queueCount', [gcodeQueue.length, gcodeQueue.length]);
     }
     while (queuePointer < gcodeQueue.length && !status.comms.blocked && !status.comms.paused) {
       const spaceLeft = calcBufferSpace();
@@ -911,7 +911,7 @@ function clearGcodeQueue(success) {
     serverEmit('queueComplete', data);
     const queueLeft = gcodeQueue.length - queuePointer + sentBuffer.length;
     const queueTotal = gcodeQueue.length;
-    serverEmit("queueCount", [queueLeft, queueTotal]);
+    serverEmit('queueCount', [queueLeft, queueTotal]);
   }
 
   clearInterval(queueCounterLoop);
@@ -1137,7 +1137,7 @@ function onConnection(socket) {
     }
   });
 
-  socket.on("spindleDelay", function(data) {
+  socket.on('spindleDelay', function(data) {
     status.misc.spindleDelay = data;
     if (persistentConfig.spindleDelay != data) {
       persistentConfig.spindleDelay = data;
@@ -1161,7 +1161,7 @@ function onPortOpen(_port, data) {
   const parser = port.pipe(new ReadlineParser({
     delimiter: '\r\n' // grbl always uses \r\n
   }));
-  parser.on("data", onParserData);
+  parser.on('data', onParserData);
 
   // then try to connect
   connectController(data);

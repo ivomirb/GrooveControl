@@ -276,17 +276,17 @@ function saveFileRequest(req, res) {
 }
 
 function onConnection(socket) {
-  socket.on("saveFileDialog", saveFileDialog);
+  socket.on('saveFileDialog', saveFileDialog);
 
-  socket.on("openFileDialog", openFileDialog);
+  socket.on('openFileDialog', openFileDialog);
 
-  socket.on("readTextFile", readTextFile);
+  socket.on('readTextFile', readTextFile);
 
-  socket.on("openFile", openGcodeFile);
+  socket.on('openFile', openGcodeFile);
 
-  socket.on("reopenFile", reopenGcodeFile);
+  socket.on('reopenFile', reopenGcodeFile);
 
-  socket.on("clearRecentFiles", clearRecentFiles);
+  socket.on('clearRecentFiles', clearRecentFiles);
 }
 
 function onDocReady(result) {

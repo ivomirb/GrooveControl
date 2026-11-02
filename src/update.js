@@ -89,23 +89,23 @@ function createAutoUpdater(isPackaged) {
 }
 
 function onConnection(socket) {
-  socket.on("openUpdatePage", function() {
+  socket.on('openUpdatePage', function() {
     shell.openExternal("https://github.com/ivomirb/GrooveControl/releases/latest");
   });
 
-  socket.on("cancelUpdate", function() {
+  socket.on('cancelUpdate', function() {
     if (downloadCancelToken) {
       downloadCancelToken.cancel();
       downloadCancelToken = null;
     }
   });
 
-  socket.on("downloadAndInstall", function() {
+  socket.on('downloadAndInstall', function() {
     downloadCancelToken =  new CancellationToken();
     autoUpdater.downloadUpdate(downloadCancelToken);
   });
 
-  socket.on("enableUpdates", function(enable) {
+  socket.on('enableUpdates', function(enable) {
     persistentConfig.enableUpdates = enable;
     status.misc.enableUpdates = enable;
     savePersistentConfig();

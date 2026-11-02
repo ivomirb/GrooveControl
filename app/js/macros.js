@@ -16,7 +16,7 @@ function saveMacroButtons() {
 }
 
 function populateMacroButtons(runStartups) {
-  $("#macroToolsBtn").parent().nextAll().remove();
+  $('#macroToolsBtn').parent().nextAll().remove();
 
   for (let i = 0; i < buttonsarray.length; i++) {
     const button = buttonsarray[i];
@@ -53,7 +53,7 @@ function populateMacroButtons(runStartups) {
       </button>
       `;
 
-    $("#macros").append(buttonHtml);
+    $('#macros').append(buttonHtml);
 
     if (button.jsrunonstartup && runStartups) {
       try {
@@ -73,7 +73,7 @@ function populateMacroButtons(runStartups) {
       }
     }
   }
-  $("#macros").append(`<small style="flex-basis:100%; text-align:center; padding-top: 8px;"><i class="fas fa-info-circle"></i>  Right click your Macro buttons to edit/sort/delete/export</small>`);
+  $('#macros').append(`<small style="flex-basis:100%; text-align:center; padding-top: 8px;"><i class="fas fa-info-circle"></i>  Right click your Macro buttons to edit/sort/delete/export</small>`);
 
   saveMacroButtons();
   rebuildMacroGroups();
@@ -103,17 +103,17 @@ function onMacroShorcutKeyDown(event) {
     if (inUse) {
       $('#alreadyAssignedWarnMacro').html("\"" + capitalizeShortcut(newVal) + "\" is already assigned to " + keyInUse(newVal, true).source + "<br>");
       $('#alreadyAssignedWarnMacro').show();
-      $('#macrokeyboardshortcut').parent().removeClass("primary").addClass("alert");
+      $('#macrokeyboardshortcut').parent().removeClass('primary').addClass('alert');
     } else {
       $('#alreadyAssignedWarnMacro').hide();
       $('#macrokeyboardshortcut').val(capitalizeShortcut(newVal));
-      $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
+      $('#macrokeyboardshortcut').parent().removeClass('alert').addClass('primary');
     }
   }
 }
 
 function onMacroShortcutGetFocus() {
-  $('#macrokeyboardshortcut').parent().removeClass("alert").addClass("primary");
+  $('#macrokeyboardshortcut').parent().removeClass('alert').addClass('primary');
   $('#alreadyAssignedWarnMacro').hide();
 }
 
@@ -308,17 +308,17 @@ function editMacro(buttonIdx, fileName, script) {
   // Select your Button element (ID or Class)
   IconPicker.Run('#GetIconPicker');
 
-  $("#macrocolor").val(color).trigger("change");
+  $('#macrocolor').val(color).trigger("change");
   $('#macrogcode').val(gcode);
   $('#macrojs').val(javascript);
 
   if (codetype == "gcode") {
-    $("#editorJavascriptModeTab").removeClass("active");
-    $("#editorGcodeModeTab").addClass("active");
+    $('#editorJavascriptModeTab').removeClass('active');
+    $('#editorGcodeModeTab').addClass('active');
     editorGcodeMode();
   } else if (codetype == "javascript") {
-    $("#editorGcodeModeTab").removeClass("active");
-    $("#editorJavascriptModeTab").addClass("active");
+    $('#editorGcodeModeTab').removeClass('active');
+    $('#editorJavascriptModeTab').addClass('active');
     editorJavascriptMode();
   }
 }
@@ -358,14 +358,14 @@ function macrosDocReady() {
 
 function editorGcodeMode() {
   macroCodeType = "gcode";
-  $("#macroGcodeEditField").show()
-  $("#macroJavascriptEditField").hide()
+  $('#macroGcodeEditField').show()
+  $('#macroJavascriptEditField').hide()
 }
 
 function editorJavascriptMode() {
   macroCodeType = "javascript";
-  $("#macroJavascriptEditField").show()
-  $("#macroGcodeEditField").hide()
+  $('#macroJavascriptEditField').show()
+  $('#macroGcodeEditField').hide()
 }
 
 function executeJS(js) {
@@ -411,12 +411,12 @@ function macroContextMenu(buttonIdx) {
   $('#moveMacroLeft').attr('disabled', visIdx == undefined || visIdx == 0);
   $('#moveMacroRight').attr('disabled', visIdx == undefined || visIdx == visCount - 1);
 
-  const menu = $("#macroContextMenu");
+  const menu = $('#macroContextMenu');
   menu.css({
-    visibility: "hidden",
-    display: "block",
+    visibility: 'hidden',
+    display: 'block',
   });
-  const offset = $("#macroBtn" + buttonIdx).offset();
+  const offset = $('#macroBtn' + buttonIdx).offset();
   const menuRect = menu[0].getBoundingClientRect();
   const parentRect = document.body.getBoundingClientRect();
   const left = Math.max(Math.min(offset.left + 20, parentRect.right - menuRect.width - 4), 0);
@@ -425,9 +425,9 @@ function macroContextMenu(buttonIdx) {
   menu.css({
     left: left,
     top: top,
-    visibility: "visible",
+    visibility: 'visible',
   }).data('dropdown').close(true);
-  $("#macroContextToggle").click();
+  $('#macroContextToggle').click();
 }
 
 function moveMacro(index, direction) {
@@ -592,7 +592,7 @@ var macroGroupsLower = [""];
 var selectedMacroGroup = undefined; // used in context menus
 
 function saveMacroGroupView() {
-  localStorage.setItem("macroGroupView", JSON.stringify({tabVisibility: macroGroupView, currentGroupLower: currentMacroGroupLower}));
+  localStorage.setItem('macroGroupView', JSON.stringify({tabVisibility: macroGroupView, currentGroupLower: currentMacroGroupLower}));
 }
 
 function setCurrentMacroGroup(groupLower) {
@@ -680,11 +680,11 @@ function selectMacroTab(groupIdx) {
 function macroTabContextMenu(event, groupIdx) {
   selectedMacroGroup = groupIdx;
 
-  $("#macroTabContextMenu").css({
+  $('#macroTabContextMenu').css({
     left: event.clientX,
     top: event.clientY
   }).data('dropdown').close(true);
-  $("#macroTabContextToggle").click();
+  $('#macroTabContextToggle').click();
 }
 
 function createMacroTabs(tabs, activeIdx) {
@@ -827,8 +827,8 @@ function moveMacroToGroup(buttonIdx) {
   $('#macroGroup').val(groupIdx);
 }
 
-if (localStorage.getItem("macroGroupView")) {
-  const settings = JSON.parse(localStorage.getItem("macroGroupView"));
+if (localStorage.getItem('macroGroupView')) {
+  const settings = JSON.parse(localStorage.getItem('macroGroupView'));
   macroGroupView = typeof(settings.tabVisibility) == "number" ? settings.tabVisibility : 2;
   if (macroGroupView != 0 && typeof(settings.currentGroupLower) == "string" && macroGroupsLower.indexOf(settings.currentGroupLower) != -1) {
     macroGroupsLower = settings.currentGroupLower;
