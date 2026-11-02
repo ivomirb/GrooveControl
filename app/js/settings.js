@@ -41,8 +41,8 @@ function updateSettingsState() {
 
   const enableKeyboardShortcuts = $('#enableKeyboardShortcuts').prop('checked');
 
-  enableViaClass("#keyboardAssignmentPrompt", enableKeyboardShortcuts);
-  enableViaClass("#keyboardAssignmentForm", enableKeyboardShortcuts);
+  enableViaClass('#keyboardAssignmentPrompt', enableKeyboardShortcuts);
+  enableViaClass('#keyboardAssignmentForm', enableKeyboardShortcuts);
 
 }
 
