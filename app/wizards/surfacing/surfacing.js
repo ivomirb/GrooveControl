@@ -116,7 +116,7 @@ Best when surfacing the entire spoilboard. Use with caution when flattening stoc
             </ul></small>
           <hr>
           <center>
-            <img src="img/surfacing/wizard1.png" alt="diameter" border="0" style="max-width: calc(100% - 10px); ">
+            <img src="./img/surfacing/wizard1.png" alt="diameter" border="0" style="max-width: calc(100% - 10px); ">
           </center>
         </div>
       </div>
@@ -129,7 +129,7 @@ function populateSurfaceToolForm() {
     title: "<i class='fas fa-exchange-alt'></i> Surfacing / Flattening Wizard",
     content: surfacingWizardTemplate,
     toTop: true,
-    width: '90%',
+    width: 850,
     clsDialog: 'dark',
     actions: [{
         caption: "Proceed",

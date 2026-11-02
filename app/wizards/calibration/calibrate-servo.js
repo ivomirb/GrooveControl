@@ -24,7 +24,7 @@ function servocalibrate() {
         <table class="table">
            <tr>
               <td>
-              <img src="img/calibrate/servo/up.png">
+              <img src="./img/calibrate/servo/up.png">
               </td>
               <td>
                  Step 1:  Find the Pen Up Value<br>
@@ -48,7 +48,7 @@ function servocalibrate() {
         <table class="table">
            <tr>
               <td>
-                <img src="img/calibrate/servo/down.png" alt="pos2" border="0">
+                <img src="./img/calibrate/servo/down.png" alt="pos2" border="0">
               </td>
               <td>
                  Step 2:  Find the Pen Down Value<br>
@@ -72,7 +72,7 @@ function servocalibrate() {
         <table class="table">
            <tr>
               <td>
-              <img src="img/calibrate/servo/center.png" alt="pos3" border="0">
+              <img src="./img/calibrate/servo/center.png" alt="pos3" border="0">
               </td>
               <td>
                  Step 3:  Note the values for future use<br>
