@@ -7,6 +7,7 @@ var grblParams = {}
 var bellstate = false;
 var waitingForStatus = false;
 var openErrorDialogs = [];
+var froBuffer = undefined, troBuffer = undefined;
 
 const MAX_GCODE_IN_EDITOR = 20 * 1024 * 1024;
 
@@ -331,7 +332,7 @@ function toastErrorAlarm(data) {
   }
   const dialog = Metro.dialog.create({
     clsDialog: 'dark',
-    title: "<i class='fas fa-exclamation-triangle'></i> Grbl Alarm:",
+    title: "<i class='fas fa-exclamation-triangle'></i> Grbl Alarm",
     content: "<i class='fas fa-exclamation-triangle fg-darkRed'></i>  " + data,
     onClose: function () {
       if (typeof removeDlgContext != "undefined") {
@@ -370,7 +371,7 @@ function toastError(data) {
   printLogModern(icon, source, string, printLogCls)
 
   const dialog = Metro.dialog.create({
-    title: "<i class='fas fa-exclamation-triangle'></i> Grbl Error:",
+    title: "<i class='fas fa-exclamation-triangle'></i> Grbl Error",
     content: "<i class='fas fa-exclamation-triangle fg-darkRed'></i>  " + data,
     clsDialog: 'dark',
     actions: [{
@@ -447,7 +448,7 @@ function onStatus(status) {
 
   let statusMsg;
   if (status.comms.runStatus == "Pending") {
-    statusMsg = "Controller: Not Connected";
+    statusMsg = "Controller: None";
   } else if (status.comms.runStatus == "Hold:0") {
     statusMsg = "Controller: Paused";
   } else if (status.comms.runStatus.startsWith("Door")) {
@@ -484,13 +485,31 @@ function onStatus(status) {
     }
   }
 
-  if (safeToUpdateSliders) {
-    if ($('#fro').data('slider') && $('#fro').data('slider').val() != status.machine.overrides.feedOverride) {
-      $('#fro').data('slider').val(status.machine.overrides.feedOverride);
+  if (!isJogWidget && safeToUpdateSliders) {
+    let data = status.machine.overrides.feedOverride;
+    let slider = $('#fro').data('slider');
+    if (slider.val() != data) {
+      slider.val(data);
+      const buffer = ((data - 10) * 100) / (200 - 10);
+      if (froBuffer != undefined && Math.abs(froBuffer - buffer) <= 2) {
+        froBuffer = undefined;
+      }
+      if (froBuffer == undefined) {
+        slider.buff(buffer);
+      }
     }
 
-    if ($('#tro').data('slider') && $('#tro').data('slider').val() != status.machine.overrides.spindleOverride) {
-      $('#tro').data('slider').val(status.machine.overrides.spindleOverride);
+    data = status.machine.overrides.spindleOverride;
+    slider = $('#tro').data('slider');
+    if (slider.val() != data) {
+      const buffer = ((data - 10) * 100) / (200 - 10);
+      slider.val(data);
+      if (troBuffer != undefined  && Math.abs(troBuffer - buffer) <= 2) {
+        troBuffer = undefined;
+      }
+      if (troBuffer == undefined) {
+        slider.buff(buffer);
+      }
     }
   }
 
@@ -950,16 +969,18 @@ function sendGcode(gcode) {
 }
 
 function feedOverride(step) {
-  if (socket) {
+  if (laststatus && laststatus.comms.connectionStatus >= 2) {
     socket.emit('feedOverride', step);
-    $('#fro').data('slider').buff(((step - 10) * 100) / (200 - 10))
+    froBuffer = ((step - 10) * 100) / (200 - 10);
+    $('#fro').data('slider').buff(froBuffer);
   }
 }
 
 function spindleOverride(step) {
-  if (socket) {
+  if (laststatus && laststatus.comms.connectionStatus >= 2) {
     socket.emit('spindleOverride', step);
-    $('#tro').data('slider').buff(((step - 10) * 100) / (200 - 10))
+    troBuffer = ((step - 10) * 100) / (200 - 10);
+    $('#tro').data('slider').buff(troBuffer);
   }
 }
 

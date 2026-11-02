@@ -998,6 +998,7 @@ function finalizeJob(success) {
     for (let job of pendingJobCallbacks) {
       job.report.endTime = new Date().getTime();
       job.report.success = success;
+      job.report.alarm = status.comms.alarm;
       job.callback(success, job.report);
     }
     pendingJobCallbacks.length = 0;

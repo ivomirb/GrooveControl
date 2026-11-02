@@ -358,7 +358,7 @@ function probetype(type) {
   if (type == "xyz") {
     $(".needsXYZProbe").show()
     probemode.probe = xyzprobeplate // customprobeplate, xyzprobeplate, zprobeplate
-    const template = `<span class="icon"><img src="/img/xyzprobe/xyztouch.png"/></span> OpenBuilds XYZ Probe Plus`;
+    const template = `<span class="icon"><img src="./img/xyzprobe/xyztouch.png"/></span> OpenBuilds XYZ Probe Plus`;
     $("#probetypebtn").html(template)
     $(".probetabz").hide();
     $(".probetabxyz").show();
@@ -369,7 +369,7 @@ function probetype(type) {
   } else if (type == "z") {
     $(".needsXYZProbe").hide()
     probemode.probe = zprobeplate // customprobeplate, xyzprobeplate, zprobeplate
-    const template = `<span class="icon"><img src="/img/xyzprobe/ztouch.png"/></span> Z Touch Plate`;
+    const template = `<span class="icon"><img src="./img/xyzprobe/ztouch.png"/></span> Z Touch Plate`;
     $("#probetypebtn").html(template)
     $(".probetabxyz").hide();
     $(".probetabz").show();
@@ -380,7 +380,7 @@ function probetype(type) {
   } else if (type == "custom") {
     $(".needsXYZProbe").show()
     probemode.probe = customprobeplate // customprobeplate, xyzprobeplate, zprobeplate
-    const template = `<span class="icon"><img src="/img/xyzprobe/custom.png"/></span> Custom XYZ Probe`;
+    const template = `<span class="icon"><img src="./img/xyzprobe/custom.png"/></span> Custom XYZ Probe`;
     $("#probetypebtn").html(template)
     $(".probetabz").hide();
     $(".probetabxyz").show();
@@ -419,6 +419,31 @@ function resetJogModeAfterProbe() {
   probemode.interval = undefined;
 }
 
+function probeReportCallback(success, report) {
+  let message;
+  if (success) {
+    message = "Remove the Probe Clip and Probe Plate before continuing.";
+  } else if (report.alarm[0] == '5') {
+    message = "The probe did not contact the workpiece within the expected travel distance.";
+  } else {
+    message = "Unexpected error.";
+  }
+  Metro.dialog.create({
+    clsDialog: 'dark',
+    title: success ? "<i class='far fa-check-square'></i> Probe Complete" : "<i class='fas fa-exclamation-triangle'></i> Probe Failed",
+    content: message,
+    actions: [
+      {
+        caption: "OK",
+        cls: success ? "js-dialog-close success closeProbeBtn" : "js-dialog-close alert closeProbeBtn",
+        onclick: function() {}
+      }
+    ],
+  });
+  setTimeout(function() {
+    $(".closeProbeBtn").focus();
+  }, 200);
+}
 
 function runProbeNew() {
   $('#confirmNewProbeBtn').html("Confirm Probe Position");
@@ -513,13 +538,7 @@ function runProbeNew() {
     `
 
     socket.off('prbResult'); // Disable old listeners
-    socket.emit('runJob', {
-      data: xmacro,
-      isJob: false,
-      completedMsg: "Probe Complete: Remove the Probe Clip and Probe Plate before continuing... ",
-      fileName: ""
-    });
-
+    socket.emit('runJob', { data: xmacro}, probeReportCallback);
   }
 
   if (probemode.mode == "yzero") {
@@ -539,12 +558,7 @@ function runProbeNew() {
     G0 Y` + (yoffset - 2).toFixed(3) + `
     `
     socket.off('prbResult'); // Disable old listeners
-    socket.emit('runJob', {
-      data: ymacro,
-      isJob: false,
-      completedMsg: "Probe Complete: Remove the Probe Clip and Probe Plate before continuing... ",
-      fileName: ""
-    });
+    socket.emit('runJob', { data: ymacro}, probeReportCallback);
   }
 
   if (probemode.mode == "zzero") {
@@ -564,13 +578,7 @@ function runProbeNew() {
     `
 
     socket.off('prbResult'); // Disable old listeners
-    socket.emit('runJob', {
-      data: zmacro,
-      isJob: false,
-      completedMsg: "Probe Complete: Remove the Probe Clip and Probe Plate before continuing... ",
-      fileName: ""
-    });
-
+    socket.emit('runJob', { data: zmacro}, probeReportCallback);
   }
 
   if (probemode.mode == "zplate") {
@@ -595,13 +603,7 @@ function runProbeNew() {
     `
 
     socket.off('prbResult'); // Disable old listeners
-    socket.emit('runJob', {
-      data: zmacro,
-      isJob: false,
-      completedMsg: "Probe Complete: Remove the Probe Clip and Probe Plate before continuing... ",
-      fileName: ""
-    });
-
+    socket.emit('runJob', { data: zmacro}, probeReportCallback);
   }
 
   if (probemode.mode == "xyz") {
@@ -652,13 +654,7 @@ function runProbeNew() {
     }
 
     socket.off('prbResult'); // Disable old listeners
-    socket.emit('runJob', {
-      data: xyzmacro,
-      isJob: false,
-      completedMsg: "Probe Complete: Remove the Probe Clip and Probe Plate before continuing... ",
-      fileName: ""
-    });
-
+    socket.emit('runJob', { data: xyzmacro}, probeReportCallback);
   }
 }
 

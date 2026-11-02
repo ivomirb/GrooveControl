@@ -6,7 +6,7 @@ const ycaltemplate = `
       <table class="table">
          <tr>
             <td>
-              <img src="img/calibrate/y/pos1.png" border="0">
+              <img src="./img/calibrate/y/pos1.png" border="0">
             </td>
             <td>
                Step 1:  Mark Initial Position<br>
@@ -31,7 +31,7 @@ const ycaltemplate = `
       <table class="table">
          <tr>
             <td>
-               <img src="img/calibrate/y/pos2.png" alt="pos2" border="0">
+               <img src="./img/calibrate/y/pos2.png" alt="pos2" border="0">
             </td>
             <td>
                Step 2:  Mark Second Position<br>
@@ -54,7 +54,7 @@ const ycaltemplate = `
       <table class="table">
          <tr>
             <td>
-             <img src="img/calibrate/y/pos3.png" alt="pos3" border="0">
+             <img src="./img/calibrate/y/pos3.png" alt="pos3" border="0">
             </td>
             <td>
                Step 3:  Measure Actual Movement<br>
