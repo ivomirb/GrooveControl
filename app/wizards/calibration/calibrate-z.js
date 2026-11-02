@@ -11,7 +11,7 @@ const zcaltemplate = `
             <td>
                Step 1:  Mark Initial Position<br>
                <small>This wizard, will allow you to fine-tune your steps-per-mm for the Z-Axis</small><hr>
-               <small>To get started, jog your Z-Axis until its near the Z- position.</small><br>
+               <small>To get started, use these buttons to jog your Z-Axis until it is near the Z- position (bottom).</small><br>
                <center>
                   <button class="button" onclick="jog('Z', -10, 1000);"><i class="fas fa-arrow-down"></i> Z- 10</button>
                   <button class="button" onclick="jog('Z', 10, 1000);"><i class="fas fa-arrow-up"></i> Z+ 10</button>
@@ -35,7 +35,7 @@ const zcaltemplate = `
             </td>
             <td>
                Step 2:  Mark Second Position<br>
-               <small>Click the button below to jog your Z-Axis in the Y+ direction.  Note this will move the axis a theoretical <span class="zcalmovedistanceval">50</span>mm (What the machine thinks it should be). Then, place a physical mark on your machine to mark where the Y-Carriage stops</small>
+               <small>Click the button below to jog your Z-Axis in the Z+ direction. Note this will move the axis a theoretical <span class="zcalmovedistanceval">50</span>mm (What the machine thinks it should be). Then, place a physical mark on your machine to mark where the Y-Carriage stops</small>
               <hr>
                <center>
                   <input id="zcalmovedistance" type="number" min="10" max="10000" value="50" data-role="input" data-prepend="Custom Move Distance:" data-append="mm" data-clear-button="false" style="text-align: right;"

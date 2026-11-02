@@ -89,8 +89,12 @@ echo // NOTE: lib\3dview\3dview.js >> all.js
 copy /b all.js + lib\3dview\3dview.js
 
 echo // >> all.js
-echo // NOTE: wizards\calibration\calibrate.js >> all.js
-copy /b all.js + wizards\calibration\calibrate.js
+echo // NOTE: wizards\calibration\calculate-xyz-steps.js >> all.js
+copy /b all.js + wizards\calibration\calculate-xyz-steps.js
+
+echo // >> all.js
+echo // NOTE: wizards\calibration\calculate-a-steps.js >> all.js
+copy /b all.js + wizards\calibration\calculate-a-steps.js
 
 echo // >> all.js
 echo // NOTE: wizards\calibration\calibrate-x.js >> all.js

@@ -11,7 +11,7 @@ const ycaltemplate = `
             <td>
                Step 1:  Mark Initial Position<br>
                <small>This wizard, will allow you to fine-tune your steps-per-mm for the Y-Axis</small><hr>
-               <small>To get started, jog your Y-Axis until its near the Y- position.</small><br>
+               <small>To get started, use these buttons to jog your Y-Axis until it is near the Y- position (front).</small><br>
                <center>
                   <button class="button" onclick="jog('Y', -10, 1000);"><i class="fas fa-arrow-down"></i> Y- 10</button>
                   <button class="button" onclick="jog('Y', 10, 1000);"><i class="fas fa-arrow-up"></i> Y+ 10</button>
