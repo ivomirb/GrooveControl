@@ -11,7 +11,7 @@ const xcaltemplate = `
             <td>
                Step 1:  Mark Initial Position<br>
                <small>This wizard, will allow you to fine-tune your steps-per-mm for the X-Axis</small><hr>
-               <small>To get started, jog your X-Axis until its near the X- position.</small><br>
+               <small>To get started, use these buttons to jog your X-Axis until it is near the X- position (left side).</small><br>
                <center>
                   <button class="button" onclick="jog('X', -10, 1000);"><i class="fas fa-arrow-left"></i> X- 10</button>
                   <button class="button"onclick="jog('X', 10, 1000);"><i class="fas fa-arrow-right"></i> X+ 10</button>

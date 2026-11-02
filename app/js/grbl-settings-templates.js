@@ -363,7 +363,15 @@ const grblSettingsTemplate = {
     title: `A-axis steps per degree`,
     description: `Grbl needs to know how far each step will take the tool in reality.`,
     template: `<input  id="val-103-input" data-role="input" data-clear-button="false" data-append="steps/deg" type="text">`,
-    utils: ``
+    utils: `<center>
+            <button title="Calculate A-Axis Steps per degree" class="button" type="button" onclick="astepspermm()">
+            <span class="fa-layers fa-fw">
+            <i class="fas fa-calculator" data-fa-transform="shrink-2"></i>
+            <span class="fa-layers-text" data-fa-transform="up-16" style="font-weight:600; font-family: Arial; font-size: 10px;">Calc</span>
+            <span class="fa-layers-text" data-fa-transform="down-19" style="font-weight:600; font-family: Arial; font-size: 10px;">Steps</span>
+            </span>
+            </button>
+            </center>`
   },
   110: {
     key: `$110`,
