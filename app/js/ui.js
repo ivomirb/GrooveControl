@@ -28,7 +28,7 @@ function addRemoveClass(element, className, add) {
 }
 
 function enableViaClass(button, enabled) {
-  addRemoveClass(button, "disabled", !enabled);
+  addRemoveClass(button, 'disabled', !enabled);
 }
 
 function rippleEffect(el, color) {

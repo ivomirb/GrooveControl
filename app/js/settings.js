@@ -40,13 +40,14 @@ function updateSettingsState() {
   }
 
   const enableKeyboardShortcuts = $('#enableKeyboardShortcuts').prop('checked');
-  enableViaClass("#keyboardAssignmentPrompt", enableKeyboardShortcuts);
-  enableViaClass("#keyboardAssignmentForm", enableKeyboardShortcuts);
+
+  enableViaClass('#keyboardAssignmentPrompt', enableKeyboardShortcuts);
+  enableViaClass('#keyboardAssignmentForm', enableKeyboardShortcuts);
 
   const enableGamepad = $('#enableGamepad').prop('checked');
-  enableViaClass("#gamepadAssignmentPrompt", enableGamepad);
-  enableViaClass("#gamepadAssignmentForm", enableGamepad);
-  enableViaClass("#gamepadSettingsPanel", enableGamepad);
+  enableViaClass('#gamepadAssignmentPrompt', enableGamepad);
+  enableViaClass('#gamepadAssignmentForm', enableGamepad);
+  enableViaClass('#gamepadSettingsPanel', enableGamepad);
 }
 
 const appSettingsDlg = `
