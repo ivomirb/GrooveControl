@@ -6,7 +6,7 @@ const zcaltemplate = `
       <table class="table">
          <tr>
             <td>
-            <img src="img/calibrate/z/pos1.png" border="0">
+            <img src="./img/calibrate/z/pos1.png" border="0">
             </td>
             <td>
                Step 1:  Mark Initial Position<br>
@@ -31,7 +31,7 @@ const zcaltemplate = `
       <table class="table">
          <tr>
             <td>
-              <img src="img/calibrate/z/pos2.png" alt="pos2" border="0">
+              <img src="./img/calibrate/z/pos2.png" alt="pos2" border="0">
             </td>
             <td>
                Step 2:  Mark Second Position<br>
@@ -54,7 +54,7 @@ const zcaltemplate = `
       <table class="table">
          <tr>
             <td>
-            <img src="img/calibrate/z/pos3.png" alt="pos3" border="0">
+            <img src="./img/calibrate/z/pos3.png" alt="pos3" border="0">
             </td>
             <td>
                Step 3:  Measure Actual Movement<br>
