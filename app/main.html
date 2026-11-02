@@ -344,6 +344,22 @@ The spindle will automatically start when the job is resumed.">
                 <span class="title">E-Stop</span>
               </div>
 
+
+              <!-- A dummy tab in the top right corner to indicate the pinned selection -->
+              <nav data-role="ribbonmenu" style="margin-left:auto; margin-top:auto;">
+                <ul class="tabs-holder" style="margin-bottom:-5px;">
+                  <li><a href="#" id="sidePanelTab" onclick="event.stopPropagation()">
+                  <span id="gcodeviewertab2"><i class="mif-3d-rotation fa-fw fg-blue 3dviewicon"></i><span class="3dviewlabel"> 3D View</span></span>
+                  <span id="consoletab2"><i class="fas fa-fw fa-terminal fg-darkGreen"></i> Console</span>
+                  <span id="macrostab2"><i class="fas fa-th fa-fw fg-darkOrange"></i> Macros</span>
+                  <span id="gcodeeditortab2"><i class="far fa-fw fa-edit fg-darkLime"></i> G-code Editor</span>
+                    <button class="button small light pinbutton" title="Unpin this tab from the right side" onclick="pinTab(event, '')">
+                      <i class="fas fa-thumbtack" style="margin-bottom:3px;"></i>
+                    </button>
+                  </a></li>
+                </ul>
+              </nav>
+
             </div>
 
             <!-- End Jog/Main -->
@@ -529,7 +545,8 @@ The spindle will automatically start when the job is resumed.">
           </div>
         </nav>
 
-        <div id="manualControlPanel">
+
+        <div id="manualControlPanel" data-role="splitter" data-min-sizes="1000, 350" data-gutter-size="6">
           <center>
             <div id="jogcontrols" class="mt-1">
               <div class="row flex-align-start" style="width: 100%; height: 100%; flex-wrap:nowrap;">
@@ -980,12 +997,36 @@ Restore previous origins from history.">
             <div id="controlLogs" class="mt-0">
 
               <nav data-role="ribbonmenu" style="height: calc(100vh - 465px); display:flex; flex-direction:column;">
-                <ul class="tabs-holder">
-                  <li><a href="#tab-three" id="gcodeviewertab"><i class="mif-3d-rotation fa-fw fg-blue" id="3dviewicon"></i><span id="3dviewlabel"> 3D View</span></a></li>
-                  <li><a href="#tab-one" id="consoletab"><i class="fas fa-fw fa-terminal fg-darkGreen"></i> Console</a></li>
-                  <li><a href="#tab-four" id="macrostab"><i class="fas fa-th fa-fw fg-darkOrange"></i> Macros</a></li>
-                  <li><a href="#tab-two" id="gcodeeditortab"><i class="far fa-fw fa-edit fg-darkLime"></i> G-code Editor</a></li>
-                </ul>
+                <div style="display:flex">
+
+                  <!-- When adding a new tab here, also add a matching <span> entry to the sidePanelTab -->
+                  <ul class="tabs-holder">
+                    <li><a href="#tab-three" id="gcodeviewertab"><i class="mif-3d-rotation fa-fw fg-blue 3dviewicon"></i><span class="3dviewlabel"> 3D View</span>
+                      <button class="button small light pinbutton" title="Pin this tab to the right side of the window" onclick="pinTab(event, 'gcodeviewertab')">
+                        <i class="fas fa-thumbtack" data-fa-transform="rotate-90" style="margin-bottom:3px;"></i>
+                      </button>
+                    </a></li>
+
+                    <li><a href="#tab-one" id="consoletab"><i class="fas fa-fw fa-terminal fg-darkGreen"></i> Console
+                      <button class="button small light pinbutton" title="Pin this tab to the right side of the window" onclick="pinTab(event, 'consoletab')">
+                        <i class="fas fa-thumbtack" data-fa-transform="rotate-90" style="margin-bottom:3px;"></i>
+                      </button>
+                    </a></li>
+
+                    <li><a href="#tab-four" id="macrostab"><i class="fas fa-th fa-fw fg-darkOrange"></i> Macros
+                      <button class="button small light pinbutton" title="Pin this tab to the right side of the window" onclick="pinTab(event, 'macrostab')">
+                        <i class="fas fa-thumbtack" data-fa-transform="rotate-90" style="margin-bottom:3px;"></i>
+                      </button>
+                    </a></li>
+
+                    <li><a href="#tab-two" id="gcodeeditortab">
+                      <i class="far fa-fw fa-edit fg-darkLime"></i> G-code Editor
+                      <button class="button small light pinbutton" title="Pin this tab to the right side of the window" onclick="pinTab(event, 'gcodeeditortab')">
+                        <i class="fas fa-thumbtack" data-fa-transform="rotate-90" style="margin-bottom:3px;"></i>
+                      </button>
+                    </a></li>
+                  </ul>
+                </div>
                 <div class="content-holder" id="mainTabHolder" style="flex-grow:1; min-height:0;">
                   <div class="section" id="tab-one" style="height:100%; flex-direction:column;">
                     <div id="console"></div>
@@ -1170,6 +1211,7 @@ Restore previous origins from history.">
             </div>
             <!-- End controlLogs -->
           </center>
+          <div id="sidePanel" style="height:calc(100vh - 224px);"></div>
         </div>
         <div id="grblPanel" style="display: none;">
           <div id="grblconfig"></div>
