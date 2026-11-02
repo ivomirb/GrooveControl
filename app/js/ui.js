@@ -381,14 +381,14 @@ function pinTabInternal(tabName) {
 function pinTab(event, tabName) {
   event.stopPropagation();
   pinTabInternal(tabName);
-  localStorage.setItem("pinnedTab", tabName);
+  localStorage.setItem('pinnedTab', tabName);
 }
 
 function onWindowResize() {
   const width = window.innerWidth;
   if (width >= MIN_SIDEPANEL_WIDTH) {
     $('.pinbutton').show();
-    pinTabInternal(localStorage.getItem("pinnedTab"));
+    pinTabInternal(localStorage.getItem('pinnedTab'));
   }
   else {
     pinTabInternal("");
@@ -400,16 +400,16 @@ function onWindowResize() {
 
 function uiDocReady() {
   $(window).on('resize', onWindowResize);
-  if (localStorage.getItem("pinnedTab") == null) { // on first run show the viewer
-    localStorage.setItem("pinnedTab", "gcodeviewertab");
+  if (localStorage.getItem('pinnedTab') == null) { // on first run show the viewer
+    localStorage.setItem('pinnedTab', "gcodeviewertab");
   }
-  const tabName = localStorage.getItem("pinnedTab");
+  const tabName = localStorage.getItem('pinnedTab');
   if (tabName && $('#' + tabName).length == 0) { // tab doesn't exist
-    localStorage.setItem("pinnedTab", "");
+    localStorage.setItem('pinnedTab', "");
   }
 
-  if (localStorage.getItem("sidePanelSize")) {
-    let panelSize = JSON.parse(localStorage.getItem("sidePanelSize"));
+  if (localStorage.getItem('sidePanelSize')) {
+    let panelSize = JSON.parse(localStorage.getItem('sidePanelSize'));
     if (Array.isArray(panelSize) && typeof panelSize[0] == 'string' && typeof panelSize[1] == 'string') {
       $('#jogcontrols').parent().css('flex-basis', panelSize[0]);
       $('#sidePanel').css('flex-basis', panelSize[1]);
@@ -418,8 +418,8 @@ function uiDocReady() {
 
   const observer = new ResizeObserver(() => {
     const panelSize = [$('#jogcontrols').parent().css('flex-basis'), $('#sidePanel').css('flex-basis')];
-    localStorage.setItem("sidePanelSize", JSON.stringify(panelSize));
+    localStorage.setItem('sidePanelSize', JSON.stringify(panelSize));
   });
-  observer.observe(document.getElementById("sidePanel"));
+  observer.observe(document.getElementById('sidePanel'));
   onWindowResize();
 }
