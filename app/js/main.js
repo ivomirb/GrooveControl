@@ -86,7 +86,7 @@ $(document).ready(function() {
     $(document).on('copy', function (event) {
       if ($('#console')[0].contains(event.target)) {
         // remove extra new lines when copying text from the console
-        event.clipboardData.setData('text/plain',  document.getSelection().toString().replaceAll('\n\n', '\n'));
+        event.originalEvent.clipboardData.setData('text/plain', document.getSelection().toString().replaceAll('\n\n', '\n'));
         event.preventDefault();
       }
     });
