@@ -87,7 +87,7 @@ const usedFunctions = {
   xstepspermm,
   ystepspermm,
   zstepspermm,
-  actuatorselect,
+  astepspermm,
   applycalibrationx,
   xstepscalibrate,
   xcalslide1,
