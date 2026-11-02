@@ -1,7 +1,7 @@
 "use strict";
 
 function getReleaseStats() {
-  const url = "https://api.github.com/repos/" + laststatus.misc.repoName + "/releases/latest";
+  const url = "https://api.github.com/repos/ivomirb/GrooveControl/releases/latest";
   $.getJSON(url, function(data) {
 
     let downloadCount = 0;
@@ -24,7 +24,7 @@ function getReleaseStats() {
       }
     }
 
-    $("#releaseStats").html("The latest version has already been downloaded " + downloadCount +
+    $('#releaseStats').html("The latest version has already been downloaded " + downloadCount +
       " times since its release on " + new Date(data.published_at).toLocaleDateString() + ".");
   });
 }
@@ -61,7 +61,7 @@ function setChangelog(changelogText) {
     template += '<ul><br>\n';
   }
 
-  $("#changelog").html(template);
+  $('#changelog').html(template);
 }
 
 function downloadAndInstall() {

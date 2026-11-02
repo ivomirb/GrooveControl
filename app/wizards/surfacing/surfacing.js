@@ -123,7 +123,7 @@ Best when surfacing the entire spoilboard. Use with caution when flattening stoc
     </form>`
 
 function populateSurfaceToolForm() {
-  $("#gcode").empty();
+  $('#gcode').empty();
 
   Metro.dialog.create({
     title: "<i class='fas fa-exchange-alt'></i> Surfacing / Flattening Wizard",
@@ -147,8 +147,8 @@ function populateSurfaceToolForm() {
   });
 
   let data;
-  if (localStorage.getItem("lastSurfacingTool")) {
-    data = JSON.parse(localStorage.getItem("lastSurfacingTool"));
+  if (localStorage.getItem('lastSurfacingTool')) {
+    data = JSON.parse(localStorage.getItem('lastSurfacingTool'));
   } else {
     data = {
       surfaceDiameter: 22,
@@ -165,16 +165,16 @@ function populateSurfaceToolForm() {
       surfaceDirection: "X"
     };
   }
-  $("#surfaceDiameter").val(data.surfaceDiameter);
-  $("#surfaceStepover").val(data.surfaceStepover);
-  $("#surfaceFeedrate").val(data.surfaceFeedrate);
-  $("#surfaceX").val(data.surfaceX);
-  $("#surfaceY").val(data.surfaceY);
-  $("#surfaceDepth").val(data.surfaceDepth);
+  $('#surfaceDiameter').val(data.surfaceDiameter);
+  $('#surfaceStepover').val(data.surfaceStepover);
+  $('#surfaceFeedrate').val(data.surfaceFeedrate);
+  $('#surfaceX').val(data.surfaceX);
+  $('#surfaceY').val(data.surfaceY);
+  $('#surfaceDepth').val(data.surfaceDepth);
   if (data.surfaceFinalDepth != undefined) {
-    $("#surfaceFinalDepth").val(data.surfaceFinalDepth);
+    $('#surfaceFinalDepth').val(data.surfaceFinalDepth);
   } else {
-    $("#surfaceFinalDepth").val(data.surfaceDepth);
+    $('#surfaceFinalDepth').val(data.surfaceDepth);
   }
   if (data.surfaceCoolant != undefined) {
     $('#surfaceCoolant').val(data.surfaceCoolant)
@@ -187,7 +187,7 @@ function populateSurfaceToolForm() {
   }
 
   $('#surfaceRPM').val(data.surfaceRPM)
-  const $radios = $("input:radio[name=surfaceType]");
+  const $radios = $('input:radio[name=surfaceType]');
   $radios.filter("[value=" + data.surfaceType + "]").prop("checked", true);
 
   if (data.surfaceDirection != undefined) {
@@ -198,13 +198,13 @@ function populateSurfaceToolForm() {
 
 function createSurfaceGcode() {
   let data = {
-    surfaceDiameter: $("#surfaceDiameter").val(),
-    surfaceStepover: $("#surfaceStepover").val(),
-    surfaceFeedrate: $("#surfaceFeedrate").val(),
-    surfaceX: $("#surfaceX").val(),
-    surfaceY: $("#surfaceY").val(),
-    surfaceDepth: parseFloat($("#surfaceDepth").val()),
-    surfaceFinalDepth: parseFloat($("#surfaceFinalDepth").val()),
+    surfaceDiameter: $('#surfaceDiameter').val(),
+    surfaceStepover: $('#surfaceStepover').val(),
+    surfaceFeedrate: $('#surfaceFeedrate').val(),
+    surfaceX: $('#surfaceX').val(),
+    surfaceY: $('#surfaceY').val(),
+    surfaceDepth: parseFloat($('#surfaceDepth').val()),
+    surfaceFinalDepth: parseFloat($('#surfaceFinalDepth').val()),
     surfaceType: $("input[name='surfaceType']:checked").val(),
     surfaceRPM: $('#surfaceRPM').val(),
     surfaceCoolant: $('#surfaceCoolant').val(),
@@ -220,7 +220,7 @@ function createSurfaceGcode() {
     data.surfaceFinalDepth = data.surfaceDepth;
   }
 
-  localStorage.setItem("lastSurfacingTool", JSON.stringify(data));
+  localStorage.setItem('lastSurfacingTool', JSON.stringify(data));
 
   let startpoint, endpoint, primaryAxis, secondaryAxis;
   const offsetRadius = data.extendRadius == "enabled" ? 0 : data.surfaceDiameter / 2;

@@ -17,7 +17,7 @@ window.runRepeatingGcode = function() {
       }
     } else {
       $("#macro1log").html("Stopping...")
-      socket.emit('stop', false)
+      socket.emit('stop', {stop:true});
       clearInterval(window.macro1interval);
     }
   }, 100)

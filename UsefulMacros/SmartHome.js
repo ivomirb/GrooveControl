@@ -20,11 +20,11 @@ var homeSingleDisabled = "unknown";
 
 function OnHomeDisabled(changes)
 {
-	var disabled = $("#homeBtn").attr('disabled');
+	var disabled = $('#homeBtn').attr('disabled');
 	if (disabled !== homeSingleDisabled)
 	{
 		homeSingleDisabled = disabled;
-		$("#homeSingleMenu").attr('disabled', !!disabled);
+		$('#homeSingleMenu').attr('disabled', !!disabled);
 	}
 }
 
@@ -39,12 +39,12 @@ function CleanupOldVersion()
 	if (onFeatures)
 		socket.off('features', onFeatures);
 
-	$("#homeSingleMenu").parent().remove();
+	$('#homeSingleMenu').parent().remove();
 }
 
 function OnFeatures(features)
 {
-	$("#homeSingleMenu").parent().toggle(features.contains('H'));
+	$('#homeSingleMenu').parent().toggle(features.contains('H'));
 }
 
 $(document).ready(function()
@@ -56,21 +56,21 @@ $(document).ready(function()
 		var observer = new MutationObserver(OnHomeDisabled); // monitor the disabled attribute
 		observer.observe(document.getElementById('homeBtn'), { attributes: true, attributeFilter: ['disabled']});
 
-		$("#homeBtn").after(homeSingleMenu);
+		$('#homeBtn').after(homeSingleMenu);
 
 		if (laststatus != undefined && laststatus.machine.firmware.features.contains('H'))
 		{
-			$("#homeSingleMenu").parent().show();
+			$('#homeSingleMenu').parent().show();
 		}
 
 		socket.on('features', OnFeatures);
 
-		$("#homeBtn").prop('Observer', () => { return observer; });
-		$("#homeBtn").prop('OnFeatures', () => { return OnFeatures; });
+		$('#homeBtn').prop('Observer', () => { return observer; });
+		$('#homeBtn').prop('OnFeatures', () => { return OnFeatures; });
 	}
 
-	$("#homeBtn").off('click');
-	$("#homeBtn").on('click',function()
+	$('#homeBtn').off('click');
+	$('#homeBtn').on('click',function()
 	{
 		if (laststatus.machine.modals.homedRecently)
 		{

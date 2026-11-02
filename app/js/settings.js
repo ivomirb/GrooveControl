@@ -11,12 +11,12 @@ var disabledWarnings = {};
 
 function disableWarning(warning) {
   disabledWarnings[warning] = true;
-  localStorage.setItem("disabledWarnings", JSON.stringify(disabledWarnings));
+  localStorage.setItem('disabledWarnings', JSON.stringify(disabledWarnings));
 }
 
 function resetWarnings() {
   disabledWarnings = {};
-  localStorage.setItem("disabledWarnings", JSON.stringify(disabledWarnings));
+  localStorage.setItem('disabledWarnings', JSON.stringify(disabledWarnings));
 }
 
 function updatePinStatus(pin, status, onText, offText) {
@@ -301,8 +301,8 @@ function initSettings() {
 
   $('#runSimBtn').parent().toggle(!disable3Drealtimepos && !disable3Dgcodepreview);
 
-  if (localStorage.getItem("disabledWarnings")) {
-    const warnings = JSON.parse(localStorage.getItem("disabledWarnings"));
+  if (localStorage.getItem('disabledWarnings')) {
+    const warnings = JSON.parse(localStorage.getItem('disabledWarnings'));
     if (typeof warnings == "object") {
       disabledWarnings = warnings;
     }

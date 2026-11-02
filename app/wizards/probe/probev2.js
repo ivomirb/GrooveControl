@@ -37,7 +37,7 @@ var probemode = {
 var storedJro;
 
 $(document).ready(function() {
-  $(".needsXYZProbe").toggle(localStorage.getItem('probeType') != "z");
+  $('.needsXYZProbe').toggle(localStorage.getItem('probeType') != "z");
 
   if (localStorage.getItem('z0platethickness')) {
     zprobeplate.zoffset = localStorage.getItem('z0platethickness');
@@ -45,7 +45,7 @@ $(document).ready(function() {
 
   if (localStorage.getItem('probediameterxyz')) {
     const probediameterxyz = localStorage.getItem('probediameterxyz');
-    $("#probediameterxyz").val(probediameterxyz)
+    $('#probediameterxyz').val(probediameterxyz)
   }
 
   if (localStorage.getItem('probeunitxyz')) {
@@ -58,17 +58,17 @@ if (localStorage.getItem('customProbe')) {
   customprobeplate = (JSON.parse(localStorage.getItem('customProbe')));
 }
 
-$("#z0platethickness").keyup(function() {
-  localStorage.setItem('z0platethickness', $("#z0platethickness").val())
-  zprobeplate.zoffset = $("#z0platethickness").val()
+$('#z0platethickness').keyup(function() {
+  localStorage.setItem('z0platethickness', $('#z0platethickness').val())
+  zprobeplate.zoffset = $('#z0platethickness').val()
 });
 
-$("#probediameterxyz").keyup(function() {
-  localStorage.setItem('probediameterxyz', $("#probediameterxyz").val())
+$('#probediameterxyz').keyup(function() {
+  localStorage.setItem('probediameterxyz', $('#probediameterxyz').val())
 });
 
-$("#probeunitxyz").change(function() {
-  localStorage.setItem('probeunitxyz', $("#probeunitxyz").val())
+$('#probeunitxyz').change(function() {
+  localStorage.setItem('probeunitxyz', $('#probeunitxyz').val())
 });
 
 function probeDlgOnClose() {
@@ -93,27 +93,27 @@ function openProbeDialog() {
     if (localStorage.getItem('probeType') == "z") { // Z Touchplate
       setTimeout(function() {
         probezplatetab()
-        $(".probetabxyz").removeClass("active")
-        $("#probezplatetab").addClass("active")
+        $('.probetabxyz').removeClass('active')
+        $('#probezplatetab').addClass('active')
       }, 100)
     } else if (localStorage.getItem('probeType') == "xyz") { // OpenBuilds Probe Plus XYZ
       setTimeout(function() {
         probeautotab()
-        $(".probetabxyz").removeClass("active")
-        $("#probeautotab").addClass("active")
+        $('.probetabxyz').removeClass('active')
+        $('#probeautotab').addClass('active')
       }, 100)
     } else { // Custom Probe
       setTimeout(function() {
         probexyztab()
-        $(".probetabxyz").removeClass("active")
-        $("#probexyztab").addClass("active")
+        $('.probetabxyz').removeClass('active')
+        $('#probexyztab').addClass('active')
       }, 100)
     }
   } else {
     setTimeout(function() {
       probexyztab()
-      $(".probetabxyz").removeClass("active")
-      $("#probexyztab").addClass("active")
+      $('.probetabxyz').removeClass('active')
+      $('#probexyztab').addClass('active')
     }, 100)
   }
 }
@@ -125,21 +125,21 @@ function openProbeXDialog() {
     if (localStorage.getItem('probeType') == "z") {
       // setTimeout(function() {
       //   probezplatetab()
-      //   $(".probetabxyz").removeClass("active")
-      //   $("#probezplatetab").addClass("active")
+      //   $('.probetabxyz').removeClass('active')
+      //   $('#probezplatetab').addClass('active')
       // }, 100)
     } else {
       setTimeout(function() {
         probextab()
-        $(".probetabxyz").removeClass("active")
-        $("#probextab").addClass("active")
+        $('.probetabxyz').removeClass('active')
+        $('#probextab').addClass('active')
       }, 100)
     }
   } else {
     setTimeout(function() {
       probextab()
-      $(".probetabxyz").removeClass("active")
-      $("#probextab").addClass("active")
+      $('.probetabxyz').removeClass('active')
+      $('#probextab').addClass('active')
     }, 100)
   }
 }
@@ -151,21 +151,21 @@ function openProbeYDialog() {
     if (localStorage.getItem('probeType') == "z") {
       // setTimeout(function() {
       //   probezplatetab()
-      //   $(".probetabxyz").removeClass("active")
-      //   $("#probezplatetab").addClass("active")
+      //   $('.probetabxyz').removeClass('active')
+      //   $('#probezplatetab').addClass('active')
       // }, 100)
     } else {
       setTimeout(function() {
         probeytab()
-        $(".probetabxyz").removeClass("active")
-        $("#probeytab").addClass("active")
+        $('.probetabxyz').removeClass('active')
+        $('#probeytab').addClass('active')
       }, 100)
     }
   } else {
     setTimeout(function() {
       probeytab()
-      $(".probetabxyz").removeClass("active")
-      $("#probeytab").addClass("active")
+      $('.probetabxyz').removeClass('active')
+      $('#probeytab').addClass('active')
     }, 100)
   }
 }
@@ -177,36 +177,36 @@ function openProbeZDialog() {
     if (localStorage.getItem('probeType') == "z") {
       setTimeout(function() {
         probezplatetab()
-        $(".probetabxyz").removeClass("active")
-        $("#probezplatetab").addClass("active")
+        $('.probetabxyz').removeClass('active')
+        $('#probezplatetab').addClass('active')
       }, 100)
     } else {
       setTimeout(function() {
         probeztab()
-        $(".probetabxyz").removeClass("active")
-        $("#probeztab").addClass("active")
+        $('.probetabxyz').removeClass('active')
+        $('#probeztab').addClass('active')
       }, 100)
     }
   } else {
     setTimeout(function() {
       probeztab()
-      $(".probetabxyz").removeClass("active")
-      $("#probeztab").addClass("active")
+      $('.probetabxyz').removeClass('active')
+      $('#probeztab').addClass('active')
     }, 100)
   }
 }
 
 function probeautotab() {
   probemode.mode = "auto"; // auto, xyz, xzero, yzero, zzero, zplate, endmilldia
-  $(".probe-tab-content").hide();
-  $("#probe-auto").show();
-  $("#xyzdatum").show();
-  $("#zplatesettings").hide();
-  $(".img-probe").hide();
-  $("#img-probe-auto").show();
-  $("#toggle-probe-advanced").hide();
-  $("#toggle-probe-advanced-content").data('collapse').collapse()
-  $("#endmilldiameterform").hide();
+  $('.probe-tab-content').hide();
+  $('#probe-auto').show();
+  $('#xyzdatum').show();
+  $('#zplatesettings').hide();
+  $('.img-probe').hide();
+  $('#img-probe-auto').show();
+  $('#toggle-probe-advanced').hide();
+  $('#toggle-probe-advanced-content').data('collapse').collapse()
+  $('#endmilldiameterform').hide();
   probemode.stock.position == "fl"
   pollProbeInPlace();
   $('.probetabxyz').removeClass('active');
@@ -215,19 +215,19 @@ function probeautotab() {
 
 function probexyztab() {
   probemode.mode = "xyz"; // auto, xyz, xzero, yzero, zzero, zplate, endmilldia
-  $(".probe-tab-content").hide();
-  $("#probe-xyz").show();
-  $("#xyzdatum").show();
-  $("#zplatesettings").hide();
-  $(".img-probe").hide();
-  $("#img-probe-xyz").show();
-  $("#toggle-probe-advanced").show();
-  $("#toggle-probe-advanced-content").data('collapse').collapse()
-  $("#endmilldiameterform").show();
+  $('.probe-tab-content').hide();
+  $('#probe-xyz').show();
+  $('#xyzdatum').show();
+  $('#zplatesettings').hide();
+  $('.img-probe').hide();
+  $('#img-probe-xyz').show();
+  $('#toggle-probe-advanced').show();
+  $('#toggle-probe-advanced-content').data('collapse').collapse()
+  $('#endmilldiameterform').show();
   if (probemode.stock.position == "fl") {
-    $("#toggle-probe-advanced-content").data('collapse').collapse()
+    $('#toggle-probe-advanced-content').data('collapse').collapse()
   } else {
-    $("#toggle-probe-advanced-content").data('collapse').expand()
+    $('#toggle-probe-advanced-content').data('collapse').expand()
   }
   pollProbeInPlace();
   $('.probetabxyz').removeClass('active');
@@ -237,69 +237,69 @@ function probexyztab() {
 function probextab() {
   probemode.mode = "xzero"; // auto, xyz, xzero, yzero, zzero, zplate, endmilldia
   resetOffsetFL();
-  $(".probe-tab-content").hide();
-  $("#probe-x").show();
-  $("#xyzdatum").hide();
-  $("#zplatesettings").hide();
-  $(".img-probe").hide();
-  $("#img-probe-x").show();
-  $("#toggle-probe-advanced").hide();
-  $("#endmilldiameterform").show();
-  $("#toggle-probe-advanced-content").data('collapse').collapse()
+  $('.probe-tab-content').hide();
+  $('#probe-x').show();
+  $('#xyzdatum').hide();
+  $('#zplatesettings').hide();
+  $('.img-probe').hide();
+  $('#img-probe-x').show();
+  $('#toggle-probe-advanced').hide();
+  $('#endmilldiameterform').show();
+  $('#toggle-probe-advanced-content').data('collapse').collapse()
   pollProbeInPlace();
 }
 
 function probeytab() {
   probemode.mode = "yzero"; // auto, xyz, xzero, yzero, zzero, zplate, endmilldia
   resetOffsetFL();
-  $(".probe-tab-content").hide();
-  $("#probe-y").show();
-  $("#xyzdatum").hide();
-  $("#zplatesettings").hide();
-  $(".img-probe").hide();
-  $("#img-probe-y").show();
-  $("#toggle-probe-advanced").hide();
-  $("#endmilldiameterform").show();
-  $("#toggle-probe-advanced-content").data('collapse').collapse()
+  $('.probe-tab-content').hide();
+  $('#probe-y').show();
+  $('#xyzdatum').hide();
+  $('#zplatesettings').hide();
+  $('.img-probe').hide();
+  $('#img-probe-y').show();
+  $('#toggle-probe-advanced').hide();
+  $('#endmilldiameterform').show();
+  $('#toggle-probe-advanced-content').data('collapse').collapse()
   pollProbeInPlace();
 }
 
 function probeztab() {
   probemode.mode = "zzero"; // auto, xyz, xzero, yzero, zzero, zplate, endmilldia
   resetOffsetFL();
-  $(".probe-tab-content").hide();
-  $("#probe-z").show();
-  $("#xyzdatum").hide();
-  $("#zplatesettings").hide();
-  $("#zplatesettings").hide();
-  $(".img-probe").hide();
-  $("#img-probe-z").show();
-  $("#toggle-probe-advanced").hide();
-  $("#endmilldiameterform").hide();
-  $("#toggle-probe-advanced-content").data('collapse').collapse()
+  $('.probe-tab-content').hide();
+  $('#probe-z').show();
+  $('#xyzdatum').hide();
+  $('#zplatesettings').hide();
+  $('#zplatesettings').hide();
+  $('.img-probe').hide();
+  $('#img-probe-z').show();
+  $('#toggle-probe-advanced').hide();
+  $('#endmilldiameterform').hide();
+  $('#toggle-probe-advanced-content').data('collapse').collapse()
   pollProbeInPlace();
 }
 
 function probezplatetab() {
   probemode.mode = "zplate"; // auto, xyz, xzero, yzero, zzero, zplate, endmilldia
   resetOffsetFL();
-  $(".probe-tab-content").hide();
-  $("#probe-z").show();
-  $("#xyzdatum").hide();
-  $("#zplatesettings").show();
-  $(".img-probe").hide();
-  $("#img-probe-zplate").show();
-  $("#toggle-probe-advanced").hide();
-  $("#endmilldiameterform").hide();
-  $("#toggle-probe-advanced-content").data('collapse').collapse()
+  $('.probe-tab-content').hide();
+  $('#probe-z').show();
+  $('#xyzdatum').hide();
+  $('#zplatesettings').show();
+  $('.img-probe').hide();
+  $('#img-probe-zplate').show();
+  $('#toggle-probe-advanced').hide();
+  $('#endmilldiameterform').hide();
+  $('#toggle-probe-advanced-content').data('collapse').collapse()
   pollProbeInPlace();
   $('#z0platethickness').val(zprobeplate.zoffset)
   $('.probetabxyz').removeClass('active');
   $('#probezplatetab').addClass('active');
   if (zprobeplate.zoffset != 20) {
-    $("#toggle-probe-advanced-content").data('collapse').expand()
+    $('#toggle-probe-advanced-content').data('collapse').expand()
   } else {
-    $("#toggle-probe-advanced-content").data('collapse').collapse()
+    $('#toggle-probe-advanced-content').data('collapse').collapse()
   }
 
 }
@@ -307,98 +307,98 @@ function probezplatetab() {
 function probeendmilltab() {
   probemode.mode = "endmilldia"; // auto, xyz, xzero, yzero, zzero, zplate, endmilldia
   resetOffsetFL();
-  $(".probe-tab-content").hide();
-  $("#probe-endmill").show();
-  $("#xyzdatum").hide();
-  $("#zplatesettings").hide();
-  $(".img-probe").hide();
-  $("#img-probe-endmill").show();
-  $("#toggle-probe-advanced").hide();
-  $("#endmilldiameterform").hide();
-  $("#toggle-probe-advanced-content").data('collapse').collapse()
+  $('.probe-tab-content').hide();
+  $('#probe-endmill').show();
+  $('#xyzdatum').hide();
+  $('#zplatesettings').hide();
+  $('.img-probe').hide();
+  $('#img-probe-endmill').show();
+  $('#toggle-probe-advanced').hide();
+  $('#endmilldiameterform').hide();
+  $('#toggle-probe-advanced-content').data('collapse').collapse()
   pollProbeInPlace();
 }
 
 function resetOffsetFL() {
-  $(".probe-label").removeClass("areaactive")
-  $("#probe-fl").addClass("areaactive")
+  $('.probe-label').removeClass('areaactive')
+  $('#probe-fl').addClass('areaactive')
   probemode.stock.position = "fl" // fl, fr, rl, rr, c
 }
 
-$("#probe-fl, #probe-fl-text").on("click", function() {
+$('#probe-fl, #probe-fl-text').on('click', function() {
   resetOffsetFL();
 });
 
-$("#probe-fr, #probe-fr-text").on("click", function() {
-  $(".probe-label").removeClass("areaactive")
-  $("#probe-fr").addClass("areaactive")
+$('#probe-fr, #probe-fr-text').on('click', function() {
+  $('.probe-label').removeClass('areaactive')
+  $('#probe-fr').addClass('areaactive')
   probemode.stock.position = "fr" // fl, fr, rl, rr, c
 });
 
-$("#probe-rl, #probe-rl-text").on("click", function() {
-  $(".probe-label").removeClass("areaactive")
-  $("#probe-rl").addClass("areaactive")
+$('#probe-rl, #probe-rl-text').on('click', function() {
+  $('.probe-label').removeClass('areaactive')
+  $('#probe-rl').addClass('areaactive')
   probemode.stock.position = "rl" // fl, fr, rl, rr, c
 });
 
-$("#probe-rr, #probe-rr-text").on("click", function() {
-  $(".probe-label").removeClass("areaactive")
-  $("#probe-rr").addClass("areaactive")
+$('#probe-rr, #probe-rr-text').on('click', function() {
+  $('.probe-label').removeClass('areaactive')
+  $('#probe-rr').addClass('areaactive')
   probemode.stock.position = "rr" // fl, fr, rl, rr, c
 });
 
-$("#probe-c, #probe-c-text").on("click", function() {
-  $(".probe-label").removeClass("areaactive")
-  $("#probe-c").addClass("areaactive")
+$('#probe-c, #probe-c-text').on('click', function() {
+  $('.probe-label').removeClass('areaactive')
+  $('#probe-c').addClass('areaactive')
   probemode.stock.position = "c" // fl, fr, rl, rr, c
 });
 
 function probetype(type) {
   localStorage.setItem('probeType', type);
   if (type == "xyz") {
-    $(".needsXYZProbe").show()
+    $('.needsXYZProbe').show()
     probemode.probe = xyzprobeplate // customprobeplate, xyzprobeplate, zprobeplate
     const template = `<span class="icon"><img src="./img/xyzprobe/xyztouch.png"/></span> OpenBuilds XYZ Probe Plus`;
-    $("#probetypebtn").html(template)
-    $(".probetabz").hide();
-    $(".probetabxyz").show();
-    $("#editCustomProbeBtn").hide()
-    $("#ProbeButtonBarSpacer").show()
-    $("#probeautotab").show();
+    $('#probetypebtn').html(template)
+    $('.probetabz').hide();
+    $('.probetabxyz').show();
+    $('#editCustomProbeBtn').hide()
+    $('#ProbeButtonBarSpacer').show()
+    $('#probeautotab').show();
     probeautotab()
   } else if (type == "z") {
-    $(".needsXYZProbe").hide()
+    $('.needsXYZProbe').hide()
     probemode.probe = zprobeplate // customprobeplate, xyzprobeplate, zprobeplate
     const template = `<span class="icon"><img src="./img/xyzprobe/ztouch.png"/></span> Z Touch Plate`;
-    $("#probetypebtn").html(template)
-    $(".probetabxyz").hide();
-    $(".probetabz").show();
-    $("#editCustomProbeBtn").hide()
-    $("#ProbeButtonBarSpacer").show()
-    $("#probeautotab").hide();
+    $('#probetypebtn').html(template)
+    $('.probetabxyz').hide();
+    $('.probetabz').show();
+    $('#editCustomProbeBtn').hide()
+    $('#ProbeButtonBarSpacer').show()
+    $('#probeautotab').hide();
     probezplatetab();
   } else if (type == "custom") {
-    $(".needsXYZProbe").show()
+    $('.needsXYZProbe').show()
     probemode.probe = customprobeplate // customprobeplate, xyzprobeplate, zprobeplate
     const template = `<span class="icon"><img src="./img/xyzprobe/custom.png"/></span> Custom XYZ Probe`;
-    $("#probetypebtn").html(template)
-    $(".probetabz").hide();
-    $(".probetabxyz").show();
-    $("#editCustomProbeBtn").show()
-    $("#ProbeButtonBarSpacer").hide()
-    $("#probeautotab").hide();
+    $('#probetypebtn').html(template)
+    $('.probetabz').hide();
+    $('.probetabxyz').show();
+    $('#editCustomProbeBtn').show()
+    $('#ProbeButtonBarSpacer').hide()
+    $('#probeautotab').hide();
     probexyztab()
   }
 }
 
 function pollProbeInPlace() {
-  $('#confirmNewProbeBtn').removeClass("disabled").html("Confirm Probe Position");
-  $('#runNewProbeBtn').addClass("disabled");
+  $('#confirmNewProbeBtn').removeClass('disabled').html("Confirm Probe Position");
+  $('#runNewProbeBtn').addClass('disabled');
   if (probemode.interval == undefined) {
     probemode.interval = setInterval(() => {
       if (laststatus.machine.inputs.contains("P")) {
-        $('#confirmNewProbeBtn').addClass("disabled").html("Touched");
-        $('#runNewProbeBtn').removeClass("disabled").focus();
+        $('#confirmNewProbeBtn').addClass('disabled').html("Touched");
+        $('#runNewProbeBtn').removeClass('disabled').focus();
         clearInterval(probemode.interval);
         probemode.interval = undefined;
       }
@@ -407,14 +407,14 @@ function pollProbeInPlace() {
 }
 
 function confirmProbeInPlace() {
-  $('#confirmNewProbeBtn').addClass("disabled");
-  $('#runNewProbeBtn').removeClass("disabled").focus();
+  $('#confirmNewProbeBtn').addClass('disabled');
+  $('#runNewProbeBtn').removeClass('disabled').focus();
   clearInterval(probemode.interval);
   probemode.interval = undefined;
 }
 
 function resetJogModeAfterProbe() {
-  $('#confirmNewProbeBtn').removeClass("disabled");
+  $('#confirmNewProbeBtn').removeClass('disabled');
   clearInterval(probemode.interval)
   probemode.interval = undefined;
 }
@@ -441,7 +441,7 @@ function probeReportCallback(success, report) {
     ],
   });
   setTimeout(function() {
-    $(".closeProbeBtn").focus();
+    $('.closeProbeBtn').focus();
   }, 200);
 }
 
@@ -449,8 +449,8 @@ function runProbeNew() {
   $('#confirmNewProbeBtn').html("Confirm Probe Position");
   resetJogModeAfterProbe();
   activateContentTab("consoletab");
-  probemode.stock.x = $("#stockwidth").val();
-  probemode.stock.y = $("#stocklength").val();
+  probemode.stock.x = $('#stockwidth').val();
+  probemode.stock.y = $('#stocklength').val();
 
   let template = `Code todo: run: \n`
   template += `Mode: ` + probemode.mode + `\n`
@@ -460,11 +460,11 @@ function runProbeNew() {
   template += `Probe: Z:` + probemode.probe.zoffset + `\n`
 
   if (probemode.mode == "xyz" || probemode.mode == "xzero" || probemode.mode == "yzero" || probemode.mode == "zzero") {
-    const endmillUnit = $("#probeunitxyz").val();
+    const endmillUnit = $('#probeunitxyz').val();
     if (endmillUnit == "mm") {
-      probemode.endmilldia = parseFloat($("#probediameterxyz").val());
+      probemode.endmilldia = parseFloat($('#probediameterxyz').val());
     } else {
-      probemode.endmilldia = (parseFloat($("#probediameterxyz").val()) * 25.4);
+      probemode.endmilldia = (parseFloat($('#probediameterxyz').val()) * 25.4);
     }
     template += `Endmill: ` + probemode.endmilldia + `mm\n`
   }
@@ -660,16 +660,16 @@ function runProbeNew() {
 
 function editCustomProbe() {
   Metro.dialog.open('#editCustomProbeDialog');
-  $("#customProbeXOffset").val(customprobeplate.xoffset);
-  $("#customProbeYOffset").val(customprobeplate.yoffset);
-  $("#customProbeZOffset").val(customprobeplate.zoffset);
+  $('#customProbeXOffset').val(customprobeplate.xoffset);
+  $('#customProbeYOffset').val(customprobeplate.yoffset);
+  $('#customProbeZOffset').val(customprobeplate.zoffset);
 }
 
 function saveEditCustomProbe() {
   customprobeplate = {
-    xoffset: parseFloat($("#customProbeXOffset").val()),
-    yoffset: parseFloat($("#customProbeYOffset").val()),
-    zoffset: parseFloat($("#customProbeZOffset").val()),
+    xoffset: parseFloat($('#customProbeXOffset').val()),
+    yoffset: parseFloat($('#customProbeYOffset').val()),
+    zoffset: parseFloat($('#customProbeZOffset').val()),
     xyzmode: true, // stays
     name: "Custom Z Touchplate", // stays
   };

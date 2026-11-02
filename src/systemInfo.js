@@ -1,29 +1,31 @@
 // systemInfo.js handles the collection and broadcast of the system info
 
-"use strict";
-
 // System dependencies
-const path = require("path");
-const os = require('os');
-const si = require('systeminformation');
-const {
+import path from "path";
+import os from 'os';
+import si from 'systeminformation';
+import {
   BrowserWindow,
   nativeImage,
-} = require('electron');
+} from 'electron';
+
+import {
+  exec
+} from 'child_process';
 
 
 // App dependencies
-const {
+import {
   rootDir,
   debug_log,
   status,
-} = require('./core.js');
+} from './core.js';
 
-const {
+import {
   serverEmit,
   addConnectionHandler,
   addDocReadyHandler,
-} = require('./server.js');
+} from './server.js';
 
 
 // Global variables
@@ -90,12 +92,12 @@ async function getSystemInfo() {
     })),
   };
 
-  serverEmit("sysinfo", systemInformation);
+  serverEmit('sysinfo', systemInformation);
 
   // Timer to update free memory every minute
   setInterval(() => {
     systemInformation.hardware.memory.free = (os.freemem() / 1024 / 1024 / 1024).toFixed(2) + " GB";
-    serverEmit("sysinfo", systemInformation);
+    serverEmit('sysinfo', systemInformation);
   }, 60000); // 60,000 ms = 1 minute
 
   // Log the initial systemInformation object
@@ -141,9 +143,6 @@ function checkPowerSettings() {
   if (process.platform == 'win32') {
     debug_log("Checking Power Settings")
     let powerplan = "";
-    const {
-      exec
-    } = require('child_process');
 
     // eslint-disable-next-line no-unused-vars
     const cfg = exec('powercfg /GETACTIVESCHEME', function(error, stdout, stderr) {
@@ -197,20 +196,16 @@ function checkPowerSettings() {
 }
 
 function onConnection(socket) {
-  socket.on("gpuinfo", showGpuInfo);
+  socket.on('gpuinfo', showGpuInfo);
 }
 
 function onDocReady(result) {
   result.sysInfo = systemInformation;
 }
 
-function initSystemInfo() {
+export function initSystemInfo() {
   getSystemInfo().catch((err) => console.error("Error retrieving system information:", err));
   addConnectionHandler(onConnection);
   addDocReadyHandler(onDocReady);
   checkPowerSettings();
 }
-
-module.exports = {
-  initSystemInfo
-};

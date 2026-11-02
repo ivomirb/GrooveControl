@@ -40,7 +40,7 @@ function rippleEffect(el, color) {
     overflow: 'hidden'
   });
 
-  $(".ripple").remove();
+  $('.ripple').remove();
   if (rippleTimeout) {
     clearTimeout(rippleTimeout);
   }
@@ -59,10 +59,10 @@ function rippleEffect(el, color) {
     height: size,
     top: '0px',
     left: '0px'
-  }).addClass("rippleEffect");
+  }).addClass('rippleEffect');
 
   rippleTimeout = setTimeout(function() {
-    $(".ripple").remove();
+    $('.ripple').remove();
     rippleTimeout = undefined;
   }, 400);
 }
@@ -71,12 +71,12 @@ function rippleEffect(el, color) {
 function setConnectBar(val, status) {
   if (val == 0) { // Not Connected Yet
     $('#connectStatus').html("Port: Not Connected");
-    $("#disconnectBtn").hide();
+    $('#disconnectBtn').hide();
     $('#portUSB').parent().show();
-    $("#connectBtn, #scanBtn, #driverBtn").show();
-    $("#connectBtn").attr('disabled', $('#portUSB').val() == "");
-    $('#portUSB').parent(".select").addClass('success');
-    $('#portUSB').parent(".select").removeClass('alert');
+    $('#connectBtn, #scanBtn, #driverBtn').show();
+    $('#connectBtn').attr('disabled', $('#portUSB').val() == "");
+    $('#portUSB').parent('.select').addClass('success');
+    $('#portUSB').parent('.select').removeClass('alert');
     enableViaClass('.macrobtn', true);
     enableViaClass('.grblCalibrationMenu', false);
 
@@ -92,16 +92,16 @@ function setConnectBar(val, status) {
     // 5 - alarm
 
     $('#connectStatus').html("Port: Connected");
-    $("#connectBtn, #scanBtn, #driverBtn").hide();
+    $('#connectBtn, #scanBtn, #driverBtn').hide();
     $('#portUSB').parent().hide();
-    $("#connectBtn").attr('disabled', false);
-    $("#disconnectBtn").show();
+    $('#connectBtn').attr('disabled', false);
+    $('#disconnectBtn').show();
 
     // Port Dropdown
-    $('#portUSB').parent(".select").removeClass('success')
-    $('#portUSB').parent(".select").addClass('alert')
+    $('#portUSB').parent('.select').removeClass('success')
+    $('#portUSB').parent('.select').addClass('alert')
     // Set Port Dropdown to Current Value
-    $("#portUSB").val(status.comms.interfaces.activePort);
+    $('#portUSB').val(status.comms.interfaces.activePort);
 
     enableViaClass('.macrobtn', val != 3); // disable macros while running
     enableViaClass('.grblCalibrationMenu', val == 2); // enable calibration only during idle
@@ -112,7 +112,7 @@ function setConnectBar(val, status) {
 function setControlBar(val, status) {
   if (val == 0) { // Not Connected Yet
     $('#controlBtnGrp').hide();
-    $("#grblSettings").hide(); // Hide Grbl Settings if it was Open
+    $('#grblSettings').hide(); // Hide Grbl Settings if it was Open
     $('#grblconfig').empty();
     $('.estop').hide();
     $('#unlockBtn, #unlockBtn2, #unlockBtn3').attr('disabled', true);
@@ -151,7 +151,7 @@ function setControlBar(val, status) {
     $('#chkSize').show().attr('disabled', val != 2 || isJogWidget || !object);
 
     // Disable the Home button during a job or if the homing feature is disabled
-    $('#homeBtn').show().attr('disabled', activeJob || grblParams['$22'] == 0);
+    $('#homeBtn').show().attr('disabled', activeJob || grblParams.$22 == 0);
 
     $('#controlBtnGrp').show();
     $('.estop').show();

@@ -1,21 +1,19 @@
 // grblSender.js provides non-essential utilities using the sender functionality
 
-"use strict";
-
 // App dependencies
-const {
+import {
   debug_log,
   status,
-} = require('./core.js');
+} from './core.js';
 
-const {
+import {
   addConnectionHandler,
-} = require('./server.js');
+} from './server.js';
 
-const {
+import {
   addQToEndAndKick,
   addQRealtime,
-} = require('./grblSender.js');
+} from './grblSender.js';
 
 
 function feedOverride(data) {
@@ -304,10 +302,6 @@ function onConnection(socket) {
   socket.on('probe', probe);
 }
 
-function initGrblUtilities() {
+export function initGrblUtilities() {
   addConnectionHandler(onConnection);
 }
-
-module.exports = {
-  initGrblUtilities
-};
