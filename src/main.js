@@ -1,22 +1,20 @@
 // main.js initialzies all modules and creates the main app
 
-"use strict";
-
 // System dependencies
-const path = require("path");
-const ip = require("ip");
-const {
+import path from "path";
+import ip from "ip";
+import {
   BrowserWindow,
   Tray,
   nativeImage,
   Menu,
   shell,
-  app: electronApp,
-} = require('electron');
+  app as electronApp,
+} from 'electron';
 
 
 // App dependencies
-const {
+import {
   rootDir,
   debug_log,
   status,
@@ -24,47 +22,47 @@ const {
   persistentConfig,
   savePersistentConfig,
   initCore
-} = require('./core.js');
+} from './core.js';
 
-const {
+import {
   initJogWindowAPI
-} = require('./jogWindowAPI.js');
+} from './jogWindowAPI.js';
 
-const {
+import {
   serverEmit,
   app,
   addConnectionHandler,
   addDocReadyHandler,
   removeDocReadyHandler,
   initServer
-} = require('./server.js');
+} from './server.js';
 
-const {
+import {
   readGcodeFile,
   allowedFilePaths,
   addRecentFile,
   initFiles
-} = require('./files.js');
+} from './files.js';
 
-const {
+import {
   initSystemInfo
-} = require('./systemInfo.js');
+} from './systemInfo.js';
 
-const {
+import {
   initGrblPort
-} = require('./grblPort.js');
+} from './grblPort.js';
 
-const {
+import {
   initGrblSender
-} = require('./grblSender.js');
+} from './grblSender.js';
 
-const {
+import {
   initGrblUtilities
-} = require('./grblUtilities.js');
+} from './grblUtilities.js';
 
-const {
+import {
   initUpdate
-} = require('./update.js');
+} from './update.js';
 
 
 // Global variables
@@ -383,7 +381,7 @@ function createJogWindow() {
   if (safeMode) {
     options.query.safeMode = true;
   }
-  jogWindow.loadFile(path.join(__dirname, "../app/main.html"), options);
+  jogWindow.loadFile(path.join(rootDir, "app/main.html"), options);
 
   if (process.argv.indexOf("-debug") > 0) {
     jogWindow.webContents.openDevTools();
@@ -471,31 +469,31 @@ function initElectron() {
 }
 
 function onConnection(socket) {
-  socket.on("opengroove", function() {
+  socket.on('opengroove', function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl')
   });
 
-  socket.on("opencam", function() {
+  socket.on('opencam', function() {
     shell.openExternal('https://github.com/OpenBuilds/OpenBuilds-CAM')
   });
 
-  socket.on("openwiki", function() {
+  socket.on('openwiki', function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl/wiki')
   });
 
-  socket.on("openbuilds", function() {
+  socket.on('openbuilds', function() {
     shell.openExternal('https://github.com/OpenBuilds/docs-migrated/wiki')
   });
 
-  socket.on("openforum", function() {
+  socket.on('openforum', function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl/discussions')
   });
 
-  socket.on("openheightmap", function() {
+  socket.on('openheightmap', function() {
     shell.openExternal('https://github.com/ivomirb/GrooveControl/wiki/Heightmap-Tool')
   });
 
-  socket.on("minimisetotray", function() {
+  socket.on('minimisetotray', function() {
     if (persistentConfig.trayIcon) {
       jogWindow.hide();
     } else {
@@ -503,11 +501,11 @@ function onConnection(socket) {
     }
   });
 
-  socket.on("minimize", function() {
+  socket.on('minimize', function() {
     jogWindow.minimize();
   });
 
-  socket.on("maximize", function() {
+  socket.on('maximize', function() {
     if (jogWindow.isFullScreen()) {
       jogWindow.setFullScreen(false);
     }
@@ -518,7 +516,7 @@ function onConnection(socket) {
     }
   });
 
-  socket.on("fullscreen", function() {
+  socket.on('fullscreen', function() {
     if (jogWindow.isFullScreen()) {
       jogWindow.setFullScreen(false);
     } else {
@@ -526,10 +524,10 @@ function onConnection(socket) {
     }
   });
 
-  socket.on("quit", exitApp);
+  socket.on('quit', exitApp);
 
-  socket.on("trayIcon", setTrayIcon);
-  socket.on("autoStart", setAutoStart);
+  socket.on('trayIcon', setTrayIcon);
+  socket.on('autoStart', setAutoStart);
 }
 
 function main() {
@@ -584,7 +582,7 @@ function main() {
 
   // Global Update loop
   setInterval(function() {
-    serverEmit("status", status);
+    serverEmit('status', status);
   }, 100);
 }
 

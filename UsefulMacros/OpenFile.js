@@ -11,6 +11,6 @@ var openFileButtons = `
 	<span class="caption grblmode">Open<br>G-Code</span>
 </button>`;
 
-$("#openGcodeBtnElectron19").attr('id', "old_openGcodeBtnElectron19");
-$("#old_openGcodeBtnElectron19").parent().hide();
-$("#old_openGcodeBtnElectron19").parent().after(openFileButtons);
+$('#openGcodeBtnElectron19").attr('id', "old_openGcodeBtnElectron19');
+$('#old_openGcodeBtnElectron19').parent().hide();
+$('#old_openGcodeBtnElectron19').parent().after(openFileButtons);

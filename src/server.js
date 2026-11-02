@@ -1,25 +1,23 @@
 // server.js handles the http server backend for Electron
 
-"use strict";
-
 // System dependencies
-const {
-  Server: ioServer
-} = require('socket.io');
-var express = require("express");
-var path = require("path");
-var ip = require("ip");
-var http = require("http");
-// var https = require('https');
+import {
+  Server as ioServer
+} from 'socket.io';
+import express from "express";
+import path from "path";
+import ip from "ip";
+import http from "http";
+// import https from 'https';
 
 
 // App dependencies
-const {
+import {
   rootDir,
   debug_log,
   status,
   config,
-} = require('./core.js');
+} from './core.js';
 
 
 // Global variables
@@ -54,7 +52,7 @@ function removeDocReadyHandler(handler) {
 }
 
 function onDocReady(callback) {
-  serverEmit("status", status);
+  serverEmit('status', status);
   const result = {
     platform: process.platform,
   };
@@ -117,7 +115,7 @@ that expire in 3 months. Besides, the private keys are included in the open sour
   io.attach(httpsSrever);
 */
 
-  io.on("connection", onConnection);
+  io.on('connection', onConnection);
 }
 
 function serverEmit(event, data) {
@@ -128,7 +126,7 @@ function serverEmitOutput(data) {
   io.sockets.emit('data', data);
 }
 
-module.exports = {
+export {
   app,
   serverEmit,
   serverEmitOutput,

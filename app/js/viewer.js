@@ -385,8 +385,8 @@ function init3D() {
     renderer.setClearColor(0xffffff, 1); // Background color of viewer = transparent
     renderer.clear();
 
-    const sceneWidth = document.getElementById("renderArea").offsetWidth;
-    const sceneHeight = document.getElementById("renderArea").offsetHeight;
+    const sceneWidth = document.getElementById('renderArea').offsetWidth;
+    const sceneHeight = document.getElementById('renderArea').offsetHeight;
     renderer.setSize(sceneWidth, sceneHeight);
     camera.aspect = sceneWidth / sceneHeight;
     camera.updateProjectionMatrix();
@@ -420,7 +420,7 @@ function init3D() {
     // The viewport doesn't resize if it is hidden.
     // The observer forces an update when the viewport becomes visible.
     const observer = new ResizeObserver(fixRenderSize);
-    observer.observe(document.getElementById("renderArea"));
+    observer.observe(document.getElementById('renderArea'));
 
   } else {
     printLog("<span class='fg-red'>[ ERROR ]</span>  <span class='fg-darkRed'>No WebGL Support found on this computer! Disabled 3D Viewer - Sorry!</span>")
@@ -565,8 +565,8 @@ function makeSprite(rendererType, vals) {
 function fixRenderSize() {
   if (renderer) {
     setTimeout(function() {
-      const sceneWidth = document.getElementById("renderArea").offsetWidth;
-      const sceneHeight = document.getElementById("renderArea").offsetHeight;
+      const sceneWidth = document.getElementById('renderArea').offsetWidth;
+      const sceneHeight = document.getElementById('renderArea').offsetHeight;
       if (sceneWidth > 0 && sceneHeight > 0) {
         renderer.setSize(sceneWidth, sceneHeight);
         camera.aspect = sceneWidth / sceneHeight;

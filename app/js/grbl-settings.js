@@ -24,7 +24,7 @@ function loadGrblBackupFile() {
   // eslint-disable-next-line no-unused-vars
   invokeOpenDialogReadFile(loadFileParams).then(({filePath, data}) => {
     editedGrblParams = {};
-    $("#grblSettingsAdvTab").click();
+    $('#grblSettingsAdvTab').click();
     $('#settingsModifiedFilter:checkbox').prop('checked', false);
     toggleModifiedFilter(false);
 
@@ -35,9 +35,9 @@ function loadGrblBackupFile() {
         const key = parts[0].substring(1);
         const value = parts[1];
         if (grblSettingsTemplate[key] == undefined || grblSettingsTemplate[key].type == "text")
-          $("#val-" + key + "-input").val(value); // treat unknown properties like strings
+          $('#val-' + key + '-input').val(value); // treat unknown properties like strings
         else
-          $("#val-" + key + "-input").val(parseFloat(value));
+          $('#val-' + key + '-input').val(parseFloat(value));
       }
     }
 
@@ -114,7 +114,7 @@ function restoreAutoBackup(index) {
   const grblParamsBackup = selectedBackup.grblParams;
 
   editedGrblParams = {};
-  $("#grblSettingsAdvTab").click();
+  $('#grblSettingsAdvTab').click();
   $('#settingsModifiedFilter:checkbox').prop('checked', false);
   toggleModifiedFilter(false);
 
@@ -122,7 +122,7 @@ function restoreAutoBackup(index) {
   for (let key in grblParamsBackup) {
     const paramValue = grblParamsBackup[key];
     const key2 = key.substr(1);
-    const inputElement = $("#val-" + key2 + "-input");
+    const inputElement = $('#val-' + key2 + '-input');
 
     if (grblSettingsTemplate[key2] == undefined || grblSettingsTemplate[key2].type == "text") {
       inputElement.val(paramValue);
@@ -192,10 +192,10 @@ function grblSaveSettings() {
   autoBackup("Updated Grbl Settings");
   const toSaveCommandsFirst = [];
   const toSaveCommandsSecond = [];
-  const saveProgressBar = $("#grblSaveProgress").data("progress");
+  const saveProgressBar = $('#grblSaveProgress').data('progress');
   for (let key in grblParams) {
     const j = key.substring(1)
-    const newVal = $("#val-" + j + "-input").val();
+    const newVal = $('#val-' + j + '-input').val();
     // Only send values that changed
     if (newVal !== undefined) {
       if (parseFloat(newVal) != parseFloat(grblParams[key]) && newVal != grblParams[key]) {
@@ -216,8 +216,8 @@ function grblSaveSettings() {
     if (saveProgressBar) {
       saveProgressBar.val(0);
     }
-    $("#grblNewParam").html("")
-    $("#grblNewParamVal").html("")
+    $('#grblNewParam').html("")
+    $('#grblNewParamVal').html("")
     // Open Dialog savingGrblSettingsProgress
     Metro.dialog.open('#savingGrblSettingsProgress')
     const sendInterval = setInterval(function() {
@@ -228,8 +228,8 @@ function grblSaveSettings() {
         newParamName = grblSettingsTemplate[newParamKey].title;
       }
       const newParamVal = toSaveCommands[counter].split("=")[1];
-      $("#grblNewParam").html("<code>" + newParam + " : " + newParamName + "</code>")
-      $("#grblNewParamVal").html("<code>" + newParamVal + "</code>")
+      $('#grblNewParam').html("<code>" + newParam + " : " + newParamName + "</code>")
+      $('#grblNewParamVal').html("<code>" + newParamVal + "</code>")
 
       if (saveProgressBar) {
         saveProgressBar.val(counter / toSaveCommands.length * 100);
@@ -260,17 +260,17 @@ function grblSettings(data) {
 
   if (laststatus.machine.firmware.platform == "FluidNC") {
     $('#backupSettingsGroup').hide();
-    $("#grbl-settings-tab-title").html('FluidNC Settings (read-only)');
+    $('#grbl-settings-tab-title').html('FluidNC Settings (read-only)');
   } else {
     $('#backupSettingsGroup').show();
     if (laststatus.machine.firmware.platform == "grblHAL") {
-      $("#grbl-settings-tab-title").html('grblHAL Settings');
+      $('#grbl-settings-tab-title').html('grblHAL Settings');
     } else {
-      $("#grbl-settings-tab-title").html('Grbl Settings');
+      $('#grbl-settings-tab-title').html('Grbl Settings');
     }
   }
 
-  const homingEnabled = grblParams['$22'] > 0;
+  const homingEnabled = grblParams.$22 > 0;
   $('#homeBtn, #homeSingleMenu').attr('disabled', !homingEnabled);
   addRemoveClass('#gotoXMinMpos, #gotoXMaxMpos, #gotoYMinMpos, #gotoYMaxMpos, #gotoZMinMpos, #gotoZMaxMpos, #gotoAMinMpos, #gotoAMaxMpos', 'disabled', !homingEnabled);
   addRemoveClass('#gotozeroZmPosXYwPos, #gotozeroMPos', 'disabled', !homingEnabled);
@@ -282,7 +282,7 @@ function grblSettings(data) {
 
   if (laststatus.machine.firmware.platform == "grblHAL") {
     // grblHAL - enable Servo Buttons if Spindle PWM == 50hz (Ivo: HUH?)
-    $(".servo-active").toggle(grblParams['$33'] == 50);
+    $('.servo-active').toggle(grblParams.$33 == 50);
   }
 
   updateToolOnSValues();
@@ -397,7 +397,7 @@ function grblPopulate() {
 
 function revertGrblSetting(key) {
   const j = key.substring(1);
-  const input = $("#val-" + j + "-input");
+  const input = $('#val-' + j + '-input');
   input.val(grblParams[key]);
   delete editedGrblParams[key];
   if (key == '$3' || key == '$23') {
@@ -415,7 +415,7 @@ function checkifchanged() {
 
   for (let key in grblParams) {
     const j = key.substring(1);
-    const input = $("#val-" + j + "-input");
+    const input = $('#val-' + j + '-input');
     const newVal = input.val();
 
     if (newVal !== undefined) {
@@ -581,7 +581,7 @@ function changeHomeDirInvert() {
   const zticked = $('#zHomeDir').is(':checked');
   const aticked = $('#aHomeDir').is(':checked');
   const value = calcDecFromMask(!xticked, !yticked, !zticked, !aticked);
-  $("#val-23-input").val(value).trigger("change");
+  $('#val-23-input').val(value).trigger('change');
   checkifchanged();
 }
 
@@ -591,18 +591,18 @@ function changeDirInvert() {
   const zticked = $('#zdirinvert').is(':checked');
   const aticked = $('#adirinvert').is(':checked');
   const value = calcDecFromMask(xticked, yticked, zticked, aticked);
-  $("#val-3-input").val(value).trigger("change");
+  $('#val-3-input').val(value).trigger('change');
   checkifchanged();
 }
 
 function updateDirSettingChecks() {
-  const dirMask = calcMaskFromDec($("#val-3-input").val());
+  const dirMask = calcMaskFromDec($('#val-3-input').val());
   $('#xdirinvert:checkbox').prop('checked', dirMask.x);
   $('#ydirinvert:checkbox').prop('checked', dirMask.y);
   $('#zdirinvert:checkbox').prop('checked', dirMask.z);
   $('#adirinvert:checkbox').prop('checked', dirMask.a);
 
-  const homeMask = calcMaskFromDec($("#val-23-input").val());
+  const homeMask = calcMaskFromDec($('#val-23-input').val());
   $('#xHomeDir:checkbox').prop('checked', !homeMask.x);
   $('#yHomeDir:checkbox').prop('checked', !homeMask.y);
   $('#zHomeDir:checkbox').prop('checked', !homeMask.z);
@@ -678,17 +678,17 @@ function clearEEPROM() {
 
 function updateToolOnSValues() {
   const maxSpeed = parseInt(grblParams.$30);
-  $(".ToolOnS1").html((maxSpeed * 0.01).toFixed(0));
-  $(".ToolOnS5").html((maxSpeed * 0.05).toFixed(0));
-  $(".ToolOnS10").html((maxSpeed * 0.1).toFixed(0));
-  $(".ToolOnS25").html((maxSpeed * 0.25).toFixed(0));
-  $(".ToolOnS50").html((maxSpeed * 0.5).toFixed(0));
-  $(".ToolOnS75").html((maxSpeed * 0.75).toFixed(0));
-  $(".ToolOnS100").html(maxSpeed.toFixed(0));
+  $('.ToolOnS1').html((maxSpeed * 0.01).toFixed(0));
+  $('.ToolOnS5').html((maxSpeed * 0.05).toFixed(0));
+  $('.ToolOnS10').html((maxSpeed * 0.1).toFixed(0));
+  $('.ToolOnS25').html((maxSpeed * 0.25).toFixed(0));
+  $('.ToolOnS50').html((maxSpeed * 0.5).toFixed(0));
+  $('.ToolOnS75').html((maxSpeed * 0.75).toFixed(0));
+  $('.ToolOnS100').html(maxSpeed.toFixed(0));
 
   const laser = parseInt(grblParams.$32) == 1;
-  $(".laserMode").toggle(laser);
-  $(".spindleMode").toggle(!laser);
+  $('.laserMode').toggle(laser);
+  $('.spindleMode').toggle(!laser);
 }
 
 function getEditorParamValue(key) {
@@ -709,7 +709,7 @@ function setFluidNcConfig(data) {
 function setup_settings_table() {
   for (let key in grblParams) {
     const key2 = key.substr(1);
-    const input = $("#val-" + key2 + "-input");
+    const input = $('#val-' + key2 + '-input');
     input.val(getEditorParamValue(key));
     const setting = grblSettingsTemplate[key2];
     // Metro UI destroys the tooltips for td and tr elements - readding here
@@ -749,7 +749,7 @@ function onSettingsTableDraw() {
 
 function onSettingsTableCreate() {
   if (laststatus && laststatus.machine.firmware.platform == "FluidNC") {
-    $("#grblSettingsTableView .table-container").append(`
+    $('#grblSettingsTableView .table-container').append(`
       <h6 class="disabled" style="margin:5px; font-size:1rem;">FluidNC configuration</h6>
       <div id="fluidnceditor" class="bd-openbuilds"></div>`);
 

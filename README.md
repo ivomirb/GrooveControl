@@ -116,7 +116,7 @@ The goal is to improve the readability and maintainability for long-term develop
 
 * Removal of dead, redundant or duplicated code
 * Simplification of convoluted logic with better handling of edge cases and race conditions
-* Use of safer language practices like strict mode and scoped variables
+* Use of safer language practices like strict mode, scoped variables, ECMAScript modules
 * Static code analysis using ESLint
 * Upgrade to the latest Electron framework
 

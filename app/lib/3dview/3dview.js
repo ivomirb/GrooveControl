@@ -212,11 +212,11 @@ function sim(fromLine, paused) {
   } else {
     simIdx = fromLine;
     if (SIM_DISPLAY_TYPE == 1) {
-      $("#simText").show();
-      $("#simText > span").html("");
+      $('#simText').show();
+      $('#simText > span').html("");
     } else {
-      $("#conetext").css('left', "0px").css('top', "0px");
-      $("#conetext").show();
+      $('#conetext').css('left', "0px").css('top', "0px");
+      $('#conetext').show();
     }
     resetConePosition();
     if (!viewSettings.tool) { // force-show
@@ -290,14 +290,14 @@ function runSim() {
     simTween.pause();
     simUpdateProgress();
     if (SIM_DISPLAY_TYPE == 0) {
-      $("#conetext").html(`<span class="tally success drop-shadow">&lt;END&gt;</span>`);
+      $('#conetext').html(`<span class="tally success drop-shadow">&lt;END&gt;</span>`);
     }
     return;
   }
 
   if (SIM_DISPLAY_TYPE == 0) {
     const srcLine = object.userData.srcArray[simIdx];
-    $("#conetext").html(`<span class="tally success drop-shadow">Line ` + (srcLine+1) + ": " + getGcodeLine(simIdx) + `</span>`);
+    $('#conetext').html(`<span class="tally success drop-shadow">Line ` + (srcLine+1) + ": " + getGcodeLine(simIdx) + `</span>`);
   }
 
   const posx = object.userData.xArray[simIdx];
@@ -498,8 +498,8 @@ function simstop() {
   $('#simControls').hide();
 
   $('#simspeedval').text(timefactor);
-  $("#conetext").hide();
-  $("#simText").hide();
+  $('#conetext').hide();
+  $('#simText').hide();
   if (SIM_DISPLAY_TYPE == 0)
     $('#gcodesent').html("&nbsp;");
   clearSceneFlag = true;
@@ -528,8 +528,8 @@ function simAnimate() {
 
     if (SIM_DISPLAY_TYPE == 0) {
       const conepos = toScreenPosition(cone, camera)
-      const farside = $("#renderArea").offset().left + $("#renderArea").outerWidth()
-      const bottomside = $("#renderArea").outerHeight()
+      const farside = $('#renderArea').offset().left + $('#renderArea').outerWidth()
+      const bottomside = $('#renderArea').outerHeight()
 
       if (conepos.y < 25) {
         conepos.y = 25;
@@ -541,11 +541,11 @@ function simAnimate() {
         conepos.x = 0;
       }
 
-      if (conepos.x > farside - $("#conetext").outerWidth()) {
-        conepos.x = farside - $("#conetext").outerWidth();
+      if (conepos.x > farside - $('#conetext').outerWidth()) {
+        conepos.x = farside - $('#conetext').outerWidth();
       }
 
-      $("#conetext").css('left', conepos.x + "px").css('top', conepos.y - 20 + "px");
+      $('#conetext').css('left', conepos.x + 'px').css('top', conepos.y - 20 + 'px');
       $('#gcodesent').html("X:" + posx.toFixed(2) + "&nbsp;&nbsp;&nbsp;Y:" + posy.toFixed(2) + "&nbsp;&nbsp;&nbsp;Z:" + posz.toFixed(2));
     } else {
       let html;
@@ -555,7 +555,7 @@ function simAnimate() {
       } else {
         html = "&lt;END&gt;";
       }
-      $("#simText > span").html(html + "<br>X:" + posx.toFixed(2) + "&nbsp;&nbsp;&nbsp;Y:" + posy.toFixed(2) + "&nbsp;&nbsp;&nbsp;Z:" + posz.toFixed(2));
+      $('#simText > span').html(html + "<br>X:" + posx.toFixed(2) + "&nbsp;&nbsp;&nbsp;Y:" + posy.toFixed(2) + "&nbsp;&nbsp;&nbsp;Z:" + posz.toFixed(2));
     }
     if (!simPaused)
       simUpdateProgress();

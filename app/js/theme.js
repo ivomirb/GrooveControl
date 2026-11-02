@@ -155,15 +155,15 @@ const ThemeData = {
     if (themeId && ThemeData.THEMES[themeId]) {
       ThemeData.currentThemeId = themeId;
       for (let key in ThemeData.THEMES) {
-        $("body").removeClass('theme_' + key);
+        $('body').removeClass('theme_' + key);
       };
-      $("body").addClass('theme_' + themeId);
+      $('body').addClass('theme_' + themeId);
     } else {
-      localStorage.setItem("themeId", ThemeData.currentThemeId);
+      localStorage.setItem('themeId', ThemeData.currentThemeId);
     }
 
-    $('.theme_btn').removeClass("checked");
-    $('.theme_btn_' + themeId).addClass("checked");
+    $('.theme_btn').removeClass('checked');
+    $('.theme_btn_' + themeId).addClass('checked');
   },
 
   getColor: function getColor(key) {
@@ -176,7 +176,7 @@ const ThemeData = {
 
   set: function set(themeId) {
     if (themeId && ThemeData.THEMES[themeId]) {
-      localStorage.setItem("themeId", themeId);
+      localStorage.setItem('themeId', themeId);
       ThemeData.init();
 
       // Update the 3D view (mostly, gcode movements will keep old colours until gcode is reloaded)
@@ -219,7 +219,7 @@ function themeDocReady() {
   for (let themeId in ThemeData.THEMES) {
     let theme = ThemeData.THEMES[themeId];
     let menuItem = $('<li><a href="#"><i class="fas fa-fw fa-' + theme.ICON + '"></i> ' + theme.DESCRIPTION + '</a></li>');
-    $("#ddTheme").append($(menuItem).addClass(['theme_btn', 'theme_btn_' + themeId]).click(() => Theme.set(themeId)));
+    $('#ddTheme').append($(menuItem).addClass(['theme_btn', 'theme_btn_' + themeId]).click(() => Theme.set(themeId)));
     if (themeId != "light") {
       $('head').append('<link rel="stylesheet" type="text/css" href="css/themes/' + themeId + '.css">');
     }

@@ -171,9 +171,9 @@ Metro.dialog.create({
       caption: "Run center finding Probe",
       cls: "js-dialog-close success",
       onclick: function() {
-        g_SeekDistance = parseFloat($("#centerProbeDistance").val());
-        g_ProbeFeed1 = parseFloat($("#centerProbeFeedrate1").val());
-        g_ProbeFeed2 = parseFloat($("#centerProbeFeedrate2").val());
+        g_SeekDistance = parseFloat($('#centerProbeDistance').val());
+        g_ProbeFeed1 = parseFloat($('#centerProbeFeedrate1').val());
+        g_ProbeFeed2 = parseFloat($('#centerProbeFeedrate2').val());
         RunProgramSequence(ExecuteStep);
       }
     },
