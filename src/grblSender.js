@@ -1106,10 +1106,10 @@ function clearAlarm(data) {
     }
 
     status.comms.alarm = "";
-    serverEmit('errorsCleared', true);
   } else {
     debug_log('ERROR: Machine connection not open!');
   }
+  serverEmit('errorsCleared', true);
 }
 
 function onConnection(socket) {

@@ -298,9 +298,8 @@ function showKbdWarning() {
     return;
   }
   kbdWarningShown = true;
-  Metro.dialog.create({
+  metroTopDialog({
     clsDialog: 'dark',
-    leaveOverlayOnClose: true,
     title: "<i class='fas fa-exclamation-triangle'></i> Keyboard Shortcuts Enabled",
     content: `When enabling the keyboard shortcuts, examine the current key settings to learn their assigned functions.<br>` +
       `Change them as necessary to fit your preferred workflow.<br><br>` +

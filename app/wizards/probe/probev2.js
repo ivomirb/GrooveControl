@@ -659,7 +659,27 @@ function runProbeNew() {
 }
 
 function editCustomProbe() {
-  Metro.dialog.open('#editCustomProbeDialog');
+  metroSecondaryDialog({
+    clsDialog: 'dark',
+    title: `<i class="fas fa-cogs"></i> Edit Custom Probe`,
+    content: `
+      <div>
+        <input type="text" data-role="input" class="mb-1" data-prepend="X Offset" data-append="mm" id="customProbeXOffset">
+        <input type="text" data-role="input" class="mb-1" data-prepend="Y Offset" data-append="mm" id="customProbeYOffset">
+        <input type="text" data-role="input" class="mb-1" data-prepend="Z Offset" data-append="mm" id="customProbeZOffset">
+      </div>`,
+    actions: [{
+      caption: "Save",
+      cls: "primary js-dialog-close",
+      onclick: saveEditCustomProbe,
+    },
+    {
+      caption: "Cancel",
+      cls: "js-dialog-close",
+      onclick: function() {},
+    }]
+  });
+
   $('#customProbeXOffset').val(customprobeplate.xoffset);
   $('#customProbeYOffset').val(customprobeplate.yoffset);
   $('#customProbeZOffset').val(customprobeplate.zoffset);

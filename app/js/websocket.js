@@ -333,7 +333,7 @@ function toastErrorAlarm(data) {
   if (typeof addDlgContext != "undefined") {
     addDlgContext("alarm");
   }
-  const dialog = Metro.dialog.create({
+  const dialog = metroTopDialog({
     clsDialog: 'dark',
     title: "<i class='fas fa-exclamation-triangle'></i> Grbl Alarm",
     content: "<i class='fas fa-exclamation-triangle fg-darkRed'></i>  " + data,
@@ -346,7 +346,7 @@ function toastErrorAlarm(data) {
         caption: "Clear Alarm",
         cls: "js-dialog-close alert closeAlarmBtn",
         onclick: function() {
-          socket.emit('clearAlarm', 2)
+          socket.emit('clearAlarm', 2);
         }
       },
       {
@@ -357,9 +357,7 @@ function toastErrorAlarm(data) {
     ]
   });
 
-  if (data.indexOf("ALARM: 6") == -1 && data.indexOf("ALARM: 7") == -1 && data.indexOf("ALARM: 8") == -1 && data.indexOf("ALARM: 9") == -1 && data.indexOf("ALARM: 10") == -1) {
-    openErrorDialogs.push(dialog);
-  }
+  openErrorDialogs.push(dialog);
 
   setTimeout(function() {
     $('.closeAlarmBtn').focus();
@@ -373,7 +371,7 @@ function toastError(data) {
   const printLogCls = "fg-darkRed"
   printLogModern(icon, source, string, printLogCls)
 
-  const dialog = Metro.dialog.create({
+  const dialog = metroTopDialog({
     title: "<i class='fas fa-exclamation-triangle'></i> Grbl Error",
     content: "<i class='fas fa-exclamation-triangle fg-darkRed'></i>  " + data,
     clsDialog: 'dark',
@@ -381,7 +379,7 @@ function toastError(data) {
       caption: "OK",
       cls: "js-dialog-close alert closeErrorBtn",
       onclick: function() {
-        socket.emit('clearAlarm', 2)
+        socket.emit('clearAlarm', 2);
       }
     }]
   });

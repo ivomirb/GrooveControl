@@ -333,3 +333,22 @@ function activateContentTab(tabName) {
   const tab = $('#' + tabName);
   tab.click();
 }
+
+// Wrapper for Metro.dialog.create that adds a secondary overlay to cover the dialogs below
+function metroTopDialog(options) {
+  const oldOnOpen = options.onOpen;
+  const oldOnClose = options.onClose;
+  options.clsDialog = options.clsDialog ? options.clsDialog + " dialog-secondary" : "dialog-secondary";
+  options.leaveOverlayOnClose = true;
+  options.overlay = false;
+  options.onOpen = function(dlg) {
+    dlg.before("<div class='overlay-secondary'></div>");
+    if (oldOnOpen) oldOnOpen(dlg);
+  },
+  options.onClose = function(dlg) {
+    dlg.prev('.overlay-secondary').remove();
+    if (oldOnClose) oldOnClose(dlg);
+  };
+
+  return Metro.dialog.create(options);
+}
