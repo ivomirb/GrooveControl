@@ -235,10 +235,10 @@ function sim(fromLine, paused) {
   }
   cone.material.dispose();
   cone.material = new THREE.MeshPhongMaterial({
-    color: 0x28a745,
-    specular: 0x08701f,
+    color: Theme.SIM_CONE_COLOR,
+    specular: Theme.SIM_CONE_SPECULAR,
     shininess: 100,
-    opacity: 0.6,
+    opacity: 0.8,
     transparent: true
   })
 
@@ -513,9 +513,10 @@ function simstop() {
   if (cone) {
     cone.material.dispose();
     cone.material = new THREE.MeshPhongMaterial({
-      color: 0x0000ff,
+      color: Theme.CONE_COLOR,
+      specular: Theme.CONE_SPECULAR,
       shininess: 100,
-      opacity: 0.6,
+      opacity: 0.8,
       transparent: true
     });
   }

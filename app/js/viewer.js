@@ -105,6 +105,9 @@ function drawWorkspace(xmin, xmax, ymin, ymax) {
   dirLight.name = "dirLight;"
   sceneLights.add(dirLight);
 
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+  sceneLights.add(ambientLight);
+
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
   hemiLight.color.setHSL(Theme.HEMI_LIGHT_COLOR.H, Theme.HEMI_LIGHT_COLOR.S, Theme.HEMI_LIGHT_COLOR.L);
   hemiLight.groundColor.setHSL(0.095, 1, 0.75);
@@ -160,9 +163,10 @@ function drawWorkspace(xmin, xmax, ymin, ymax) {
     coneGeo.translate(0, 0, 20);
 
     cone = new THREE.Mesh(coneGeo, new THREE.MeshPhongMaterial({
-      color: 0x0000ff,
+      color: Theme.CONE_COLOR,
+      specular: Theme.CONE_SPECULAR,
       shininess: 100,
-      opacity: 0.6,
+      opacity: 0.8,
       transparent: true
     }));
 
@@ -370,13 +374,15 @@ function init3D() {
   if (webgl) {
     printLog("<span class='fg-darkRed'>[ 3D Viewer ] </span><span class='fg-green'>WebGL Support found! success: this application will work optimally on this device!</span>")
     renderer = new THREE.WebGLRenderer({
-      autoClearColor: true,
+      autoClearColor: false,
+      autoClear: false,
       antialias: true,
-      preserveDrawingBuffer: true,
+      preserveDrawingBuffer: false,
       alpha: false
     });
     // ThreeJS Render/Control/Camera
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(Theme.SCENE_BACKGROUND_COLOR);
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20000);
     camera.position.z = 295;
     camera.up = new THREE.Vector3(0, 0, 1);
