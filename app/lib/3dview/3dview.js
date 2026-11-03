@@ -506,8 +506,11 @@ function simstop() {
   clearSceneFlag = true;
   if (cone) {
     cone.material.dispose();
-    cone.material = new THREE.MeshLambertMaterial({
-      color: 0x0000ff
+    cone.material = new THREE.MeshPhongMaterial({
+      color: 0x0000ff,
+      shininess: 100,
+      opacity: 0.6,
+      transparent: true
     });
   }
 }
@@ -582,11 +585,11 @@ function simAnimate() {
   }
 
   if (spin != 0) {
-    cone.rotation.y += TOOL_SPIN_RATE * spin * dt;
-    if (spin > 0 && cone.rotation.y > 2*Math.PI) {
-      cone.rotation.y -= 2*Math.PI;
-    } else if (spin < 0 && cone.rotation.y < 0) {
-      cone.rotation.y += 2*Math.PI;
+    cone.rotation.z -= TOOL_SPIN_RATE * spin * dt;
+    if (spin < 0 && cone.rotation.z > 2*Math.PI) {
+      cone.rotation.z -= 2*Math.PI;
+    } else if (spin > 0 && cone.rotation.z < 0) {
+      cone.rotation.z += 2*Math.PI;
     }
   }
 }

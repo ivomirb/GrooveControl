@@ -156,19 +156,19 @@ function drawWorkspace(xmin, xmax, ymin, ymax) {
 
   if (!disable3Drealtimepos) {
     const coneGeo = new THREE.CylinderGeometry(0, 5, 40, CONE_FACE_COUNT, 1, false)
-    coneGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -20, 0));
+    coneGeo.rotateX(-Math.PI / 2);
+    coneGeo.translate(0, 0, 20);
 
-    cone = new THREE.Mesh(coneGeo, new THREE.MeshLambertMaterial({
-      color: 0x0000ff
+    cone = new THREE.Mesh(coneGeo, new THREE.MeshPhongMaterial({
+      color: 0x0000ff,
+      shininess: 100,
+      opacity: 0.6,
+      transparent: true
     }));
 
-    cone.overdraw = true;
-    cone.rotation.x = -90 * Math.PI / 180;
     cone.position.x = 0;
     cone.position.y = 0;
     cone.position.z = 0;
-    cone.material.opacity = 0.6;
-    cone.material.transparent = true;
     cone.castShadow = false;
     cone.visible = viewSettings.tool;
     cone.name = "Simulation Marker"
@@ -373,7 +373,7 @@ function init3D() {
       autoClearColor: true,
       antialias: true,
       preserveDrawingBuffer: true,
-      alpha: true
+      alpha: false
     });
     // ThreeJS Render/Control/Camera
     scene = new THREE.Scene();

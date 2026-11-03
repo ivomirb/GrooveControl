@@ -9,16 +9,16 @@ const ThemeData = {
       SKY_TOP_COLOR: 0x0077ff,
       SKY_BOTTOM_COLOR: 0xffffff,
       HEMI_LIGHT_COLOR: {
-        'H': 0.6,
-        'S': 1.0,
-        'L': 0.6
+        H: 0.6,
+        S: 1.0,
+        L: 0.6
       },
       GRID_STEP_10_COLOR: 0x888888,
       GRID_STEP_10_OPACITY: 0.15,
       GRID_STEP_100_COLOR: 0x666666,
       GRID_STEP_100_OPACITY: 0.3,
-      RULER_COLOR: 0x000000,
-      RULER_OPACITY: 0.15,
+      RULER_COLOR: 0xBBBBBB,
+      RULER_OPACITY: 0.30,
       X_RULER_NUMBER_COLOR: "#cc0000",
       X_RULER_LABEL_COLOR: "#ff0000",
       X_AXIS_LINE_COLOR: 0xcc0000,
@@ -26,24 +26,24 @@ const ThemeData = {
       Y_RULER_LABEL_COLOR: "#006600",
       Y_AXIS_LINE_COLOR: 0x00cc00,
       LINE_COLOURS: [{
-          'R': 0,
-          'G': 1,
-          'B': 0
+          R: 0,
+          G: 1,
+          B: 0
         },
         {
-          'R': 1,
-          'G': 0,
-          'B': 0
+          R: 1,
+          G: 0,
+          B: 0
         },
         {
-          'R': 0,
-          'G': 0,
-          'B': 1
+          R: 0,
+          G: 0,
+          B: 1
         },
         {
-          'R': 1,
-          'G': 0,
-          'B': 1
+          R: 1,
+          G: 0,
+          B: 1
         }
       ],
       HEIGHTMAP_GRID_COLOR1: 0xF6A91C,
@@ -58,9 +58,9 @@ const ThemeData = {
       SKY_TOP_COLOR: 0x333333,
       SKY_BOTTOM_COLOR: 0x222222,
       HEMI_LIGHT_COLOR: {
-        'H': 0.6,
-        'S': 0.0,
-        'L': 0.1
+        H: 0.6,
+        S: 0.0,
+        L: 0.1
       },
       GRID_STEP_10_COLOR: 0x555555,
       GRID_STEP_10_OPACITY: 0.15,
@@ -75,24 +75,24 @@ const ThemeData = {
       Y_RULER_LABEL_COLOR: "#006600",
       Y_AXIS_LINE_COLOR: 0x00cc00,
       LINE_COLOURS: [{
-          'R': 0,
-          'G': 1,
-          'B': 0
+          R: 0,
+          G: 1,
+          B: 0
         },
         {
-          'R': 1,
-          'G': 0,
-          'B': 0
+          R: 1,
+          G: 0,
+          B: 0
         },
         {
-          'R': 0,
-          'G': 0,
-          'B': 1
+          R: 0,
+          G: 0,
+          B: 1
         },
         {
-          'R': 1,
-          'G': 0,
-          'B': 1
+          R: 1,
+          G: 0,
+          B: 1
         }
        ],
       HEIGHTMAP_GRID_COLOR1: 0xF6A91C,
