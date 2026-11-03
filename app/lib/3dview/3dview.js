@@ -206,55 +206,61 @@ function resetConePosition() {
 }
 
 function sim(fromLine, paused) {
+  if (laststatus && laststatus.comms.connectionStatus > 2) {
+    simstop();
+    return;
+  }
+
   if (typeof(object) == 'undefined' || object.userData.pointCount == 0) {
     const message = `No Gcode in Preview yet: Please load G-code from the Open G-code button first before running simulation`
     Metro.toast.create(message, null, 3000, 'bg-red');
-    simstop()
-  } else {
-    simIdx = fromLine;
-    if (SIM_DISPLAY_TYPE == 1) {
-      $('#simText').show();
-      $('#simText > span').html("");
-    } else {
-      $('#conetext').css('left', "0px").css('top', "0px");
-      $('#conetext').show();
-    }
-    resetConePosition();
-    if (!viewSettings.tool) { // force-show
-      viewSettings.tool = true;
-      cone.visible = true;
-      $('#viewToolSetting:checkbox').prop('checked', true);
-      saveViewSettings();
-    }
-    cone.material.dispose();
-    cone.material = new THREE.MeshPhongMaterial({
-      color: 0x28a745,
-      specular: 0x08701f,
-      shininess: 100,
-      opacity: 0.6,
-      transparent: true
-    })
-
-    $('#runSimBtn').hide();
-    $('#simControls').show();
-    if (paused) {
-      $('#pauseSimBtn').hide();
-      $('#resumeSimBtn').show();
-    } else {
-      $('#pauseSimBtn').show();
-      $('#resumeSimBtn').hide();
-    }
-
-    $('#simBackBtn').attr('disabled', !paused).css('pointer-events', paused ? 'auto' : 'none');
-    $('#simForwardBtn').attr('disabled', !paused).css('pointer-events', paused ? 'auto' : 'none');
-
-    clearSceneFlag = true;
-    simRunning = true;
-    simPaused = paused;
-    $('#simspeedval').text(timefactor);
-    $('#editorContextMenu').hide() // sometimes we launch sim(linenum) from the context menu... close it once running
-    runSim(); //kick it off
+    simstop();
+   return;
   }
+
+  simIdx = fromLine;
+  if (SIM_DISPLAY_TYPE == 1) {
+    $('#simText').show();
+    $('#simText > span').html("");
+  } else {
+    $('#conetext').css('left', "0px").css('top', "0px");
+    $('#conetext').show();
+  }
+  resetConePosition();
+  if (!viewSettings.tool) { // force-show
+    viewSettings.tool = true;
+    cone.visible = true;
+    $('#viewToolSetting:checkbox').prop('checked', true);
+    saveViewSettings();
+  }
+  cone.material.dispose();
+  cone.material = new THREE.MeshPhongMaterial({
+    color: 0x28a745,
+    specular: 0x08701f,
+    shininess: 100,
+    opacity: 0.6,
+    transparent: true
+  })
+
+  $('#runSimBtn').hide();
+  $('#simControls').show();
+  if (paused) {
+    $('#pauseSimBtn').hide();
+    $('#resumeSimBtn').show();
+  } else {
+    $('#pauseSimBtn').show();
+    $('#resumeSimBtn').hide();
+  }
+
+  $('#simBackBtn').attr('disabled', !paused).css('pointer-events', paused ? 'auto' : 'none');
+  $('#simForwardBtn').attr('disabled', !paused).css('pointer-events', paused ? 'auto' : 'none');
+
+  clearSceneFlag = true;
+  simRunning = true;
+  simPaused = paused;
+  $('#simspeedval').text(timefactor);
+  $('#editorContextMenu').hide() // sometimes we launch sim(linenum) from the context menu... close it once running
+  runSim(); //kick it off
 }
 
 function runSim() {
