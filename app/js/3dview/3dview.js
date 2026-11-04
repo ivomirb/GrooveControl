@@ -110,7 +110,7 @@ function parseGcodeInWebWorker(gcode) {
   }
   object = false;
   if (webgl && !disable3Dgcodepreview) {
-    const worker = new Worker('lib/3dview/workers/verylitegcodeviewer.js');
+    const worker = new Worker('js/3dview/verylitegcodeviewer.js');
     worker.addEventListener('message', function(e) {
       if (e.data.progress != undefined) {
         $('#3dviewlabel').html(' 3D View (rendering, please wait... ' + e.data.progress + '% )')
