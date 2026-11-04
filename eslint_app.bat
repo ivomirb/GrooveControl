@@ -101,7 +101,7 @@ echo // NOTE: calibration\calibrate-z.js >> all.js
 copy /b all.js + js\calibration\calibrate-z.js
 
 echo // >> all.js
-echo // NOTE: \calibration\calibrate-servo.js >> all.js
+echo // NOTE: calibration\calibrate-servo.js >> all.js
 copy /b all.js + js\calibration\calibrate-servo.js
 
 echo // NOTE: probe\probev2.js >> all.js
@@ -122,7 +122,7 @@ copy /b all.js + js\jobstats\jobstats.js
 echo // NOTE: resume\resume.js >> all.js
 copy /b all.js + js\resume\resume.js
 
-echo // NOTE: js\toolchange.js >> all.js
+echo // NOTE: toolchange.js >> all.js
 copy /b all.js + js\toolchange.js
 
 cd ..
