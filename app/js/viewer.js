@@ -255,7 +255,7 @@ function redrawGrid(xmin, xmax, ymin, ymax, inches) {
   const size = 5
 
   // add axes labels
-  const xlbl = makeSprite("webgl", {
+  const xlbl = makeTextSprite({
     x: xmax + offset,
     y: 0,
     z: 0,
@@ -263,7 +263,7 @@ function redrawGrid(xmin, xmax, ymin, ymax, inches) {
     color: Theme.X_RULER_LABEL_COLOR,
     size: size
   });
-  const ylbl = makeSprite("webgl", {
+  const ylbl = makeTextSprite({
     x: 0,
     y: ymax + offset,
     z: 0,
@@ -517,25 +517,25 @@ function viewExtents(objecttosee, force) {
   }
 }
 
-function makeSprite(rendererType, vals) {
+function makeTextSprite(options) {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
   const textHeight = 100;
-  let actualFontSize = 10;
+  let actualFontSize = options.size || 10;
 
-  const txt = vals.text;
-  if (vals.size) actualFontSize = vals.size;
+  const txt = options.text;
+  const font = "normal " + textHeight + "px Impact, ViewportFallbackFont";
 
-  context.font = "normal " + textHeight + "px Impact";
+  context.font = font;
   const metrics = context.measureText(txt);
   const textWidth = metrics.width;
 
   canvas.width = textWidth;
   canvas.height = textHeight;
-  context.font = "normal " + textHeight + "px Impact";
+  context.font = font; // resizing the canvas resets the font
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillStyle = vals.color;
+  context.fillStyle = options.color;
 
   context.fillText(txt, textWidth / 2, textHeight / 2);
 
@@ -551,17 +551,13 @@ function makeSprite(rendererType, vals) {
   });
   material.transparent = true;
   const textObject = new THREE.Object3D();
-  textObject.position.x = vals.x;
-  textObject.position.y = vals.y;
-  textObject.position.z = vals.z;
+  textObject.position.x = options.x;
+  textObject.position.y = options.y;
+  textObject.position.z = options.z;
   const sprite = new THREE.Sprite(material);
   textObject.textHeight = actualFontSize;
   textObject.textWidth = (textWidth / textHeight) * textObject.textHeight;
-  if (rendererType == "2d") {
-    sprite.scale.set(textObject.textWidth / textWidth, textObject.textHeight / textHeight, 1);
-  } else {
-    sprite.scale.set(textWidth / textHeight * actualFontSize, actualFontSize, 1);
-  }
+  sprite.scale.set(textWidth / textHeight * actualFontSize, actualFontSize, 1);
 
   textObject.add(sprite);
 
