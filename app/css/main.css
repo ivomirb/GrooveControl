@@ -348,6 +348,34 @@ select {
   padding-right: 12px;
 }
 
+.overlay-secondary {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1060;
+}
+
+.dialog-secondary {
+  z-index: 1070;
+}
+
+/* Fallback narrow bold font to use in the viewport if Impact is not available */
+@font-face {
+  font-family: 'ViewportFallbackFont';
+  src: local('Liberation Sans Narrow Bold'),
+       local('LiberationSansNarrow-Bold'),
+       local('Liberation Sans Narrow'),
+       local('ArialNarrow Bold'),
+       local('ArialNarrow-Bold'),
+       local('Arial Bold'),
+       local('Arial-Bold');
+  font-weight: normal;
+  font-style: normal;
+}
+
 #simControls, #simText {
   background-color: #f5f6f7;
 }

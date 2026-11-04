@@ -8,6 +8,7 @@ import {
   Tray,
   nativeImage,
   Menu,
+  dialog,
   shell,
   app as electronApp,
 } from 'electron';
@@ -103,6 +104,15 @@ function onSecondInstance(event, commandLine, workingDirectory) {
 // Module to create native browser window.
 function createApp() {
   appCreated = true;
+
+  if (typeof config.webPort == "string") {
+    dialog.showMessageBoxSync(null, {
+      type: 'error',
+      buttons: ['OK'],
+      message: config.webPort
+    });
+    process.exit(1);
+  }
 
   let showGui = forceShowGui || process.argv.indexOf("-showGui") > 0;
   status.misc.trayIcon = persistentConfig.trayIcon;
@@ -579,11 +589,6 @@ function main() {
   initServer();
 
   initElectron();
-
-  // Global Update loop
-  setInterval(function() {
-    serverEmit('status', status);
-  }, 100);
 }
 
 main();

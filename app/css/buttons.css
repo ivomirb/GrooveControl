@@ -23,6 +23,7 @@
 #jrocell button,
 #frocell button,
 #trocell button,
+#probeJogWindow .slider button,
 #simControls .slider button {
   border: 1px solid lightgray;
 }
