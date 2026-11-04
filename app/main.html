@@ -1677,16 +1677,13 @@ Restore previous origins from history.">
           </table>
         </div>
         <div class="dialog-actions">
-
-          <div class="pos-relative">
-            <label>Probe Type: </label>
-
-            <a class="button" id="context_toggle"><span id="probetypebtn"><span class="icon"><img src="./img/xyzprobe/xyztouch.png" /></span> OpenBuilds XYZ Probe Plus</a>
-            <ul class="d-menu context" data-role="dropdown" data-toggle-element="#context_toggle">
-              <li onclick="probetype('xyz');"><a href="#"><span class="icon"><img src="./img/xyzprobe/xyztouch.png" /></span> OpenBuilds XYZ Probe Plus</a></li>
-              <li onclick="probetype('z');"><a href="#"><span class="icon"><img src="./img/xyzprobe/ztouch.png" /></span> Z Touch Plate</a></li>
-              <li onclick="probetype('custom');"><a href="#"><span class="icon"><img src="./img/xyzprobe/custom.png" /></span> Custom XYZ Probe</a></li>
-            </ul>
+          <div class="row">
+            <label style="padding-right:12px;padding-top:5px;">Probe Type: </label>
+            <select data-role="select" id="selectProbeType" data-filter="false" data-on-change="probetype(arguments[0])" class="compact-options" style="width:260px;">
+              <option value="xyz" data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px;' src='./img/xyzprobe/xyztouch.png' />$1</div>"> OpenBuilds XYZ Probe Plus</option>
+              <option value="z" data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px;' src='./img/xyzprobe/ztouch.png' />$1</div>"> Z Touch Plate</option>
+              <option value="custom" data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px;' src='./img/xyzprobe/custom.png' />$1</div>"> Custom XYZ Probe</option>
+            </select>
           </div>
           <button title="Configure Custom Probe parameters" class="button" onclick="editCustomProbe();" id="editCustomProbeBtn" style="display: none;"><i class="fas fa-cogs"></i></button>
           <span style="padding-left: 50px;" id="ProbeButtonBarSpacer"></span>
@@ -1697,21 +1694,6 @@ Restore previous origins from history.">
         </div>
       </div>
       <!-- End XYZ Probe -->
-
-      <!-- Edit Custom Probe -->
-      <div class="dialog dark" data-role="dialog" id="editCustomProbeDialog" data-role="dialog" data-overlay-click-close="false" data-leave-overlay-on-close="true">
-        <div class="dialog-title"><i class="fas fa-cogs"></i> Edit Custom Probe</div>
-        <div class="dialog-content">
-          <input type="text" data-role="input" class="mb-1" data-prepend="X Offset" data-append="mm" id="customProbeXOffset">
-          <input type="text" data-role="input" class="mb-1" data-prepend="Y Offset" data-append="mm" id="customProbeYOffset">
-          <input type="text" data-role="input" class="mb-1" data-prepend="Z Offset" data-append="mm" id="customProbeZOffset">
-        </div>
-        <div class="dialog-actions ">
-          <button class="button primary js-dialog-close" onclick="saveEditCustomProbe()">Save</button>
-          <button class="button js-dialog-close" onclick="resetJogModeAfterProbe()">Cancel</button>
-        </div>
-      </div>
-      <!-- End Edit Custom Probe -->
 
       <!-- job completion confirmation -->
       <div class="dialog dark" id="completeMsgModal" data-role="dialog" data-overlay-click-close="false">
@@ -1821,7 +1803,6 @@ Restore previous origins from history.">
 
   <script type="text/javascript" src="./js/websocket.js"></script>
 
-  <script type="text/javascript" src="./js/metroactions.js"></script>
   <script type="text/javascript" src="./js/jog.js"></script>
   <script type="text/javascript" src="./js/servo.js"></script>
 
@@ -1830,25 +1811,25 @@ Restore previous origins from history.">
   <script type="text/javascript" src="./js/actions.js"></script>
   <script type="text/javascript" src="./js/keyboard.js"></script>
 
-  <script type="text/javascript" src="./lib/3dview/3dview.js"></script>
+  <script type="text/javascript" src="./js/3dview/3dview.js"></script>
 
   <!-- Wizards -->
-  <script type="text/javascript" src="./wizards/calibration/calculate-xyz-steps.js"></script>
-  <script type="text/javascript" src="./wizards/calibration/calculate-a-steps.js"></script>
-  <script type="text/javascript" src="./wizards/calibration/calibrate-x.js"></script>
-  <script type="text/javascript" src="./wizards/calibration/calibrate-y.js"></script>
-  <script type="text/javascript" src="./wizards/calibration/calibrate-z.js"></script>
-  <script type="text/javascript" src="./wizards/calibration/calibrate-servo.js"></script>
+  <script type="text/javascript" src="./js/calibration/calculate-xyz-steps.js"></script>
+  <script type="text/javascript" src="./js/calibration/calculate-a-steps.js"></script>
+  <script type="text/javascript" src="./js/calibration/calibrate-x.js"></script>
+  <script type="text/javascript" src="./js/calibration/calibrate-y.js"></script>
+  <script type="text/javascript" src="./js/calibration/calibrate-z.js"></script>
+  <script type="text/javascript" src="./js/calibration/calibrate-servo.js"></script>
 
-  <script type="text/javascript" src="./wizards/probe/probev2.js"></script>
-  <script type="text/javascript" src="./wizards/probe/holefinder.js"></script>
+  <script type="text/javascript" src="./js/probe/probev2.js"></script>
+  <script type="text/javascript" src="./js/probe/holefinder.js"></script>
 
-  <script type="text/javascript" src="./wizards/surfacing/surfacing.js"></script>
-  <script type="text/javascript" src="./wizards/heightmap/heightmap.js"></script>
+  <script type="text/javascript" src="./js/surfacing/surfacing.js"></script>
+  <script type="text/javascript" src="./js/heightmap/heightmap.js"></script>
 
-  <script type="text/javascript" src="./wizards/jobstats/jobstats.js"></script>
+  <script type="text/javascript" src="./js/jobstats/jobstats.js"></script>
 
-  <script type="text/javascript" src="./wizards/resume/resume.js"></script>
+  <script type="text/javascript" src="./js/resume/resume.js"></script>
 
   <script type="text/javascript" src="./js/toolchange.js"></script>
 

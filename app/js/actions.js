@@ -144,7 +144,6 @@ const inputActions = [
     defaultKey: "end",
     keydown: () => {
       if (laststatus && laststatus.comms.connectionStatus == 5) {
-        Metro.dialog.close($('.closeAlarmBtn').parent().parent());
         socket.emit('clearAlarm', 2);
       }
     },

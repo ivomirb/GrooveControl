@@ -67,6 +67,25 @@ function rippleEffect(el, color) {
   }, 400);
 }
 
+function manualcontrolPanel() {
+  $('#manualControlPanel').show()
+  $('#grblPanel').hide()
+  $('#troubleshootingPanel').hide()
+}
+
+function grblPanel() {
+  grblPopulate();
+  $('#manualControlPanel').hide()
+  $('#grblPanel').show()
+  $('#troubleshootingPanel').hide()
+}
+
+function troubleshootingPanel() {
+  $('#manualControlPanel').hide()
+  $('#grblPanel').hide()
+  $('#troubleshootingPanel').show()
+}
+
 // Toolbar with USB port/connect/disconnect
 function setConnectBar(val, status) {
   if (val == 0) { // Not Connected Yet
@@ -332,4 +351,23 @@ function deleteContentTab(tabName) {
 function activateContentTab(tabName) {
   const tab = $('#' + tabName);
   tab.click();
+}
+
+// Wrapper for Metro.dialog.create that adds a secondary overlay to cover the dialogs below
+function metroTopDialog(options) {
+  const oldOnOpen = options.onOpen;
+  const oldOnClose = options.onClose;
+  options.clsDialog = options.clsDialog ? options.clsDialog + " dialog-secondary" : "dialog-secondary";
+  options.leaveOverlayOnClose = true;
+  options.overlay = false;
+  options.onOpen = function(dlg) {
+    dlg.before("<div class='overlay-secondary'></div>");
+    if (oldOnOpen) oldOnOpen(dlg);
+  },
+  options.onClose = function(dlg) {
+    dlg.prev('.overlay-secondary').remove();
+    if (oldOnClose) oldOnClose(dlg);
+  };
+
+  return Metro.dialog.create(options);
 }

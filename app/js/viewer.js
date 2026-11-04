@@ -105,6 +105,9 @@ function drawWorkspace(xmin, xmax, ymin, ymax) {
   dirLight.name = "dirLight;"
   sceneLights.add(dirLight);
 
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+  sceneLights.add(ambientLight);
+
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
   hemiLight.color.setHSL(Theme.HEMI_LIGHT_COLOR.H, Theme.HEMI_LIGHT_COLOR.S, Theme.HEMI_LIGHT_COLOR.L);
   hemiLight.groundColor.setHSL(0.095, 1, 0.75);
@@ -156,19 +159,20 @@ function drawWorkspace(xmin, xmax, ymin, ymax) {
 
   if (!disable3Drealtimepos) {
     const coneGeo = new THREE.CylinderGeometry(0, 5, 40, CONE_FACE_COUNT, 1, false)
-    coneGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -20, 0));
+    coneGeo.rotateX(-Math.PI / 2);
+    coneGeo.translate(0, 0, 20);
 
-    cone = new THREE.Mesh(coneGeo, new THREE.MeshLambertMaterial({
-      color: 0x0000ff
+    cone = new THREE.Mesh(coneGeo, new THREE.MeshPhongMaterial({
+      color: Theme.CONE_COLOR,
+      specular: Theme.CONE_SPECULAR,
+      shininess: 100,
+      opacity: 0.8,
+      transparent: true
     }));
 
-    cone.overdraw = true;
-    cone.rotation.x = -90 * Math.PI / 180;
     cone.position.x = 0;
     cone.position.y = 0;
     cone.position.z = 0;
-    cone.material.opacity = 0.6;
-    cone.material.transparent = true;
     cone.castShadow = false;
     cone.visible = viewSettings.tool;
     cone.name = "Simulation Marker"
@@ -251,7 +255,7 @@ function redrawGrid(xmin, xmax, ymin, ymax, inches) {
   const size = 5
 
   // add axes labels
-  const xlbl = makeSprite("webgl", {
+  const xlbl = makeTextSprite({
     x: xmax + offset,
     y: 0,
     z: 0,
@@ -259,7 +263,7 @@ function redrawGrid(xmin, xmax, ymin, ymax, inches) {
     color: Theme.X_RULER_LABEL_COLOR,
     size: size
   });
-  const ylbl = makeSprite("webgl", {
+  const ylbl = makeTextSprite({
     x: 0,
     y: ymax + offset,
     z: 0,
@@ -370,13 +374,15 @@ function init3D() {
   if (webgl) {
     printLog("<span class='fg-darkRed'>[ 3D Viewer ] </span><span class='fg-green'>WebGL Support found! success: this application will work optimally on this device!</span>")
     renderer = new THREE.WebGLRenderer({
-      autoClearColor: true,
+      autoClearColor: false,
+      autoClear: false,
       antialias: true,
-      preserveDrawingBuffer: true,
-      alpha: true
+      preserveDrawingBuffer: false,
+      alpha: false
     });
     // ThreeJS Render/Control/Camera
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(Theme.SCENE_BACKGROUND_COLOR);
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20000);
     camera.position.z = 295;
     camera.up = new THREE.Vector3(0, 0, 1);
@@ -511,25 +517,25 @@ function viewExtents(objecttosee, force) {
   }
 }
 
-function makeSprite(rendererType, vals) {
+function makeTextSprite(options) {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
   const textHeight = 100;
-  let actualFontSize = 10;
+  let actualFontSize = options.size || 10;
 
-  const txt = vals.text;
-  if (vals.size) actualFontSize = vals.size;
+  const txt = options.text;
+  const font = "normal " + textHeight + "px Impact, ViewportFallbackFont";
 
-  context.font = "normal " + textHeight + "px Impact";
+  context.font = font;
   const metrics = context.measureText(txt);
   const textWidth = metrics.width;
 
   canvas.width = textWidth;
   canvas.height = textHeight;
-  context.font = "normal " + textHeight + "px Impact";
+  context.font = font; // resizing the canvas resets the font
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillStyle = vals.color;
+  context.fillStyle = options.color;
 
   context.fillText(txt, textWidth / 2, textHeight / 2);
 
@@ -545,17 +551,13 @@ function makeSprite(rendererType, vals) {
   });
   material.transparent = true;
   const textObject = new THREE.Object3D();
-  textObject.position.x = vals.x;
-  textObject.position.y = vals.y;
-  textObject.position.z = vals.z;
+  textObject.position.x = options.x;
+  textObject.position.y = options.y;
+  textObject.position.z = options.z;
   const sprite = new THREE.Sprite(material);
   textObject.textHeight = actualFontSize;
   textObject.textWidth = (textWidth / textHeight) * textObject.textHeight;
-  if (rendererType == "2d") {
-    sprite.scale.set(textObject.textWidth / textWidth, textObject.textHeight / textHeight, 1);
-  } else {
-    sprite.scale.set(textWidth / textHeight * actualFontSize, actualFontSize, 1);
-  }
+  sprite.scale.set(textWidth / textHeight * actualFontSize, actualFontSize, 1);
 
   textObject.add(sprite);
 
@@ -646,24 +648,31 @@ function changeViewSettings() {
 
 function updateViewSettings() {
   if (scene) {
-    if (object)
+    if (object) {
       object.visible = viewSettings.toolpath;
-    if (cone)
+    }
+
+    if (cone) {
       cone.visible = viewSettings.tool;
+    }
 
     const grid = scene.getObjectByName("Grid");
-    if (grid)
+    if (grid) {
       grid.visible = viewSettings.grid;
+    }
 
     const ruler = scene.getObjectByName("Ruler");
-    if (ruler)
+    if (ruler) {
       ruler.visible = viewSettings.ruler;
+    }
 
-    if (machineCoordinateSpace)
+    if (machineCoordinateSpace) {
       machineCoordinateSpace.visible = viewSettings.machine;
+    }
 
     const heightmap = scene.getObjectByName("Heightmap");
-    if (heightmap)
+    if (heightmap) {
       heightmap.visible = viewSettings.heightmap;
+    }
   }
 }

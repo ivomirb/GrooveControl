@@ -5,47 +5,33 @@ const ThemeData = {
     "light": {
       DESCRIPTION: 'Light Mode',
       ICON: 'sun',
+      SCENE_BACKGROUND_COLOR: 0xFFFFFF,
       SPRITE_OPACITY: 0.6,
       SKY_TOP_COLOR: 0x0077ff,
       SKY_BOTTOM_COLOR: 0xffffff,
-      HEMI_LIGHT_COLOR: {
-        'H': 0.6,
-        'S': 1.0,
-        'L': 0.6
-      },
+      HEMI_LIGHT_COLOR: {H: 0.6, S: 1.0, L: 0.6},
       GRID_STEP_10_COLOR: 0x888888,
       GRID_STEP_10_OPACITY: 0.15,
       GRID_STEP_100_COLOR: 0x666666,
       GRID_STEP_100_OPACITY: 0.3,
-      RULER_COLOR: 0x000000,
-      RULER_OPACITY: 0.15,
+      RULER_COLOR: 0xBBBBBB,
+      RULER_OPACITY: 0.30,
       X_RULER_NUMBER_COLOR: "#cc0000",
       X_RULER_LABEL_COLOR: "#ff0000",
       X_AXIS_LINE_COLOR: 0xcc0000,
       Y_RULER_NUMBER_COLOR: "#006600",
       Y_RULER_LABEL_COLOR: "#006600",
       Y_AXIS_LINE_COLOR: 0x00cc00,
-      LINE_COLOURS: [{
-          'R': 0,
-          'G': 1,
-          'B': 0
-        },
-        {
-          'R': 1,
-          'G': 0,
-          'B': 0
-        },
-        {
-          'R': 0,
-          'G': 0,
-          'B': 1
-        },
-        {
-          'R': 1,
-          'G': 0,
-          'B': 1
-        }
+      LINE_COLORS: [
+        {R: 0, G: 1, B: 0},
+        {R: 1, G: 0, B: 0},
+        {R: 0, G: 0, B: 1},
+        {R: 1, G: 0, B: 1}
       ],
+      CONE_COLOR: 0x2845a7,
+      CONE_SPECULAR: 0x081f70,
+      SIM_CONE_COLOR: 0x28a745,
+      SIM_CONE_SPECULAR: 0x08701f,
       HEIGHTMAP_GRID_COLOR1: 0xF6A91C,
       HEIGHTMAP_GRID_COLOR2: 0x1CB9F6,
       HEIGHTMAP_FACE_COLOR: 0x1CB9F6,
@@ -54,14 +40,11 @@ const ThemeData = {
     "dark": {
       DESCRIPTION: 'Dark Mode',
       ICON: 'moon',
+      SCENE_BACKGROUND_COLOR: 0x202020,
       SPRITE_OPACITY: 0.8,
       SKY_TOP_COLOR: 0x333333,
       SKY_BOTTOM_COLOR: 0x222222,
-      HEMI_LIGHT_COLOR: {
-        'H': 0.6,
-        'S': 0.0,
-        'L': 0.1
-      },
+      HEMI_LIGHT_COLOR: {H: 0.6, S: 0.0, L: 0.1},
       GRID_STEP_10_COLOR: 0x555555,
       GRID_STEP_10_OPACITY: 0.15,
       GRID_STEP_100_COLOR: 0x666666,
@@ -74,80 +57,22 @@ const ThemeData = {
       Y_RULER_NUMBER_COLOR: "#006600",
       Y_RULER_LABEL_COLOR: "#006600",
       Y_AXIS_LINE_COLOR: 0x00cc00,
-      LINE_COLOURS: [{
-          'R': 0,
-          'G': 1,
-          'B': 0
-        },
-        {
-          'R': 1,
-          'G': 0,
-          'B': 0
-        },
-        {
-          'R': 0,
-          'G': 0,
-          'B': 1
-        },
-        {
-          'R': 1,
-          'G': 0,
-          'B': 1
-        }
+      LINE_COLORS: [
+        {R: 0, G: 1, B: 0},
+        {R: 1, G: 0, B: 0},
+        {R: 0, G: 0, B: 1},
+        {R: 1, G: 0, B: 1}
        ],
+      CONE_COLOR: 0x2845a7,
+      CONE_SPECULAR: 0x081f70,
+      SIM_CONE_COLOR: 0x28a745,
+      SIM_CONE_SPECULAR: 0x08701f,
       HEIGHTMAP_GRID_COLOR1: 0xF6A91C,
       HEIGHTMAP_GRID_COLOR2: 0x1CB9F6,
       HEIGHTMAP_FACE_COLOR: 0x1CB9F6,
       HEIGHTMAP_FACE_OPACITY: 0.3,
-   }
-    // ,
-    // "hicontrast": {
-    //   DESCRIPTION: 'High Contrast Theme',
-    //   ICON: 'dot-circle',
-    //   SPRITE_OPACITY: 1.0,
-    //   SKY_TOP_COLOR: 0x000000,
-    //   SKY_BOTTOM_COLOR: 0x000000,
-    //   HEMI_LIGHT_COLOR: {
-    //     'H': 0.6,
-    //     'S': 0.0,
-    //     'L': 0.0
-    //   },
-    //   GRID_STEP_10_COLOR: 0xFFFFFF,
-    //   GRID_STEP_10_OPACITY: 0.15,
-    //   GRID_STEP_100_COLOR: 0xFFFFFF,
-    //   GRID_STEP_100_OPACITY: 0.15,
-    //   RULER_COLOR: 0xFFFFFF,
-    //   RULER_OPACITY: 1.0,
-    //   X_RULER_NUMBER_COLOR: "#ffff00",
-    //   X_RULER_LABEL_COLOR: "#ffff00",
-    //   X_AXIS_LINE_COLOR: 0xFFFF00,
-    //   Y_RULER_NUMBER_COLOR: "#00ffff",
-    //   Y_RULER_LABEL_COLOR: "#00ffff",
-    //   Y_AXIS_LINE_COLOR: 0x00FFFF,
-    //   LINE_COLOURS: [{
-    //       'R': 0,
-    //       'G': 255,
-    //       'B': 0
-    //     },
-    //     {
-    //       'R': 255,
-    //       'G': 255,
-    //       'B': 0
-    //     },
-    //     {
-    //       'R': 0,
-    //       'G': 255,
-    //       'B': 255
-    //     },
-    //     {
-    //       'R': 255,
-    //       'G': 0,
-    //       'B': 255
-    //     }
-    //   ]
-    // }
+    }
   },
-
   currentThemeId: "light",
 
   init: function init() {
@@ -188,6 +113,7 @@ const ThemeData = {
           disposeGeometryAndRemove(scene.children[0]);
         }
 
+        scene.background = new THREE.Color(Theme.SCENE_BACKGROUND_COLOR);
         cleanupWorkspace();
         drawWorkspace(sizexmin, sizexmax, sizeymin, sizeymax);
       }
@@ -204,7 +130,7 @@ const Theme = new Proxy(ThemeData, {
     if (key == "getColor") {
       return ThemeData.getColor;
     } else if (key == "lines") {
-      return theme.getColor("LINE_COLOURS");
+      return theme.getColor("LINE_COLORS");
     } else if (key == "get") {
       return theme.get;
     } else if (key == "set") {

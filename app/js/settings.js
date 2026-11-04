@@ -2,9 +2,11 @@
 
 var disable3Dviewer = false;
 var disable3Dskybox = false;
-var disable3Drealtimepos = false;
+var disableConeInterpolation = false;
 var disable3Dgcodepreview = false;
 var disable4thAxis = false;
+
+const disable3Drealtimepos = false; // always false, keep for now, may delete later
 const disable3Dcontrols = false; // always false, keep for now, may delete later
 
 var disabledWarnings = {};
@@ -32,9 +34,12 @@ function updatePinStatus(pin, status, onText, offText) {
 function updateSettingsState() {
   const disable3DviewerNew = !$('#enable3DviewerCheck').prop('checked');
   $('#enable3DskyboxCheck').prop('disabled', disable3DviewerNew);
-  $('#enable3DrealtimeposCheck').prop('disabled', disable3DviewerNew);
+  $('#enableConeInterpolation').prop('disabled', disable3DviewerNew);
   $('#enable3DgcodepreviewCheck').prop('disabled', disable3DviewerNew);
 
+  enableViaClass('#enableConeInterpolationTip', !disable3DviewerNew);
+//  enableViaClass($('#enableConeInterpolation').parent().parent(), !disable3DviewerNew);
+//  enableViaClass($('#enable3DgcodepreviewCheck').parent().parent(), !disable3DviewerNew);
   if (laststatus.driver.operatingsystem == "linux") {
     $('#trayIconNote').toggle(laststatus.misc.trayIcon && !$('#enableTrayIconCheck').prop('checked'));
   }
@@ -115,25 +120,21 @@ Ignored in Laser mode."></span>
 
   <div class="row border-top mt-3 bd-dialog" style="margin-left:-4px; font-weight:700;">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable 3D Viewer" id="enable3DviewerCheck" onclick="updateSettingsState()"/>
-    <span class="far fa-question-circle ml-1 mt-2" title="You may try disabling the 3d Viewer for slower computers"></span>
+    <span class="far fa-question-circle ml-1 mt-2" title="You may try disabling the 3D Viewer for slower computers"></span>
   </div>
 
-  <div class="row" style="padding-left:8px;">
-    <div class="cell-sm-8" id="enableTrayIconCell">
-      <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Skybox/Fog"id="enable3DskyboxCheck" />
-    </div>
+  <div class="row" style="padding-left:20px;">
+    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Skybox/Fog"id="enable3DskyboxCheck" />
   </div>
 
-  <div class="row" style="padding-left:8px;">
-    <div class="cell-sm-8" id="enableTrayIconCell">
-      <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Realtime Jog Position Indicator" id="enable3DrealtimeposCheck" />
-    </div>
+  <div class="row" style="padding-left:20px;">
+    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Position Interpolation" id="enableConeInterpolation" />
+    <span class="far fa-question-circle ml-1 mt-2" id="enableConeInterpolationTip" title="Doubles the update frequency of the position marker in the 3D viewer by creating in-between frames.
+The animation is smoother at the expense of some accuracy and a small lag of around 100ms"></span>
   </div>
 
-  <div class="row" style="padding-left:8px;">
-    <div class="cell-sm-8" id="enableTrayIconCell">
-      <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable G-code Preview" id="enable3DgcodepreviewCheck" />
-    </div>
+  <div class="row" style="padding-left:20px;">
+    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable G-code Preview" id="enable3DgcodepreviewCheck" />
   </div>
 
 </div>
@@ -170,23 +171,21 @@ Ignored in Laser mode."></span>
 function applyAppSettings() {
   const disable3DviewerNew = !$('#enable3DviewerCheck').prop('checked');
   const disable3DskyboxNew = !$('#enable3DskyboxCheck').prop('checked');
-  const disable3DrealtimeposNew = !$('#enable3DrealtimeposCheck').prop('checked');
   const disable3DgcodepreviewNew = !$('#enable3DgcodepreviewCheck').prop('checked');
 
   const reload = disable3DviewerNew != disable3Dviewer ||
     disable3DskyboxNew != disable3Dskybox ||
-    disable3DrealtimeposNew != disable3Drealtimepos ||
     disable3DgcodepreviewNew != disable3Dgcodepreview;
 
   disable3Dviewer = disable3DviewerNew;
   disable3Dskybox = disable3DskyboxNew;
-  disable3Drealtimepos = disable3DrealtimeposNew;
   disable3Dgcodepreview = disable3DgcodepreviewNew;
+  disableConeInterpolation = !$('#enableConeInterpolation').prop('checked');
 
   localStorage.setItem('disable3Dviewer', disable3Dviewer);
   localStorage.setItem('disable3Dskybox', disable3Dskybox);
-  localStorage.setItem('disable3Drealtimepos', disable3Drealtimepos);
   localStorage.setItem('disable3Dgcodepreview', disable3Dgcodepreview);
+  localStorage.setItem('disableConeInterpolation', disableConeInterpolation);
 
   if (laststatus.driver.operatingsystem == "windows" || laststatus.driver.operatingsystem == "linux") {
     socket.emit('trayIcon', $('#enableTrayIconCheck').prop('checked'));
@@ -260,8 +259,8 @@ function showAppSettings(category) {
 
   $('#enable3DviewerCheck').prop('checked', !disable3Dviewer);
   $('#enable3DskyboxCheck').prop('checked', !disable3Dskybox);
-  $('#enable3DrealtimeposCheck').prop('checked', !disable3Drealtimepos);
   $('#enable3DgcodepreviewCheck').prop('checked', !disable3Dgcodepreview);
+  $('#enableConeInterpolation').prop('checked', !disableConeInterpolation);
 
   if (laststatus.driver.operatingsystem == "windows" || laststatus.driver.operatingsystem == "linux") {
     $('#enableTrayIconCheck').prop('checked', laststatus.misc.trayIcon);
@@ -295,11 +294,11 @@ function showAppSettings(category) {
 function initSettings() {
   disable3Dviewer = localStorage.getItem('disable3Dviewer') != null && (JSON.parse(localStorage.getItem('disable3Dviewer')) == true);
   disable3Dskybox = localStorage.getItem('disable3Dskybox') != null  && (JSON.parse(localStorage.getItem('disable3Dskybox')) == true);
-  disable3Drealtimepos = localStorage.getItem('disable3Drealtimepos') != null  && (JSON.parse(localStorage.getItem('disable3Drealtimepos')) == true);
   disable3Dgcodepreview = localStorage.getItem('disable3Dgcodepreview') != null  && (JSON.parse(localStorage.getItem('disable3Dgcodepreview')) == true);
+  disableConeInterpolation = localStorage.getItem('disableConeInterpolation') != null  && (JSON.parse(localStorage.getItem('disableConeInterpolation')) == true);
   disable4thAxis = localStorage.getItem('disable4thAxis') != null  && (JSON.parse(localStorage.getItem('disable4thAxis')) == true);
 
-  $('#runSimBtn').parent().toggle(!disable3Drealtimepos && !disable3Dgcodepreview);
+  $('#runSimBtn').parent().toggle(!disable3Dgcodepreview);
 
   if (localStorage.getItem('disabledWarnings')) {
     const warnings = JSON.parse(localStorage.getItem('disabledWarnings'));

@@ -19,17 +19,18 @@ const rootDir = path.join(__dirname, '..');
 
 // Config
 const config = {};
-config.webPorts = [3000, 3020, 3200, 3220];
+config.webPorts = process.env.GROOVE_WEB_PORT ? [parseInt(process.env.GROOVE_WEB_PORT)] : [3020, 3000, 3200, 3220];
 config.webPortIdx = 0;
 config.nextWebPort = function() {
-  config.webPort = config.webPorts[config.webPortIdx]
-  config.webPortIdx++
   if (config.webPortIdx == config.webPorts.length) {
-    throw new Error(`No ports were available to start the http server.\r\rWe tried ports ${config.webPorts.join(",")}.`);
+    config.webPort = `No ports were available to start the http server.\n\nWe tried port ${config.webPorts.join(", ")}.\n\nYou can set a custom port with the GROOVE_WEB_PORT environment variable.`;
+  } else {
+    config.webPort = config.webPorts[config.webPortIdx];
+    config.webPortIdx++;
   }
   return config.webPort;
 }
-config.webPort = process.env.WEB_PORT || config.nextWebPort();
+config.webPort = config.nextWebPort();
 config.posDecimals = process.env.DRO_DECIMALS || 3;
 config.singleCommandMode = true; // set to false to send as many commands as will fit in the RX buffer
 config.maxRecentFiles = 10;
@@ -130,16 +131,19 @@ const status = {
         y: 0,
         z: 0,
         a: 0,
-        e: 0
       },
       offset: {
         x: 0,
         y: 0,
         z: 0,
         a: 0,
-        e: 0
+      },
+      display: {
+        x: 0,
+        y: 0,
+        z: 0,
+        a: 0,
       }
-
     },
     firmware: {
       type: "",

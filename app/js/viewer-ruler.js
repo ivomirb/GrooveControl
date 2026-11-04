@@ -25,7 +25,7 @@ function drawRuler(xmin, xmax, ymin, ymax, inches) {
     vertices.push(i * ticSpacing, -1, 0, i * ticSpacing, -length, 0);
 
     if (i % 10 == 0) {
-      const sprite = makeSprite("webgl", {
+      const sprite = makeTextSprite({
         x: i * ticSpacing,
         y: ticOffset,
         z: 0,
@@ -43,7 +43,7 @@ function drawRuler(xmin, xmax, ymin, ymax, inches) {
     vertices.push(-1, i * ticSpacing, 0, -length, i * ticSpacing, 0);
 
     if (i % 10 == 0) {
-      const sprite = makeSprite("webgl", {
+      const sprite = makeTextSprite({
         x: ticOffset,
         y: i * ticSpacing,
         z: 0,
@@ -93,7 +93,7 @@ function drawRulerInches(xmin, xmax, ymin, ymax) {
     vertices.push(i * unitScale, -1, 0, i * unitScale, -length, 0);
 
     if (i % 16 == 0) {
-      const sprite = makeSprite("webgl", {
+      const sprite = makeTextSprite({
         x: i * unitScale,
         y: ticSpacing,
         z: 0,
@@ -111,7 +111,7 @@ function drawRulerInches(xmin, xmax, ymin, ymax) {
     vertices.push(-1, i * unitScale, 0, -length, i * unitScale, 0);
 
     if (i % 16 == 0) {
-      const sprite = makeSprite("webgl", {
+      const sprite = makeTextSprite({
         x: ticSpacing,
         y: i * unitScale,
         z: 0,

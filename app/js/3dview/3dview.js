@@ -110,7 +110,7 @@ function parseGcodeInWebWorker(gcode) {
   }
   object = false;
   if (webgl && !disable3Dgcodepreview) {
-    const worker = new Worker('lib/3dview/workers/verylitegcodeviewer.js');
+    const worker = new Worker('js/3dview/verylitegcodeviewer.js');
     worker.addEventListener('message', function(e) {
       if (e.data.progress != undefined) {
         $('#3dviewlabel').html(' 3D View (rendering, please wait... ' + e.data.progress + '% )')
@@ -206,55 +206,61 @@ function resetConePosition() {
 }
 
 function sim(fromLine, paused) {
+  if (laststatus && laststatus.comms.connectionStatus > 2) {
+    simstop();
+    return;
+  }
+
   if (typeof(object) == 'undefined' || object.userData.pointCount == 0) {
     const message = `No Gcode in Preview yet: Please load G-code from the Open G-code button first before running simulation`
     Metro.toast.create(message, null, 3000, 'bg-red');
-    simstop()
-  } else {
-    simIdx = fromLine;
-    if (SIM_DISPLAY_TYPE == 1) {
-      $('#simText').show();
-      $('#simText > span').html("");
-    } else {
-      $('#conetext').css('left', "0px").css('top', "0px");
-      $('#conetext').show();
-    }
-    resetConePosition();
-    if (!viewSettings.tool) { // force-show
-      viewSettings.tool = true;
-      cone.visible = true;
-      $('#viewToolSetting:checkbox').prop('checked', true);
-      saveViewSettings();
-    }
-    cone.material.dispose();
-    cone.material = new THREE.MeshPhongMaterial({
-      color: 0x28a745,
-      specular: 0x08701f,
-      shininess: 100,
-      opacity: 0.6,
-      transparent: true
-    })
-
-    $('#runSimBtn').hide();
-    $('#simControls').show();
-    if (paused) {
-      $('#pauseSimBtn').hide();
-      $('#resumeSimBtn').show();
-    } else {
-      $('#pauseSimBtn').show();
-      $('#resumeSimBtn').hide();
-    }
-
-    $('#simBackBtn').attr('disabled', !paused).css('pointer-events', paused ? 'auto' : 'none');
-    $('#simForwardBtn').attr('disabled', !paused).css('pointer-events', paused ? 'auto' : 'none');
-
-    clearSceneFlag = true;
-    simRunning = true;
-    simPaused = paused;
-    $('#simspeedval').text(timefactor);
-    $('#editorContextMenu').hide() // sometimes we launch sim(linenum) from the context menu... close it once running
-    runSim(); //kick it off
+    simstop();
+   return;
   }
+
+  simIdx = fromLine;
+  if (SIM_DISPLAY_TYPE == 1) {
+    $('#simText').show();
+    $('#simText > span').html("");
+  } else {
+    $('#conetext').css('left', "0px").css('top', "0px");
+    $('#conetext').show();
+  }
+  resetConePosition();
+  if (!viewSettings.tool) { // force-show
+    viewSettings.tool = true;
+    cone.visible = true;
+    $('#viewToolSetting:checkbox').prop('checked', true);
+    saveViewSettings();
+  }
+  cone.material.dispose();
+  cone.material = new THREE.MeshPhongMaterial({
+    color: Theme.SIM_CONE_COLOR,
+    specular: Theme.SIM_CONE_SPECULAR,
+    shininess: 100,
+    opacity: 0.8,
+    transparent: true
+  })
+
+  $('#runSimBtn').hide();
+  $('#simControls').show();
+  if (paused) {
+    $('#pauseSimBtn').hide();
+    $('#resumeSimBtn').show();
+  } else {
+    $('#pauseSimBtn').show();
+    $('#resumeSimBtn').hide();
+  }
+
+  $('#simBackBtn').attr('disabled', !paused).css('pointer-events', paused ? 'auto' : 'none');
+  $('#simForwardBtn').attr('disabled', !paused).css('pointer-events', paused ? 'auto' : 'none');
+
+  clearSceneFlag = true;
+  simRunning = true;
+  simPaused = paused;
+  $('#simspeedval').text(timefactor);
+  $('#editorContextMenu').hide() // sometimes we launch sim(linenum) from the context menu... close it once running
+  runSim(); //kick it off
 }
 
 function runSim() {
@@ -506,8 +512,12 @@ function simstop() {
   clearSceneFlag = true;
   if (cone) {
     cone.material.dispose();
-    cone.material = new THREE.MeshLambertMaterial({
-      color: 0x0000ff
+    cone.material = new THREE.MeshPhongMaterial({
+      color: Theme.CONE_COLOR,
+      specular: Theme.CONE_SPECULAR,
+      shininess: 100,
+      opacity: 0.8,
+      transparent: true
     });
   }
 }
@@ -582,11 +592,11 @@ function simAnimate() {
   }
 
   if (spin != 0) {
-    cone.rotation.y += TOOL_SPIN_RATE * spin * dt;
-    if (spin > 0 && cone.rotation.y > 2*Math.PI) {
-      cone.rotation.y -= 2*Math.PI;
-    } else if (spin < 0 && cone.rotation.y < 0) {
-      cone.rotation.y += 2*Math.PI;
+    cone.rotation.z -= TOOL_SPIN_RATE * spin * dt;
+    if (spin < 0 && cone.rotation.z > 2*Math.PI) {
+      cone.rotation.z -= 2*Math.PI;
+    } else if (spin > 0 && cone.rotation.z < 0) {
+      cone.rotation.z += 2*Math.PI;
     }
   }
 }
