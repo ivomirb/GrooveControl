@@ -659,7 +659,7 @@ function runProbeNew() {
 }
 
 function editCustomProbe() {
-  metroSecondaryDialog({
+  metroTopDialog({
     clsDialog: 'dark',
     title: `<i class="fas fa-cogs"></i> Edit Custom Probe`,
     content: `
