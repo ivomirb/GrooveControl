@@ -105,6 +105,9 @@ function drawWorkspace(xmin, xmax, ymin, ymax) {
   dirLight.name = "dirLight;"
   sceneLights.add(dirLight);
 
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+  sceneLights.add(ambientLight);
+
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
   hemiLight.color.setHSL(Theme.HEMI_LIGHT_COLOR.H, Theme.HEMI_LIGHT_COLOR.S, Theme.HEMI_LIGHT_COLOR.L);
   hemiLight.groundColor.setHSL(0.095, 1, 0.75);
@@ -156,19 +159,20 @@ function drawWorkspace(xmin, xmax, ymin, ymax) {
 
   if (!disable3Drealtimepos) {
     const coneGeo = new THREE.CylinderGeometry(0, 5, 40, CONE_FACE_COUNT, 1, false)
-    coneGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0, -20, 0));
+    coneGeo.rotateX(-Math.PI / 2);
+    coneGeo.translate(0, 0, 20);
 
-    cone = new THREE.Mesh(coneGeo, new THREE.MeshLambertMaterial({
-      color: 0x0000ff
+    cone = new THREE.Mesh(coneGeo, new THREE.MeshPhongMaterial({
+      color: Theme.CONE_COLOR,
+      specular: Theme.CONE_SPECULAR,
+      shininess: 100,
+      opacity: 0.8,
+      transparent: true
     }));
 
-    cone.overdraw = true;
-    cone.rotation.x = -90 * Math.PI / 180;
     cone.position.x = 0;
     cone.position.y = 0;
     cone.position.z = 0;
-    cone.material.opacity = 0.6;
-    cone.material.transparent = true;
     cone.castShadow = false;
     cone.visible = viewSettings.tool;
     cone.name = "Simulation Marker"
@@ -370,13 +374,15 @@ function init3D() {
   if (webgl) {
     printLog("<span class='fg-darkRed'>[ 3D Viewer ] </span><span class='fg-green'>WebGL Support found! success: this application will work optimally on this device!</span>")
     renderer = new THREE.WebGLRenderer({
-      autoClearColor: true,
+      autoClearColor: false,
+      autoClear: false,
       antialias: true,
-      preserveDrawingBuffer: true,
-      alpha: true
+      preserveDrawingBuffer: false,
+      alpha: false
     });
     // ThreeJS Render/Control/Camera
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(Theme.SCENE_BACKGROUND_COLOR);
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20000);
     camera.position.z = 295;
     camera.up = new THREE.Vector3(0, 0, 1);
@@ -646,24 +652,31 @@ function changeViewSettings() {
 
 function updateViewSettings() {
   if (scene) {
-    if (object)
+    if (object) {
       object.visible = viewSettings.toolpath;
-    if (cone)
+    }
+
+    if (cone) {
       cone.visible = viewSettings.tool;
+    }
 
     const grid = scene.getObjectByName("Grid");
-    if (grid)
+    if (grid) {
       grid.visible = viewSettings.grid;
+    }
 
     const ruler = scene.getObjectByName("Ruler");
-    if (ruler)
+    if (ruler) {
       ruler.visible = viewSettings.ruler;
+    }
 
-    if (machineCoordinateSpace)
+    if (machineCoordinateSpace) {
       machineCoordinateSpace.visible = viewSettings.machine;
+    }
 
     const heightmap = scene.getObjectByName("Heightmap");
-    if (heightmap)
+    if (heightmap) {
       heightmap.visible = viewSettings.heightmap;
+    }
   }
 }

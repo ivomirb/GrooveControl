@@ -175,6 +175,7 @@ function onFirstStatus(status) {
 }
 
 function runJobFile() {
+  simstop();
   const gcode = useEditor ? editor.getValue() : currentGcode;
   if (!jobNeedsHoming(gcode)) {
     runJobFileInternal(gcode);

@@ -348,6 +348,20 @@ select {
   padding-right: 12px;
 }
 
+.overlay-secondary {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1060;
+}
+
+.dialog-secondary {
+  z-index: 1070;
+}
+
 #simControls, #simText {
   background-color: #f5f6f7;
 }
