@@ -652,24 +652,31 @@ function changeViewSettings() {
 
 function updateViewSettings() {
   if (scene) {
-    if (object)
+    if (object) {
       object.visible = viewSettings.toolpath;
-    if (cone)
+    }
+
+    if (cone) {
       cone.visible = viewSettings.tool;
+    }
 
     const grid = scene.getObjectByName("Grid");
-    if (grid)
+    if (grid) {
       grid.visible = viewSettings.grid;
+    }
 
     const ruler = scene.getObjectByName("Ruler");
-    if (ruler)
+    if (ruler) {
       ruler.visible = viewSettings.ruler;
+    }
 
-    if (machineCoordinateSpace)
+    if (machineCoordinateSpace) {
       machineCoordinateSpace.visible = viewSettings.machine;
+    }
 
     const heightmap = scene.getObjectByName("Heightmap");
-    if (heightmap)
+    if (heightmap) {
       heightmap.visible = viewSettings.heightmap;
+    }
   }
 }

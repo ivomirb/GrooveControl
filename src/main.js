@@ -589,11 +589,6 @@ function main() {
   initServer();
 
   initElectron();
-
-  // Global Update loop
-  setInterval(function() {
-    serverEmit('status', status);
-  }, 100);
 }
 
 main();

@@ -87,6 +87,8 @@ function parseStatusReport(data) {
     pause();
   }
 
+  let offsetChanged = false;
+
   // Extract work offset (for Grbl > 1.1 only!)
   const startWCO = data.search(/wco:/i) + 4;
   if (startWCO > 4) {
@@ -98,10 +100,13 @@ function parseStatusReport(data) {
     const zOffset = wcoArray[2];
     const aOffset = wcoArray.length > 3 ? wcoArray[3] : 0;
 
+    const offset1 = {...status.machine.position.offset};
     status.machine.position.offset.x = parseFloat(xOffset.toFixed(config.posDecimals));
     status.machine.position.offset.y = parseFloat(yOffset.toFixed(config.posDecimals));
     status.machine.position.offset.z = parseFloat(zOffset.toFixed(config.posDecimals));
     status.machine.position.offset.a = parseFloat(aOffset.toFixed(config.posDecimals));
+    const offset2 = status.machine.position.offset;
+    offsetChanged = (offset1.x != offset2.x || offset1.y != offset2.y || offset1.z != offset2.z || offset1.a != offset2.a);
   }
 
   // Extract wPos/mPos (for Grbl > 1.1 only!)
@@ -110,6 +115,7 @@ function parseStatusReport(data) {
   const isMPos = startMPos > 5;
   const startPos = isMPos ? startMPos : startWPos;
 
+  const work0 = {...status.machine.position.work};
   if (startPos > 5) {
     const posLen = data.substr(startPos).search(/>|\|/);
     const posArray = data.substr(startPos, posLen).split(',', 4).map((x) => parseFloat(x));
@@ -133,6 +139,20 @@ function parseStatusReport(data) {
     status.machine.position.work.y = parseFloat(yPos.toFixed(config.posDecimals));
     status.machine.position.work.z = parseFloat(zPos.toFixed(config.posDecimals));
     status.machine.position.work.a = parseFloat(aPos.toFixed(config.posDecimals));
+  }
+
+  if (offsetChanged) {
+    status.machine.position.display.x = status.machine.position.work.x;
+    status.machine.position.display.y = status.machine.position.work.y;
+    status.machine.position.display.z = status.machine.position.work.z;
+    status.machine.position.display.a = status.machine.position.work.a;
+  } else {
+    // If the offset is the same, move the display position half-way towards the current position.
+    // This will create a half-way frame for smoother animation
+    status.machine.position.display.x = (work0.x + status.machine.position.work.x) / 2;
+    status.machine.position.display.y = (work0.y + status.machine.position.work.y) / 2;
+    status.machine.position.display.z = (work0.z + status.machine.position.work.z) / 2;
+    status.machine.position.display.a = (work0.a + status.machine.position.work.a) / 2;
   }
 
   // Extract override values (for Grbl > v1.1 only!)
@@ -1210,6 +1230,17 @@ function setCurrentGcode(gcode) {
   currentGcode = gcode;
 }
 
+var statusIndex = 0;
+var lastStatusPos = undefined;
+
+function statusTick() {
+  serverEmit('status', status);
+  status.machine.position.display.x = status.machine.position.work.x;
+  status.machine.position.display.y = status.machine.position.work.y;
+  status.machine.position.display.z = status.machine.position.work.z;
+  status.machine.position.display.a = status.machine.position.work.a;
+}
+
 function initGrblSender() {
   app.post('/runjob', runJobRequest);
 
@@ -1217,7 +1248,11 @@ function initGrblSender() {
   addDocReadyHandler(onDocReady);
   addPortOpenHandler(onPortOpen);
   addPortCloseHandler(onPortClose);
+
+  // Global Update loop
+  setInterval(statusTick, 100);
 }
+  lastStatusPos = structuredClone(status.machine.position.work);
 
 export {
   addQToEnd,
