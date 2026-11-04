@@ -556,13 +556,12 @@ function showGamepadWarning() {
     return;
   }
   gamepadWarningShown = true;
-  Metro.dialog.create({
+  metroTopDialog({
     clsDialog: 'dark',
-    leaveOverlayOnClose: true,
     title: "<i class='fas fa-exclamation-triangle'></i> Gamepad Enabled",
     content: `To prevent unwanted movement when the analog sticks are bumped accidentally, it is recommended that you assign a button to the ` +
-      `<b>Activate Joystick Move</b> action. If a button is assigned to that action, the sticks will be inactive until the button is pressed. ` +
-      `The sticks will be deactivated after 10 seconds of inactivity.<br><br>` +
+      `<b>Activate Joystick Move</b> action. If a button is assigned to that action, the sticks will be disabled until the button is pressed. ` +
+      `The sticks will be disabled again after 10 seconds of inactivity.<br><br>` +
       `<input id="disableGamepadDlg" type="checkbox" data-role="checkbox" data-style="2" data-caption="Don't show this again"/>`,
     actions: [{
       caption: "OK",
