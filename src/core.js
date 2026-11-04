@@ -131,16 +131,19 @@ const status = {
         y: 0,
         z: 0,
         a: 0,
-        e: 0
       },
       offset: {
         x: 0,
         y: 0,
         z: 0,
         a: 0,
-        e: 0
+      },
+      display: {
+        x: 0,
+        y: 0,
+        z: 0,
+        a: 0,
       }
-
     },
     firmware: {
       type: "",

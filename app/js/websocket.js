@@ -9,9 +9,6 @@ var waitingForStatus = false;
 var openErrorDialogs = [];
 var froBuffer = undefined, troBuffer = undefined;
 
-var laststatusTime, statusMidFrame;
-var ENABLE_FRAME_INTERPOLATION = true;
-
 const MAX_GCODE_IN_EDITOR = 20 * 1024 * 1024;
 
 function printLogModern(icon, source, string, printLogCls) {
@@ -475,38 +472,15 @@ function onStatus(status) {
   updateDro(status);
 
   if (webgl && !disable3Drealtimepos && !isJogWidget && !simRunning) {
-    if (statusMidFrame) {
-      clearTimeout(statusMidFrame);
-      statusMidFrame = undefined;
+    if (disableConeInterpolation) {
+      cone.position.x = status.machine.position.work.x;
+      cone.position.y = status.machine.position.work.y;
+      cone.position.z = status.machine.position.work.z;
+    } else {
+      cone.position.x = status.machine.position.display.x;
+      cone.position.y = status.machine.position.display.y;
+      cone.position.z = status.machine.position.display.z;
     }
-    let x = status.machine.position.work.x;
-    let y = status.machine.position.work.y;
-    let z = status.machine.position.work.z;
-
-    const time = new Date().getTime();
-    const dt = laststatusTime ? time - laststatusTime : 0;
-    if (ENABLE_FRAME_INTERPOLATION && 100 < dt && dt < 300) {
-      // If the last update was between 100 and 300ms ago, move half way now and the other half after half a frame.
-      // This creates smoother framerate at the expense of some positional accuracy and lag (around 100ms)
-      const nextX = x, nextY = y, nextZ = z;
-      x = (x + laststatus.machine.position.work.x) / 2;
-      y = (y + laststatus.machine.position.work.y) / 2;
-      z = (z + laststatus.machine.position.work.z) / 2;
-      if (x != nextX || y != nextY || z != nextZ) {
-        statusMidFrame = setTimeout(() => {
-          cone.position.x = nextX;
-          cone.position.y = nextY;
-          cone.position.z = nextZ;
-        }, dt / 2);
-      }
-    }
-    laststatusTime = time;
-
-    cone.position.x = x;
-    cone.position.y = y;
-    cone.position.z = z;
-  } else {
-    laststatusTime = undefined;
   }
 
   if (!isJogWidget && safeToUpdateSliders) {
