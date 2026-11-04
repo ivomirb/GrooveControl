@@ -362,6 +362,20 @@ select {
   z-index: 1070;
 }
 
+/* Fallback narrow bold font to use in the viewport if Impact is not available */
+@font-face {
+  font-family: 'ViewportFallbackFont';
+  src: local('Liberation Sans Narrow Bold'),
+       local('LiberationSansNarrow-Bold'),
+       local('Liberation Sans Narrow'),
+       local('ArialNarrow Bold'),
+       local('ArialNarrow-Bold'),
+       local('Arial Bold'),
+       local('Arial-Bold');
+  font-weight: normal;
+  font-style: normal;
+}
+
 #simControls, #simText {
   background-color: #f5f6f7;
 }
