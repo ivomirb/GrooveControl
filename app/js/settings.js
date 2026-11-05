@@ -38,9 +38,7 @@ function updateSettingsState() {
   $('#enable3DgcodepreviewCheck').prop('disabled', disable3DviewerNew);
 
   enableViaClass('#enableConeInterpolationTip', !disable3DviewerNew);
-//  enableViaClass($('#enableConeInterpolation').parent().parent(), !disable3DviewerNew);
-//  enableViaClass($('#enable3DgcodepreviewCheck').parent().parent(), !disable3DviewerNew);
-  if (laststatus.driver.operatingsystem == "linux") {
+  if (laststatus.driver.platform == "linux") {
     $('#trayIconNote').toggle(laststatus.misc.trayIcon && !$('#enableTrayIconCheck').prop('checked'));
   }
 
@@ -187,9 +185,9 @@ function applyAppSettings() {
   localStorage.setItem('disable3Dgcodepreview', disable3Dgcodepreview);
   localStorage.setItem('disableConeInterpolation', disableConeInterpolation);
 
-  if (laststatus.driver.operatingsystem == "windows" || laststatus.driver.operatingsystem == "linux") {
+  if (laststatus.driver.platform == "win32" || laststatus.driver.platform == "linux") {
     socket.emit('trayIcon', $('#enableTrayIconCheck').prop('checked'));
-    if (laststatus.driver.operatingsystem == "windows") {
+    if (laststatus.driver.platform == "win32") {
       socket.emit('autoStart', $('#enableAutoStartCheck').prop('checked'));
     }
   }
@@ -262,9 +260,9 @@ function showAppSettings(category) {
   $('#enable3DgcodepreviewCheck').prop('checked', !disable3Dgcodepreview);
   $('#enableConeInterpolation').prop('checked', !disableConeInterpolation);
 
-  if (laststatus.driver.operatingsystem == "windows" || laststatus.driver.operatingsystem == "linux") {
+  if (laststatus.driver.platform == "win32" || laststatus.driver.platform == "linux") {
     $('#enableTrayIconCheck').prop('checked', laststatus.misc.trayIcon);
-    if (laststatus.driver.operatingsystem == "windows") {
+    if (laststatus.driver.platform == "win32") {
       $('#enableAutoStartCheck').prop('checked', laststatus.misc.autoStart);
     } else {
       $('#enableAutoStartCell').hide();

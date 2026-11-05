@@ -526,7 +526,7 @@ function onStatus(status) {
   }
 
   // Windows Power Management
-  if (status.driver.operatingsystem == "windows") {
+  if (status.driver.platform == "win32") {
     $('#powerSettingsCard').show();
     if (status.driver.powersettings.usbselectiveAC == false) {
       $('#selectivesuspendAC').removeClass('alert').addClass('success').html('DISABLED')

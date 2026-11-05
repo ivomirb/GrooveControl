@@ -166,10 +166,6 @@ function onFirstStatus(status) {
       throw APP_NAME + ": APP_VERSION needs to be updated to " + (((version[0]*1000000 + version[1]*1000 + version[2])/1000).toFixed(3));
     }
 
-    if (status.driver.operatingsystem == "rpi") {
-      $('#windowtitlebar').hide();
-    }
-
     updatesFirstStatus(status);
   }
 }
