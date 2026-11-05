@@ -263,8 +263,10 @@ function updateGamepad() {
       if (enableAnalogJog && $('.dialog').filter((i, dlg) => { return $(dlg).css('visibility') == 'visible'}).length > 0) {
         enableAnalogJog = dlgContext.probe;
       }
-      if (enableAnalogJog && analogJogActiveStart + ANALOG_JOG_TIMEOUT < new Date().getTime()) {
-        enableAnalogJog = false; // timer expired
+      if (gamepadShortcuts.analogJogActivate.startsWith("button ")) {
+        if (enableAnalogJog && analogJogActiveStart + ANALOG_JOG_TIMEOUT < new Date().getTime()) {
+          enableAnalogJog = false; // timer expired
+        }
       }
 
       let stickX = 0, stickY = 0, stickZ = 0;
