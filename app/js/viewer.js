@@ -412,6 +412,14 @@ function init3D() {
       controls.enableZoom = true; // optional
       controls.maxDistance = 8000; // limit max zoom out
       controls.enableKeys = false; // Disable Keyboard on canvas
+
+      // keep tracking the mouse if it leaves the viewport
+      renderer.domElement.addEventListener('pointerdown', (event) => {
+        renderer.domElement.setPointerCapture(event.pointerId);
+      });
+      renderer.domElement.addEventListener('pointerup', (event) => {
+        renderer.domElement.releasePointerCapture(event.pointerId);
+      });
     }
 
     drawWorkspace(defaultXmin, defaultXmax, defaultYmin, defaultYmax);
@@ -547,7 +555,8 @@ function makeTextSprite(options) {
     map: texture,
     // useScreenCoordinates: false,
     transparent: true,
-    opacity: Theme.SPRITE_OPACITY
+    opacity: Theme.SPRITE_OPACITY,
+    alphaTest: 0.1,
   });
   material.transparent = true;
   const textObject = new THREE.Object3D();
