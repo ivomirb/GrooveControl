@@ -38,12 +38,12 @@ function createAutoUpdater(isPackaged) {
   autoUpdater.autoInstallOnAppQuit = false;
   autoUpdater.autoDownload = false;
   autoUpdater.fullChangelog = true;
-/*
+
   if (!isPackaged) {
     autoUpdater.forceDevUpdateConfig = true;
     autoUpdater.setFeedURL({provider: "github", owner: "ivomirb", repo: "GrooveControl"});
   }
-*/
+
   autoUpdater.on('update-available', (info) => {
     if (process.platform == 'win32') {
       info.canInstall = true;

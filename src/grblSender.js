@@ -10,7 +10,7 @@ import {
 
 
 // App dependencies
-import * as grblStrings from "./grblStrings.js";
+import * as grblStrings from './grblStrings.js';
 
 import {
   debug_log,
@@ -1230,9 +1230,6 @@ function setCurrentGcode(gcode) {
   currentGcode = gcode;
 }
 
-var statusIndex = 0;
-var lastStatusPos = undefined;
-
 function statusTick() {
   serverEmit('status', status);
   status.machine.position.display.x = status.machine.position.work.x;
@@ -1252,7 +1249,6 @@ function initGrblSender() {
   // Global Update loop
   setInterval(statusTick, 100);
 }
-  lastStatusPos = structuredClone(status.machine.position.work);
 
 export {
   addQToEnd,

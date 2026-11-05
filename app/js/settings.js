@@ -38,12 +38,14 @@ function updateSettingsState() {
   $('#enable3DgcodepreviewCheck').prop('disabled', disable3DviewerNew);
 
   enableViaClass('#enableConeInterpolationTip', !disable3DviewerNew);
+
+  const trayIcon = $('#enableTrayIconCheck').prop('checked');
+  $('#selectTrayIconStyleCell').toggle(trayIcon);
   if (laststatus.driver.platform == "linux") {
-    $('#trayIconNote').toggle(laststatus.misc.trayIcon && !$('#enableTrayIconCheck').prop('checked'));
+    $('#trayIconNote').toggle(laststatus.misc.trayIcon && !trayIcon);
   }
 
   const enableKeyboardShortcuts = $('#enableKeyboardShortcuts').prop('checked');
-
   enableViaClass('#keyboardAssignmentPrompt', enableKeyboardShortcuts);
   enableViaClass('#keyboardAssignmentForm', enableKeyboardShortcuts);
 
@@ -77,22 +79,30 @@ const appSettingsDlg = `
     <button class="button" title="Resets &quot;Don't show this again&quot; for all warning dialogs" onclick="resetWarnings()">Reset Warnings</button>
   </div>
 
-  <div id="osSettings">
+  <div id="startupSettings">
     <div class="row border-top mt-2 bd-dialog">
-      <label class="cell-sm-8 mt-1"><b>OS Integration</b></label>
+      <label class="cell-sm-8 mt-1"><b>Startup</b></label>
     </div>
 
-    <div class="cell-sm-10" style="padding-left:8px;">
-      <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Check for updates on startup" id="enableUpdatesCheck" />
-    </div>
     <div class="row" style="padding-left:8px;">
-      <div class="cell-sm-5" id="enableTrayIconCell">
-        <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Tray Icon" id="enableTrayIconCheck" onclick="updateSettingsState()" />
+      <div class="cell-sm-6">
+        <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Check for updates on startup" id="enableUpdatesCheck" />
       </div>
       <div class="cell-sm-5" id="enableAutoStartCell">
         <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Autostart at Login" id="enableAutoStartCheck" />
       </div>
-      <small class="cell-sm-5" style="margin-top:-4px; display:none;" id="trayIconNote"><i>The tray icon will be fully removed once the app closes</i></small>
+    </div>
+    <div class="row mt-1" id="trayIconCell" style="padding-left:8px; align-items:center;">
+      <div style="margin:0px 12px;">
+        <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Tray Icon" id="enableTrayIconCheck" onclick="updateSettingsState()" />
+      </div>
+      <div id="selectTrayIconStyleCell">
+        <select data-role="select" id="selectTrayIconStyle" data-filter="false" class="compact-options" style="width:120px;">
+          <option value="light" data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px; padding:2px; background-color:#888;' src='./icon_w.png' /> $1</div>"> Light</option>
+          <option value="dark"  data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px; padding:2px; background-color:#888;' src='./icon_b.png' /> $1</div>"> Dark</option>
+        </select>
+      </div>
+      <small style="display:none;" id="trayIconNote"><i>The tray icon will be fully removed once the app closes</i></small>
     </div>
   </div>
 
@@ -186,7 +196,7 @@ function applyAppSettings() {
   localStorage.setItem('disableConeInterpolation', disableConeInterpolation);
 
   if (laststatus.driver.platform == "win32" || laststatus.driver.platform == "linux") {
-    socket.emit('trayIcon', $('#enableTrayIconCheck').prop('checked'));
+    socket.emit('trayIcon', {enabled: $('#enableTrayIconCheck').prop('checked'), style: $('#selectTrayIconStyle').val()});
     if (laststatus.driver.platform == "win32") {
       socket.emit('autoStart', $('#enableAutoStartCheck').prop('checked'));
     }
@@ -262,14 +272,15 @@ function showAppSettings(category) {
 
   if (laststatus.driver.platform == "win32" || laststatus.driver.platform == "linux") {
     $('#enableTrayIconCheck').prop('checked', laststatus.misc.trayIcon);
+    $('#selectTrayIconStyle').val(laststatus.misc.trayIconStyle);
     if (laststatus.driver.platform == "win32") {
       $('#enableAutoStartCheck').prop('checked', laststatus.misc.autoStart);
     } else {
       $('#enableAutoStartCell').hide();
     }
   } else {
-    $('#enableTrayIconCheckCell').hide();
-    $('#enableAutoStartCheckCell').hide();
+    $('#trayIconCell').hide();
+    $('#enableAutoStartCell').hide();
   }
   $('#enableUpdatesCheck').prop('checked', laststatus.misc.enableUpdates);
 

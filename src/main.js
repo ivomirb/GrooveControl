@@ -1,8 +1,9 @@
 // main.js initialzies all modules and creates the main app
 
 // System dependencies
-import path from "path";
-import ip from "ip";
+import path from 'path';
+import ip from 'ip';
+import isPi from 'detect-rpi';
 import {
   BrowserWindow,
   Tray,
@@ -67,7 +68,8 @@ import {
 
 
 // Global variables
-const iconPath = path.join(rootDir, 'app/icon_w.png');
+const iconPathW = path.join(rootDir, 'app/icon_w.png');
+const iconPathB = path.join(rootDir, 'app/icon_b.png');
 
 var devMode = false;
 var safeMode = false;
@@ -116,6 +118,7 @@ function createApp() {
 
   let showGui = forceShowGui || process.argv.indexOf("-showGui") > 0;
   status.misc.trayIcon = persistentConfig.trayIcon;
+  status.misc.trayIconStyle = persistentConfig.trayIconStyle;
   status.misc.autoStart = persistentConfig.autoStart;
 
   if (process.platform == 'darwin') {
@@ -135,7 +138,7 @@ function createApp() {
     }
   }
   else if (process.platform == 'linux') {
-    status.driver.operatingsystem = 'linux';
+    status.driver.operatingsystem = isPi ? 'rpi' : 'linux';
     if (persistentConfig.trayIcon) {
       createTrayIcon();
     }
@@ -230,14 +233,14 @@ function createMacMenu() {
 }
 
 function onShowTraySettings() {
-  serverEmit('showSettings', "main:os");
+  serverEmit('showSettings', "main:starup");
   removeDocReadyHandler(onShowTraySettings);
 }
 
 function createTrayIcon() {
   console.log("Creating Tray Icon");
   if (process.platform !== 'darwin') {
-    appIcon = appIcon || new Tray(nativeImage.createFromPath(iconPath));
+    appIcon = appIcon || new Tray(persistentConfig.trayIconStyle == "light" ? iconPathW : iconPathB);
     const contextMenuTemplate = [{
       label: 'Open User Interface (GUI)',
       click: showJogWindow
@@ -253,7 +256,7 @@ function createTrayIcon() {
         click() {
           if (jogWindow) {
             showJogWindow();
-            serverEmit('showSettings', "main:os");
+            serverEmit('showSettings', "main:starup");
           } else {
             addDocReadyHandler(onShowTraySettings);
             showJogWindow();
@@ -278,7 +281,7 @@ function createTrayIcon() {
 
     if (appIcon) {
       appIcon.displayBalloon({
-        icon: nativeImage.createFromPath(iconPath),
+        icon: nativeImage.createFromPath(iconPathW),
         title: "Groove Control Started",
         content: "Groove Control has started successfully"
       })
@@ -307,18 +310,29 @@ function destroyTrayIcon() {
   }
 }
 
-function setTrayIcon(enabled) {
-  if (enabled != persistentConfig.trayIcon) {
-    persistentConfig.trayIcon = enabled;
-    status.misc.trayIcon = enabled;
+function setTrayIcon(trayIcon) {
+  if (trayIcon.enabled != persistentConfig.trayIcon) {
+    persistentConfig.trayIcon = trayIcon.enabled;
+    persistentConfig.trayIconStyle = trayIcon.style;
+    status.misc.trayIcon = trayIcon.enabled;
+    status.misc.trayIconStyle = trayIcon.style;
     savePersistentConfig();
 
     if (process.platform == 'win32' || process.platform == 'linux') {
-      if (enabled) {
+      if (trayIcon.enabled) {
         createTrayIcon();
       }
       else {
         destroyTrayIcon();
+      }
+    }
+  } else if (trayIcon.style != persistentConfig.trayIconStyle) {
+    persistentConfig.trayIconStyle = trayIcon.style;
+    status.misc.trayIconStyle = trayIcon.style;
+    savePersistentConfig();
+    if (process.platform == 'win32' || process.platform == 'linux') {
+      if (trayIcon.enabled) {
+        appIcon.setImage(persistentConfig.trayIconStyle == "light" ? iconPathW : iconPathB);
       }
     }
   }
@@ -359,9 +373,7 @@ function createJogWindow() {
     name: PERSISTED_STATE_TAG,
     frame: false,
     autoHideMenuBar: true,
-    icon: nativeImage.createFromPath(
-      path.join(rootDir, "/app/icon_w.png")
-    ),
+    icon: nativeImage.createFromPath(iconPathW),
     webgl: true,
     experimentalFeatures: true,
     experimentalCanvasFeatures: true,
@@ -378,15 +390,9 @@ function createJogWindow() {
   });
 
   if (!electronApp.isPackaged) {
-    jogWindow.setOverlayIcon(nativeImage.createFromPath(iconPath), 'Icon');
+    jogWindow.setOverlayIcon(nativeImage.createFromPath(iconPathW), 'Icon');
   }
-/*
-  let url = `http://localhost:${config.webPort}/`;
-  if (safeMode) {
-    url += "?safeMode=true";
-  }
-  jogWindow.loadURL(url);
-*/
+
   let options = {query: { port: config.webPort }};
   if (safeMode) {
     options.query.safeMode = true;
