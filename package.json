@@ -156,7 +156,6 @@
         "deb",
         "AppImage"
       ],
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
       "fileAssociations": [
         {
           "ext": "obc",
