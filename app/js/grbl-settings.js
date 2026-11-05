@@ -152,7 +152,7 @@ function restoreAutoBackup(index) {
 function backupGrblSettings() {
   autoBackup("Manual Backup");
 
-  const EOL = laststatus.driver.operatingsystem == "windows" ? "\r\n" : "\n";
+  const EOL = laststatus.driver.platform == "win32" ? "\r\n" : "\n";
 
   let grblBackup = "";
   for (let key in grblParams) {
