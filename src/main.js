@@ -497,8 +497,21 @@ function onConnection(socket) {
     shell.openExternal('https://github.com/ivomirb/GrooveControl/wiki')
   });
 
-  socket.on('openbuilds', function() {
-    shell.openExternal('https://github.com/OpenBuilds/docs-migrated/wiki')
+  socket.on('openresource', function(res) {
+    switch (res) {
+      case 'obarchive':
+        shell.openExternal('https://github.com/OpenBuilds/docs-migrated/wiki');
+        break;
+      case 'ivocnc':
+        shell.openExternal('https://cnc.ibeltchev.com');
+        break;
+      case 'grblref':
+        shell.openExternal('https://www.sainsmart.com/blogs/news/grbl-v2-0-quick-reference');
+        break;
+      case 'gcoderef':
+        shell.openExternal('https://www.cnccookbook.com/g-code-m-code-command-list-cnc-mills/');
+        break;
+    }
   });
 
   socket.on('openforum', function() {
