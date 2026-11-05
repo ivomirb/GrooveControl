@@ -14,11 +14,9 @@ jobs:
 
     strategy:
       matrix:
-#        os: [windows-latest, ubuntu-latest]
         os: [macos-latest, windows-latest, ubuntu-latest]
-        include: # add arm64 for RPI
-          - os: ubuntu-latest
-            arch: arm64
+#        os: [windows-latest, ubuntu-latest]
+
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v6
@@ -33,13 +31,7 @@ jobs:
         run: npm ci
 
       - name: Compile and Package App
-        shell: bash
-        run: |
-          if [ -n "${{ matrix.arch }}" ]; then
-            npx electron-builder --publish always --linux --${{ matrix.arch }}
-          else
-            npx electron-builder --publish always
-          fi
+        run: npx electron-builder --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
