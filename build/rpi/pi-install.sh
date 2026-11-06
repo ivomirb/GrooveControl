@@ -22,7 +22,7 @@ npm install
 echo "(8/9) Recompiling Groove Control dependencies..."
 ~/GrooveControl/node_modules/@electron/rebuild
 echo "(9/9) Creating Menu and Desktop Shortcuts..."
-sudo sed "s|HOMEDIR|$HOME|g" ~/GrooveControl/build/rpi/pi-menu.desktop > /usr/share/applications/GrooveControl.desktop
+sudo sed "s|HOMEDIR|$HOME|g" ~/GrooveControl/build/rpi/pi-menu.desktop | sudo tee /usr/share/applications/GrooveControl.desktop > /dev/null
 sudo chmod +x /usr/share/applications/GrooveControl.desktop
 sed "s|HOMEDIR|$HOME|g" ~/GrooveControl/build/rpi/pi-desktop.desktop > ~/Desktop/GrooveControl.desktop
 echo "---------------------------------------------------"
