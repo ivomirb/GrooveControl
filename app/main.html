@@ -496,12 +496,20 @@ The spindle will automatically start when the job is resumed.">
                   </span>
                   <span class="caption">Groove<br>Forum</span>
                 </button>
-                <button class="ribbon-button" onclick="socket.emit('openbuilds');">
-                  <span class="icon">
-                    <img src="./img/openbuilds-logo.svg">
-                  </span>
-                  <span class="caption">OpenBuilds<br>Archive</span>
-                </button>
+                <div>
+                  <button class="ribbon-button dropdown-toggle">
+                    <span class="icon">
+                      <i class="fas fa-atlas"></i>
+                    </span>
+                    <span class="caption">CNC<br>Resources</span>
+                  </button>
+                  <ul class="ribbon-dropdown grblmode" data-role="dropdown" data-duration="100">
+                    <li onclick="socket.emit('openresource', 'obarchive')"><a href="#">OpenBuilds Archive</a></li>
+                    <li onclick="socket.emit('openresource', 'ivocnc')"><a href="#">Ivo's CNC Corner</a></li>
+                    <li onclick="socket.emit('openresource', 'grblref')"><a href="#">SainSmart Grbl Quick Reference</a></li>
+                    <li onclick="socket.emit('openresource', 'gcoderef')"><a href="#">CNC Cookbook G-code Reference</a></li>
+                  </ul>
+                </div>
                 <span class="title">Support</span>
               </div>
 
@@ -896,16 +904,14 @@ Restore previous origins from history.">
                       <td colspan='5'>
                         <table style="width: 100%;">
                           <tr>
-                            <td><span class="text-small jogbtn">Incremental Jog</span>
-                            </td>
+                            <td style="text-align:right;"><span class="text-small jogbtn">Incremental Jog</span></td>
                             <td class="pb-1">
-                              <label class="toggle" id="toggleJogMode">
+                              <label class="toggle" id="toggleJogMode" style="margin-inline:auto;">
                                 <input class=" jogbtn" type="checkbox" id="jogTypeContinuous" />
                                 <div></div>
                               </label>
                             </td>
-                            <td><span class="text-small jogbtn">Continuous Jog</span>
-                            </td>
+                            <td style="text-align:left;"><span class="text-small jogbtn">Continuous Jog</span></td>
                           </tr>
                         </table>
                       </td>
