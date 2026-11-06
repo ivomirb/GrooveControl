@@ -20,9 +20,10 @@ cd ~/GrooveControl
 echo "(7/9) Installing Groove Control dependencies..."
 npm install
 echo "(8/9) Recompiling Groove Control dependencies..."
-~/GrooveControl/node_modules/@electron/rebuild
+npm rebuild
 echo "(9/9) Creating Menu and Desktop Shortcuts..."
-sudo sed "s|HOMEDIR|$HOME|g" ~/GrooveControl/build/rpi/pi-menu.desktop | sudo tee /usr/share/applications/GrooveControl.desktop > /dev/null
+sed "s|HOMEDIR|$HOME|g" ~/GrooveControl/build/rpi/pi-menu.desktop > ~/GrooveControl/temp.desktop
+sudo mv ~/GrooveControl/temp.desktop /usr/share/applications/GrooveControl.desktop
 sudo chmod +x /usr/share/applications/GrooveControl.desktop
 sed "s|HOMEDIR|$HOME|g" ~/GrooveControl/build/rpi/pi-desktop.desktop > ~/GrooveControl/temp.desktop
 mv ~/GrooveControl/temp.desktop ~/Desktop/GrooveControl.desktop
