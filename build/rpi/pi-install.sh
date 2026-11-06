@@ -24,10 +24,11 @@ npm rebuild
 npm install electron-rebuild
 ~/GrooveControl/node_modules/.bin/electron-rebuild
 echo "(9/9) Creating Menu and Desktop Shortcuts..."
-cp ~/GrooveControl/build/rpi/pi-shortcut.desktop ~/Desktop/GrooveControl.desktop
+sudo cp ~/GrooveControl/build/rpi/pi-menu.desktop /usr/share/applications/GrooveControl.desktop
+sudo sed -i "s|HOMEDIR|$HOME|g" /usr/share/applications/GrooveControl.desktop
+sudo chmod +x /usr/share/applications/GrooveControl.desktop
+cp ~/GrooveControl/build/rpi/pi-desktop.desktop ~/Desktop/GrooveControl.desktop
 sed -i "s|HOMEDIR|$HOME|g" ~/Desktop/GrooveControl.desktop
-chmod +x ~/Desktop/GrooveControl.desktop
-sudo cp -p ~/Desktop/GrooveControl.desktop /usr/share/applications/GrooveControl.desktop
 echo "---------------------------------------------------"
 echo "[COMPLETE] Install Complete!  Thank you!"
 echo "---------------------------------------------------"
