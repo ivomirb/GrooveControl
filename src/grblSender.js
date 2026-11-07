@@ -508,7 +508,7 @@ function handleOK(data, command) {
     serverEmit('fluidncConfig', fluidncConfig);
   }
   status.comms.blocked = false;
-  serverEmit('queueCount', [gcodeQueue.length + sentBuffer.length - queuePointer, gcodeQueue.length]);
+  serverEmit('queueCount', [gcodeQueue.length + sentBuffer.length - queuePointer, gcodeQueue.length, jobStatusInternal > 0 && jobIsJob]);
   if (queuePointer < gcodeQueue.length) {
     send1Q();
   }
@@ -896,7 +896,7 @@ function calcBufferSpace() {
 function send1Q() {
   if (status.comms.connectionStatus > 0) {
     if (queuePointer == 0) {
-      serverEmit('queueCount', [gcodeQueue.length, gcodeQueue.length]);
+      serverEmit('queueCount', [gcodeQueue.length, gcodeQueue.length, jobStatusInternal > 0 && jobIsJob]);
     }
     while (queuePointer < gcodeQueue.length && !status.comms.blocked && !status.comms.paused) {
       const spaceLeft = calcBufferSpace();
@@ -931,7 +931,7 @@ function clearGcodeQueue(success) {
     serverEmit('queueComplete', data);
     const queueLeft = gcodeQueue.length - queuePointer + sentBuffer.length;
     const queueTotal = gcodeQueue.length;
-    serverEmit('queueCount', [queueLeft, queueTotal]);
+    serverEmit('queueCount', [queueLeft, queueTotal, jobStatusInternal > 0 && jobIsJob]);
   }
 
   clearInterval(queueCounterLoop);
