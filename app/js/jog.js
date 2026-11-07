@@ -170,7 +170,7 @@ function prettyCoord(val, dec) {
 }
 
 function updateDro(status) {
-  if (!status || status.comms.connectionStatus == 0 || status.comms.connectionStatus == 6) {
+  if (!status || status.comms.connectionStatus < 2) {
     $('#xPos, #yPos, #zPos, #aPos').html('0.00');
     $('#xPosDro, #yPosDro, #zPosDro, #aPosDro').attr('title', '');
     return;
