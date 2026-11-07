@@ -31,7 +31,6 @@
 
     <div class="window bd-black" style="height: 100vh; overflow-y: hidden;">
       <div id="windowtitlebar" class="window-caption bg-black bd-black" style="-webkit-app-region: drag; height: 42px; padding-left: 3px;">
-        <!-- <span class="icon mif-cog"></span> -->
         <span><img src="./img/groove-control-logo.svg" height="40" /></span>
         <span class="title" id="windowtitle" style="padding-left: 10px;">Groove Control</span>
 
@@ -608,7 +607,7 @@ Restore previous origins from history.">
                             </span>
                           </div>
                           <div class="float-right fg-red" id="xPos" data-editable>0.000</div>
-                          <input id="xPosInput" class="m-0 p-0 droInput float-right fg-red" data-editable="true" onkeydown="onDroKeydown('x', event)" onblur="onDroBlur('x')"/>
+                          <input id="xPosInput" class="m-0 p-0 droInput float-right fg-red" data-editable="true" onkeydown="onDroKeydown('x', event)" onblur="onDroLoseFocus('x')"/>
                         </div>
                       </td>
                       <td>
@@ -644,7 +643,7 @@ Restore previous origins from history.">
                             </span>
                           </div>
                           <div class="float-right fg-green" id="yPos" data-editable>0.000</div>
-                          <input id="yPosInput" class="m-0 p-0 droInput float-right fg-green" data-editable="true" onkeydown="onDroKeydown('y', event)" onblur="onDroBlur('y')"/>
+                          <input id="yPosInput" class="m-0 p-0 droInput float-right fg-green" data-editable="true" onkeydown="onDroKeydown('y', event)" onblur="onDroLoseFocus('y')"/>
                         </div>
                       </td>
                       <td>
@@ -680,7 +679,7 @@ Restore previous origins from history.">
                             </span>
                           </div>
                           <div class="float-right fg-blue" id="zPos" data-editable>0.000</div>
-                          <input id="zPosInput" class="m-0 p-0 droInput float-right fg-blue" data-editable="true" onkeydown="onDroKeydown('z', event)" onblur="onDroBlur('z')"/>
+                          <input id="zPosInput" class="m-0 p-0 droInput float-right fg-blue" data-editable="true" onkeydown="onDroKeydown('z', event)" onblur="onDroLoseFocus('z')"/>
                         </div>
                       </td>
                       <td>
@@ -717,7 +716,7 @@ Restore previous origins from history.">
                             </span>
                           </div>
                           <div class="float-right fg-orange" id="aPos" data-editable>0.000</div>
-                          <input id="aPosInput" class="m-0 p-0 droInput float-right fg-orange" data-editable="true" onkeydown="onDroKeydown('a', event)" onblur="onDroBlur('a')"/>
+                          <input id="aPosInput" class="m-0 p-0 droInput float-right fg-orange" data-editable="true" onkeydown="onDroKeydown('a', event)" onblur="onDroLoseFocus('a')"/>
                         </div>
                       </td>
                       <td>
@@ -821,8 +820,8 @@ Restore previous origins from history.">
                       <td>
                         <button class="button light square xlarge m-0 ml-2 jogbtn zP jogcursorbtn" id="zP">
                           <span class="fa-layers fa-fw">
-                            <i class="fas fa-arrow-up fg-blue" data-fa-transform="shrink-2 down-8.5"></i>
-                            <span class="fa-layers-text fg-blue" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z+</span>
+                            <i class="fas fa-arrow-up fg-blue zjogbtn" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-blue zjogbtn" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z+</span>
                           </span>
                         </button>
                       </td>
@@ -878,8 +877,8 @@ Restore previous origins from history.">
                       <td>
                         <button class="button light square xlarge m-0 ml-2 jogbtn zM jogcursorbtn" id="zM">
                           <span class="fa-layers fa-fw">
-                            <i class="fas fa-arrow-down fg-blue" data-fa-transform="shrink-2 down-8.5"></i>
-                            <span class="fa-layers-text fg-blue" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z-</span>
+                            <i class="fas fa-arrow-down fg-blue zjogbtn" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-blue zjogbtn" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z-</span>
                           </span>
                         </button>
                       </td>

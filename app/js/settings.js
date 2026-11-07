@@ -5,6 +5,8 @@ var disable3Dskybox = false;
 var disableConeInterpolation = false;
 var disable3Dgcodepreview = false;
 var disable4thAxis = false;
+var disableZDist100 = false;
+var disableZCont = false;
 
 const disable3Drealtimepos = false; // always false, keep for now, may delete later
 const disable3Dcontrols = false; // always false, keep for now, may delete later
@@ -126,6 +128,20 @@ Ignored in Laser mode."></span>
     </div>
   </div>
 
+  <div class="row ml-3 mt-1">
+    <label class="cell-sm-3" style="padding-left:0px; padding-top:5px;">Disable Z Jog <span class="far fa-question-circle ml-1"
+      title="You can disable the Z jog buttons for large step sizes or in continuous jogging mode.
+This is a safety feature to prevent accidental plunge down into the table."></span>
+      :
+    </label>
+    <div class="cell-sm-4">
+      <input type="checkbox" data-role="checkbox" data-style="2" data-caption="For large step sizes" id="disableZDist100Check"/>
+    </div>
+    <div class="cell-sm-4">
+      <input type="checkbox" data-role="checkbox" data-style="2" data-caption="In continuous mode" id="disableZContCheck"/>
+    </div>
+  </div>
+
   <div class="row border-top mt-3 bd-dialog" style="margin-left:-4px; font-weight:700;">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable 3D Viewer" id="enable3DviewerCheck" onclick="updateSettingsState()"/>
     <span class="far fa-question-circle ml-1 mt-2" title="You may try disabling the 3D Viewer for slower computers"></span>
@@ -209,6 +225,11 @@ function applyAppSettings() {
 
   spindleDelay(parseInt($('#spindleDelay').val()));
 
+  disableZDist100 = $('#disableZDist100Check').prop('checked');
+  disableZCont = $('#disableZContCheck').prop('checked');
+  localStorage.setItem('disableZjog', JSON.stringify({dist100: disableZDist100, cont: disableZCont}));
+  evaluateZJogDisable();
+
   const themeId = $('#selectTheme').val();
   if (themeId != ThemeData.currentThemeId) {
     Theme.set(themeId);
@@ -244,7 +265,7 @@ function showAppSettings(category) {
     clsDialog: 'dark',
     title: "<i class='fas fa-cog'></i> Settings",
     content: appSettingsDlg,
-    width: 600,
+    width: 650,
     actions: [
       {
         caption: "OK",
@@ -286,6 +307,9 @@ function showAppSettings(category) {
 
   $('#spindleDelay').val(laststatus.misc.spindleDelay);
 
+  $('#disableZDist100Check').prop('checked', disableZDist100);
+  $('#disableZContCheck').prop('checked', disableZCont);
+
   $('#disable4thAxisCheck').prop('checked', disable4thAxis);
 
   initKeyboardEditor();
@@ -308,6 +332,12 @@ function initSettings() {
   disable4thAxis = localStorage.getItem('disable4thAxis') != null  && (JSON.parse(localStorage.getItem('disable4thAxis')) == true);
 
   $('#runSimBtn').parent().toggle(!disable3Dgcodepreview);
+
+  if (localStorage.getItem('disableZjog')) {
+    const disableZjog = JSON.parse(localStorage.getItem('disableZjog'));
+    disableZDist100 = disableZjog.dist100 == true;
+    disableZCont = disableZjog.cont == true;
+  }
 
   if (localStorage.getItem('disabledWarnings')) {
     const warnings = JSON.parse(localStorage.getItem('disabledWarnings'));
