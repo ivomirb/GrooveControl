@@ -550,13 +550,6 @@ function jogStepSize(dir) {
   changeStepSize(dir);
 }
 
-function jogToggleMode() {
-  continuousJogMode = !continuousJogMode;
-  localStorage.setItem('continuousJog', continuousJogMode);
-  $('#jogTypeContinuous').prop('checked', continuousJogMode);
-  $('.distbtn').toggle(!continuousJogMode);
-}
-
 function advanceProbeSequence() {
   if (laststatus && laststatus.comms.connectionStatus == 2) {
     if (!Metro.dialog.isOpen("#xyzProbeWindow")) {

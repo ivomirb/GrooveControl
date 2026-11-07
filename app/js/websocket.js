@@ -576,7 +576,7 @@ function onStatus(status) {
 
   // Only allow jogging during idle
   $('.jogbtn').attr('disabled', status.comms.connectionStatus != 2);
-  $('.dro').attr('disconnected', status.comms.connectionStatus < 2 || status.comms.connectionStatus == 6);
+  $('.dro').attr('disconnected', status.comms.connectionStatus < 2);
 
   // Allow typing on the console only during idle or alarm
   $('#command, #sendCommand').attr('disabled', status.comms.connectionStatus != 2 && status.comms.connectionStatus != 5);
@@ -592,6 +592,12 @@ function onStatus(status) {
     $('#firmwarename').html('');
     if (localStorage.getItem('jogOverride')) {
       jogOverride(localStorage.getItem('jogOverride'));
+    }
+    if (laststatus && laststatus.comms.connectionStatus != 0) {
+      $('#grblconfig').empty();
+      if ($('#grblPanel').is(':visible')) {
+        $('#controlTab').click();
+      }
     }
   }
 
