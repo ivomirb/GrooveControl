@@ -471,29 +471,24 @@ function invokeSaveAsDialog(file, fileName) {
 }
 
 Date.prototype.yyyymmdd = function() {
+  const yyyy = this.getFullYear();
   const mm = this.getMonth() + 1; // getMonth() is zero-based
   const dd = this.getDate();
 
-  return [this.getFullYear(),
-    (mm > 9 ? '' : '0') + mm,
-    (dd > 9 ? '' : '0') + dd
-  ].join('-');
+  return yyyy + "-" + (mm < 10 ? '0' : '') + mm + "-" + (dd < 10 ? '0' : '') + dd;
 };
 
-function timeConvert(n) {
-  const num = n;
-  let hours = (num / 60);
-  let rhours = Math.floor(hours);
-  let minutes = (hours - rhours) * 60;
-  let rminutes = Math.round(minutes);
-  //return num + " minutes = " + rhours + " hour(s) and " + rminutes + " minute(s).";
-  if (rhours < 10) {
-    rhours = "0" + rhours
+function timeConvert(minutes) {
+  let hours = Math.floor(minutes / 60);
+  minutes = Math.round(minutes - hours * 60);
+
+  if (hours < 10) {
+    hours = "0" + hours;
   }
-  if (rminutes < 10) {
-    rminutes = "0" + rminutes
+  if (minutes < 10) {
+    minutes = "0" + minutes;
   }
-  return rhours + "h:" + rminutes + "m";
+  return hours + "h:" + minutes + "m";
 }
 
 function toTitleCase(str) {
