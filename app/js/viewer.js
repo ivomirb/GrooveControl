@@ -582,6 +582,7 @@ function fixRenderSize() {
         renderer.setSize(sceneWidth, sceneHeight);
         camera.aspect = sceneWidth / sceneHeight;
         camera.updateProjectionMatrix();
+        renderer.render(scene, camera);
       }
     }, 0);
   }
