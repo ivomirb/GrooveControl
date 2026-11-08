@@ -99,6 +99,7 @@ function initServer() {
   httpServer = http.Server(app).listen(config.webPort, '0.0.0.0', httpServerSuccess).on('error', httpServerError);
   io.attach(httpServer);
 
+// eslint-disable-next-line no-warning-comments
 /* Disable HTTPS, since the keys are out of date. It is not practical for a software with infrequent releases to use keys
 that expire in 3 months. Besides, the private keys are included in the open source so there is no real security
 

@@ -129,6 +129,38 @@ $(document).ready(function() {
   socket.emit('docReady', onDocReady);
 });
 
+var reloadHandlers = [];
+
+// Register a handler to be called on reload (from F5 or a change to some settings)
+// The handler can return a timeout value in ms to delay the reload
+function addReloadHandler(handler) {
+  removeReloadHandler(handler);
+  reloadHandlers.push(handler);
+}
+
+function removeReloadHandler(handler) {
+  let index = reloadHandlers.indexOf(handler);
+  if (index >= 0) {
+    reloadHandlers.splice(index, 1);
+  }
+}
+
+function reloadPage() {
+  let timeout = 0;
+  for (const handler of reloadHandlers) {
+    let t = handler();
+    if (t && t > timeout) {
+      timeout = t;
+    }
+  }
+
+  if (timeout > 0) {
+    setTimeout(() => { location.reload()}, timeout);
+  } else {
+    location.reload();
+  }
+}
+
 function onDocReady(data) {
   onGrbl(data.firmware);
   if (!isJogWidget) {

@@ -1,1 +1,1 @@
-npx eslint src > src\eslint.log
+npx eslint src

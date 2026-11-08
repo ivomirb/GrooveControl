@@ -135,4 +135,5 @@ const usedFunctions = {
   populateToolChanges,
   runGcodeAllTools,
   runGcodeSection,
+  addReloadHandler,
 };
