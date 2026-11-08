@@ -131,7 +131,7 @@ function toggleWCS() {
 }
 
 function cancelJog() {
-  socket.emit('stop', {jog: true});
+  socket.emit('stop', 'jog');
   continuousJogRunning = false;
 }
 

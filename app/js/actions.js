@@ -133,7 +133,7 @@ const inputActions = [
     label: `<i class="far fa-hand-paper fg-red fa-fw"></i> Abort`,
     defaultKey: "esc",
     keydown: () => {
-      socket.emit('stop', {abort: true});
+      socket.emit('stop', 'abort');
     },
   },
 
@@ -177,7 +177,7 @@ const inputActions = [
     defaultKey: "y",
     keydown: () => {
       if (laststatus && (laststatus.comms.connectionStatus == 3 || laststatus.comms.connectionStatus == 4)) {
-        socket.emit('stop', {stop: true});
+        socket.emit('stop', 'stop');
       }
     },
   },
