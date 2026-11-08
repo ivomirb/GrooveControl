@@ -418,6 +418,12 @@ function createJogWindow() {
     jogWindow = null;
   });
 
+  jogWindow.webContents.on('render-process-gone', (event, details) => {
+    if (details.reason == "crashed") {
+      jogWindow.reload();
+    }
+  });
+
   jogWindow.once('ready-to-show', showJogWindow);
 }
 

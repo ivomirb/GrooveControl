@@ -296,7 +296,7 @@ function applyAppSettings() {
   updateButtonTooltips();
 
   if (reload) {
-    location.reload();
+    reloadPage();
   }
 }
 

@@ -584,8 +584,9 @@ function onStatus(status) {
   // Set the Connection Toolbar option
   setConnectBar(status.comms.connectionStatus, status);
   setControlBar(status.comms.connectionStatus, status);
+  $('#cancelJogBtn').css('visibility', (status.comms.connectionStatus == 2 && status.comms.runStatus == "Jog") ? 'visible' : 'hidden');
   if (status.comms.connectionStatus != 5) {
-    bellstate = false
+    bellstate = false;
   }
   if (status.comms.connectionStatus == 0) {
     $('#grblButtons').hide();
@@ -618,7 +619,7 @@ function onStatus(status) {
   // Enable or disable 4th axis UI elements
   $('.4thaxis-present').toggle(status.machine.has4thAxis);
   $('.4thaxis-active').toggle(status.machine.has4thAxis && !disable4thAxis);
-  $('#jogcell').css('max-width', (status.machine.has4thAxis && !disable4thAxis) ? '427px' : '348px');
+  $('#jogcell').css('max-width', (status.machine.has4thAxis && !disable4thAxis) ? '435px' : '348px');
 
   if (!isJogWidget && (!laststatus || laststatus.misc.trayIcon != status.misc.trayIcon) &&
       (status.driver.platform == 'win32' || status.driver.platform == 'linux')) {

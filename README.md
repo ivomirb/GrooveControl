@@ -50,6 +50,7 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** More accurate machine limits, compatible with a variety of homing settings for Grbl, GrblHAL and FluidNC
 * **Improvement:** The Pause and Stop buttons remain available until the very end of the job
 * **Improvement:** The Z jog buttons can be disabled for the largest jog step to prevent accidental plunge
+* **Improvement:** A new button to safely cancel a jog move
 * **Improvement:** A new setting to hide the controls for the 4th axis if it is supported, but not used
 * **Improvement:** The "Recover from line" feature is smarter and more reliable
 * **Improvement:** Doesn't reset the "recently homed" status for errors and alerts that don't invalidate the machine position

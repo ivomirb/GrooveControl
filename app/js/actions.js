@@ -155,13 +155,25 @@ const inputActions = [
     },
   },
 
+  { // Stop Jog
+    name: "jogstop",
+    friendlyName: "Stop Jog",
+    label: `<i class="fas fa-times-circle fg-red fa-fw"></i> Stop Jog`,
+    defaultKey: "*",
+    keydown: () => {
+      if (laststatus && laststatus.comms.connectionStatus == 2 && laststatus.comms.runStatus == "Jog") {
+        socket.emit('stop', 'jog');
+      }
+    },
+  },
+
   { // Abort
     name: "estop",
     friendlyName: "Abort",
     label: `<i class="far fa-hand-paper fg-red fa-fw"></i> Abort`,
     defaultKey: "esc",
     keydown: () => {
-      socket.emit('stop', {abort: true});
+      socket.emit('stop', 'abort');
     },
   },
 
@@ -205,7 +217,7 @@ const inputActions = [
     defaultKey: "y",
     keydown: () => {
       if (laststatus && (laststatus.comms.connectionStatus == 3 || laststatus.comms.connectionStatus == 4)) {
-        socket.emit('stop', {stop: true});
+        socket.emit('stop', 'stop');
       }
     },
   },
@@ -367,6 +379,11 @@ const shortcutTooltips = [
     id: '#dist01label, #dist1label, #dist10label, #dist100label',
     tooltip: "Select step size for incremental jog",
     tooltip2: "Decrease $stepM\nIncrease $stepP",
+  },
+  {
+    id: '#cancelJogBtn',
+    tooltip: "Stop a jog move in progress",
+    tooltip2: "$jogstop",
   },
   {
     id: '*:has(>#jro)',
