@@ -1262,7 +1262,6 @@ function initGrblSender() {
   // Global Update loop
   setInterval(statusTick, 100);
 }
-  lastStatusPos = structuredClone(status.machine.position.work);
 
 export {
   addQToEnd,
