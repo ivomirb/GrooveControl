@@ -28,9 +28,12 @@ See all past versions here: [All Releases](releases)
 
 **Few things to keep in mind**
 
-* The Windows binaries are unsigned. You will have to work around the Smart Screen restrictions to get it running.<br>
-Signing the installer requires a certificate, which is not free.
-One will be added in the future, but at this time I can't justify the expense until I know that enough people are even going to use it
+* The Windows binaries are signed only with a test certificate, intended to test the GitHub release process.
+The certificate is not recognized by Windows. You will get a notification from SmartScreen about untrusted software.
+You will need to click on "More Info" and then "Run anyway".<br>
+A real certificate costs money. One will be added in the future for sure, but at this time I can't justify the expense until I know
+that enough people are even going to use it.<br>
+If you wish to speed up the process, you can contribute to this funding goal: https://github.com/sponsors/ivomirb
 
 * The Mac binaries are completely untested and not notarized. I don't have a Mac to test them.<br>
 If you are a Mac developer and you are willing to help get things started, let me know
