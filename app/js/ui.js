@@ -133,8 +133,7 @@ function setConnectBar(val, status) {
 function setControlBar(val, status) {
   if (val == 0) { // Not Connected Yet
     $('#controlBtnGrp').hide();
-    $('#grblSettings').hide(); // Hide Grbl Settings if it was Open
-    $('#grblconfig').empty();
+    $('#grblSettings').hide();
     $('.estop').hide();
     $('#unlockBtn, #unlockBtn2, #unlockBtn3').attr('disabled', true);
   } else if (val >= 1 && val <= 5) { // Normal operation

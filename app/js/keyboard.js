@@ -24,7 +24,7 @@ function onDocKeyDown(event) {
   if (event.which === 116) {
     // F5 - reload interface
     event.preventDefault();
-    location.reload();
+    reloadPage();
     return;
   } else if (event.which === 117) {
     // F6 - switch to serial console and focus on Console Input

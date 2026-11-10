@@ -43,14 +43,14 @@ It is a simplified version of the original by Thayne Co: https://thayneco.com/si
 
 ![Screenshot](screenshots/open_gcode.png)
 
-## Macros that work with both Groove and OpenBuilds
-
 ### DisableZ
 Disables the Z up/down buttons when the jog step is at the highest setting.
 This prevents accidental Z jogs that can plunge into the table.
 It is based on the original script by sharmstr - https://github.com/sharmstr/OpenBuildsHacks/blob/main/Macros/HideZBtns.js
 
 Run it automatically on startup.
+
+## Macros that work with both Groove and OpenBuilds
 
 ### MeasureZ
 Measures the height of a surface without changing the work zero.

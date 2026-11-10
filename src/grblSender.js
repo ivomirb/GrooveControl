@@ -10,7 +10,7 @@ import {
 
 
 // App dependencies
-import * as grblStrings from "./grblStrings.js";
+import * as grblStrings from './grblStrings.js';
 
 import {
   debug_log,
@@ -221,7 +221,7 @@ function parseStatusReport(data) {
 
       if (pins.includes('R')) {
         // abort
-        stop({abort: true});
+        stop('abort');
         serverEmitOutput({
           command: '[external from hardware]',
           response: "Groove Control received a RESET/ABORT notification from Grbl: This could be due to someone pressing the RESET/ABORT button (if connected)",
@@ -508,7 +508,7 @@ function handleOK(data, command) {
     serverEmit('fluidncConfig', fluidncConfig);
   }
   status.comms.blocked = false;
-  serverEmit('queueCount', [gcodeQueue.length + sentBuffer.length - queuePointer, gcodeQueue.length]);
+  serverEmit('queueCount', [gcodeQueue.length + sentBuffer.length - queuePointer, gcodeQueue.length, jobStatusInternal > 0 && jobIsJob]);
   if (queuePointer < gcodeQueue.length) {
     send1Q();
   }
@@ -896,7 +896,7 @@ function calcBufferSpace() {
 function send1Q() {
   if (status.comms.connectionStatus > 0) {
     if (queuePointer == 0) {
-      serverEmit('queueCount', [gcodeQueue.length, gcodeQueue.length]);
+      serverEmit('queueCount', [gcodeQueue.length, gcodeQueue.length, jobStatusInternal > 0 && jobIsJob]);
     }
     while (queuePointer < gcodeQueue.length && !status.comms.blocked && !status.comms.paused) {
       const spaceLeft = calcBufferSpace();
@@ -931,7 +931,7 @@ function clearGcodeQueue(success) {
     serverEmit('queueComplete', data);
     const queueLeft = gcodeQueue.length - queuePointer + sentBuffer.length;
     const queueTotal = gcodeQueue.length;
-    serverEmit('queueCount', [queueLeft, queueTotal]);
+    serverEmit('queueCount', [queueLeft, queueTotal, jobStatusInternal > 0 && jobIsJob]);
   }
 
   clearInterval(queueCounterLoop);
@@ -1015,43 +1015,56 @@ function addQRealtime(gcode) {
   machineSendRealtime(gcode);
 }
 
+// 'abort' - immediate reset
+// 'stop' - hold first, then reset
+// 'jog' - stops an ongoing jog
+// 'smart' - depends on the current status: nothing if idle, 'jog' if jogging, or 'stop' otherwise
 function stop(data) {
-  if (status.comms.connectionStatus > 0) {
-    status.comms.paused = true;
-    debug_log('STOP');
+  if (status.comms.connectionStatus == 0) {
+    debug_log('ERROR: Machine connection not open!');
+    return;
+  }
 
-    if (data.jog) {
-      addQRealtime(String.fromCharCode(0x85)); // canceljog
-      debug_log('Sent: 0x85 Jog Cancel');
-      debug_log(queuePointer, gcodeQueue)
-    }
+  // convert from old style parameter to new
+  if (data.abort) data = 'abort';
+  if (data.stop) data = 'stop';
+  if (data.jog) data = 'jog';
 
-    if (data.stop) { // pause motion first.
+  if (data == 'smart') {
+    if (status.comms.connectionStatus == 2 && sentBuffer.length == 0 && status.comms.runStatus == "Idle") return;
+    data = status.comms.runStatus == "Jog" ? 'jog' : 'stop';
+  }
+
+  status.comms.paused = true;
+
+  switch (data) {
+    case 'abort':
+      addQRealtime(String.fromCharCode(0x18)); // ctrl-x
+      status.comms.alarm = "";
+      break;
+
+    case 'stop':
       addQRealtime('!'); // hold
-      debug_log('Sent: !');
-    }
+      status.comms.alarm = "";
 
-    if (status.machine.firmware.version === '1.1d') {
-      addQRealtime(String.fromCharCode(0x9E)); // Stop Spindle/Laser
-      debug_log('Sent: Code(0x9E)');
-    }
-
-    debug_log('Cleaning Queue');
-    if (!data.jog) {
       setTimeout(function() {
         addQRealtime(String.fromCharCode(0x18)); // ctrl-x
-        debug_log('Sent: Code(0x18)');
       }, 200);
-      status.comms.alarm = "";
-    }
+      break;
 
-    sentBuffer.length = 0; // Dump the queue
-    status.comms.blocked = false;
-    status.comms.paused = false;
-    clearGcodeQueue(false);
-  } else {
-    debug_log('ERROR: Machine connection not open!');
+    case 'jog':
+      addQRealtime(String.fromCharCode(0x85)); // cancel jog
+      break;
   }
+
+  if (status.machine.firmware.version === '1.1d') {
+    addQRealtime(String.fromCharCode(0x9E)); // Stop Spindle/Laser
+  }
+
+  sentBuffer.length = 0;
+  status.comms.blocked = false;
+  status.comms.paused = false;
+  clearGcodeQueue(false);
 }
 
 function pause() {
@@ -1230,9 +1243,6 @@ function setCurrentGcode(gcode) {
   currentGcode = gcode;
 }
 
-var statusIndex = 0;
-var lastStatusPos = undefined;
-
 function statusTick() {
   serverEmit('status', status);
   status.machine.position.display.x = status.machine.position.work.x;
@@ -1252,7 +1262,6 @@ function initGrblSender() {
   // Global Update loop
   setInterval(statusTick, 100);
 }
-  lastStatusPos = structuredClone(status.machine.position.work);
 
 export {
   addQToEnd,

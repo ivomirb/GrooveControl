@@ -429,7 +429,7 @@ function onHeightmapProbeResult(probe) {
   if (probe.state > 0) {
     if (heightmapProbeExpected == 0) {
       socket.off('prbResult');
-      socket.emit('stop', {stop:true});
+      socket.emit('stop', 'stop');
       showHeightmapError("The probe collided during horizontal travel.", true);
       return;
     }

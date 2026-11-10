@@ -131,6 +131,38 @@ $(document).ready(function() {
   socket.emit('docReady', onDocReady);
 });
 
+var reloadHandlers = [];
+
+// Register a handler to be called on reload (from F5 or a change to some settings)
+// The handler can return a timeout value in ms to delay the reload
+function addReloadHandler(handler) {
+  removeReloadHandler(handler);
+  reloadHandlers.push(handler);
+}
+
+function removeReloadHandler(handler) {
+  let index = reloadHandlers.indexOf(handler);
+  if (index >= 0) {
+    reloadHandlers.splice(index, 1);
+  }
+}
+
+function reloadPage() {
+  let timeout = 0;
+  for (const handler of reloadHandlers) {
+    let t = handler();
+    if (t && t > timeout) {
+      timeout = t;
+    }
+  }
+
+  if (timeout > 0) {
+    setTimeout(() => { location.reload()}, timeout);
+  } else {
+    location.reload();
+  }
+}
+
 function onDocReady(data) {
   onGrbl(data.firmware);
   if (!isJogWidget) {
@@ -166,10 +198,6 @@ function onFirstStatus(status) {
     const version = status.driver.version.split('.', 3).map((x) => parseInt(x));
     if (version[0]*1000000 + version[1]*1000 + version[2] != Math.round(APP_VERSION*1000)) {
       throw APP_NAME + ": APP_VERSION needs to be updated to " + (((version[0]*1000000 + version[1]*1000 + version[2])/1000).toFixed(3));
-    }
-
-    if (status.driver.operatingsystem == "rpi") {
-      $('#windowtitlebar').hide();
     }
 
     updatesFirstStatus(status);
@@ -477,29 +505,24 @@ function invokeSaveAsDialog(file, fileName) {
 }
 
 Date.prototype.yyyymmdd = function() {
+  const yyyy = this.getFullYear();
   const mm = this.getMonth() + 1; // getMonth() is zero-based
   const dd = this.getDate();
 
-  return [this.getFullYear(),
-    (mm > 9 ? '' : '0') + mm,
-    (dd > 9 ? '' : '0') + dd
-  ].join('-');
+  return yyyy + "-" + (mm < 10 ? '0' : '') + mm + "-" + (dd < 10 ? '0' : '') + dd;
 };
 
-function timeConvert(n) {
-  const num = n;
-  let hours = (num / 60);
-  let rhours = Math.floor(hours);
-  let minutes = (hours - rhours) * 60;
-  let rminutes = Math.round(minutes);
-  //return num + " minutes = " + rhours + " hour(s) and " + rminutes + " minute(s).";
-  if (rhours < 10) {
-    rhours = "0" + rhours
+function timeConvert(minutes) {
+  let hours = Math.floor(minutes / 60);
+  minutes = Math.round(minutes - hours * 60);
+
+  if (hours < 10) {
+    hours = "0" + hours;
   }
-  if (rminutes < 10) {
-    rminutes = "0" + rminutes
+  if (minutes < 10) {
+    minutes = "0" + minutes;
   }
-  return rhours + "h:" + rminutes + "m";
+  return hours + "h:" + minutes + "m";
 }
 
 function toTitleCase(str) {

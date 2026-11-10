@@ -298,7 +298,7 @@ function editMacro(buttonIdx, fileName, script) {
 
   IconPicker.Init({
     // Required: You have to set the path of IconPicker JSON file to "jsonUrl" option. e.g. '/content/plugins/IconPicker/dist/iconpicker-1.5.0.json'
-    jsonUrl: '/lib/furcanIconPicker/iconpicker-1.5.0.json',
+    jsonUrl: serverURL + '/lib/furcanIconPicker/iconpicker-1.5.0.json',
     searchPlaceholder: 'Search Macro Icon',
     showAllButton: 'Show All',
     cancelButton: 'Cancel',

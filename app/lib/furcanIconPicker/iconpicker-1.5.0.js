@@ -154,13 +154,13 @@ var IconPicker = {
     var getIconListXmlHttpRequest = function(jsonUrl, buttonCancel, searchPlaceholder, borderRadius, inputElement, previewElement, theCallback) {
 
       // if chrome browser
-      if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+/*      if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
         // check the protocol
         if (window.location.protocol.indexOf('http') <= -1) {
           ipConsoleLog('Chrome Browser blocked this request by CORS policy.');
           return false;
         }
-      }
+      }*/
 
       // modal element
       var ipElement = document.getElementById('IconPickerModal');

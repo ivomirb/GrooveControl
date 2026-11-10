@@ -73,7 +73,7 @@ const usedFunctions = {
   toggleWCS,
   onDroClick,
   onDroKeydown,
-  onDroBlur,
+  onDroLoseFocus,
   jog,
   jogXY,
   jogWidget,
@@ -135,4 +135,5 @@ const usedFunctions = {
   populateToolChanges,
   runGcodeAllTools,
   runGcodeSection,
+  addReloadHandler,
 };

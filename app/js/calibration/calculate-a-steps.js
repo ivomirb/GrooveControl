@@ -39,7 +39,8 @@ This can be adjusted via switches on the stepper driver or the motor itself"></s
             <td style="width:32%"><b>Gear Ratio<b><span class="far fa-question-circle ml-1" title="Enter the reduction ratio for the axis driving mechanism.
 Examples:
   * For a 30:1 gearbox enter 30 and 1
-  * For a belt drive with 80 tooth and 20 tooth gears enter 80 and 20, or simply 4 and 1"></span></td>
+  * For a belt drive with a 20-tooth gear on the motor and an 80-tooth gear on the chuck enter 80 and 20, or simply 4 and 1.
+     Note that the chuck gear is in the first field"></span></td>
             <td style="width:33%"><input data-role="input" data-clear-button="false" id="gearboxgear1" onchange="updateCalAControls()"></td>
             <td style="width:2%">:</td>
             <td style="width:33%"><input data-role="input" data-clear-button="false" id="gearboxgear2" onchange="updateCalAControls()"></td>

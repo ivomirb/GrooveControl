@@ -67,7 +67,7 @@ body.theme_dark, .theme_dark div.window, .theme_dark .card {
 .theme_dark .dialog.dark, .theme_dark .dialog {
   background: #222;
   color: #FFF;
-  border-color: #333;
+  border-color: #666;
 }
 
 .theme_dark .dialog.dark .dialog-title, .theme_dark .dialog .dialog-title {

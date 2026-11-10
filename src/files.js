@@ -1,8 +1,8 @@
 // files.js handles file operatons like browsing, loading, saving
 
 // System dependencies
-import path from "path";
-import fs from "fs";
+import path from 'path';
+import fs from 'fs';
 import multer from 'multer';
 import {
   dialog,

@@ -31,7 +31,6 @@
 
     <div class="window bd-black" style="height: 100vh; overflow-y: hidden;">
       <div id="windowtitlebar" class="window-caption bg-black bd-black" style="-webkit-app-region: drag; height: 42px; padding-left: 3px;">
-        <!-- <span class="icon mif-cog"></span> -->
         <span><img src="./img/groove-control-logo.svg" height="40" /></span>
         <span class="title" id="windowtitle" style="padding-left: 10px;">Groove Control</span>
 
@@ -142,7 +141,7 @@
                   </span>
                   <span class="caption">Pause<br>Job</span>
                 </button>
-                <button id="stopBtn" class="ribbon-button" onclick="socket.emit('stop', {stop: true});">
+                <button id="stopBtn" class="ribbon-button" onclick="socket.emit('stop', 'stop');">
                   <span class="icon">
                     <i class="fas fa-stop"></i>
                   </span>
@@ -332,7 +331,7 @@ The spindle will automatically start when the job is resumed.">
                   </span>
                   <span class="caption">Unlock<br>Alarm</span>
                 </button>
-                <button class="ribbon-button" id="abortBtn" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', {abort: true});">
+                <button class="ribbon-button" id="abortBtn" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', 'abort');">
                   <span class="icon">
                     <span class="fa-layers fa-fw">
                       <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
@@ -462,7 +461,7 @@ The spindle will automatically start when the job is resumed.">
                   </span>
                   <span class="caption">Unlock<br>Alarm</span>
                 </button>
-                <button class="ribbon-button" id="abortBtn2" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', {abort: true});">
+                <button class="ribbon-button" id="abortBtn2" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', 'abort');">
                   <span class="icon">
                     <span class="fa-layers fa-fw">
                       <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
@@ -507,12 +506,20 @@ The spindle will automatically start when the job is resumed.">
                   </span>
                   <span class="caption">Groove<br>Forum</span>
                 </button>
-                <button class="ribbon-button" onclick="socket.emit('openbuilds');">
-                  <span class="icon">
-                    <img src="./img/openbuilds-logo.svg">
-                  </span>
-                  <span class="caption">OpenBuilds<br>Archive</span>
-                </button>
+                <div>
+                  <button class="ribbon-button dropdown-toggle">
+                    <span class="icon">
+                      <i class="fas fa-atlas"></i>
+                    </span>
+                    <span class="caption">CNC<br>Resources</span>
+                  </button>
+                  <ul class="ribbon-dropdown grblmode" data-role="dropdown" data-duration="100">
+                    <li onclick="socket.emit('openresource', 'obarchive')"><a href="#">OpenBuilds Archive</a></li>
+                    <li onclick="socket.emit('openresource', 'ivocnc')"><a href="#">Ivo's CNC Corner</a></li>
+                    <li onclick="socket.emit('openresource', 'grblref')"><a href="#">SainSmart Grbl Quick Reference</a></li>
+                    <li onclick="socket.emit('openresource', 'gcoderef')"><a href="#">CNC Cookbook G-code Reference</a></li>
+                  </ul>
+                </div>
                 <span class="title">Support</span>
               </div>
 
@@ -526,7 +533,7 @@ The spindle will automatically start when the job is resumed.">
                   </span>
                   <span class="caption">Unlock<br>Alarm</span>
                 </button>
-                <button class="ribbon-button" id="abortBtn3" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', {abort: true})">
+                <button class="ribbon-button" id="abortBtn3" style="padding-left:6px; padding-right:6px;" onclick="socket.emit('stop', 'abort')">
                   <span class="icon">
                     <span class="fa-layers fa-fw">
                       <i class="fas fa-circle fg-red" data-fa-transform="grow-8"></i>
@@ -550,7 +557,7 @@ The spindle will automatically start when the job is resumed.">
           <center>
             <div id="jogcontrols" class="mt-1">
               <div class="row flex-align-start" style="width: 100%; height: 100%; flex-wrap:nowrap;">
-                <div class="cell border-right bd-gray" style="max-width:300px;">
+                <div class="cell" style="max-width:300px;">
 
                   <table class="drotable" style="margin-top:-4px;">
                     <tr>
@@ -617,7 +624,7 @@ Restore previous origins from history.">
                             </span>
                           </div>
                           <div class="float-right fg-red" id="xPos" data-editable>0.000</div>
-                          <input id="xPosInput" class="m-0 p-0 droInput float-right fg-red" data-editable="true" onkeydown="onDroKeydown('x', event)" onblur="onDroBlur('x')"/>
+                          <input id="xPosInput" class="m-0 p-0 droInput float-right fg-red" data-editable="true" onkeydown="onDroKeydown('x', event)" onblur="onDroLoseFocus('x')"/>
                         </div>
                       </td>
                       <td>
@@ -653,7 +660,7 @@ Restore previous origins from history.">
                             </span>
                           </div>
                           <div class="float-right fg-green" id="yPos" data-editable>0.000</div>
-                          <input id="yPosInput" class="m-0 p-0 droInput float-right fg-green" data-editable="true" onkeydown="onDroKeydown('y', event)" onblur="onDroBlur('y')"/>
+                          <input id="yPosInput" class="m-0 p-0 droInput float-right fg-green" data-editable="true" onkeydown="onDroKeydown('y', event)" onblur="onDroLoseFocus('y')"/>
                         </div>
                       </td>
                       <td>
@@ -689,7 +696,7 @@ Restore previous origins from history.">
                             </span>
                           </div>
                           <div class="float-right fg-blue" id="zPos" data-editable>0.000</div>
-                          <input id="zPosInput" class="m-0 p-0 droInput float-right fg-blue" data-editable="true" onkeydown="onDroKeydown('z', event)" onblur="onDroBlur('z')"/>
+                          <input id="zPosInput" class="m-0 p-0 droInput float-right fg-blue" data-editable="true" onkeydown="onDroKeydown('z', event)" onblur="onDroLoseFocus('z')"/>
                         </div>
                       </td>
                       <td>
@@ -726,7 +733,7 @@ Restore previous origins from history.">
                             </span>
                           </div>
                           <div class="float-right fg-orange" id="aPos" data-editable>0.000</div>
-                          <input id="aPosInput" class="m-0 p-0 droInput float-right fg-orange" data-editable="true" onkeydown="onDroKeydown('a', event)" onblur="onDroBlur('a')"/>
+                          <input id="aPosInput" class="m-0 p-0 droInput float-right fg-orange" data-editable="true" onkeydown="onDroKeydown('a', event)" onblur="onDroLoseFocus('a')"/>
                         </div>
                       </td>
                       <td>
@@ -796,12 +803,12 @@ Restore previous origins from history.">
                     </tr>
                   </table>
                 </div>
-                <div class="cell" id="jogcell" style="max-width:350px; padding-top: 1px;">
+                <div class="cell border-left border-right bd-gray" id="jogcell" style="max-width:350px; padding:1px 8px;">
 
                   <table class="jogtable">
                     <tr>
 
-                      <td class="4thaxis-active" style="display: none;">
+                      <td class="4thaxis-active" style="display: none; padding-right:10px;">
                         <button class="button light square xlarge m-0 jogbtn aP jogcursorbtn" id="aP">
                           <span class="fa-layers fa-fw">
                             <i class="fas fa-redo fg-orange" data-fa-transform="shrink-2 down-8.5"></i>
@@ -830,8 +837,8 @@ Restore previous origins from history.">
                       <td>
                         <button class="button light square xlarge m-0 ml-2 jogbtn zP jogcursorbtn" id="zP">
                           <span class="fa-layers fa-fw">
-                            <i class="fas fa-arrow-up fg-blue" data-fa-transform="shrink-2 down-8.5"></i>
-                            <span class="fa-layers-text fg-blue" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z+</span>
+                            <i class="fas fa-arrow-up fg-blue zjogbtn" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-blue zjogbtn" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z+</span>
                           </span>
                         </button>
                       </td>
@@ -849,7 +856,7 @@ Restore previous origins from history.">
                     </tr>
                     <tr>
 
-                      <td class="4thaxis-active" style="display: none;">
+                      <td class="4thaxis-active" style="display: none; padding-right:10px;">
                         <button class="button light square xlarge m-0 jogbtn aM jogcursorbtn" id="aM">
                           <span class="fa-layers fa-fw">
                             <i class="fas fa-undo fg-orange" data-fa-transform="shrink-2 down-8.5"></i>
@@ -887,8 +894,8 @@ Restore previous origins from history.">
                       <td>
                         <button class="button light square xlarge m-0 ml-2 jogbtn zM jogcursorbtn" id="zM">
                           <span class="fa-layers fa-fw">
-                            <i class="fas fa-arrow-down fg-blue" data-fa-transform="shrink-2 down-8.5"></i>
-                            <span class="fa-layers-text fg-blue" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z-</span>
+                            <i class="fas fa-arrow-down fg-blue zjogbtn" data-fa-transform="shrink-2 down-8.5"></i>
+                            <span class="fa-layers-text fg-blue zjogbtn" data-fa-transform="shrink-5 up-8" style="font-weight:600">Z-</span>
                           </span>
                         </button>
                       </td>
@@ -905,28 +912,33 @@ Restore previous origins from history.">
 
                     </tr>
                     <tr>
-                      <td colspan='5'>
+                      <td class="4thaxis-active" style="display: none; padding-right:10px;">
+                      <td colspan='3' style="vertical-align:baseline;">
                         <table style="width: 100%;">
                           <tr>
-                            <td><span class="text-small jogbtn">Incremental Jog</span>
-                            </td>
+                            <td style="text-align:right;"><span class="text-small jogbtn">Incremental Jog</span></td>
                             <td class="pb-1">
-                              <label class="toggle" id="toggleJogMode">
+                              <label class="toggle" id="toggleJogMode" style="margin-inline:auto;">
                                 <input class=" jogbtn" type="checkbox" id="jogTypeContinuous" />
                                 <div></div>
                               </label>
                             </td>
-                            <td><span class="text-small jogbtn">Continuous Jog</span>
-                            </td>
+                            <td style="text-align:left;"><span class="text-small jogbtn">Continuous Jog</span></td>
                           </tr>
                         </table>
                       </td>
+                      <td>
+                        <button class="button alert jogbtn ml-2" id="cancelJogBtn" style="width:75px; height:35px; line-height:25px; visibility2:hidden; padding:0px;" onclick="socket.emit('stop', 'jog')">
+                          <i class="fas fa-times-circle"></i>
+                          <span style="font-weight:900;">Stop</span>
+                        </button>
+                      </td>
                     </tr>
                     <tr>
-                      <td class="4thaxis-active" style="display: none;">
+                      <td class="4thaxis-active" style="display:none; padding-right:10px;">
 
                         <div class="pos-relative">
-                          <button class="button light jogbtn distbtn" id="distAAxis" style="width: 100%; height: 25px; line-height: 25px;">
+                          <button class="button light jogbtn distbtn" id="distAAxis" style="width:100%; height:25px; line-height:25px;">
                             <span id="distAAxislabel" class="fg-openbuilds jogdistA" style="font-weight:900; font-family: Arial; font-size: 12px;">A: 10&deg;</span>
                           </button>
                           <ul class="d-menu context drop-shadow drop-bottom" data-role="dropdown">
@@ -970,7 +982,7 @@ Restore previous origins from history.">
                   </table>
                 </div>
 
-                <div class="cell border-left bd-gray" id="jrocell" style="min-width:75px; max-width:100px; display:flex; flex-direction:column; align-items:center; padding-top:3px;">
+                <div class="cell" id="jrocell" style="min-width:75px; max-width:100px; display:flex; flex-direction:column; align-items:center; padding-top:3px;">
                   <button class="button light mini mb-1" onclick="jogOverride(100);">reset</button>
                   <input id="jro" data-on-stop="jogOverride(arguments[0])" data-role="slider" data-accuracy="1" data-vertical="true" data-size="170" data-min="1" data-max="100" data-value="100" data-hint="true" data-hint-always="true"
                     data-hint-position="bottom" data-hint-mask="Jog: $1%" data-cls-hint="bg-light fg-dark shadow-1" data-cls-complete="bg-openbuilds"/>

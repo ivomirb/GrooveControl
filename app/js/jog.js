@@ -5,6 +5,7 @@ var continuousJogRunning = false;
 var safeToUpdateSliders = true;
 var jogRate = {x: 4000, y: 4000, z: 2000, a: 2000};
 var showMCS = false;
+var zJogDisabled = false;
 
 const jogDistArray = [ // must have 4 items
   {mm: 0.1, mmStr: '0.1mm', in: 0.0254, inStr: '0.001"', button: '#dist01', label: '#dist01label'},
@@ -48,6 +49,12 @@ function jogOverride(newVal, temp) {
   }
 }
 
+function evaluateZJogDisable() {
+  zJogDisabled = continuousJogMode ? disableZCont : (disableZDist100 && jogDistIndex == 3);
+  addRemoveClass('.zjogbtn', 'fg-blue', !zJogDisabled);
+  addRemoveClass('.zjogbtn', 'fg-gray', zJogDisabled);
+}
+
 function setJogDist(index) {
   for (let i = 0; i < 4; i++) {
     const jogDist = jogDistArray[i];
@@ -63,11 +70,20 @@ function setJogDist(index) {
   }
   jogDistIndex = index;
   jogdistXYZ = unit == "in" ? jogDistArray[index].in : jogDistArray[index].mm;
+  evaluateZJogDisable();
 }
 
 function setADist(newADist) {
   $('#distAAxislabel').html("A: " + newADist + "&deg;");
-  jogdistA = newADist;
+  jogdistA = parseFloat(newADist);
+}
+
+function jogToggleMode(forceMode) {
+  continuousJogMode = forceMode != undefined ? forceMode : !continuousJogMode;
+  localStorage.setItem('continuousJog', continuousJogMode);
+  $('#jogTypeContinuous').prop('checked', continuousJogMode);
+  $('.distbtn').toggle(!continuousJogMode);
+  evaluateZJogDisable();
 }
 
 function mmMode() {
@@ -115,7 +131,7 @@ function toggleWCS() {
 }
 
 function cancelJog() {
-  socket.emit('stop', {jog: true});
+  socket.emit('stop', 'jog');
   continuousJogRunning = false;
 }
 
@@ -154,7 +170,7 @@ function prettyCoord(val, dec) {
 }
 
 function updateDro(status) {
-  if (!status || status.comms.connectionStatus == 0 || status.comms.connectionStatus == 6) {
+  if (!status || status.comms.connectionStatus < 2) {
     $('#xPos, #yPos, #zPos, #aPos').html('0.00');
     $('#xPosDro, #yPosDro, #zPosDro, #aPosDro').attr('title', '');
     return;
@@ -251,7 +267,7 @@ function onDroKeydown(axis, e) {
   }
 }
 
-function onDroBlur(axis) {
+function onDroLoseFocus(axis) {
   const main = $('#' + axis + 'PosDro');
   const view = $('#' + axis + 'Pos');
   const input = $('#' + axis + 'PosInput');
@@ -402,13 +418,6 @@ function jogDocReady() {
     $('.distbtn').toggle(!continuousJogMode);
   }
 
-  $('#jogTypeContinuous').on('click', function() {
-    continuousJogMode = $(this).is(':checked');
-    localStorage.setItem('continuousJog', continuousJogMode);
-    $('.distbtn').toggle(!continuousJogMode);
-    document.activeElement.blur();
-  });
-
   setJogDist(jogDistIndex);
   if (localStorage.getItem('unitsMode') == "in") {
     inMode();
@@ -417,6 +426,12 @@ function jogDocReady() {
     mmMode();
     $('#mmMode').click();
   }
+  evaluateZJogDisable();
+
+  $('#jogTypeContinuous').on('click', function() {
+    jogToggleMode($(this).is(':checked'));
+    $(this).blur(); // prevent taking focus, otherwise the / shortcut stops working since this is an input field
+  });
 
   $(document).mousedown(function() {
     safeToUpdateSliders = false;
@@ -538,11 +553,11 @@ function jogDocReady() {
   $('#probeyP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'y', jogdistXYZ, 1, "#5de21b", true); });
   $('.yP').on('touchend mouseup', onJogAxisCancel);
 
-  $('#zM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'z', jogdistXYZ, 1, "#1ba1e2", continuousJogMode); });
+  $('#zM').on('touchstart mousedown', (event) => { if (!zJogDisabled) onJogAxisMinus(event, 'z', jogdistXYZ, 1, "#1ba1e2", continuousJogMode); });
   $('#probezM').on('touchstart mousedown', (event) => { onJogAxisMinus(event, 'z', jogdistXYZ, 1, "#1ba1e2", true); });
   $('.zM').on('touchend mouseup', onJogAxisCancel);
 
-  $('#zP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'z', jogdistXYZ, 1, "#1ba1e2", continuousJogMode); });
+  $('#zP').on('touchstart mousedown', (event) => { if (!zJogDisabled)  onJogAxisPlus(event, 'z', jogdistXYZ, 1, "#1ba1e2", continuousJogMode); });
   $('#probezP').on('touchstart mousedown', (event) => {  onJogAxisPlus(event, 'z', jogdistXYZ, 1, "#1ba1e2", true); });
   $('.zP').on('touchend mouseup', onJogAxisCancel);
 
