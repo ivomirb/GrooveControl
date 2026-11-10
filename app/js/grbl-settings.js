@@ -24,7 +24,6 @@ function loadGrblBackupFile() {
   // eslint-disable-next-line no-unused-vars
   invokeOpenDialogReadFile(loadFileParams).then(({filePath, data}) => {
     editedGrblParams = {};
-    $('#grblSettingsAdvTab').click();
     $('#settingsModifiedFilter:checkbox').prop('checked', false);
     toggleModifiedFilter(false);
 
@@ -34,10 +33,13 @@ function loadGrblBackupFile() {
         const parts = line.split('=');
         const key = parts[0].substring(1);
         const value = parts[1];
-        if (grblSettingsTemplate[key] == undefined || grblSettingsTemplate[key].type == "text")
-          $('#val-' + key + '-input').val(value); // treat unknown properties like strings
-        else
-          $('#val-' + key + '-input').val(parseFloat(value));
+        const inputElement = $('#val-' + key + '-input');
+
+        if (grblSettingsTemplate[key] == undefined || grblSettingsTemplate[key].type == "text") {
+          inputElement.val(value); // treat unknown properties like strings
+        } else {
+          inputElement.val(parseFloat(value));
+        }
       }
     }
 
@@ -114,7 +116,6 @@ function restoreAutoBackup(index) {
   const grblParamsBackup = selectedBackup.grblParams;
 
   editedGrblParams = {};
-  $('#grblSettingsAdvTab').click();
   $('#settingsModifiedFilter:checkbox').prop('checked', false);
   toggleModifiedFilter(false);
 
@@ -193,18 +194,14 @@ function grblSaveSettings() {
   const toSaveCommandsFirst = [];
   const toSaveCommandsSecond = [];
   const saveProgressBar = $('#grblSaveProgress').data('progress');
-  for (let key in grblParams) {
-    const j = key.substring(1)
-    const newVal = $('#val-' + j + '-input').val();
-    // Only send values that changed
-    if (newVal !== undefined) {
-      if (parseFloat(newVal) != parseFloat(grblParams[key]) && newVal != grblParams[key]) {
 
-        if (prioritySettings.contains(key))
-          toSaveCommandsFirst.push(key + '=' + newVal);
-        else
-          toSaveCommandsSecond.push(key + '=' + newVal);
-      }
+  // Only send values that changed
+  for (let key in editedGrblParams) {
+    const newVal = editedGrblParams[key];
+    if (prioritySettings.contains(key)) {
+      toSaveCommandsFirst.push(key + '=' + newVal);
+    } else {
+      toSaveCommandsSecond.push(key + '=' + newVal);
     }
   }
 

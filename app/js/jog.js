@@ -75,7 +75,7 @@ function setJogDist(index) {
 
 function setADist(newADist) {
   $('#distAAxislabel').html("A: " + newADist + "&deg;");
-  jogdistA = newADist;
+  jogdistA = parseFloat(newADist);
 }
 
 function jogToggleMode(forceMode) {
