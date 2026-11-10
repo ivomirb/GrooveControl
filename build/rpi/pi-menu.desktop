@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Groove Control
+Version=1.0
+Comment=Groove Control
+Exec=bash -c "cd HOMEDIR/GrooveControl; . HOMEDIR/.nvm/nvm.sh; node_modules/.bin/electron ."
+Icon=HOMEDIR/GrooveControl/app/img/groove-logo_b.svg
+Terminal=false
+Type=Application
+Categories=Other

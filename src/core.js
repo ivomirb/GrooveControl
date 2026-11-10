@@ -40,6 +40,7 @@ config.maxRecentFiles = 10;
 // If you add a new sub-field to the initial settings, it will be destroyed on load
 const persistentConfig = {
   trayIcon: true,
+  trayIconStyle: "light",
   autoStart: true,
   defaultPaths: {},
   recentFiles: [],
@@ -181,6 +182,7 @@ const status = {
   misc: { // information to pass to the frontend
     jobStatus: 0, // 0 - no job, 1 - running, 2 - jog job running (can't be paused)
     trayIcon: true,
+    trayIconStyle: "light",
     autoStart: true,
     enableUpdates: true,
     lastFilePath: "",

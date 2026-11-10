@@ -224,9 +224,10 @@ function onGrbl(firmware) {
 function onJobComplete(data) {
   if (isJogWidget) return;
 
-  if (data.completed && data.jobStartTime && data.jobEndTime) {
+  let runTime = undefined;
+  if (data.jobStartTime && data.jobEndTime) {
     console.log("jobComplete", data)
-    const runTime = data.jobEndTime - data.jobStartTime; // in Milliseconds
+    runTime = data.jobEndTime - data.jobStartTime; // in Milliseconds
     $('#timeRemaining').html("DONE: " + msToTime(runTime));
     let estimateTime = 0;
     if (object && object.userData != undefined) {
@@ -240,14 +241,15 @@ function onJobComplete(data) {
     if (data.failed) {
       completionStatus = "incomplete"
     }
-    console.log("Completed: " + completionStatus + " / Filename: " + loadedFileName + " / Estimated Runtime: " + timeConvert(estimateTime) + " / Streaming Runtime: " + msToTime(runTime) + " / Start Date: " + startDateString + " / End Date: " + endDateString)
+    console.log("Completed: " + completionStatus + " / Filename: " + loadedFileName + " / Estimated Runtime: " +timeConvert(estimateTime) +
+      " / Streaming Runtime: " + msToTime(runTime) + " / Start Date: " + startDateString + " / End Date: " + endDateString);
     const completedJob = {
-      "completed": !data.failed, // Did job complete?
-      "filename": loadedFileName, // File Name
-      "estruntime": estimateTime, // in Minutes
-      "streamruntime": runTime,
-      "startdate": data.jobStartTime,
-      "enddate": data.jobEndTime
+      completed: !data.failed, // Did job complete?
+      filename: loadedFileName, // File Name
+      estruntime: estimateTime, // in Minutes
+      streamruntime: runTime,
+      startdate: data.jobStartTime,
+      enddate: data.jobEndTime
     }
     storeJob(completedJob);
 
@@ -255,37 +257,32 @@ function onJobComplete(data) {
 
   // With jobCompletedMsg Message
   if (data.jobCompletedMsg && data.jobCompletedMsg.length > 0) {
-    let runTime = undefined;
     if (data.jobStartTime && data.jobEndTime) {
       runTime = data.jobEndTime - data.jobStartTime;
       $('#completeMsgDiv').html("Job completed in " + msToTime(runTime) + "<hr>" + data.jobCompletedMsg);
-      $('#timeRemaining').html("DONE: " + msToTime(runTime));
     } else {
       $('#completeMsgDiv').html(data.jobCompletedMsg);
-      $('#timeRemaining').html("DONE: " + msToTime(runTime));
     }
+
     Metro.dialog.open("#completeMsgModal");
+    // Focus Button
+    setTimeout(function() {
+      $('#jobCompleteBtnOk').focus();
+    }, 200)
+
     const icon = ''
     const source = "JOB COMPLETE"
     const string = (runTime != undefined ? "Job completed in " + msToTime(runTime) : "Job completed") + " / " + data.jobCompletedMsg
     const printLogCls = "fg-darkGreen"
     printLogModern(icon, source, string, printLogCls)
-    $('#timeRemaining').html("DONE: " + msToTime(runTime));
   } else if (data.jobStartTime && data.jobEndTime) {
     // Without jobCompletedMsg Message (Normal Job)
-    const runTime = data.jobEndTime - data.jobStartTime;
     const icon = ''
     const source = "JOB COMPLETE"
     const string = "Job completed in " + msToTime(runTime)
     const printLogCls = "fg-darkGreen"
     printLogModern(icon, source, string, printLogCls)
-    $('#timeRemaining').html("DONE: " + msToTime(runTime));
   }
-
-  // Focus Button
-  setTimeout(function() {
-    $('#jobCompleteBtnOk').focus();
-  }, 200)
 
   // Cleanup
   lastJobStartTime = false;
@@ -293,28 +290,17 @@ function onJobComplete(data) {
 
 function onQueueCount(data) {
   // calc percentage
-  const left = data[0]
-  const total = data[1]
+  const left = data[0];
+  const total = data[1];
+  const isJob = data[2];
   const done = total - left;
-  const donepercent = done / total * 100
-  const progressbar = $('#progressbar').data('progress');
-  if (progressbar) {
-    progressbar.val(donepercent);
-  }
+  const donepercent = total > 0 ? (done * 100) / total : 0;
+  $('#progressbar').data('progress').val(donepercent);
 
-  if (laststatus) {
-    if (typeof object !== 'undefined' && done > 0) {
-      if (object.userData !== 'undefined' && object.userData && object.userData.pointCount > 2) {
-        const timeremain = object.userData.totalTime;
-        if (!isNaN(timeremain)) {
-          if (lastJobStartTime) {
-            $('#timeRemaining').html(timeConvert((new Date().getTime() - lastJobStartTime) / 1000 / 60) + " / " + timeConvert(timeremain));
-          }
-        }
-      }
-
-    } else {
-      $('#timeRemaining').empty();
+  if (isJob && !isJogWidget && done > 0 && object?.userData?.pointCount > 2 && lastJobStartTime) {
+    const timeremain = object.userData.totalTime;
+    if (!isNaN(timeremain)) {
+      $('#timeRemaining').html(msToTime(new Date().getTime() - lastJobStartTime) + " / " + timeConvert(timeremain));
     }
   }
   $('#gcodesent').html("Job Queue: " + data[0]);
@@ -526,7 +512,7 @@ function onStatus(status) {
   }
 
   // Windows Power Management
-  if (status.driver.operatingsystem == "windows") {
+  if (status.driver.platform == "win32") {
     $('#powerSettingsCard').show();
     if (status.driver.powersettings.usbselectiveAC == false) {
       $('#selectivesuspendAC').removeClass('alert').addClass('success').html('DISABLED')
@@ -590,7 +576,7 @@ function onStatus(status) {
 
   // Only allow jogging during idle
   $('.jogbtn').attr('disabled', status.comms.connectionStatus != 2);
-  $('.dro').attr('disconnected', status.comms.connectionStatus < 2 || status.comms.connectionStatus == 6);
+  $('.dro').attr('disconnected', status.comms.connectionStatus < 2);
 
   // Allow typing on the console only during idle or alarm
   $('#command, #sendCommand').attr('disabled', status.comms.connectionStatus != 2 && status.comms.connectionStatus != 5);
@@ -598,14 +584,21 @@ function onStatus(status) {
   // Set the Connection Toolbar option
   setConnectBar(status.comms.connectionStatus, status);
   setControlBar(status.comms.connectionStatus, status);
+  $('#cancelJogBtn').css('visibility', (status.comms.connectionStatus == 2 && status.comms.runStatus == "Jog") ? 'visible' : 'hidden');
   if (status.comms.connectionStatus != 5) {
-    bellstate = false
+    bellstate = false;
   }
   if (status.comms.connectionStatus == 0) {
     $('#grblButtons').hide();
     $('#firmwarename').html('');
     if (localStorage.getItem('jogOverride')) {
       jogOverride(localStorage.getItem('jogOverride'));
+    }
+    if (laststatus && laststatus.comms.connectionStatus != 0) {
+      $('#grblconfig').empty();
+      if ($('#grblPanel').is(':visible')) {
+        $('#controlTab').click();
+      }
     }
   }
 
@@ -626,7 +619,7 @@ function onStatus(status) {
   // Enable or disable 4th axis UI elements
   $('.4thaxis-present').toggle(status.machine.has4thAxis);
   $('.4thaxis-active').toggle(status.machine.has4thAxis && !disable4thAxis);
-  $('#jogcell').css('max-width', (status.machine.has4thAxis && !disable4thAxis) ? '427px' : '348px');
+  $('#jogcell').css('max-width', (status.machine.has4thAxis && !disable4thAxis) ? '435px' : '348px');
 
   if (!isJogWidget && (!laststatus || laststatus.misc.trayIcon != status.misc.trayIcon) &&
       (status.driver.platform == 'win32' || status.driver.platform == 'linux')) {
@@ -922,7 +915,7 @@ function populatePortsMenu() {
     } else {
       response += `<optgroup label="USB Ports">`
       for (const port of laststatus.comms.interfaces.ports) {
-        response += `<option value="` + port.path + `">` + port.path.replace("/dev/tty.", "") + ": " + port.note + `</option>`;
+        response += `<option value="` + port.path + `">` + port.path.replace("/dev/tty.", "") + (port.note ? ": " + port.note : "") + `</option>`;
         if (lastGrblPort == port.path) {
           foundPort = true;
         }

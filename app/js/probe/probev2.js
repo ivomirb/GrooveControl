@@ -425,6 +425,7 @@ function probeReportCallback(success, report) {
     message = "Remove the Probe Clip and Probe Plate before continuing.";
   } else if (report.alarm[0] == '5') {
     message = "The probe did not contact the workpiece within the expected travel distance.";
+    socket.emit('clearAlarm', 1);
   } else {
     message = "Unexpected error.";
   }

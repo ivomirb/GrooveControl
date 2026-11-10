@@ -5,6 +5,8 @@ var disable3Dskybox = false;
 var disableConeInterpolation = false;
 var disable3Dgcodepreview = false;
 var disable4thAxis = false;
+var disableZDist100 = false;
+var disableZCont = false;
 
 const disable3Drealtimepos = false; // always false, keep for now, may delete later
 const disable3Dcontrols = false; // always false, keep for now, may delete later
@@ -38,14 +40,14 @@ function updateSettingsState() {
   $('#enable3DgcodepreviewCheck').prop('disabled', disable3DviewerNew);
 
   enableViaClass('#enableConeInterpolationTip', !disable3DviewerNew);
-//  enableViaClass($('#enableConeInterpolation').parent().parent(), !disable3DviewerNew);
-//  enableViaClass($('#enable3DgcodepreviewCheck').parent().parent(), !disable3DviewerNew);
-  if (laststatus.driver.operatingsystem == "linux") {
-    $('#trayIconNote').toggle(laststatus.misc.trayIcon && !$('#enableTrayIconCheck').prop('checked'));
+
+  const trayIcon = $('#enableTrayIconCheck').prop('checked');
+  $('#selectTrayIconStyleCell').toggle(trayIcon);
+  if (laststatus.driver.platform == "linux") {
+    $('#trayIconNote').toggle(laststatus.misc.trayIcon && !trayIcon);
   }
 
   const enableKeyboardShortcuts = $('#enableKeyboardShortcuts').prop('checked');
-
   enableViaClass('#keyboardAssignmentPrompt', enableKeyboardShortcuts);
   enableViaClass('#keyboardAssignmentForm', enableKeyboardShortcuts);
 
@@ -79,22 +81,30 @@ const appSettingsDlg = `
     <button class="button" title="Resets &quot;Don't show this again&quot; for all warning dialogs" onclick="resetWarnings()">Reset Warnings</button>
   </div>
 
-  <div id="osSettings">
+  <div id="startupSettings">
     <div class="row border-top mt-2 bd-dialog">
-      <label class="cell-sm-8 mt-1"><b>OS Integration</b></label>
+      <label class="cell-sm-8 mt-1"><b>Startup</b></label>
     </div>
 
-    <div class="cell-sm-10" style="padding-left:8px;">
-      <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Check for updates on startup" id="enableUpdatesCheck" />
-    </div>
     <div class="row" style="padding-left:8px;">
-      <div class="cell-sm-5" id="enableTrayIconCell">
-        <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Tray Icon" id="enableTrayIconCheck" onclick="updateSettingsState()" />
+      <div class="cell-sm-6">
+        <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Check for updates on startup" id="enableUpdatesCheck" />
       </div>
       <div class="cell-sm-5" id="enableAutoStartCell">
         <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Autostart at Login" id="enableAutoStartCheck" />
       </div>
-      <small class="cell-sm-5" style="margin-top:-4px; display:none;" id="trayIconNote"><i>The tray icon will be fully removed once the app closes</i></small>
+    </div>
+    <div class="row mt-1" id="trayIconCell" style="padding-left:8px; align-items:center;">
+      <div style="margin:0px 12px;">
+        <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Tray Icon" id="enableTrayIconCheck" onclick="updateSettingsState()" />
+      </div>
+      <div id="selectTrayIconStyleCell">
+        <select data-role="select" id="selectTrayIconStyle" data-filter="false" class="compact-options" style="width:120px;">
+          <option value="light" data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px; padding:2px; background-color:#888;' src='./icon_w.png' /> $1</div>"> Light</option>
+          <option value="dark"  data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px; padding:2px; background-color:#888;' src='./icon_b.png' /> $1</div>"> Dark</option>
+        </select>
+      </div>
+      <small style="display:none;" id="trayIconNote"><i>The tray icon will be fully removed once the app closes</i></small>
     </div>
   </div>
 
@@ -115,6 +125,20 @@ Ignored in Laser mode."></span>
         <option value="5">Delay 5 sec (G4 P5)</option>
         <option value="8">Delay 8 sec (G4 P8)</option>
       </select>
+    </div>
+  </div>
+
+  <div class="row ml-3 mt-1">
+    <label class="cell-sm-3" style="padding-left:0px; padding-top:5px;">Disable Z Jog <span class="far fa-question-circle ml-1"
+      title="You can disable the Z jog buttons for large step sizes or in continuous jogging mode.
+This is a safety feature to prevent accidental plunge down into the table."></span>
+      :
+    </label>
+    <div class="cell-sm-4">
+      <input type="checkbox" data-role="checkbox" data-style="2" data-caption="For large step sizes" id="disableZDist100Check"/>
+    </div>
+    <div class="cell-sm-4">
+      <input type="checkbox" data-role="checkbox" data-style="2" data-caption="In continuous mode" id="disableZContCheck"/>
     </div>
   </div>
 
@@ -187,9 +211,9 @@ function applyAppSettings() {
   localStorage.setItem('disable3Dgcodepreview', disable3Dgcodepreview);
   localStorage.setItem('disableConeInterpolation', disableConeInterpolation);
 
-  if (laststatus.driver.operatingsystem == "windows" || laststatus.driver.operatingsystem == "linux") {
-    socket.emit('trayIcon', $('#enableTrayIconCheck').prop('checked'));
-    if (laststatus.driver.operatingsystem == "windows") {
+  if (laststatus.driver.platform == "win32" || laststatus.driver.platform == "linux") {
+    socket.emit('trayIcon', {enabled: $('#enableTrayIconCheck').prop('checked'), style: $('#selectTrayIconStyle').val()});
+    if (laststatus.driver.platform == "win32") {
       socket.emit('autoStart', $('#enableAutoStartCheck').prop('checked'));
     }
   }
@@ -201,6 +225,11 @@ function applyAppSettings() {
 
   spindleDelay(parseInt($('#spindleDelay').val()));
 
+  disableZDist100 = $('#disableZDist100Check').prop('checked');
+  disableZCont = $('#disableZContCheck').prop('checked');
+  localStorage.setItem('disableZjog', JSON.stringify({dist100: disableZDist100, cont: disableZCont}));
+  evaluateZJogDisable();
+
   const themeId = $('#selectTheme').val();
   if (themeId != ThemeData.currentThemeId) {
     Theme.set(themeId);
@@ -210,7 +239,7 @@ function applyAppSettings() {
   updateButtonTooltips();
 
   if (reload) {
-    location.reload();
+    reloadPage();
   }
 }
 
@@ -236,7 +265,7 @@ function showAppSettings(category) {
     clsDialog: 'dark',
     title: "<i class='fas fa-cog'></i> Settings",
     content: appSettingsDlg,
-    width: 600,
+    width: 650,
     actions: [
       {
         caption: "OK",
@@ -262,20 +291,24 @@ function showAppSettings(category) {
   $('#enable3DgcodepreviewCheck').prop('checked', !disable3Dgcodepreview);
   $('#enableConeInterpolation').prop('checked', !disableConeInterpolation);
 
-  if (laststatus.driver.operatingsystem == "windows" || laststatus.driver.operatingsystem == "linux") {
+  if (laststatus.driver.platform == "win32" || laststatus.driver.platform == "linux") {
     $('#enableTrayIconCheck').prop('checked', laststatus.misc.trayIcon);
-    if (laststatus.driver.operatingsystem == "windows") {
+    $('#selectTrayIconStyle').val(laststatus.misc.trayIconStyle);
+    if (laststatus.driver.platform == "win32") {
       $('#enableAutoStartCheck').prop('checked', laststatus.misc.autoStart);
     } else {
       $('#enableAutoStartCell').hide();
     }
   } else {
-    $('#enableTrayIconCheckCell').hide();
-    $('#enableAutoStartCheckCell').hide();
+    $('#trayIconCell').hide();
+    $('#enableAutoStartCell').hide();
   }
   $('#enableUpdatesCheck').prop('checked', laststatus.misc.enableUpdates);
 
   $('#spindleDelay').val(laststatus.misc.spindleDelay);
+
+  $('#disableZDist100Check').prop('checked', disableZDist100);
+  $('#disableZContCheck').prop('checked', disableZCont);
 
   $('#disable4thAxisCheck').prop('checked', disable4thAxis);
 
@@ -299,6 +332,12 @@ function initSettings() {
   disable4thAxis = localStorage.getItem('disable4thAxis') != null  && (JSON.parse(localStorage.getItem('disable4thAxis')) == true);
 
   $('#runSimBtn').parent().toggle(!disable3Dgcodepreview);
+
+  if (localStorage.getItem('disableZjog')) {
+    const disableZjog = JSON.parse(localStorage.getItem('disableZjog'));
+    disableZDist100 = disableZjog.dist100 == true;
+    disableZCont = disableZjog.cont == true;
+  }
 
   if (localStorage.getItem('disabledWarnings')) {
     const warnings = JSON.parse(localStorage.getItem('disabledWarnings'));

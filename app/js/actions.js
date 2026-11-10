@@ -127,13 +127,25 @@ const inputActions = [
     },
   },
 
+  { // Stop Jog
+    name: "jogstop",
+    friendlyName: "Stop Jog",
+    label: `<i class="fas fa-times-circle fg-red fa-fw"></i> Stop Jog`,
+    defaultKey: "*",
+    keydown: () => {
+      if (laststatus && laststatus.comms.connectionStatus == 2 && laststatus.comms.runStatus == "Jog") {
+        socket.emit('stop', 'jog');
+      }
+    },
+  },
+
   { // Abort
     name: "estop",
     friendlyName: "Abort",
     label: `<i class="far fa-hand-paper fg-red fa-fw"></i> Abort`,
     defaultKey: "esc",
     keydown: () => {
-      socket.emit('stop', {abort: true});
+      socket.emit('stop', 'abort');
     },
   },
 
@@ -177,7 +189,7 @@ const inputActions = [
     defaultKey: "y",
     keydown: () => {
       if (laststatus && (laststatus.comms.connectionStatus == 3 || laststatus.comms.connectionStatus == 4)) {
-        socket.emit('stop', {stop: true});
+        socket.emit('stop', 'stop');
       }
     },
   },
@@ -341,6 +353,11 @@ const shortcutTooltips = [
     tooltip2: "Decrease $stepM\nIncrease $stepP",
   },
   {
+    id: '#cancelJogBtn',
+    tooltip: "Stop a jog move in progress",
+    tooltip2: "$jogstop",
+  },
+  {
     id: '*:has(>#jro)',
     tooltip: "Jog speed",
     tooltip2: "Decrease $jogSpeedM\nIncrease $jogSpeedP",
@@ -401,7 +418,7 @@ const shortcutTooltips = [
   },
   {
     id: '#chkSize',
-    tooltip: "Outlines the bounding area of the loaded job",
+    tooltip: "Outlines the XY bounding area of the loaded job\nSafety tip: Before you run this, raise the spindle to a sufficient height to avoid any obstacles",
     tooltip2: "$checkSize",
   },
   {
@@ -507,13 +524,6 @@ function jogStepSize(dir) {
   continuousJogMode = false;
   $('.distbtn').show();
   changeStepSize(dir);
-}
-
-function jogToggleMode() {
-  continuousJogMode = !continuousJogMode;
-  localStorage.setItem('continuousJog', continuousJogMode);
-  $('#jogTypeContinuous').prop('checked', continuousJogMode);
-  $('.distbtn').toggle(!continuousJogMode);
 }
 
 function advanceProbeSequence() {

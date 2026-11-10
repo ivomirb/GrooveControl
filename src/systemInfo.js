@@ -1,7 +1,7 @@
 // systemInfo.js handles the collection and broadcast of the system info
 
 // System dependencies
-import path from "path";
+import path from 'path';
 import os from 'os';
 import si from 'systeminformation';
 import {

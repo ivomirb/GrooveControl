@@ -49,6 +49,8 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** Corrected the calculations and improved the safety of the "goto zero" buttons
 * **Improvement:** More accurate machine limits, compatible with a variety of homing settings for Grbl, GrblHAL and FluidNC
 * **Improvement:** The Pause and Stop buttons remain available until the very end of the job
+* **Improvement:** The Z jog buttons can be disabled for the largest jog step to prevent accidental plunge
+* **Improvement:** A new button to safely cancel a jog move
 * **Improvement:** A new setting to hide the controls for the 4th axis if it is supported, but not used
 * **Improvement:** The "Recover from line" feature is smarter and more reliable
 * **Improvement:** Doesn't reset the "recently homed" status for errors and alerts that don't invalidate the machine position
@@ -136,10 +138,10 @@ Some are standalone versions of the new Groove features, which can be added to t
 * **Smart Home** - Prevents accidental homing and allows homing single axis if supported
 * **Open File** - Removes the dropdown from the Open G-code button
 * **StoreWcs** - Stores the work origin of the last job. This is a simplified version of the new origin history feature
+* **Disable Z** - Disables the Z jog buttons for large step sizes (a safety feature)
 
 Others are new features that can be added to either Groove or the original OpenBuilds:
 
-* **Disable Z** - Disables the Z jog buttons for large step sizes (a safety feature)
 * **Measure Z** - Measures the height of a surface without changing the work zero
 * **Find Hole Center** - Fast and precise method for finding the center of a circular or rectangular hole
 * **Spindle Delay** - Inserts a short delay after the spindle starts, without using the G4 command. Useful for hardware that has problems with G4.
