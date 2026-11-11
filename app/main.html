@@ -1403,13 +1403,14 @@ Restore previous origins from history.">
       <ul class="d-menu context drop-shadow pos-fixed" id="macroContextMenu" data-role="dropdown" data-toggle-element="#macroContextToggle">
         <li onclick="editMacro(macroMenuIdx)"><a href="#"><i class="fas fa-edit icon"></i> Edit Macro</span></a></li>
         <li class="divider"></li>
-        <li id="moveMacroLeft" onclick="moveMacro(macroMenuIdx, -1)"><a href="#"><i class='fas fa-fw fa-arrow-left icon'></i> Move Left</a></li>
-        <li id="moveMacroRight" onclick="moveMacro(macroMenuIdx, 1)"><a href="#"><i class='fas fa-fw fa-arrow-right icon'></i> Move Right</a></li>
-        <li onclick="moveMacroToGroup(macroMenuIdx)"><a href="#"><i class="mif-books mif-1g icon" style="margin-top:-8px;"></i> Move To Group</span></a></li>
+        <li id="moveMacroLeft" onclick="moveMacro(macroMenuIdx, -1)"><a href="#"><i class='fas fa-fw fa-arrow-left icon'></i> Sort: Move Left</a></li>
+        <li id="moveMacroRight" onclick="moveMacro(macroMenuIdx, 1)"><a href="#"><i class='fas fa-fw fa-arrow-right icon'></i> Sort: Move Right</a></li>
         <li class="divider"></li>
         <li onclick="backupMacro(macroMenuIdx)"><a href="#"><i class="fas fa-save icon"></i> Export Macro</span></a></li>
         <li class="divider"></li>
         <li onclick="confirmMacroDelete(macroMenuIdx)" class="fg-red"><a href="#"><i class="fas fa-trash icon"></i> Delete Macro</span></a></li>
+        <li class="divider"></li>
+        <li onclick="moveMacroToGroup(macroMenuIdx)"><a href="#"><i class="mif-books mif-1g icon" style="margin-top:-8px;"></i> Move To Group</span></a></li>
         <span id="macroContextMenuItems">
           <!-- Items here -->
         </span>

@@ -12,11 +12,6 @@
 // The rest of the groups are sorted alphabetically.
 // To control the order, name the groups like "1. Setup", "2. Probing", etc.
 
-if ((typeof APP_NAME == "string") && APP_NAME == "Groove Control")
-{
-	throw "The Macro Manager macro is not compatible with Groove Control";
-}
-
 var g_TabVisibility = 2; // 0 - hidden, 1 - horizontal, 2 - vertical
 var g_CurrentGroupLower = ""; // empty when g_TabVisibility is 0
 

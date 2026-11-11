@@ -2,11 +2,6 @@
 // Also adds options to home single axis if the firmware supports it.
 // Set it to run on startup.
 
-if ((typeof APP_NAME == "string") && APP_NAME == "Groove Control")
-{
-	throw "The Smart Home macro is not compatible with Groove Control";
-}
-
 const ENABLE_SINGLE_AXIS_HOMING = true; // set to false to disable the feature
 
 const homeSingleMenu = `
