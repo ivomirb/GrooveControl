@@ -257,9 +257,9 @@ function editMacro(buttonIdx, fileName, script) {
               <textarea wrap="off" id="macrogcode" type="text" value="` + gcode + `" style="overflow-y: auto; height: calc(100vh - 540px); resize: none;" rows="4"  data-editable="true"></textarea>
             </div>
             <div id="macroJavascriptEditField" style="display:none;" >
-              <span class="text-small">Enter Javascript to execute</span><br>
-              <span class="text-small">Tip: Prototype your code using (Ctrl+Shift+i > Console)</span>
-              <textarea wrap="off" id="macrojs" type="text" value="" style="overflow-y: auto; height: calc(100vh - 592px); resize: none; tab-size: 2;" rows="4"  data-editable="true"></textarea>
+              <span class="text-small">Enter JavaScript code to execute</span>
+              <span class="far fa-question-circle" title="You can prototype your code using the browser's development console. Press Ctrl+Shift+I to activate it."></span>
+              <textarea wrap="off" id="macrojs" type="text" value="" style="overflow-y: auto; height: calc(100vh - 568px); resize: none; tab-size: 2;" rows="4"  data-editable="true"></textarea>
               <div class="row">
                 <div style="margin-left:12px;">
                   <input type="checkbox" data-role="checkbox" data-caption="Autorun on startup" data-caption-position="left" data-style="2" id="jsRunOnStartup" ` + jsrunonstartup + `>
@@ -268,8 +268,8 @@ function editMacro(buttonIdx, fileName, script) {
                 <div style="margin-left:12px;">
                   <input type="checkbox" data-role="checkbox" data-caption="Can run while a job is in progress" data-caption-position="left" data-style="2" id="jsRunAlways" ` + jsrunalways + `>
                 </div>
-                <span class="far fa-question-circle ml-1 mt-2" title="Normally macros are disabled while a job is running because most of the functionality is not available.
-This setting is for the rare case where you have a macro that is needed during that time, for example for some emergency action."></span>
+                <span class="far fa-question-circle ml-1 mt-2" title="Normally macros are disabled while a job is actively streaming because most of the functionality will interfere with the operation.
+This setting is for the rare cases when you have a macro that is needed during that time, for example for some emergency action."></span>
               </div>
             </div>
           </div>
@@ -426,14 +426,14 @@ function runJsMacro(macroIdx) {
 function runMacro(macroIdx) {
   const macro = buttonsarray[macroIdx];
   if (macro.codetype == "gcode") {
-    if (laststatus && laststatus.comms.connectionStatus == 3) {
-      Metro.toast.create("Macro <b>" + macro.title + "</b> is a G-code macro. It cannot run while a job is in progress.", null, 3000, "bg-darkRed fg-white")
+    if (laststatus && laststatus.comms.connectionStatus != 2) {
+      Metro.toast.create("Macro <b>" + macro.title + "</b> is a G-code macro. It can only run when the machine is idle.", null, 3000, "bg-darkRed fg-white")
       return;
     }
     sendGcode(macro.gcode);
   } else if (macro.codetype == "javascript") {
     if (macro.jsrunonstartup) {
-      Metro.toast.create("Macro <b>" + macro.title + "</b> is an autorun macro, it runs when Groove Control starts. You cannot run it using the button.", null, 3000, "bg-darkRed fg-white")
+      Metro.toast.create("Macro <b>" + macro.title + "</b> is an autorun macro and runs when Groove Control starts. You cannot run it manually.", null, 3000, "bg-darkRed fg-white")
     } else if (laststatus && laststatus.comms.connectionStatus == 3 && !macro.jsrunalways) {
       Metro.toast.create("Macro <b>" + macro.title + "</b> is not allowed to run while a job is in progress.", null, 3000, "bg-darkRed fg-white")
     } else {
