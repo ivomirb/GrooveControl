@@ -6,6 +6,11 @@
 //   Hooks more keyboard actions that might affect the step size
 //   The code is streamlined and less stateful
 
+if ((typeof APP_NAME == "string") && APP_NAME == "Groove Control")
+{
+	throw "The DisableZ macro is not compatible with Groove Control";
+}
+
 $(document).ready(function()
 {
 	$('#zM').before('<button class="button light square xlarge m-0 ml-2" id="zM2" />');
