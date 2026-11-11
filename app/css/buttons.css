@@ -217,10 +217,10 @@ hr {
 }
 
 /* Blanket graying out of directly or indirectly disabled elements*/
-.disabled:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn, .command-button-macro),
-[disabled]:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn, .command-button-macro),
-.disabled:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn, .command-button-macro) *:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn, .command-button-macro),
-[disabled]:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn, .command-button-macro) *:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn, .command-button-macro) {
+.disabled:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn),
+[disabled]:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn),
+.disabled:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn) *:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn),
+[disabled]:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn) *:not(.success, .alert, .warning, .info, .secondary, .jogcursorbtn) {
   color: #999 !important;
 }
 
@@ -230,131 +230,6 @@ hr {
 [disabled] .fg-openbuilds:not(.success, .info),
 {
   color: #999 !important;
-}
-
-/* Explicit colors for macro buttons */
-
-/* Default */
-.command-button-macro {
-  color: #1d1d1d !important;
-  background-color: #f8f8f8 !important;
-  border-color: #a0a0a0 !important;
-}
-
-.command-button-macro:hover {
-  color: #1d1d1d !important;
-  background-color: #dfdfdf !important;
-  border-color: #1d1d1d !important;
-}
-
-.command-button-macro .icon,
-.command-button-macro .caption {
-  color: inherit !important;
-}
-
-/* Primary (Blue) */
-.command-button-macro.primary {
-  color: #0366d6 !important;
-  border-color: #0366d6 !important;
-}
-
-.command-button-macro.primary:hover {
-  color: #fff !important;
-  background-color: #024ea4 !important;
-}
-
-
-/* Info (Light Blue) */
-.command-button-macro.info {
-  color: #5ebdec !important;
-  border-color: #5ebdec !important;
-}
-
-.command-button-macro.info:hover {
-  color: #fff !important;
-  background-color: #1891cb !important;
-}
-
-/* Secondary (Blue Gray) */
-.command-button-macro.secondary {
-  color: #607d8b !important;
-  border-color: #607d8b !important;
-}
-
-.command-button-macro.secondary:hover {
-  color: #fff !important;
-  background-color: #4b626d !important;
-}
-
-/* Success (Green) */
-.command-button-macro.success {
-  color: #60a917 !important;
-  border-color: #60a917 !important;
-}
-
-.command-button-macro.success:hover {
-  color: #fff !important;
-  background-color: #477c11 !important;
-}
-
-/* Alert (Red) */
-.command-button-macro.alert {
-  color: #ce352c !important;
-  border-color: #ce352c !important;
-}
-
-.command-button-macro.alert:hover {
-  color: #fff !important;
-  background-color: #a42a23 !important;
-}
-
-/* Orange (Warning) */
-.command-button-macro.warning {
-  color: #ff9447 !important;
-  border-color: #ff9447 !important;
-}
-
-.command-button-macro.warning:hover {
-  color: #fff !important;
-  background-color: #ff7615 !important;
-}
-
-/* Yellow */
-.command-button-macro.yellow {
-  color: #ffc700 !important;
-  border-color: #ffc700 !important;
-}
-
-.command-button-macro.yellow:hover {
-  color: #fff !important;
-  background-color: #ffd951 !important;
-}
-
-/* Dark */
-.command-button-macro.dark {
-  color: #505050 !important;
-  border-color: #505050 !important;
-}
-
-.command-button-macro.dark:hover {
-  color: #fff !important;
-  background-color: #373737 !important;
-}
-
-/* Light */
-.command-button-macro.light {
-  color: #808080 !important;
-  border-color: #808080 !important;
-}
-
-.command-button-macro.light:hover {
-  color: #fff !important;
-  background-color: #d0d0d0 !important;
-}
-
-.command-button-macro.disabled
-{
-  color: #909090 !important;
 }
 
 /* The default margin of 0.65rem rounds weird and causes misalignment */

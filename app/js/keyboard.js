@@ -44,6 +44,10 @@ function onDocKeyDown(event) {
     return;
   }
 
+  if (disableKeyboardShortcuts) {
+    return;
+  }
+
   if (event.originalEvent.repeat) {
     return; // ignore auto-repeat
   }
@@ -59,22 +63,20 @@ function onDocKeyDown(event) {
     return;
   }
 
-  if (!disableKeyboardShortcuts) {
-    for (const action of inputActions) {
-      if (keyboardShortcuts[action.name] == key && action.keydown) {
-        if (!dlgVisible || dlgContext[action.dlgContext]) {
-          event.preventDefault();
-          if (keyboardUpAction) {
-            keyboardUpAction.keyup();
-            keyboardUpAction = undefined;
-          }
-          action.keydown();
-          if (action.keyup) {
-            keyboardUpAction = action;
-          }
+  for (const action of inputActions) {
+    if (keyboardShortcuts[action.name] == key && action.keydown) {
+      if (!dlgVisible || dlgContext[action.dlgContext]) {
+        event.preventDefault();
+        if (keyboardUpAction) {
+          keyboardUpAction.keyup();
+          keyboardUpAction = undefined;
         }
-        return;
+        action.keydown();
+        if (action.keyup) {
+          keyboardUpAction = action;
+        }
       }
+      return;
     }
   }
 
