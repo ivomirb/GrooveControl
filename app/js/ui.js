@@ -98,7 +98,7 @@ function setConnectBar(val, status) {
     $('#connectBtn').attr('disabled', $('#portUSB').val() == "");
     $('#portUSB').parent('.select').addClass('success');
     $('#portUSB').parent('.select').removeClass('alert');
-    enableViaClass('.macrobtn', true);
+    enableViaClass('.macrobtn-grbl,.macrobtn-js', true);
     enableViaClass('.grblCalibrationMenu', false);
 
     if (!wcsHistoryEmpty) {
@@ -124,7 +124,8 @@ function setConnectBar(val, status) {
     // Set Port Dropdown to Current Value
     $('#portUSB').val(status.comms.interfaces.activePort);
 
-    enableViaClass('.macrobtn', val != 3); // disable macros while running
+    enableViaClass('.macrobtn-grbl', val == 2);
+    enableViaClass('.macrobtn-js', val != 3);
     enableViaClass('.grblCalibrationMenu', val == 2); // enable calibration only during idle
   }
 }

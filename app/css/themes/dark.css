@@ -345,6 +345,126 @@ body.theme_dark, .theme_dark div.window, .theme_dark .card {
   color: #FFF;
 }
 
+/* Explicit colors for macro buttons */
+.theme_dark .command-button-macro {
+  color: #ddd !important;
+  background-color: #222 !important;
+  border-color: #ddd !important;
+}
+
+.theme_dark .command-button-macro:hover {
+  color: #ddd !important;
+  background-color: #373737 !important;
+  border-color: #ddd !important;
+}
+
+/* Primary (Blue) */
+.theme_dark .command-button-macro.primary {
+  color: #0366d6 !important;
+  border-color: #0366d6 !important;
+}
+
+.theme_dark .command-button-macro.primary:hover {
+  color: #fff !important;
+  background-color: #024ea4 !important;
+}
+
+
+/* Info (Light Blue) */
+.theme_dark .command-button-macro.info {
+  color: #5ebdec !important;
+  border-color: #5ebdec !important;
+}
+
+.theme_dark .command-button-macro.info:hover {
+  color: #fff !important;
+  background-color: #1891cb !important;
+}
+
+/* Secondary (Blue Gray) */
+.theme_dark .command-button-macro.secondary {
+  color: #607d8b !important;
+  border-color: #607d8b !important;
+}
+
+.theme_dark .command-button-macro.secondary:hover {
+  color: #fff !important;
+  background-color: #4b626d !important;
+}
+
+/* Success (Green) */
+.theme_dark .command-button-macro.success {
+  color: #60a917 !important;
+  border-color: #60a917 !important;
+}
+
+.theme_dark .command-button-macro.success:hover {
+  color: #fff !important;
+  background-color: #477c11 !important;
+}
+
+/* Alert (Red) */
+.theme_dark .command-button-macro.alert {
+  color: #ce352c !important;
+  border-color: #ce352c !important;
+}
+
+.theme_dark .command-button-macro.alert:hover {
+  color: #fff !important;
+  background-color: #a42a23 !important;
+}
+
+/* Orange (Warning) */
+.theme_dark .command-button-macro.warning {
+  color: #ff9447 !important;
+  border-color: #ff9447 !important;
+}
+
+.theme_dark .command-button-macro.warning:hover {
+  color: #fff !important;
+  background-color: #ff7615 !important;
+}
+
+/* Yellow */
+.theme_dark .command-button-macro.yellow {
+  color: #ffc700 !important;
+  border-color: #ffc700 !important;
+}
+
+.theme_dark .command-button-macro.yellow:hover {
+  color: #fff !important;
+  background-color: #c7a93c !important;
+}
+
+/* Dark */
+.theme_dark .command-button-macro.dark {
+  color: #505050 !important;
+  border-color: #808080 !important;
+}
+
+.theme_dark .command-button-macro.dark:hover {
+  color: #fff !important;
+  background-color: #373737 !important;
+}
+
+/* Light */
+.theme_dark .command-button-macro.light {
+  color: #808080 !important;
+  border-color: #808080 !important;
+}
+
+.theme_dark .command-button-macro.light:hover {
+  color: #fff !important;
+  background-color: #a0a0a0 !important;
+}
+
+.theme_dark .command-button-macro.disabled
+{
+  color: #808080 !important;
+  opacity: 0.65 !important;
+}
+
+
 .theme_dark .ace_line {
   color: #FFF !important;
 }
