@@ -1221,6 +1221,21 @@ function sendAnalogJogCommand() {
   }
 }
 
+/*
+data.dx, data.dy, data.dz - analog move between -1 and 1. moving on all 3 axes should work, however the joystick only does XY and Z separately
+data.setting = {
+  minX: 0, // in mm
+  maxX: 400,
+  minY: 0,
+  maxY: 400,
+  minZ: 0,
+  maxZ: -100,
+  enableLimits: true, // ignores min and max if false
+  speedXY: 4000, // in mm/min
+  speedZ: 100, // in mm/min
+};
+*/
+
 function onAnalogJog(data) {
   if (data.stop) {
     if (analogJogState == 1) {
@@ -1258,15 +1273,28 @@ function onAnalogJog(data) {
   }
 }
 
+function scaleMpgValue(x) {
+  if (mpgJogSettings.work) {
+    x -= status.machine.position.offset[mpgJogSettings.axis];
+  }
+  x /= mpgJogSettings.resolution;
+  return x;
+}
+
+function unscaleMpgValue(x) {
+  x *= mpgJogSettings.resolution;
+  if (mpgJogSettings.work) {
+    x += status.machine.position.offset[mpgJogSettings.axis];
+  }
+  return x;
+}
+
 function sendMpgJogCommand() {
   let stepCount = 0;
   let targetValue = mpgJogValue;
   const stepTime = Math.abs(mpgJogSettings.step * 60) / mpgJogSettings.speed; // seconds per step
 
   let curValue = status.machine.position.work[mpgJogSettings.axis] + status.machine.position.offset[mpgJogSettings.axis];
-  if (mpgJogSettings.units == "in") {
-    curValue /= 25.4;
-  }
 
   let timeLeft = (mpgJogSettings.timeout - new Date().getTime()) / 1000;
   timeLeft -= (Math.abs(curValue - mpgJogValue) * 60) / mpgJogSettings.speed;
@@ -1274,13 +1302,25 @@ function sendMpgJogCommand() {
   while (timeLeft > 0 && mpgJogSettings.count > 0) {
     mpgJogSettings.count--;
     let nextValue = targetValue + mpgJogSettings.step;
-    let valid;
-    if (!mpgJogSettings.enableLimits) {
-      valid = true;
-    } else if (mpgJogSettings.step < 0) {
-      valid = (nextValue >= mpgJogSettings.min);
-    } else {
-      valid = (nextValue <= mpgJogSettings.max);
+    let valid = true;
+    if (mpgJogSettings.enableLimits) {
+      if (mpgJogSettings.step < 0) {
+        if (nextValue < mpgJogSettings.min) {
+          if (Math.round(scaleMpgValue(nextValue)) == Math.round(scaleMpgValue(mpgJogSettings.min))) {
+            nextValue = mpgJogSettings.min;
+          } else {
+            valid = false;
+          }
+        }
+      } else {
+        if (nextValue > mpgJogSettings.max) {
+          if (Math.round(scaleMpgValue(nextValue)) == Math.round(scaleMpgValue(mpgJogSettings.max))) {
+            nextValue = mpgJogSettings.max;
+          } else {
+            valid = false;
+          }
+        }
+      }
     }
 
     if (valid) {
@@ -1294,8 +1334,7 @@ function sendMpgJogCommand() {
   }
 
   if (stepCount > 0) {
-    const gcode = "$J=G90 G53 " + (mpgJogSettings.units == "in" ? "G20 " : "G21 ") +
-      mpgJogSettings.axis.toUpperCase() + targetValue.toFixed(3) + " F" + mpgJogSettings.speed.toFixed(0) + "\n";
+    const gcode = "$J=G53 G90 G21 " + mpgJogSettings.axis.toUpperCase() + targetValue.toFixed(3) + " F" + mpgJogSettings.speed.toFixed(0) + "\n";
     machineSendRealtime(gcode);
     mpgJogValue = targetValue;
     if (mpgJogState == 0) {
@@ -1304,25 +1343,40 @@ function sendMpgJogCommand() {
   }
 }
 
+/*
+data = {
+  axis: 'X', // Y, Z, A
+  min: -400, // always in mm
+  max: 0, // always in mm
+  enableLimits: true, // ignores min and max if false
+  work: true, // true for work space, false for MCS
+  resolution: 0.0254, // the value of the least significant digit in the display - 0.0254 for 0.001 inches, 0.01 for 0.01mm
+  step: step, // step size in mm (can be negative)
+  count: count, // number of steps
+  speed: 1000, // feed rate in mm/min
+  timeout: 500, // stop after this many milliseconds after the last command (smaller for more responsive stop, but steps may be missed)
+};
+*/
+
 function onMpgJog(data) {
   if (mpgJogState != 0) {
-    if (mpgJogSettings.axis == data.axis && mpgJogSettings.units == data.units && mpgJogSettings.step == data.step) {
+    if (mpgJogSettings.axis == data.axis && mpgJogSettings.step == data.step && mpgJogSettings.work == data.work) {
       // same axis, units and step size: add to the count
       data.count += mpgJogSettings.count;
     } else {
       return; // otherwise ignore
     }
+    mpgJogSettings = data;
   } else {
     if (status.comms.runStatus != "Idle") {
       return; // need to be idle to start
     }
+
+    mpgJogSettings = data;
     mpgJogValue = status.machine.position.work[data.axis] + status.machine.position.offset[data.axis];
-    if (data.units == "in") {
-      mpgJogValue /= 25.4;
-    }
+    mpgJogValue = unscaleMpgValue(Math.round(scaleMpgValue(mpgJogValue)));
   }
 
-  mpgJogSettings = data;
   mpgJogSettings.timeout += new Date().getTime();
   sendMpgJogCommand();
 }
