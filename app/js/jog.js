@@ -306,7 +306,7 @@ function onJogAxisMinus(event, axis, jogdist, pulloffOverride, ripple, continuou
       toastJogNotIdle();
     }
   } else {
-    sendGcode("$J=G91 G21 " + Axis + (-jogdist).toFixed(2) + " F" + jogRate[axis]);
+    sendGcode("$J=G91 G21 " + Axis + (-jogdist) + " F" + jogRate[axis]);
     rippleEffect($(event.currentTarget), ripple);
   }
   $('#runNewProbeBtn').addClass('disabled');
@@ -342,7 +342,7 @@ function onJogAxisPlus(event, axis, jogdist, pulloffOverride, ripple, continuous
       toastJogNotIdle();
     }
   } else {
-    sendGcode("$J=G91 G21 " + Axis + jogdist.toFixed(2) + " F" + jogRate[axis]);
+    sendGcode("$J=G91 G21 " + Axis + jogdist + " F" + jogRate[axis]);
     rippleEffect($(event.currentTarget), ripple);
   }
   $('#runNewProbeBtn').addClass('disabled');
