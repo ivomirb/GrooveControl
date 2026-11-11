@@ -152,9 +152,10 @@ These steps work for Windows and Linux, and I suspect it is the same for Mac:
 * Install a recent version of node js (22 or above should work)
 * Install git
 * Clone the repo
-* Run the command "npm install"
-* Run the app locally with the command `"node_modules\.bin\electron ."`
-* Build a package with the command `"node_modules\.bin\electron-builder"`
+* Run the command `npm install`
+* Run the app locally with the command `node_modules\.bin\electron .`
+* Build a package with the command `node_modules\.bin\electron-builder`<br>
+  The package will be created in the `dist\` folder.
 * Linux may require a few extra steps to adjust ownership and permissions<br>
   `sudo chown root:root node_modules/electron/dist/chrome-sandbox`<br>
   `sudo chmod 4755 node_modules/electron/dist/chrome-sandbox`
