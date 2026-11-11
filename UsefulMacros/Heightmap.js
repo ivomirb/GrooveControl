@@ -1,3 +1,13 @@
+// This macro adds a button to the 3d view for creating heightmaps. It helps with milling on a curved or uneven surface.
+// It uses a probe to measure the height of the surface at multiple points and then applies that information to modify the G-code.
+// This is useful for example when engraving a PCB where the depth of cut is critical to producing accurate results.
+// Set it to run on startup or activate it as needed.
+
+if ((typeof APP_NAME == "string") && APP_NAME == "Groove Control")
+{
+	throw "The Heightmap macro is not compatible with Groove Control";
+}
+
 const PRIMARY_GRID_COLOR = 0xF6A91C;
 const SECONDARY_GRID_COLOR = 0x1CB9F6;
 const FACE_COLOR = 0x1CB9F6;

@@ -62,7 +62,7 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **New Feature:** New button to reload the current G-code file or load from a list of recent files
 * **Improvement:** Removed the dropdown menu from the Open G-code button to save unnecessary mouse click
 * **Improvement:** New dialog for editing all application settings in one place
-* **Improvement:** Allow clearing the key assignment in the keyboard shortcut editor and the macro editor
+* **Improvement:** Allow clearing the key assignment in the keyboard shortcut editor
 * **Improvement:** The keyboard shortcuts are included in the button tooltips to make them more discoverable
 * **Improvement:** New settings to disable the autostart and the tray icon, making it behave like a regular desktop app
 * **Improvement:** Windows installer setting to control the file associations for G-code file extensions
@@ -153,9 +153,11 @@ These steps work for Windows and Linux, and I suspect it is the same for Mac:
 * Install git
 * Clone the repo
 * Run the command "npm install"
-* Run the app locally with the command "node_modules\\.bin\electron ."
-* Build a package with the command "node_modules\\.bin\electron-builder"
-* Linux may require a few extra steps to adjust ownership and permissions
+* Run the app locally with the command `"node_modules\\.bin\electron ."`
+* Build a package with the command `"node_modules\\.bin\electron-builder"`
+* Linux may require a few extra steps to adjust ownership and permissions<br>
+  `sudo chown root:root node_modules/electron/dist/chrome-sandbox`<br>
+  `sudo chmod 4755 node_modules/electron/dist/chrome-sandbox`
 
 ## Roadmap
 

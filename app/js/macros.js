@@ -3,6 +3,7 @@
 var buttonsarray = [];
 var macroCodeType = "gcode";
 var currentEditMacro = undefined;
+var failedAutorunButtons = [];
 
 // eslint-disable-next-line no-unused-vars
 var macroMenuIdx = undefined; // used in context menus
@@ -20,40 +21,6 @@ function populateMacroButtons(runStartups) {
 
   for (let i = 0; i < buttonsarray.length; i++) {
     const button = buttonsarray[i];
-    // Handle old created buttons that didnt have a tooltip
-    if (!button.tooltip) {
-      button.tooltip = "";
-    }
-
-    let shortcut = "";
-    let shortcutIcon = "";
-    if (button.shortcut && button.shortcut.length > 0) {
-      shortcut = ": [" + capitalizeShortcut(button.shortcut) + "]";
-      shortcutIcon = "macrokbd-icon far fa-keyboard fa-fw";
-    }
-
-    let codetypeDisplay = button.codetype;
-    if (button.codetype == "javascript") {
-      if (button.javascript && button.javascript.startsWith(JAVASCRIPT_LOAD_PREFIX)) {
-        button.javascript = loadJavascriptFile(button.javascript);
-      }
-      if (button.jsrunonstartup) {
-        codetypeDisplay = "js:autorun";
-      }
-    }
-
-    const buttonHtml = `
-      <button id="macroBtn` + i + `" class="macrobtn m-1 command-button command-button-macro drop-shadow outline ` + button.colorClass + `" title="` + button.tooltip + `" oncontextmenu="macroContextMenu(` + i + `)" onclick="runMacro('` + i + `');">
-        <span title="Code Type: ` + button.codetype + `" class="macrotype">` + codetypeDisplay + `</span>
-        <div class="macrotitle">
-          <span class="` + button.icon + ` icon"></span>
-          <span class="caption mt-2">` + button.title + `</span>
-        </div>
-        <span class="macrokbd"><i class="` + shortcutIcon + `"></i>` + shortcut + `</span>
-      </button>
-      `;
-
-    $('#macros').append(buttonHtml);
 
     if (button.jsrunonstartup && runStartups) {
       try {
@@ -70,8 +37,55 @@ function populateMacroButtons(runStartups) {
         const printLogCls = "fg-red";
         printLogModern(icon, source, string, printLogCls);
         printLogModern(icon, source, escapeHTML(ex.toString()), printLogCls);
+        failedAutorunButtons.push(button);
       }
     }
+
+    // Handle old created buttons that didnt have a tooltip
+    if (!button.tooltip) {
+      button.tooltip = "";
+    }
+
+    let shortcut = "";
+    let shortcutIcon = "";
+    if (failedAutorunButtons.indexOf(button) >= 0) {
+      shortcut = ": [Failed on autorun]";
+      shortcutIcon = "fas fa-exclamation-triangle fa-fw fg-red";
+    }
+    else if (button.shortcut && button.shortcut.length > 0) {
+      if (button.shortcut.startsWith("button ") || button.shortcut.startsWith("*button ")) {
+        shortcut = ": [" + getGamepadButtonName(button.shortcut) + "]";
+        shortcutIcon = "macrokbd-icon fas fa-gamepad fa-fw";
+      } else {
+        shortcut = ": [" + capitalizeShortcut(button.shortcut) + "]";
+        shortcutIcon = "macrokbd-icon far fa-keyboard fa-fw";
+      }
+    }
+
+    let codetypeDisplay = button.codetype;
+    let buttonClass = "macrobtn-grbl";
+    if (button.codetype == "javascript") {
+      buttonClass = button.jsrunalways ? "macrobtn-always" : "macrobtn-js";
+      if (button.javascript && button.javascript.startsWith(JAVASCRIPT_LOAD_PREFIX)) {
+        button.javascript = loadJavascriptFile(button.javascript);
+      }
+      if (button.jsrunonstartup) {
+        codetypeDisplay = "js:autorun";
+      }
+    }
+
+    const buttonHtml = `
+      <button id="macroBtn` + i + `" class="` + buttonClass + ` m-1 command-button command-button-macro drop-shadow outline ` + button.colorClass + `" title="` + button.tooltip + `" oncontextmenu="macroContextMenu(` + i + `)" onclick="runMacro('` + i + `');">
+        <span title="Code Type: ` + button.codetype + `" class="macrotype">` + codetypeDisplay + `</span>
+        <div class="macrotitle">
+          <span class="` + button.icon + ` icon"></span>
+          <span class="caption mt-2">` + button.title + `</span>
+        </div>
+        <span class="macrokbd"><i class="` + shortcutIcon + `"></i>` + shortcut + `</span>
+      </button>
+      `;
+
+    $('#macros').append(buttonHtml);
   }
   $('#macros').append(`<small style="flex-basis:100%; text-align:center; padding-top: 8px;"><i class="fas fa-info-circle"></i>  Right click your Macro buttons to edit/sort/delete/export</small>`);
 
@@ -140,6 +154,7 @@ function editMacro(buttonIdx, fileName, script) {
   let tooltip = "";
   let shortcut = "";
   let jsrunonstartup = "";
+  let jsrunalways = "";
 
   if (buttonIdx >= 0) {
     button = buttonsarray[buttonIdx];
@@ -154,6 +169,7 @@ function editMacro(buttonIdx, fileName, script) {
       shortcut = capitalizeShortcut(button.shortcut);
     }
     jsrunonstartup = button.jsrunonstartup ? "checked" : "";
+    jsrunalways = button.jsrunalways ? "checked" : "";
   } else {
     if (script) {
       const ext = fileName.split('.').at(-1).toLowerCase();
@@ -219,7 +235,7 @@ function editMacro(buttonIdx, fileName, script) {
               <input id="macrotooltip" type="text" value="` + tooltip + `" data-editable="true">
           </div>
       </div>
-      <div class="row mb-2">
+      <div class="row">
           <div class="cell-sm-2" style="padding:0px;">
             <ul data-tabs-position="vertical" data-role="tabs">
               <li id="editorGcodeModeTab" onclick="editorGcodeMode();"><a href="#">G-code</a></li>
@@ -227,15 +243,25 @@ function editMacro(buttonIdx, fileName, script) {
             </ul>
           </div>
           <div class="cell-sm-10">
-            <div id="macroGcodeEditField">
+            <div id="macroGcodeEditField" class="mb-2">
               <span class="text-small">Enter G-code to execute</span>
-              <textarea  wrap="off" id="macrogcode" type="text" value="` + gcode + `" style="overflow-y: auto; height: calc(100vh - 540px); resize: none;" rows="4"  data-editable="true"></textarea>
+              <textarea wrap="off" id="macrogcode" type="text" value="` + gcode + `" style="overflow-y: auto; height: calc(100vh - 540px); resize: none;" rows="4"  data-editable="true"></textarea>
             </div>
             <div id="macroJavascriptEditField" style="display:none;" >
               <span class="text-small">Enter Javascript to execute</span><br>
               <span class="text-small">Tip: Prototype your code using (Ctrl+Shift+i > Console)</span>
-              <textarea  wrap="off" id="macrojs" type="text" value="" style="overflow-y: auto; height: calc(100vh - 600px); resize: none; tab-size: 2;" rows="4"  data-editable="true"></textarea>
-              <input type="checkbox" data-role="checkbox" data-caption="Run Macro on startup" data-caption-position="left" data-style="2" id="jsRunOnStartup" ` + jsrunonstartup + `>
+              <textarea wrap="off" id="macrojs" type="text" value="" style="overflow-y: auto; height: calc(100vh - 592px); resize: none; tab-size: 2;" rows="4"  data-editable="true"></textarea>
+              <div class="row">
+                <div style="margin-left:12px;">
+                  <input type="checkbox" data-role="checkbox" data-caption="Autorun on startup" data-caption-position="left" data-style="2" id="jsRunOnStartup" ` + jsrunonstartup + `>
+                </div>
+                <span class="far fa-question-circle ml-1 mt-2" title="The macro script will execute on startup. You can suppress autorun macros with the -safeMode command line parameter"></span>
+                <div style="margin-left:12px;">
+                  <input type="checkbox" data-role="checkbox" data-caption="Can run while a job is in progress" data-caption-position="left" data-style="2" id="jsRunAlways" ` + jsrunalways + `>
+                </div>
+                <span class="far fa-question-circle ml-1 mt-2" title="Normally macros are disabled while a job is running because most of the functionality is not available.
+This setting is for the rare case where you have a macro that is needed during that time, for example for some emergency action."></span>
+              </div>
             </div>
           </div>
       </div>
@@ -277,7 +303,12 @@ function editMacro(buttonIdx, fileName, script) {
           button.colorClass = $('#macrocolor').val();
           button.tooltip = $('#macrotooltip').val();
           button.shortcut = $('#macrokeyboardshortcut').val().toLowerCase();
-          button.jsrunonstartup = $('#jsRunOnStartup').is(':checked')
+          button.jsrunonstartup = $('#jsRunOnStartup').is(':checked');
+          button.jsrunalways = $('#jsRunAlways').is(':checked');
+          const failed = failedAutorunButtons.indexOf(button);
+          if (failed >= 0) {
+            failedAutorunButtons.splice(failed, 1);
+          }
           populateMacroButtons();
           currentEditMacro = undefined;
         }
@@ -291,8 +322,6 @@ function editMacro(buttonIdx, fileName, script) {
       }
     ]
   });
-
-  $('#jsedit').val(javascript);
 
   $('#macrokeyboardshortcut').on('keydown', onMacroShorcutKeyDown);
 
@@ -375,21 +404,32 @@ function executeJS(js) {
   `)();
 }
 
+// Not used, kept for backards compatibility
 function runJsMacro(macroIdx) {
   const macro = buttonsarray[macroIdx];
-  if (!macro.jsrunonstartup) {
-    executeJS(macro.javascript);
-  } else {
+  if (macro.jsrunonstartup) {
     Metro.toast.create("Macro <b>" + macro.title + "</b> is an autorun macro, it runs when Groove Control starts. You cannot run it using the button.", null, 3000, "bg-darkRed fg-white")
+  } else {
+    executeJS(macro.javascript);
   }
 }
 
 function runMacro(macroIdx) {
   const macro = buttonsarray[macroIdx];
   if (macro.codetype == "gcode") {
+    if (laststatus && laststatus.comms.connectionStatus == 3) {
+      Metro.toast.create("Macro <b>" + macro.title + "</b> is a G-code macro. It cannot run while a job is in progress.", null, 3000, "bg-darkRed fg-white")
+      return;
+    }
     sendGcode(macro.gcode);
   } else if (macro.codetype == "javascript") {
-    runJsMacro(macroIdx);
+    if (macro.jsrunonstartup) {
+      Metro.toast.create("Macro <b>" + macro.title + "</b> is an autorun macro, it runs when Groove Control starts. You cannot run it using the button.", null, 3000, "bg-darkRed fg-white")
+    } else if (laststatus && laststatus.comms.connectionStatus == 3 && !macro.jsrunalways) {
+      Metro.toast.create("Macro <b>" + macro.title + "</b> is not allowed to run while a job is in progress.", null, 3000, "bg-darkRed fg-white")
+    } else {
+      executeJS(macro.javascript);
+    }
   }
 }
 
@@ -544,6 +584,14 @@ function importMacroBackupFile() {
       if (!Array.isArray(newMacro) && newMacro.title != undefined && newMacro.codetype != undefined) {
         const activeIdx = macroGroupView == 0 ? 0 : Math.max(0, macroGroupsLower.indexOf(currentMacroGroupLower));
         newMacro.group = macroGroups[activeIdx];
+        if (newMacro.class != undefined) {
+          newMacro.colorClass = newMacro.class;
+          delete newMacro.class;
+        }
+        if (newMacro.macrokeyboardshortcut != undefined) {
+          newMacro.shortcut = newMacro.macrokeyboardshortcut;
+          delete newMacro.macrokeyboardshortcut;
+        }
         buttonsarray.push(newMacro);
         populateMacroButtons();
       } else {
@@ -569,6 +617,16 @@ function importMacroAll() {
       const newButtons = JSON.parse(data);
       if (newButtons && Array.isArray(newButtons)) {
         buttonsarray = newButtons;
+        for (let newMacro of buttonsarray) {
+          if (newMacro.class != undefined) {
+            newMacro.colorClass = newMacro.class;
+            delete newMacro.class;
+          }
+          if (newMacro.macrokeyboardshortcut != undefined) {
+            newMacro.shortcut = newMacro.macrokeyboardshortcut;
+            delete newMacro.macrokeyboardshortcut;
+          }
+        }
         populateMacroButtons();
       } else {
         macroReadError("JSON error: Invalid list of macros.");
@@ -757,8 +815,8 @@ function rebuildMacroGroups() {
 function moveMacroToGroup(buttonIdx) {
   let dialogContent = `
 <div class="row mb-2">
-  <label class="cell-sm-4 pt-1" title="Move to existing group">Group:</label>
-  <div class="cell-sm-6">
+  <label class="cell-sm-3 pt-1" title="Move to existing group">Group:</label>
+  <div class="cell-sm-9">
   <select id="macroGroup" class="compact-options" data-role="select" data-clear-button="true" data-filter="false" onchange="if (Number($('#macroGroup').val()) == -1) $('#macroGroupNameRow').show(); else $('#macroGroupNameRow').hide()">
     <option value="0">Default</option>
 `;
@@ -775,8 +833,8 @@ function moveMacroToGroup(buttonIdx) {
   </div>
 </div>
 <div id="macroGroupNameRow" class="row mb-2">
-  <label class="cell-sm-4 pt-1" title="Enter the name for the new group">Group Name:</label>
-  <div class="cell-sm-6">
+  <label class="cell-sm-3 pt-1" title="Enter the name for the new group">Group Name:</label>
+  <div class="cell-sm-9">
     <input id="macroGroupName" data-role="input" data-clear-button="false" data-editable="true" />
   </div>
 </div>
@@ -785,7 +843,7 @@ function moveMacroToGroup(buttonIdx) {
   Metro.dialog.create({
     title: "Move Macro To Group",
     clsDialog: "dark",
-    width: 600,
+    width: 500,
     content: dialogContent,
     dataToTop: true,
     actions: [{
