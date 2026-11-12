@@ -610,14 +610,24 @@ function updateDirSettingChecks() {
 function clearSettings() {
   Metro.dialog.create({
     title: "Are you sure?",
-    content: "<div>Resetting the Grbl Settings will restore all the settings to factory defaults, but will keep other EEPROM settings intact. Would you like to continue?</div>",
+    content: `
+<div>Resetting the Grbl settings will restore them to the original firmware defaults.<br>
+<br>
+This is almost always not what you want. "Firmware Defaults" is not the same as "Factory Settings".
+It is very common for CNC manufacturers to use generic firmware that is not custom-built for your specifc machine,
+and then customize it by updating the EEPROM settings before shipping. Those settings will be lost.<br>
+<br>
+If you wish to proceed, you should save a backup of the current settings first.<br>
+<br>
+Would you like to continue?
+</div>`,
     clsDialog: 'dark',
     actions: [{
         caption: "Yes",
         cls: "js-dialog-close success",
         onclick: function() {
           sendGcode('$RST=$');
-          refreshGrblSettings()
+          refreshGrblSettings();
         }
       },
       {
@@ -632,14 +642,18 @@ function clearSettings() {
 function clearWCO() {
   Metro.dialog.create({
     title: "Are you sure?",
-    content: "<div>Resetting the Work Coordinate Systems will erase all the coordinate system offsets currently stored in the EEPROM on the controller. Would you like to continue?</div>",
+    content: `
+<div>Resetting the Work Coordinate Systems will erase all the coordinate system offsets currently stored in the EEPROM on the controller.<br>
+<br>
+Would you like to continue?
+</div>`,
     clsDialog: 'dark',
     actions: [{
         caption: "Yes",
         cls: "js-dialog-close success",
         onclick: function() {
           sendGcode('$RST=#');
-          refreshGrblSettings()
+          refreshGrblSettings();
         }
       },
       {
@@ -654,14 +668,24 @@ function clearWCO() {
 function clearEEPROM() {
   Metro.dialog.create({
     title: "Are you sure?",
-    content: "<div>Resetting the EEPROM will erase all the Grbl Firmware settings from your controller, effectively resetting it back to factory defaults. Would you like to continue?</div>",
+    content: `
+<div>Resetting the EEPROM will restore all the Grbl settings to the firmware defaults, zero out all coordinate systems, and clear the $N and $I parameters.<br>
+<br>
+This is almost always not what you want. "Firmware Defaults" is not the same as "Factory Settings".
+It is very common for CNC manufacturers to use generic firmware that is not custom-built for your specifc machine,
+and then customize it by updating the EEPROM settings before shipping. Those settings will be lost.<br>
+<br>
+If you wish to proceed, you should save a backup of the current settings first.<br>
+<br>
+Would you like to continue?
+</div>`,
     clsDialog: 'dark',
     actions: [{
         caption: "Yes",
         cls: "js-dialog-close success",
         onclick: function() {
           sendGcode('$RST=*');
-          refreshGrblSettings()
+          refreshGrblSettings();
         }
       },
       {
