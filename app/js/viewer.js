@@ -17,8 +17,6 @@ var sizeymax;
 var clearSceneFlag = false;
 var viewSettings = {grid: true, ruler: true, toolpath: true, tool: true, machine: true, heightmap: true};
 
-const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-
 // pause Animation when we lose webgl context focus
 var pauseAnimation = false;
 
