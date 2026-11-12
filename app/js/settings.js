@@ -7,6 +7,7 @@ var disable3Dgcodepreview = false;
 var disable4thAxis = false;
 var disableZDist100 = false;
 var disableZCont = false;
+var viewerOrbitButton = "left";
 
 const disable3Drealtimepos = false; // always false, keep for now, may delete later
 const disable3Dcontrols = false; // always false, keep for now, may delete later
@@ -35,9 +36,8 @@ function updatePinStatus(pin, status, onText, offText) {
 
 function updateSettingsState() {
   const disable3DviewerNew = !$('#enable3DviewerCheck').prop('checked');
-  $('#enable3DskyboxCheck').prop('disabled', disable3DviewerNew);
-  $('#enableConeInterpolation').prop('disabled', disable3DviewerNew);
-  $('#enable3DgcodepreviewCheck').prop('disabled', disable3DviewerNew);
+  $('#enable3DskyboxCheck,#enableConeInterpolation,#enable3DgcodepreviewCheck').prop('disabled', disable3DviewerNew);
+  enableViaClass('#viewerOrbitButtonCell', !disable3DviewerNew);
 
   enableViaClass('#enableConeInterpolationTip', !disable3DviewerNew);
 
@@ -71,7 +71,7 @@ const appSettingsDlg = `
 
   <div class="row ml-3">
     <label class="cell-sm-3" style="padding-left:0px; padding-top:5px;">Color Theme</label>
-    <div class="cell-sm-6">
+    <div class="cell-sm-5">
       <select data-role="select" id="selectTheme" data-filter="false" class="compact-options">
       </select>
     </div>
@@ -94,7 +94,7 @@ const appSettingsDlg = `
         <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Autostart at Login" id="enableAutoStartCheck" />
       </div>
     </div>
-    <div class="row mt-1" id="trayIconCell" style="padding-left:8px; align-items:center;">
+    <div class="row" id="trayIconCell" style="padding-left:8px; align-items:center;">
       <div style="margin:0px 12px;">
         <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Tray Icon" id="enableTrayIconCheck" onclick="updateSettingsState()" />
       </div>
@@ -118,7 +118,7 @@ const appSettingsDlg = `
 For GrblHAL use parameter $394 instead and for FluidNC use the spinup_ms setting.
 Ignored in Laser mode."></span>
     </label>
-    <div class="cell-sm-6">
+    <div class="cell-sm-5">
       <select data-role="select" id="spindleDelay" data-filter="false" class="compact-options">
         <option value="0" selected>No Delay</option>
         <option value="3">Delay 3 sec (G4 P3)</option>
@@ -147,18 +147,31 @@ This is a safety feature to prevent accidental plunge down into the table."></sp
     <span class="far fa-question-circle ml-1 mt-2" title="You may try disabling the 3D Viewer for slower computers"></span>
   </div>
 
-  <div class="row" style="padding-left:20px;">
-    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Skybox/Fog"id="enable3DskyboxCheck" />
-  </div>
+  <div class="row">
+    <div class="cell-sm-6">
+      <div class="row" style="padding-left:20px;">
+        <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Skybox/Fog"id="enable3DskyboxCheck" />
+      </div>
 
-  <div class="row" style="padding-left:20px;">
-    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Position Interpolation" id="enableConeInterpolation" />
-    <span class="far fa-question-circle ml-1 mt-2" id="enableConeInterpolationTip" title="Doubles the update frequency of the position marker in the 3D viewer by creating in-between frames.
+      <div class="row" style="padding-left:20px;">
+        <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Position Interpolation" id="enableConeInterpolation" />
+        <span class="far fa-question-circle ml-1 mt-2" id="enableConeInterpolationTip" title="Doubles the update frequency of the position marker in the 3D viewer by creating in-between frames.
 The animation is smoother at the expense of some accuracy and a small lag of around 100ms"></span>
-  </div>
+      </div>
 
-  <div class="row" style="padding-left:20px;">
-    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable G-code Preview" id="enable3DgcodepreviewCheck" />
+      <div class="row" style="padding-left:20px;">
+        <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable G-code Preview" id="enable3DgcodepreviewCheck" />
+      </div>
+    </div>
+    <div class="cell-sm-6">
+      <div class="row" id="viewerOrbitButtonCell" style="margin-left:-20px;">
+        <label style="padding-top:5px; padding-right:10px;">Orbit with</label>
+        <select data-role="select" id="viewerOrbitButton" data-filter="false" class="compact-options" style="width:200px;">
+          <option value="left" selected>Left Mouse Button</option>
+          <option value="middle">Middle Mouse Button</option>
+        </select>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -180,7 +193,7 @@ The animation is smoother at the expense of some accuracy and a small lag of aro
 </div> -->
 
 <div class="section" id="rotarySettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
-  <div class="row ml-2" title="Hide the 4th axis controls if the controller supports a 4th axis but it is not currently in use">
+  <div style="display:flex;">
     <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Hide 4th Axis Controls" id="disable4thAxisCheck" />
     <span class="far fa-question-circle ml-1 mt-2" title="Hide the 4th axis controls if the controller supports a 4th axis but it is not currently in use"></span>
   </div>
@@ -205,11 +218,14 @@ function applyAppSettings() {
   disable3Dskybox = disable3DskyboxNew;
   disable3Dgcodepreview = disable3DgcodepreviewNew;
   disableConeInterpolation = !$('#enableConeInterpolation').prop('checked');
+  viewerOrbitButton = $('#viewerOrbitButton').val();
+  setViewControls(viewerOrbitButton);
 
   localStorage.setItem('disable3Dviewer', disable3Dviewer);
   localStorage.setItem('disable3Dskybox', disable3Dskybox);
   localStorage.setItem('disable3Dgcodepreview', disable3Dgcodepreview);
   localStorage.setItem('disableConeInterpolation', disableConeInterpolation);
+  localStorage.setItem('viewerOrbitButton', viewerOrbitButton);
 
   if (laststatus.driver.platform == "win32" || laststatus.driver.platform == "linux") {
     socket.emit('trayIcon', {enabled: $('#enableTrayIconCheck').prop('checked'), style: $('#selectTrayIconStyle').val()});
@@ -290,6 +306,7 @@ function showAppSettings(category) {
   $('#enable3DskyboxCheck').prop('checked', !disable3Dskybox);
   $('#enable3DgcodepreviewCheck').prop('checked', !disable3Dgcodepreview);
   $('#enableConeInterpolation').prop('checked', !disableConeInterpolation);
+  $('#viewerOrbitButton').val(viewerOrbitButton);
 
   if (laststatus.driver.platform == "win32" || laststatus.driver.platform == "linux") {
     $('#enableTrayIconCheck').prop('checked', laststatus.misc.trayIcon);
@@ -326,9 +343,10 @@ function showAppSettings(category) {
 
 function initSettings() {
   disable3Dviewer = localStorage.getItem('disable3Dviewer') != null && (JSON.parse(localStorage.getItem('disable3Dviewer')) == true);
-  disable3Dskybox = localStorage.getItem('disable3Dskybox') != null  && (JSON.parse(localStorage.getItem('disable3Dskybox')) == true);
-  disable3Dgcodepreview = localStorage.getItem('disable3Dgcodepreview') != null  && (JSON.parse(localStorage.getItem('disable3Dgcodepreview')) == true);
-  disableConeInterpolation = localStorage.getItem('disableConeInterpolation') != null  && (JSON.parse(localStorage.getItem('disableConeInterpolation')) == true);
+  disable3Dskybox = localStorage.getItem('disable3Dskybox') != null && (JSON.parse(localStorage.getItem('disable3Dskybox')) == true);
+  disable3Dgcodepreview = localStorage.getItem('disable3Dgcodepreview') != null && (JSON.parse(localStorage.getItem('disable3Dgcodepreview')) == true);
+  disableConeInterpolation = localStorage.getItem('disableConeInterpolation') != null && (JSON.parse(localStorage.getItem('disableConeInterpolation')) == true);
+  viewerOrbitButton = localStorage.getItem('viewerOrbitButton') || "left";
   disable4thAxis = localStorage.getItem('disable4thAxis') != null  && (JSON.parse(localStorage.getItem('disable4thAxis')) == true);
 
   $('#runSimBtn').parent().toggle(!disable3Dgcodepreview);
