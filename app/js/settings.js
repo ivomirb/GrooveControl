@@ -75,7 +75,7 @@ const appSettingsDlg = `
 
   <div class="row ml-3">
     <label class="cell-sm-3" style="padding-left:0px; padding-top:5px;">Color Theme</label>
-    <div class="cell-sm-6">
+    <div class="cell-sm-5">
       <select data-role="select" id="selectTheme" data-filter="false" class="compact-options">
       </select>
     </div>
