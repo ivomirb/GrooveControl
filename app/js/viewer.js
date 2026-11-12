@@ -400,14 +400,7 @@ function init3D() {
     if (!disable3Dcontrols) {
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.target.set(0, 0, 0); // view direction perpendicular to XY-plane
-
-      if (!isMac) {
-        controls.mouseButtons = {
-          ORBIT: THREE.MOUSE.MIDDLE,
-          ZOOM: false,
-          PAN: THREE.MOUSE.RIGHT
-        };
-      }
+      setViewControls(viewerOrbitButton);
       controls.enableRotate = true;
       controls.enableZoom = true; // optional
       controls.maxDistance = 8000; // limit max zoom out
@@ -439,6 +432,14 @@ function init3D() {
   } else {
     printLog("<span class='fg-red'>[ ERROR ]</span>  <span class='fg-darkRed'>No WebGL Support found on this computer! Disabled 3D Viewer - Sorry!</span>")
     printLog("<span class='fg-red'>[ ERROR ]</span>  <span class='fg-darkRed'>" + getWebGLErrorMessage() + "</span>")
+  }
+}
+
+function setViewControls(orbitButton) {
+  if (orbitButton == "left") {
+    controls.mouseButtons = {ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
+  } else {
+    controls.mouseButtons = {ORBIT: THREE.MOUSE.MIDDLE, ZOOM: false, PAN: THREE.MOUSE.RIGHT };
   }
 }
 
