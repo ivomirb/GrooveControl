@@ -97,7 +97,7 @@ function mmMode() {
   updateDro(laststatus);
 
   if (typeof redrawGrid === "function") { // Check if function exists, because in Mobile view it does not
-    redrawGrid(sizexmin, sizexmax, sizeymin, sizeymax, false);
+    redrawGrid(false);
   }
   updateWcsHistory();
 }
@@ -114,7 +114,7 @@ function inMode() {
   updateDro(laststatus);
 
   if (typeof redrawGrid === "function") { // Check if function exists, because in Mobile view it does not
-    redrawGrid(sizexmin / 25.4, sizexmax / 25.4, sizeymin / 25.4, sizeymax / 25.4, true);
+    redrawGrid(true);
   }
   updateWcsHistory();
 }
