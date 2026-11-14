@@ -11,91 +11,97 @@ const grblSettingsTemplate = {
   1: {
     key: `$1`,
     title: `Step idle delay, milliseconds`,
-    description: `Every time your steppers complete a motion and come to a stop, Grbl will delay disabling the steppers by this value. OR, you can always keep your axes enabled (powered so as to hold position) by setting this value to the maximum 255 milliseconds. Again, just to repeat, you can keep all axes always enabled by setting $1=255. The stepper idle lock time is the time length Grbl will keep the steppers locked before disabling. Depending on the system, you can set this to zero and disable it. On others, you may need 25-50 milliseconds to make sure your axes come to a complete stop before disabling. This is to help account for machine motors that do not like to be left on for long periods of time without doing something. Also, keep in mind that some stepper drivers don't remember which micro step they stopped on, so when you re-enable, you may witness some 'lost' steps due to this. In this case, just keep your steppers enabled via $1=255`,
+    description: `Sets a short hold delay when stopping to let dynamics settle before disabling steppers. $1=255 will keep the motors powered on at all times`,
     template: `<input id="val-1-input" data-role="input" data-clear-button="false" data-append="ms" type="text">`,
     utils: ``
   },
   2: {
     key: `$2`,
     title: `Step pulse invert, mask`,
-    description: `This setting inverts the step pulse signal. By default, a step signal starts at normal-low and goes high upon a step pulse event. After a step pulse time set by $0, the pin resets to low, until the next step pulse event. When inverted, the step pulse behavior switches from normal-high, to low during the pulse, and back to high. Most users will not need to use this setting, but this can be useful for certain CNC-stepper drivers that have peculiar requirements. For example, an artificial delay between the direction pin and step pulse can be created by inverting the step pin.`,
+    description: `This setting inverts the step pulse signal. By default, a step signal starts at normal-low and goes high upon a step pulse event. After a step pulse time set by $0, the pin resets to low, until the next step pulse event. When inverted, the step pulse behavior switches from normal-high, to low during the pulse, and back to high. Usually if the stepper driver signals have common negative pin this should be 0, and they have common positive this should be 1`,
     template: `<input id="val-2-input" data-role="input" data-clear-button="false" data-append="mask" type="text">`,
     utils: ``
   },
   3: {
     key: `$3`,
     title: `Step direction invert, mask`,
-    description: `This setting inverts the direction signal for each axis. By default, Grbl assumes that the axes move in a positive direction when the direction pin signal is low, and a negative direction when the pin is high. Often, axes don't move this way with some machines. This setting will invert the direction pin signal for those axes that move the opposite way.`,
-    template: `<input id="val-3-input" readonly type="hidden" />
-    <div class="row">
-    <div class="cell">
-        <span class="text-small">X</span>
-    </div>
-    <div class="cell">
-        <span class="text-small">Normal</span>
-    </div>
-    <div class="cell pb-1">
-        <label class="toggle">
-            <input type="checkbox" id="xdirinvert"/>
-            <div class="app-notification"></div>
-        </label>
-    </div>
-    <div class="cell">
-        <span class="text-small">Reversed</span>
-    </div>
+    description: `This setting inverts the direction signal for each axis. By default, Grbl assumes that the axes move in a positive direction when the direction pin signal is low, and a negative direction when the pin is high. In practice the correct setting for each axis will depend on the wiring, the stepper driver, the motor, and the motion mechanism. If a particular axis moves in reverse, toggle the corresponding checkbox`,
+    template: `
+<div title="Toggle the axes below to change the value">
+  <div class="mb-2 disabled">
+    <input id="val-3-input" data-role="input" data-clear-button="false" data-append="mask" type="text" readonly />
+  </div>
 </div>
-<div class="row">
-    <div class="cell">
-        <span class="text-small">Y</span>
-    </div>
-    <div class="cell">
-        <span class="text-small">Normal</span>
-    </div>
-    <div class="cell pb-1">
-        <label class="toggle">
-            <input type="checkbox" id="ydirinvert"/>
-            <div class="app-notification"></div>
-        </label>
-    </div>
-    <div class="cell">
-        <span class="text-small">Reversed</span>
-    </div>
+<div class="row" style="max-width:360px;">
+  <div class="cell" style="margin-left:10px;max-width:20px;">
+    <span class="text-small">X</span>
+  </div>
+  <div class="cell" style="text-align:right;">
+    <span class="text-small">Normal</span>
+  </div>
+  <div class="cell pb-1" style="max-width:60px;">
+    <label class="toggle" style="width:50%; margin-inline:auto;">
+      <input type="checkbox" id="xdirinvert"/>
+      <div class="app-notification"></div>
+    </label>
+  </div>
+  <div class="cell" style="max-width:90px;">
+    <span class="text-small">Reversed</span>
+  </div>
 </div>
-<div class="row">
-    <div class="cell">
-        <span class="text-small">Z</span>
-    </div>
-    <div class="cell">
-        <span class="text-small">Normal</span>
-    </div>
-    <div class="cell pb-1">
-        <label class="toggle">
-            <input type="checkbox" id="zdirinvert"/>
-            <div class="app-notification"></div>
-        </label>
-    </div>
-    <div class="cell">
-        <span class="text-small">Reversed</span>
-    </div>
+
+<div class="row" style="max-width:360px;">
+  <div class="cell" style="margin-left:10px;max-width:20px;">
+    <span class="text-small">Y</span>
+  </div>
+  <div class="cell" style="text-align:right;">
+    <span class="text-small">Normal</span>
+  </div>
+  <div class="cell pb-1" style="max-width:60px;">
+    <label class="toggle" style="width:50%; margin-inline:auto;">
+      <input type="checkbox" id="ydirinvert"/>
+      <div class="app-notification"></div>
+    </label>
+  </div>
+  <div class="cell" style="max-width:90px;">
+    <span class="text-small">Reversed</span>
+  </div>
 </div>
-<div class="4thaxis-present">
-    <div class="row">
-        <div class="cell">
-            <span class="text-small">A</span>
-        </div>
-        <div class="cell">
-            <span class="text-small">Normal</span>
-        </div>
-        <div class="cell pb-1">
-            <label class="toggle">
-                <input type="checkbox" id="adirinvert"/>
-                <div class="app-notification"></div>
-            </label>
-        </div>
-        <div class="cell">
-            <span class="text-small">Reversed</span>
-        </div>
-    </div>
+
+<div class="row" style="max-width:360px;">
+  <div class="cell" style="margin-left:10px;max-width:20px;">
+    <span class="text-small">Z</span>
+  </div>
+  <div class="cell" style="text-align:right;">
+    <span class="text-small">Normal</span>
+  </div>
+  <div class="cell pb-1" style="max-width:60px;">
+    <label class="toggle" style="width:50%; margin-inline:auto;">
+      <input type="checkbox" id="zdirinvert"/>
+      <div class="app-notification"></div>
+    </label>
+  </div>
+  <div class="cell" style="max-width:90px;">
+    <span class="text-small">Reversed</span>
+  </div>
+</div>
+
+<div class="row 4thaxis-present" style="max-width:360px;">
+  <div class="cell" style="margin-left:10px;max-width:20px;">
+    <span class="text-small">A</span>
+  </div>
+  <div class="cell" style="text-align:right;">
+    <span class="text-small">Normal</span>
+  </div>
+  <div class="cell pb-1" style="max-width:60px;">
+    <label class="toggle" style="width:50%; margin-inline:auto;">
+      <input type="checkbox" id="adirinvert"/>
+      <div class="app-notification"></div>
+    </label>
+  </div>
+  <div class="cell" style="max-width:90px;">
+    <span class="text-small">Reversed</span>
+  </div>
 </div>
       `,
     utils: ``
@@ -103,21 +109,21 @@ const grblSettingsTemplate = {
   4: {
     key: `$4`,
     title: `Invert step enable pin, boolean (Grbl) / mask (GrblHAL)`,
-    description: `If you have an xPro 2/3 or BlackBox 4X, set it to 1. for BlackBox X32 set to 0. By default, the stepper enable pin is high to disable and low to enable. If your setup needs the opposite, just invert the stepper enable pin by typing $4=1. Disable with $4=0. (May need a power cycle to load the change.)`,
+    description: `Most commonly the stepper enable pin is high to disable and low to enable. If your setup needs the opposite, just invert the stepper enable pin by typing $4=1. Disable with $4=0. (May need a power cycle to load the change.)`,
     template: `<input id="val-4-input" data-role="input" data-clear-button="false"  data-append="mask/bool" type="text">`,
     utils: ``
   },
   5: {
     key: `$5`,
     title: `Invert limit pins, boolean/mask`,
-    description: `By default, the limit pins are held normally-high with the Arduino's internal pull-up resistor. When a limit pin is low, Grbl interprets this as triggered. For the opposite behavior, just invert the limit pins by typing $5=1. Disable with $5=0. You may need a power cycle to load the change. NOTE: For more advanced usage, the internal pull-up resistor on the limit pins may be disabled in config.h.`,
+    description: `If the limit switches are wired to ground, use 0 for normally-open switches and 1 for normally-closed siwtches. If the limit switches are wired to VCC the values are reversed. (May need a power cycle to load the change.)`,
     template: `<input  id="val-5-input" data-role="input" data-clear-button="false"  data-append="mask/bool" type="text">`,
     utils: ``
   },
   6: {
     key: `$6`,
     title: `Invert probe pin, boolean`,
-    description: `By default, the probe pin is held normally-high with the Arduino's internal pull-up resistor. When the probe pin is low, Grbl interprets this as triggered. For the opposite behavior, just invert the probe pin by typing $6=1. Disable with $6=0. You may need a power cycle to load the change.`,
+    description: `By default, the probe pin is held normally-high with a pull-up resistor. When the probe pin is low, Grbl interprets this as triggered. For the opposite behavior, just invert the probe pin by setting this to 1. Disable with $6=0. (May need a power cycle to load the change.)`,
     template: `<select id="val-6-input">
              <option value="0">&#x2717; Disable</option>
              <option value="1">&#x2713; Enable</option>
@@ -147,8 +153,8 @@ const grblSettingsTemplate = {
   },
   13: {
     key: `$13`,
-    title: `Report in inches, boolean (CONTROL needs $13=0)`,
-    description: `CONTROL needs $13=0 as it handles inch mode seperately`,
+    title: `Report in inches, boolean (Groove Control needs $13=0)`,
+    description: `This setting only affects the internal communication between the controller and Groove Control. $13=0 (report in millimeters) is required because it provides the best accuracy. It does not change the ability of the DRO to display inches and the ability to execute G-code using inches`,
     template: `<select id="val-13-input">
              <option value="0">&#x2717; Disable</option>
              <option value="1">&#x2713; Enable</option>
@@ -168,7 +174,7 @@ const grblSettingsTemplate = {
   21: {
     key: `$21`,
     title: `Hard limits enable, boolean`,
-    description: `Hard limit work basically the same as soft limits, but use physical switches instead. Basically you wire up some switches (mechanical, magnetic, or optical) near the end of travel of each axes, or where ever you feel that there might be trouble if your program moves too far to where it shouldn't. When the switch triggers, it will immediately halt all motion, shutdown the coolant and spindle (if connected), and go into alarm mode, which forces you to check your machine and reset everything. To use hard limits with Grbl, the limit pins are held high with an internal pull-up resistor, so all you have to do is wire in a normally-open switch with the pin and ground and enable hard limits with $21=1. (Disable with $21=0.) We strongly advise taking electric interference prevention measures. If you want a limit for both ends of travel of one axes, just wire in two switches in parallel with the pin and ground, so if either one of them trips, it triggers the hard limit. Keep in mind, that a hard limit event is considered to be critical event, where steppers immediately stop and will have likely have lost steps. Grbl doesn't have any feedback on position, so it can't guarantee it has any idea where it is. So, if a hard limit is triggered, Grbl will go into an infinite loop ALARM mode, giving you a chance to check your machine and forcing you to reset Grbl. Remember it's a purely a safety feature.`,
+    description: `The hard limits will stop the machine instantly when one of the limit switches is triggered. It will immediately halt all motion, shutdown the coolant and spindle (if connected), and go into alarm mode, which forces you to check your machine and reset everything. Hard limits do not need to be enabled for Homing to work`,
     template: `<select id="val-21-input">
              <option value="0">&#x2717; Disable</option>
              <option value="1">&#x2713; Enable</option>
@@ -178,84 +184,90 @@ const grblSettingsTemplate = {
   22: {
     key: `$22`,
     title: `Homing cycle enable, boolean (Grbl) / mask (GrblHAL)`,
-    description: `The homing cycle is used to accurately and precisely locate a known and consistent position on a machine every time you start up your Grbl between sessions. In other words, you know exactly where you are at any given time, every time. Say you start machining something or are about to start the next step in a job and the power goes out, you re-start Grbl and Grbl has no idea where it is due to steppers being open-loop control. You're left with the task of figuring out where you are. If you have homing, you always have the machine zero reference point to locate from, so all you have to do is run the homing cycle and resume where you left off. To set up the homing cycle for Grbl, you need to have limit switches in a fixed position that won't get bumped or moved, or else your reference point gets messed up. Usually they are setup in the farthest point in +x, +y, +z of each axes. Wire your limit switches in with the limit pins, add a recommended RC-filter to help reduce electrical noise, and enable homing. If you're curious, you can use your limit switches for both hard limits AND homing. They play nice with each other. Prior to trying the homing cycle for the first time, make sure you have setup everything correctly, otherwise homing may behave strangely. First, ensure your machine axes are moving in the correct directions per Cartesian coordinates (right-hand rule). If not, fix it with the $3 direction invert setting. Second, ensure your limit switch pins are not showing as 'triggered' in Grbl's status reports. If are, check your wiring and settings. Finally, ensure your $13x max travel settings are somewhat accurate (within 20%), because Grbl uses these values to determine how far it should search for the homing switches. By default, Grbl's homing cycle moves the Z-axis positive first to clear the workspace and then moves both the X and Y-axes at the same time in the positive direction. To set up how your homing cycle behaves, there are more Grbl settings down the page describing what they do (and compile-time options as well.). Also, one more thing to note, when homing is enabled. Grbl will lock out all G-code commands until you perform a homing cycle. Meaning no axes motions, unless the lock is disabled ($X) but more on that later. Most, if not all CNC controllers, do something similar, as it is mostly a safety feature to prevent users from making a positioning mistake, which is very easy to do and be saddened when a mistake ruins a part. If you find this annoying or find any weird bugs, please let us know and we'll try to work on it so everyone is happy. :)  NOTE: Check out config.h for more homing options for advanced users. You can disable the homing lockout at startup, configure which axes move first during a homing cycle and in what order, and more.`,
+    description: `The homing cycle is used to accurately and precisely locate a known and consistent position on a machine every time you start up your Grbl between sessions.  For Grbl this is just a 0 or 1 value. For GrblHAL this is a bit mask that allows you to fine-tune the homing process. Read the GrblHAL documentation for details`,
     template: `<input id="val-22-input" data-role="input" data-clear-button="false" data-append="mask/bool" type="text">`,
     utils: ``
   },
   23: {
     key: `$23`,
-    title: `Homing direction invert, mask`,
-    description: `By default, Grbl assumes your homing limit switches are in the positive direction, first moving the z-axis positive, then the x-y axes positive before trying to precisely locate machine zero by going back and forth slowly around the switch. If your machine has a limit switch in the negative direction, the homing direction mask can invert the axes' direction. It works just like the step port invert and direction port invert masks, where all you have to do is send the value in the table to indicate what axes you want to invert and search for in the opposite direction.`,
-    template: `<input id="val-23-input" readonly type="hidden">
-<div class="row">
-    <div class="cell">
-        <span class="text-small">X</span>
-    </div>
-    <div class="cell">
-        <span class="text-small">Min</span>
-    </div>
-    <div class="cell pb-1">
-        <label class="toggle">
-            <input type="checkbox" id="xHomeDir"/>
-            <div class="app-notification"></div>
-        </label>
-    </div>
-    <div class="cell">
-        <span class="text-small">Max</span>
-    </div>
+    title: `Homing direction, mask`,
+    description: `Select the homing direction for each axis. It is highly recommended that you do not home the Z axis at the bottom because it is likely that the tool will collide with the surface. Before adjusting setting $23 make sure every axis moves in the correct direction by adjusting setting $3`,
+    template: `
+<div title="Toggle the axes below to change the value">
+  <div class="mb-2 disabled">
+    <input id="val-23-input" data-role="input" data-clear-button="false" data-append="mask" type="text" readonly />
+  </div>
 </div>
-<div class="row">
-    <div class="cell">
-        <span class="text-small">Y</span>
-    </div>
-    <div class="cell">
-        <span class="text-small">Min</span>
-    </div>
-    <div class="cell pb-1">
-        <label class="toggle">
-            <input type="checkbox" id="yHomeDir"/>
-            <div class="app-notification"></div>
-        </label>
-    </div>
-    <div class="cell">
-        <span class="text-small">Max</span>
-    </div>
+<div class="row" style="max-width:360px;">
+  <div class="cell" style="margin-left:10px;max-width:20px;">
+    <span class="text-small">X</span>
+  </div>
+  <div class="cell" style="text-align:right;">
+    <span class="text-small">Left</span>
+  </div>
+  <div class="cell pb-1" style="max-width:60px;">
+    <label class="toggle" style="width:50%; margin-inline:auto;">
+      <input type="checkbox" id="xHomeDir"/>
+      <div class="app-notification"></div>
+    </label>
+  </div>
+  <div class="cell" style="max-width:90px;">
+    <span class="text-small">Right</span>
+  </div>
 </div>
-<div class="row">
-    <div class="cell">
-        <span class="text-small">Z</span>
-    </div>
-    <div class="cell">
-        <span class="text-small">Min</span>
-    </div>
-    <div class="cell pb-1">
-        <label class="toggle">
-            <input type="checkbox" id="zHomeDir"/>
-            <div class="app-notification"></div>
-        </label>
-    </div>
-    <div class="cell">
-        <span class="text-small">Max</span>
-    </div>
+
+<div class="row" style="max-width:360px;">
+  <div class="cell" style="margin-left:10px;max-width:20px;">
+    <span class="text-small">Y</span>
+  </div>
+  <div class="cell" style="text-align:right;">
+    <span class="text-small">Front</span>
+  </div>
+  <div class="cell pb-1" style="max-width:60px;">
+    <label class="toggle" style="width:50%; margin-inline:auto;">
+      <input type="checkbox" id="yHomeDir"/>
+      <div class="app-notification"></div>
+    </label>
+  </div>
+  <div class="cell" style="max-width:90px;">
+    <span class="text-small">Rear</span>
+  </div>
 </div>
-<div class="4thaxis-present">
-    <div class="row">
-        <div class="cell">
-            <span class="text-small">A</span>
-        </div>
-        <div class="cell">
-            <span class="text-small">Min</span>
-        </div>
-        <div class="cell pb-1">
-            <label class="toggle">
-                <input type="checkbox" id="aHomeDir"/>
-                <div class="app-notification"></div>
-            </label>
-        </div>
-        <div class="cell">
-            <span class="text-small">Max</span>
-        </div>
-    </div>
+
+<div class="row" style="max-width:360px;">
+  <div class="cell" style="margin-left:10px;max-width:20px;">
+    <span class="text-small">Z</span>
+  </div>
+  <div class="cell" style="text-align:right;">
+    <span class="text-small">Bottom</span>
+  </div>
+  <div class="cell pb-1" style="max-width:60px;">
+    <label class="toggle" style="width:50%; margin-inline:auto;">
+      <input type="checkbox" id="zHomeDir"/>
+      <div class="app-notification"></div>
+    </label>
+  </div>
+  <div class="cell" style="max-width:90px;">
+    <span class="text-small">Top</span>
+  </div>
+</div>
+
+<div class="row 4thaxis-present" style="max-width:360px;">
+  <div class="cell" style="margin-left:10px;max-width:20px;">
+    <span class="text-small">A</span>
+  </div>
+  <div class="cell" style="text-align:right;">
+    <span class="text-small">Counter-Clockwise</span>
+  </div>
+  <div class="cell pb-1" style="max-width:60px;">
+    <label class="toggle" style="width:50%; margin-inline:auto;">
+      <input type="checkbox" id="aHomeDir"/>
+      <div class="app-notification"></div>
+    </label>
+  </div>
+  <div class="cell" style="max-width:90px;">
+    <span class="text-small">Clockwise</span>
+  </div>
 </div>
 
 `,
@@ -292,14 +304,14 @@ const grblSettingsTemplate = {
   30: {
     key: `$30`,
     title: `Maximum spindle speed, RPM`,
-    description: `This sets the spindle speed for the maximum 5V PWM pin output. For example, if you want to set 10000rpm at 5V, program $30=10000. For 255rpm at 5V, program $30=255. If a program tries to set a higher spindle RPM greater than the $30 max spindle speed, Grbl will just output the max 5V, since it can't go any faster. By default, Grbl linearly relates the max-min RPMs to 5V-0.02V PWM pin output in 255 equally spaced increments. When the PWM pin reads 0V, this indicates spindle disabled. Note that there are additional configuration options are available in config.h to tweak how this operates.`,
+    description: `This sets the spindle speed for the maximum 5V PWM pin output. For example, if you want to set 10000rpm at 5V, program $30=10000. For 255rpm at 5V, program $30=255. If a program tries to set a higher spindle RPM greater than the $30 max spindle speed, Grbl will just output the max 5V, since it can't go any faster. By default, Grbl linearly relates the max-min RPMs to 5V-0.02V PWM pin output in 255 equally spaced increments. When the PWM pin reads 0V, this indicates spindle disabled`,
     template: `<input id="val-30-input" data-role="input" data-clear-button="false" data-append="RPM" type="text">`,
     utils: ``
   },
   31: {
     key: `$31`,
     title: `Minimum spindle speed, RPM`,
-    description: `This sets the spindle speed for the minimum 0.02V PWM pin output (0V is disabled). Lower RPM values are accepted by Grbl but the PWM output will not go below 0.02V, except when RPM is zero. If zero, the spindle is disabled and PWM output is 0V.`,
+    description: `This sets the spindle speed for the minimum 0.02V PWM pin output (0V is disabled). Lower RPM values are accepted by Grbl but the PWM output will not go below 0.02V, except when RPM is zero. If zero, the spindle is disabled and PWM output is 0V. Use this in case your spindle should not run below certain speed. For example air-cooled spindles may overheat if they run too slow`,
     template: `<input id="val-31-input" data-role="input" data-clear-button="false" data-append="RPM" type="text">`,
     utils: ``
   },
@@ -316,7 +328,7 @@ const grblSettingsTemplate = {
   100: {
     key: `$100`,
     title: `X-axis steps per millimeter`,
-    description: `Grbl needs to know how far each step will take the tool in reality.  - use the tools on the right to compute/calibrate`,
+    description: `Grbl needs to know how far each step will take the axis in reality. Use the tools on the right to compute/calibrate`,
     template: `<input  id="val-100-input" data-role="input" data-clear-button="false" data-append="steps/mm" type="text">`,
     utils: `<center>
             <button title="Calculate X-Axis Steps per mm" class="button " type="button" onclick="xstepspermm()">
@@ -331,7 +343,7 @@ const grblSettingsTemplate = {
   101: {
     key: `$101`,
     title: `Y-axis steps per millimeter`,
-    description: `Grbl needs to know how far each step will take the tool in reality.  - use the tools on the right to compute/calibrate1`,
+    description: `Grbl needs to know how far each step will take the axis in reality. Use the tools on the right to compute/calibrate`,
     template: `<input  id="val-101-input" data-role="input" data-clear-button="false" data-append="steps/mm" type="text">`,
     utils: `<center>
             <button title="Calculate Y-Axis Steps per mm" class="button" type="button" onclick="ystepspermm()">
@@ -346,7 +358,7 @@ const grblSettingsTemplate = {
   102: {
     key: `$102`,
     title: `Z-axis steps per millimeter`,
-    description: `Grbl needs to know how far each step will take the tool in reality.  - use the tools on the right to compute/calibrate`,
+    description: `Grbl needs to know how far each step will take the axis in reality. Use the tools on the right to compute/calibrate`,
     template: `<input  id="val-102-input" data-role="input" data-clear-button="false" data-append="steps/mm" type="text">`,
     utils: `<center>
             <button title="Calculate Z-Axis Steps per mm" class="button" type="button" onclick="zstepspermm()">
@@ -361,7 +373,7 @@ const grblSettingsTemplate = {
   103: {
     key: `$103`,
     title: `A-axis steps per degree`,
-    description: `Grbl needs to know how far each step will take the tool in reality.`,
+    description: `Grbl needs to know how far each step will take the axis in reality. Use the tools on the right to compute/calibrate`,
     template: `<input  id="val-103-input" data-role="input" data-clear-button="false" data-append="steps/deg" type="text">`,
     utils: `<center>
             <button title="Calculate A-Axis Steps per degree" class="button" type="button" onclick="astepspermm()">
@@ -376,56 +388,56 @@ const grblSettingsTemplate = {
   110: {
     key: `$110`,
     title: `X-axis maximum rate, mm/min`,
-    description: `This sets the maximum rate each axis can move. Whenever Grbl plans a move, it checks whether or not the move causes any one of these individual axes to exceed their max rate. If so, it'll slow down the motion to ensure none of the axes exceed their max rate limits. This means that each axis has its own independent speed, which is extremely useful for limiting the typically slower Z-axis. The simplest way to determine these values is to test each axis one at a time by slowly increasing max rate settings and moving it. For example, to test the X-axis, send Grbl something like G0 X50 with enough travel distance so that the axis accelerates to its max speed. You'll know you've hit the max rate threshold when your steppers stall. It'll make a bit of noise, but shouldn't hurt your motors. Enter a setting a 10-20% below this value, so you can account for wear, friction, and the mass of your workpiece/tool. Then, repeat for your other axes. NOTE: This max rate setting also sets the G0 seek rates.`,
+    description: `This sets the maximum rate for each axis in millimeters per minute. This is the fastest Grbl will move on that axis when jogging or for rapid moves with the G0 command`,
     template: `<input id="val-110-input" data-role="input" data-clear-button="false" data-append="mm/min"  type="text">`,
     utils: ``
   },
   111: {
     key: `$111`,
     title: `Y-axis maximum rate, mm/min`,
-    description: `This sets the maximum rate each axis can move. Whenever Grbl plans a move, it checks whether or not the move causes any one of these individual axes to exceed their max rate. If so, it'll slow down the motion to ensure none of the axes exceed their max rate limits. This means that each axis has its own independent speed, which is extremely useful for limiting the typically slower Z-axis. The simplest way to determine these values is to test each axis one at a time by slowly increasing max rate settings and moving it. For example, to test the X-axis, send Grbl something like G0 X50 with enough travel distance so that the axis accelerates to its max speed. You'll know you've hit the max rate threshold when your steppers stall. It'll make a bit of noise, but shouldn't hurt your motors. Enter a setting a 10-20% below this value, so you can account for wear, friction, and the mass of your workpiece/tool. Then, repeat for your other axes. NOTE: This max rate setting also sets the G0 seek rates.`,
+    description: `This sets the maximum rate for each axis in millimeters per minute. This is the fastest Grbl will move on that axis when jogging or for rapid moves with the G0 command`,
     template: `<input id="val-111-input" data-role="input" data-clear-button="false" data-append="mm/min"  type="text">`,
     utils: ``
   },
   112: {
     key: `$112`,
     title: `Z-axis maximum rate, mm/min`,
-    description: `This sets the maximum rate each axis can move. Whenever Grbl plans a move, it checks whether or not the move causes any one of these individual axes to exceed their max rate. If so, it'll slow down the motion to ensure none of the axes exceed their max rate limits. This means that each axis has its own independent speed, which is extremely useful for limiting the typically slower Z-axis. The simplest way to determine these values is to test each axis one at a time by slowly increasing max rate settings and moving it. For example, to test the X-axis, send Grbl something like G0 X50 with enough travel distance so that the axis accelerates to its max speed. You'll know you've hit the max rate threshold when your steppers stall. It'll make a bit of noise, but shouldn't hurt your motors. Enter a setting a 10-20% below this value, so you can account for wear, friction, and the mass of your workpiece/tool. Then, repeat for your other axes. NOTE: This max rate setting also sets the G0 seek rates.`,
+    description: `This sets the maximum rate for each axis in millimeters per minute. This is the fastest Grbl will move on that axis when jogging or for rapid moves with the G0 command. It is common for the Z speed to be slower than X and Y`,
     template: `<input  id="val-112-input" data-role="input" data-clear-button="false" data-append="mm/min"  type="text">`,
     utils: ``
   },
   113: {
     key: `$113`,
     title: `A-axis maximum rate, deg/min`,
-    description: `This sets the maximum rate each axis can move. Whenever Grbl plans a move, it checks whether or not the move causes any one of these individual axes to exceed their max rate. If so, it'll slow down the motion to ensure none of the axes exceed their max rate limits. This means that each axis has its own independent speed, which is extremely useful for limiting the typically slower Z-axis. The simplest way to determine these values is to test each axis one at a time by slowly increasing max rate settings and moving it. For example, to test the X-axis, send Grbl something like G0 X50 with enough travel distance so that the axis accelerates to its max speed. You'll know you've hit the max rate threshold when your steppers stall. It'll make a bit of noise, but shouldn't hurt your motors. Enter a setting a 10-20% below this value, so you can account for wear, friction, and the mass of your workpiece/tool. Then, repeat for your other axes. NOTE: This max rate setting also sets the G0 seek rates.`,
+    description: `This sets the maximum rate for each axis in degrees per minute. This is the fastest Grbl will move on that axis when jogging or for rapid moves with the G0 command`,
     template: `<input  id="val-113-input" data-role="input" data-clear-button="false" data-append="deg/min"  type="text">`,
     utils: ``
   },
   120: {
     key: `$120`,
     title: `X-axis acceleration, mm/sec^2`,
-    description: `This sets the axes acceleration parameters in mm/second/second. Simplistically, a lower value makes Grbl ease slower into motion, while a higher value yields tighter moves and reaches the desired feed rates much quicker. Much like the max rate setting, each axis has its own acceleration value and are independent of each other. This means that a multi-axis motion will only accelerate as quickly as the lowest contributing axis can. Again, like the max rate setting, the simplest way to determine the values for this setting is to individually test each axis with slowly increasing values until the motor stalls. Then finalize your acceleration setting with a value 10-20% below this absolute max value. This should account for wear, friction, and mass inertia. We highly recommend that you dry test some G-code programs with your new settings before committing to them. Sometimes the loading on your machine is different when moving in all axes together.`,
+    description: `This sets the axes acceleration parameters in mm/second/second. Simplistically, a lower value makes Grbl ease slower into motion, while a higher value yields tighter moves and reaches the desired feed rates much quicker. Much like the max rate setting, each axis has its own acceleration value and are independent of each other. This means that a multi-axis motion will only accelerate as quickly as the lowest contributing axis can`,
     template: `<input  id="val-120-input" data-role="input" data-clear-button="false" data-append="mm/sec&sup2" type="text">`,
     utils: ``
   },
   121: {
     key: `$121`,
     title: `Y-axis acceleration, mm/sec^2`,
-    description: `This sets the axes acceleration parameters in mm/second/second. Simplistically, a lower value makes Grbl ease slower into motion, while a higher value yields tighter moves and reaches the desired feed rates much quicker. Much like the max rate setting, each axis has its own acceleration value and are independent of each other. This means that a multi-axis motion will only accelerate as quickly as the lowest contributing axis can. Again, like the max rate setting, the simplest way to determine the values for this setting is to individually test each axis with slowly increasing values until the motor stalls. Then finalize your acceleration setting with a value 10-20% below this absolute max value. This should account for wear, friction, and mass inertia. We highly recommend that you dry test some G-code programs with your new settings before committing to them. Sometimes the loading on your machine is different when moving in all axes together.`,
+    description: `This sets the axes acceleration parameters in mm/second/second. Simplistically, a lower value makes Grbl ease slower into motion, while a higher value yields tighter moves and reaches the desired feed rates much quicker. Much like the max rate setting, each axis has its own acceleration value and are independent of each other. This means that a multi-axis motion will only accelerate as quickly as the lowest contributing axis can`,
     template: `<input  id="val-121-input" data-role="input" data-clear-button="false" data-append="mm/sec&sup2" type="text">`,
     utils: ``
   },
   122: {
     key: `$122`,
     title: `Z-axis acceleration, mm/sec^2`,
-    description: `This sets the axes acceleration parameters in mm/second/second. Simplistically, a lower value makes Grbl ease slower into motion, while a higher value yields tighter moves and reaches the desired feed rates much quicker. Much like the max rate setting, each axis has its own acceleration value and are independent of each other. This means that a multi-axis motion will only accelerate as quickly as the lowest contributing axis can. Again, like the max rate setting, the simplest way to determine the values for this setting is to individually test each axis with slowly increasing values until the motor stalls. Then finalize your acceleration setting with a value 10-20% below this absolute max value. This should account for wear, friction, and mass inertia. We highly recommend that you dry test some G-code programs with your new settings before committing to them. Sometimes the loading on your machine is different when moving in all axes together.`,
+    description: `This sets the axes acceleration parameters in mm/second/second. Simplistically, a lower value makes Grbl ease slower into motion, while a higher value yields tighter moves and reaches the desired feed rates much quicker. Much like the max rate setting, each axis has its own acceleration value and are independent of each other. This means that a multi-axis motion will only accelerate as quickly as the lowest contributing axis can`,
     template: `<input  id="val-122-input" data-role="input" data-clear-button="false" data-append="mm/sec&sup2" type="text">`,
     utils: ``
   },
   123: {
     key: `$123`,
     title: `A-axis acceleration, deg/sec^2`,
-    description: `This sets the axes acceleration parameters in mm/second/second. Simplistically, a lower value makes Grbl ease slower into motion, while a higher value yields tighter moves and reaches the desired feed rates much quicker. Much like the max rate setting, each axis has its own acceleration value and are independent of each other. This means that a multi-axis motion will only accelerate as quickly as the lowest contributing axis can. Again, like the max rate setting, the simplest way to determine the values for this setting is to individually test each axis with slowly increasing values until the motor stalls. Then finalize your acceleration setting with a value 10-20% below this absolute max value. This should account for wear, friction, and mass inertia. We highly recommend that you dry test some G-code programs with your new settings before committing to them. Sometimes the loading on your machine is different when moving in all axes together.`,
+    description: `This sets the axes acceleration parameters in mm/second/second. Simplistically, a lower value makes Grbl ease slower into motion, while a higher value yields tighter moves and reaches the desired feed rates much quicker. Much like the max rate setting, each axis has its own acceleration value and are independent of each other. This means that a multi-axis motion will only accelerate as quickly as the lowest contributing axis can`,
     template: `<input  id="val-123-input" data-role="input" data-clear-button="false" data-append="deg/sec&sup2" type="text">`,
     utils: ``
   },
