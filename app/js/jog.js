@@ -38,14 +38,13 @@ function jogOverride(newVal, temp) {
     if (grblParams.$113 != undefined) {
       jogRate.a = (grblParams.$113 * (newVal / 100)).toFixed(0);
     }
-
-    if ($('#jro').data('slider').val() != newVal) {
-      $('#jro').data('slider').val(newVal);
-    }
   }
 
   if (!temp) {
     localStorage.setItem('jogOverride', newVal);
+    if ($('#jro').data('slider').val() != newVal) {
+      $('#jro').data('slider').val(newVal);
+    }
   }
 }
 
