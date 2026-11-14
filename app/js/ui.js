@@ -122,8 +122,7 @@ function setConnectBar(val, status) {
     // Set Port Dropdown to Current Value
     $('#portUSB').val(status.comms.interfaces.activePort);
 
-    enableViaClass('.macrobtn-grbl', val == 2);
-    enableViaClass('.macrobtn-js', val != 3);
+    enableViaClass('.macrobtn-grbl,.macrobtn-js', val == 2);
     enableViaClass('.grblCalibrationMenu', val == 2); // enable calibration only during idle
   }
 }

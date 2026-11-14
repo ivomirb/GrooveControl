@@ -18166,6 +18166,11 @@ var Slider = {
 
         marker.on(Metro.events.startAll, function(){
             $(document).on(Metro.events.moveAll, function(e){
+                // IVO: fix for a bug where releasing the mouse over a disabled button doesn't stop the dragging of the slider
+                if (e.originalEvent.type === "mousemove" && e.originalEvent.buttons === 0) {
+                    $(document).trigger(Metro.events.stopAll);
+                    return;
+                }
                 if (o.hint === true && o.hintAlways !== true) {
                     hint.fadeIn();
                 }
@@ -18329,6 +18334,10 @@ var Slider = {
         cPos = o.vertical === true ? Utils.pageXY(e).y - offset.top : Utils.pageXY(e).x - offset.left;
         cPix = o.vertical === true ? length - cPos - marker_size / 2 : cPos - marker_size / 2;
 
+        // IVO: fix for a bug where moving the mouse beyond the slider area can leave the marker near but not at the limit
+        /*if (cPix < cStart || cPix > cStop) {
+            return ;
+        }*/
         cPix = Math.min(Math.max(cPix, cStart), cStop);
 
         this.value = this._correct(this._convert(cPix, 'pix2val'));
