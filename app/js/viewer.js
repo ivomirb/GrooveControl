@@ -10,10 +10,11 @@ var CONE_FACE_COUNT = 8;
 
 var controls;
 
-var sizexmin;
-var sizeymin;
-var sizexmax;
-var sizeymax;
+var gridxmin = 0;
+var gridymin = 0;
+var gridxmax = 307;
+var gridymax = 207;
+
 var clearSceneFlag = false;
 var viewSettings = {grid: true, ruler: true, toolpath: true, tool: true, machine: true, heightmap: true};
 
@@ -24,11 +25,6 @@ var workspace = new THREE.Group();
 workspace.name = "Workspace"
 
 var machineCoordinateSpace;
-
-const defaultXmin = 0,
-  defaultXmax = 307,
-  defaultYmin = 0,
-  defaultYmax = 207
 
 function disposeGeometry(obj) {
   if (obj.geometry) obj.geometry.dispose();
@@ -67,12 +63,7 @@ function cleanupWorkspace() {
   if (obj) disposeGeometryAndRemove(obj);
 }
 
-function drawWorkspace(xmin, xmax, ymin, ymax) {
-
-  if (!xmin) xmin = defaultXmin;
-  if (!ymin) ymin = defaultYmin;
-  if (!xmax) xmax = defaultXmax;
-  if (!ymax) ymax = defaultYmax;
+function drawWorkspace() {
 
   const sceneLights = new THREE.Group();
 
@@ -179,11 +170,7 @@ function drawWorkspace(xmin, xmax, ymin, ymax) {
 
   gridsystem.name = "Grid System"
   workspace.add(gridsystem);
-  if (localStorage.getItem('unitsMode') == "in") {
-    redrawGrid(xmin / 25.4, xmax / 25.4, ymin / 25.4, ymax / 25.4, true);
-  } else {
-    redrawGrid(xmin, xmax, ymin, ymax, false);
-  }
+  redrawGrid(localStorage.getItem('unitsMode') == "in");
 
   const machineBoxVerts = [ // unit cube
     0, 0, 0, 0, 0, 1,
@@ -217,19 +204,14 @@ function drawWorkspace(xmin, xmax, ymin, ymax) {
   scene.add(workspace)
 }
 
-function redrawGrid(xmin, xmax, ymin, ymax, inches) {
-  if (inches) {
-    xmin = Math.floor(xmin * 25.4);
-    xmax = Math.ceil(xmax * 25.4);
-    ymin = Math.floor(ymin * 25.4);
-    ymax = Math.ceil(ymax * 25.4);
-  }
+function setGridSize(xmin, xmax, ymin, ymax) {
+  // Make sure 0,0 is included because it is the starting point of the rulers
+  xmin = Math.min(xmin, 0);
+  xmax = Math.max(xmax, 0);
+  ymin = Math.min(ymin, 0);
+  ymax = Math.max(ymax, 0);
 
-  sizexmin = xmin;
-  sizexmax = xmax;
-  sizeymin = ymin;
-  sizeymax = ymax;
-
+  // Make sure the size is at least 100 mm and 4 inches for good looking rulers
   if (xmax - xmin < 110) {
     const d = (110 - (xmax - xmin)) / 2;
     xmin -= d;
@@ -241,6 +223,20 @@ function redrawGrid(xmin, xmax, ymin, ymax, inches) {
     ymin -= d;
     ymax += d;
   }
+
+  gridxmin = xmin;
+  gridxmax = xmax;
+  gridymin = ymin;
+  gridymax = ymax;
+
+  redrawGrid(localStorage.getItem('unitsMode') == "in");
+}
+
+function redrawGrid(inches) {
+  const xmin = gridxmin;
+  const xmax = gridxmax;
+  const ymin = gridymin;
+  const ymax = gridymax;
 
   while (gridsystem.children.length > 0) {
     disposeGeometryAndRemove(gridsystem.children[0]);
@@ -413,7 +409,7 @@ function init3D() {
       });
     }
 
-    drawWorkspace(defaultXmin, defaultXmax, defaultYmin, defaultYmax);
+    drawWorkspace();
 
     readViewSettings();
 
