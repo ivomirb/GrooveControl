@@ -81,6 +81,7 @@ function convertParsedDataToObject(parsedData) {
       line.userData.zArray = parsedData.zArray;
       line.userData.bbbox2 = box;
       line.userData.totalTime = parsedData.totalTime;
+      line.userData.preciseEstimate = parsedData.preciseEstimate;
       line.userData.toolRanges = parsedData.toolRanges;
       line.name = 'gcodeobject';
       return line;
@@ -156,8 +157,34 @@ function parseGcodeInWebWorker(gcode) {
 
     }, false);
 
+    let machineParams = {
+      xMaxFeed: parseFloat(grblParams.$110),
+      yMaxFeed: parseFloat(grblParams.$111),
+      zMaxFeed: parseFloat(grblParams.$112),
+      xAccel: parseFloat(grblParams.$120),
+      yAccel: parseFloat(grblParams.$121),
+      zAccel: parseFloat(grblParams.$122),
+    };
+    if (localStorage.getItem('machineParams') != null) {
+      let settings = JSON.parse(localStorage.getItem('machineParams'));
+      machineParams.xMaxFeed = machineParams.xMaxFeed || settings.xMaxFeed;
+      machineParams.yMaxFeed = machineParams.yMaxFeed || settings.yMaxFeed;
+      machineParams.zMaxFeed = machineParams.zMaxFeed || settings.zMaxFeed;
+      machineParams.xAccel = machineParams.xAccel || settings.xAccel;
+      machineParams.yAccel = machineParams.yAccel || settings.yAccel;
+      machineParams.zAccel = machineParams.zAccel || settings.zAccel;
+    }
+    machineParams.xMaxFeed = machineParams.xMaxFeed || 1000;
+    machineParams.yMaxFeed = machineParams.yMaxFeed || 1000;
+    machineParams.zMaxFeed = machineParams.zMaxFeed || 1000;
+    machineParams.xAccel = machineParams.xAccel || 300;
+    machineParams.yAccel = machineParams.yAccel || 300;
+    machineParams.zAccel = machineParams.zAccel || 300;
+    localStorage.setItem('machineParams', JSON.stringify(machineParams));
+
     worker.postMessage({
-      'data': gcode
+      data: gcode,
+      machineParams: machineParams,
     });
 
     $('#3dviewicon').addClass('fa-pulse');
@@ -265,8 +292,9 @@ function runSim() {
 
   for (;simIdx < object.userData.pointCount; simIdx++) {
     let simTimeMins = object.userData.durationArray[simIdx];
-    if (object.userData.gArray[simIdx] == 0 && grblParams.$110 != undefined)
+    if (!object.userData.preciseEstimate && object.userData.gArray[simIdx] == 0 && grblParams.$110 != undefined) {
       simTimeMins *= 1000 / parseFloat(grblParams.$110); // adjust rapid speed if it is known
+    }
     simTimeInSec += simTimeMins * 60;
     if (simPaused) {
       simTimeInSec = Math.max(simTimeInSec, 0.01); // to prevent the paused tween from completing
