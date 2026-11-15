@@ -855,7 +855,7 @@ function runJob(object, callback) {
         serverEmit('queueCount', [0, 0, false]);
         jogWindowProgress(0);
       }
-    }, 500);
+    }, 1000);
     jobStatusInternal = 1;
     queueLengthInternal = gcodeQueue.length;
     status.misc.jobStatus = 1;
