@@ -428,14 +428,14 @@ function checkifchanged() {
         input.closest('tr').find('.revert-button').attr('modified', true);
 
         if (j == 3) { // axes
-					const changedBits = parseInt(oldVal)^parseInt(newVal);
+          const changedBits = parseInt(oldVal)^parseInt(newVal);
           addRemoveClass($('#xdirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&1) != 0);
           addRemoveClass($('#ydirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&2) != 0);
           addRemoveClass($('#zdirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&4) != 0);
           addRemoveClass($('#adirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&8) != 0);
           input.parent().addClass('alert');
         } else if (j == 23) { // home axes
-					const changedBits = parseInt(oldVal)^parseInt(newVal);
+          const changedBits = parseInt(oldVal)^parseInt(newVal);
           addRemoveClass($('#xHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&1) != 0);
           addRemoveClass($('#yHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&2) != 0);
           addRemoveClass($('#zHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&4) != 0);
@@ -465,7 +465,7 @@ function checkifchanged() {
           input.parent().removeClass('alert');
         } else if (input.is('select')) {
           input.removeClass('alert');
-				}
+        }
       }
     } else if (Object.hasOwn(editedGrblParams, key)) {
       hasChanged = true;
@@ -709,11 +709,14 @@ function setup_settings_table() {
   for (let key in grblParams) {
     const key2 = key.substr(1);
     const input = $('#val-' + key2 + '-input');
-    input.val(getEditorParamValue(key));
-    const setting = grblSettingsTemplate[key2];
-    // Metro UI destroys the tooltips for td and tr elements - readding here
-    if (setting !== undefined && setting.description.length > 0)
-      input.closest('td').prev().attr('title', setting.description);
+    if (input.length > 0) {
+      input.val(getEditorParamValue(key));
+      const setting = grblSettingsTemplate[key2];
+      // Metro UI destroys the tooltips for td and tr elements - re-adding here
+      if (setting !== undefined && setting.description.length > 0) {
+        input.closest('td').prev().attr('title', setting.description);
+      }
+    }
   }
   settingsUIConstructed = true;
 
@@ -765,6 +768,17 @@ function onSettingsTableCreate() {
         style="padding-right:10px;" onchange="toggleModifiedFilter(this.checked)"/>`);
   }
 
+  // Fix for a bug in Metro: When the search box loses focus, it gets a change event that refreshes the table after a short delay.
+  // This can mess up a settings edit already in progress. The fix is to suppress the change event if the search string hasn't changed.
+  const searchInput = $('#grblSettingsTableView .table-search-block input');
+  searchInput[0].addEventListener('change', () => {
+    const oldString = $('#grblMetroTable').data('table').searchString;
+    const newString = searchInput.val().trim().toLowerCase();
+    if (newString == newString) {
+      event.stopImmediatePropagation();
+    }
+  }, true);
+
   setup_settings_table();
 }
 
@@ -772,7 +786,7 @@ function onSettingsTableCreate() {
 //   * homing enabled or disabled
 //   * the homing side for each axis (the homing side may need a pulloff offset)
 //      * the pulloff distance can be overriden for special use cases
-//   * the "home origin" feature 'Z' - if set, the pulloff is ignored
+//   * the "home origin" feature 'Z' - if set, the zero is on the homing side and the pulloff is ignored
 //   * the manual homing flag (ignores pulloff for the manually homed axes)
 //   * the FluidNC homing settings
 // Expects that grblParams and laststatus.machine.firmware.features.contains are up to date
