@@ -115,7 +115,7 @@ const ThemeData = {
 
         scene.background = new THREE.Color(Theme.SCENE_BACKGROUND_COLOR);
         cleanupWorkspace();
-        drawWorkspace(sizexmin, sizexmax, sizeymin, sizeymax);
+        drawWorkspace();
       }
 
       clearSceneFlag = true;

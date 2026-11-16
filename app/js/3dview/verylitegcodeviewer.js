@@ -178,6 +178,15 @@ const gcodeModalHandlers = {
     parser.isUnitsMm = true;
   },
 
+  // G53 - G59: change coordinate system (the commands are accepted, but don't do anything since we don't know anything about WCOs)
+  G53: function() {},
+  G54: function() {},
+  G55: function() {},
+  G56: function() {},
+  G57: function() {},
+  G58: function() {},
+  G59: function() {},
+
   // G90: use absolute positions for XYZ (more accurately, relative to G92)
   G90: function(parser) {
     parser.relative = false;

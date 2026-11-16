@@ -57,6 +57,7 @@ const sentBuffer = [];
 var jobStartTime = false;
 var jobIsJob = false;
 var jobStatusInternal = 0; // 0 - no job, 1 - running, 2 - jog job running, 3 - wait for idle, 4 - jog job waiting for idle
+var queueLengthInternal;
 var jobCompletedMsg = ""; // message sent when job is done
 var pendingJobCallbacks = [];
 var currentGcode = ""; // the gcode for the current job
@@ -905,9 +906,19 @@ function runJob(object, callback) {
     // Start interval for qCount messages to socket clients
     queueCounterLoop = setInterval(function() {
       status.comms.queue = gcodeQueue.length - queuePointer + sentBuffer.length;
-      jogWindowProgress(queuePointer / gcodeQueue.length);
-    }, 500);
+      if (gcodeQueue.length > 0) {
+        serverEmit('queueCount', [status.comms.queue, gcodeQueue.length, jobStatusInternal > 0 && jobIsJob]);
+        jogWindowProgress(queuePointer / gcodeQueue.length);
+      } else if (jobStatusInternal > 0) {
+        serverEmit('queueCount', [0, queueLengthInternal, jobIsJob]);
+        jogWindowProgress(1);
+      } else {
+        serverEmit('queueCount', [0, 0, false]);
+        jogWindowProgress(0);
+      }
+    }, 1000);
     jobStatusInternal = 1;
+    queueLengthInternal = gcodeQueue.length;
     status.misc.jobStatus = 1;
     send1Q(); // send first line
     status.comms.connectionStatus = 3;
@@ -996,17 +1007,18 @@ function clearGcodeQueue(success) {
     serverEmit('queueCount', [queueLeft, queueTotal, jobStatusInternal > 0 && jobIsJob]);
   }
 
-  clearInterval(queueCounterLoop);
-  jogWindowProgress(0);
-
   status.comms.queue = 0;
   gcodeQueue.length = 0; // Dump the Queue
   queuePointer = 0;
 
   if (!success) {
     finalizeJob(false); // on failure, also finalize the job right now
+    clearInterval(queueCounterLoop);
+    jogWindowProgress(0);
   } else if (jobStatusInternal == 0 && status.comms.connectionStatus > 2 && status.comms.connectionStatus < 5) {
     status.comms.connectionStatus = 2; // finished non-job queue
+    clearInterval(queueCounterLoop);
+    jogWindowProgress(0);
   }
 }
 
@@ -1031,10 +1043,13 @@ function finalizeJob(success) {
     jobCompletedMsg = "";
     jobStartTime = false;
     jobStatusInternal = 0;
+    queueLengthInternal = 0;
     status.misc.jobStatus = 0;
     if (status.comms.connectionStatus != 5) {
       status.comms.connectionStatus = 2;
     }
+    clearInterval(queueCounterLoop);
+    jogWindowProgress(0);
   }
 }
 

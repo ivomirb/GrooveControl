@@ -127,11 +127,7 @@ function parseGcodeInWebWorker(gcode) {
           scene.add(object);
           lastToolRange = undefined;
 
-          if (localStorage.getItem('unitsMode') == "in") {
-            redrawGrid(object.userData.bbbox2.min.x / 25.4, object.userData.bbbox2.max.x / 25.4, object.userData.bbbox2.min.y / 25.4, object.userData.bbbox2.max.y / 25.4, true);
-          } else {
-            redrawGrid(object.userData.bbbox2.min.x, object.userData.bbbox2.max.x, object.userData.bbbox2.min.y, object.userData.bbbox2.max.y, false);
-          }
+          setGridSize(object.userData.bbbox2.min.x, object.userData.bbbox2.max.x, object.userData.bbbox2.min.y, object.userData.bbbox2.max.y);
 
           if (webgl) {
             activateContentTab('gcodeviewertab');
@@ -142,8 +138,8 @@ function parseGcodeInWebWorker(gcode) {
 
           if (!isNaN(timeremain)) {
             // output formattedTime to UI here
-            $('#timeRemaining').html(timeConvert(timeremain) + " / " + timeConvert(timeremain));
-            printLog("<span class='fg-darkRed'>[ g-code parser ]</span><span class='fg-darkGreen'> G-code Preview Rendered Succesfully: Estimated G-code Run Time: <b>" + timeConvert(timeremain) + "</b>")
+            $('#timeRemaining').html("Estimate: " + minToTime(timeremain));
+            printLog("<span class='fg-darkRed'>[ g-code parser ]</span><span class='fg-darkGreen'> G-code Preview Rendered Succesfully: Estimated G-code Run Time: <b>" + minToTime(timeremain) + "</b>")
           } else {
             $('#timeRemaining').html("");
           }
@@ -155,7 +151,6 @@ function parseGcodeInWebWorker(gcode) {
           $('#timeRemaining').html("");
           $('#3dviewicon').removeClass('fa-pulse');
           $('#3dviewlabel').html(' 3D View');
-
         }
       }
 

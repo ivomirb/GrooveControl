@@ -510,19 +510,6 @@ Date.prototype.yyyymmdd = function() {
   return yyyy + "-" + (mm < 10 ? '0' : '') + mm + "-" + (dd < 10 ? '0' : '') + dd;
 };
 
-function timeConvert(minutes) {
-  let hours = Math.floor(minutes / 60);
-  minutes = Math.round(minutes - hours * 60);
-
-  if (hours < 10) {
-    hours = "0" + hours;
-  }
-  if (minutes < 10) {
-    minutes = "0" + minutes;
-  }
-  return hours + "h:" + minutes + "m";
-}
-
 function toTitleCase(str) {
   return str.replace(/(?:^|\s)\w/g, function(match) {
     return match.toUpperCase();
