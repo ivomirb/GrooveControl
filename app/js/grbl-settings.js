@@ -428,14 +428,14 @@ function checkifchanged() {
         input.closest('tr').find('.revert-button').attr('modified', true);
 
         if (j == 3) { // axes
-					const changedBits = parseInt(oldVal)^parseInt(newVal);
+          const changedBits = parseInt(oldVal)^parseInt(newVal);
           addRemoveClass($('#xdirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&1) != 0);
           addRemoveClass($('#ydirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&2) != 0);
           addRemoveClass($('#zdirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&4) != 0);
           addRemoveClass($('#adirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&8) != 0);
           input.parent().addClass('alert');
         } else if (j == 23) { // home axes
-					const changedBits = parseInt(oldVal)^parseInt(newVal);
+          const changedBits = parseInt(oldVal)^parseInt(newVal);
           addRemoveClass($('#xHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&1) != 0);
           addRemoveClass($('#yHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&2) != 0);
           addRemoveClass($('#zHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&4) != 0);
@@ -465,7 +465,7 @@ function checkifchanged() {
           input.parent().removeClass('alert');
         } else if (input.is('select')) {
           input.removeClass('alert');
-				}
+        }
       }
     } else if (Object.hasOwn(editedGrblParams, key)) {
       hasChanged = true;
@@ -705,15 +705,26 @@ function setFluidNcConfig(data) {
   }
 }
 
+function onTableSearchChange(event) {
+  const oldString = $('#grblMetroTable').data('table').searchString;
+  const newString = $('#grblSettingsTableView .table-search-block input').val().trim().toLowerCase();
+  if (newString == newString) {
+    event.stopImmediatePropagation();
+  }
+}
+
 function setup_settings_table() {
   for (let key in grblParams) {
     const key2 = key.substr(1);
     const input = $('#val-' + key2 + '-input');
-    input.val(getEditorParamValue(key));
-    const setting = grblSettingsTemplate[key2];
-    // Metro UI destroys the tooltips for td and tr elements - readding here
-    if (setting !== undefined && setting.description.length > 0)
-      input.closest('td').prev().attr('title', setting.description);
+    if (input.length > 0) {
+      input.val(getEditorParamValue(key));
+      const setting = grblSettingsTemplate[key2];
+      // Metro UI destroys the tooltips for td and tr elements - re-adding here
+      if (setting !== undefined && setting.description.length > 0) {
+        input.closest('td').prev().attr('title', setting.description);
+      }
+    }
   }
   settingsUIConstructed = true;
 
@@ -726,6 +737,11 @@ function setup_settings_table() {
   $('#yHomeDir:checkbox').change(changeHomeDirInvert);
   $('#zHomeDir:checkbox').change(changeHomeDirInvert);
   $('#aHomeDir:checkbox').change(changeHomeDirInvert);
+
+  // Fix for a bug in Metro: When the search box loses focus, it gets a change event that refreshes the table after a short delay.
+  // This can mess up a settings edit already in progress. The fix is to suppress the change event if the search string hasn't changed.
+  const searchInput = $('#grblSettingsTableView .table-search-block input');
+  searchInput[0].addEventListener('change', onTableSearchChange, true); // this listener gets added multiple times, but addEventListener ignores duplicates
 
   // populate Direction Invert Checkboxes
   updateDirSettingChecks();
