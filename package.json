@@ -125,17 +125,10 @@
     "files": [
       "**/*",
       "ssl/**/*",
-      "firmware/**/*",
       ""
     ],
     "extraFiles": [
       "ssl"
-    ],
-    "asarUnpack": [
-      "esptool.exe",
-      "esptool-mac",
-      "esptool-linux",
-      "*.bin"
     ],
     "win": {
       "sign": "./signWin.js",

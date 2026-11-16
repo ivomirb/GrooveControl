@@ -498,61 +498,6 @@ function initSocket() {
     }
   })
 
-  socket.on('progStatus', function(data) {
-    $('#controlTab').click();
-    $('#consoletab').click();
-    console.log(data.port, data.string)
-    var string = data.string
-    if (string) {
-      if (string.indexOf('flash complete') != -1) {
-        setTimeout(function() {
-          populatePortsMenu();
-        }, 400)
-      }
-      string = string.replace('[31mflash complete.[39m', "<span class='fg-darkRed'><i class='fas fa-times fa-fw fg-darkRed fa-fw'> </i> FLASH FAILED!</span> ");
-      string = string.replace('[32m', "<span class='fg-darkGreen'><i class='fas fa-check fa-fw fg-darkGreen fa-fw'></i> ");
-      string = string.replace('[39m', "</span>");
-      if (string.indexOf("Hash of data verified") != -1) {
-        string = "<span class='fg-darkGreen'><i class='fas fa-check fa-fw fg-darkGreen fa-fw'></i>" + string + "</span>"
-      }
-      if (string.indexOf("could not open port") != -1) {
-        string = "<span class='fg-darkRed'><i class='fas fa-times fa-fw fg-darkRed fa-fw'></i>" + string + "</span>"
-      }
-      if (string.indexOf("something went wrong") != -1) {
-        string = "<span class='fg-darkRed'><i class='fas fa-times fa-fw fg-darkRed fa-fw'></i>" + string + "</span>"
-      }
-      if (string.indexOf("fatal error occurred") != -1) {
-        string = "<span class='fg-darkRed'><i class='fas fa-times fa-fw fg-darkRed fa-fw'></i>" + string + "</span>"
-      }
-
-      if (string.indexOf("A fatal error occurred: Failed to connect to ESP32: Timed out waiting for packet header") != -1) {
-        string = "<span class='fg-darkRed'>" + string + ":  Make sure the device is in BOOTLOADER MODE. Your computer failed to put it into Bootloader mode automatically. You can enter bootloader mode by: Press and hold down MODE, then Press RESET while still holding MODE. Let go of RESET, then wait a second or two and let go of MODE.  Best performed right after starting the Firmware Flashing operation."
-      }
-
-
-      var icon = ''
-      var source = " Firmware Upgrade"
-      //var string = string
-      var printLogCls = "fg-dark"
-      printLogModern(icon, source, string, printLogCls)
-
-      if (data.code != undefined) {
-        var icon = ''
-        var source = " Firmware Upgrade"
-        if (data.code == 0) {
-          var string = "<i class='fas fa-check fa-fw fg-darkGreen fa-fw'></i> <b>Firmware Update COMPLETED!</b>  Please click the Reset button on the device now, to reboot it with the new firmware. "
-          var printLogCls = "fg-darkGreen"
-        } else {
-          var string = "<i class='fas fa-times fa-fw fg-darkRed fa-fw'></i> <b>Firmware Update FAILED!</b>  Please review the logs above, or try again"
-          var printLogCls = "fg-darkRed"
-        }
-        printLogModern(icon, source, string, printLogCls)
-        populatePortsMenu()
-      }
-
-    }
-  });
-
   socket.on('sysinfo', function(sysinfo) {
     console.log(sysinfo)
     lastsysinfo = sysinfo;
@@ -1175,13 +1120,6 @@ function populatePortsMenu() {
       };
     }
     response += `</optgroup>`
-
-    // Set USB Ports menu for Firmware Flashing tool before we add the Network ports - you cannot flash over the network
-    var select2 = $("#portUSB2").data("select");
-    if (select2) {
-      select2.data(response);
-    }
-    $('#portUSB2').parent(".select").removeClass('disabled')
 
     // Add the Network Ports to the list then populate the Machine Connection selection
     if (!laststatus.comms.interfaces.networkDevices.length) {

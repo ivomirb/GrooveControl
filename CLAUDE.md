@@ -26,7 +26,7 @@ index.js (Electron-Hauptprozess, ~4000 Zeilen, alles in einer Datei)
  ├─ Maschinenkommunikation: `serialport` (USB) oder net-Socket (Telnet)
  │   Antworten → parseFeedback() (Statusreport `<...>`), gotModals(), ALARM/error-Handling
  ├─ G-Code-Queue + Character-Counting-Streaming
- ├─ Firmware-Flashing (esptool-*, *.bin, *.hex im Repo-Root) und Telnet-Netzwerkscan
+ ├─ Telnet-Netzwerkscan (Firmware-Flashing wurde in diesem Fork entfernt)
  └─ BrowserWindow `jogWindow` lädt http://localhost:<webPort>/
 ```
 
@@ -38,7 +38,7 @@ Socket.IO mit dem Hauptprozess spricht – sie läuft daher auch im Browser auf 
 - `app/js/jog.js`, `app/js/keyboard.js` – Jog-Buttons und Tastaturkürzel (inkl. Stop/Pause/Alarm löschen).
 - `app/js/macros.js`, `toolchange.js`, `grbl-settings*.js`, `viewer.js` (3D-Vorschau), `ui.js`, `main.js`.
 - `app/jog/` – separate mobile Jog-Oberfläche (PWA) mit eigenen Stop-/Alarm-Buttons.
-- `app/wizards/` – Kalibrierung, Probing, Surfacing, Job-Resume, Flashing-Tool.
+- `app/wizards/` – Kalibrierung, Probing, Surfacing, Job-Resume.
 - `grblStrings.js` – Texte für Grbl-Alarm- und Fehlercodes.
 
 ### Zentrale Zustände in index.js
