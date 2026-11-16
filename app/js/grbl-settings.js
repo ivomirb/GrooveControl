@@ -427,68 +427,44 @@ function checkifchanged() {
         editedGrblParams[key] = newVal;
         input.closest('tr').find('.revert-button').attr('modified', true);
 
-        if (!input.parent().is('td')) {
+        if (j == 3) { // axes
+          const changedBits = parseInt(oldVal)^parseInt(newVal);
+          addRemoveClass($('#xdirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&1) != 0);
+          addRemoveClass($('#ydirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&2) != 0);
+          addRemoveClass($('#zdirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&4) != 0);
+          addRemoveClass($('#adirinvert').parent().children('.app-notification'), 'bd-red', (changedBits&8) != 0);
+          input.parent().addClass('alert');
+        } else if (j == 23) { // home axes
+          const changedBits = parseInt(oldVal)^parseInt(newVal);
+          addRemoveClass($('#xHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&1) != 0);
+          addRemoveClass($('#yHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&2) != 0);
+          addRemoveClass($('#zHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&4) != 0);
+          addRemoveClass($('#aHomeDir').parent().children('.app-notification'), 'bd-red', (changedBits&8) != 0);
+          input.parent().addClass('alert');
+        } else if (!input.parent().is('td')) {
           input.parent().addClass('alert');
         } else if (input.is('select')) {
           input.addClass('alert');
-        } else if (j == 3) { // axes
-          if (!compareAsNumber || ((parseInt(oldVal)^parseInt(newVal)) & 1) != 0)
-            $('#xdirinvert').parent().children('.app-notification').addClass('bd-red');
-          else
-            $('#xdirinvert').parent().children('.app-notification').removeClass('bd-red');
-
-          if (!compareAsNumber || ((parseInt(oldVal)^parseInt(newVal)) & 2) != 0)
-            $('#ydirinvert').parent().children('.app-notification').addClass('bd-red');
-          else
-            $('#ydirinvert').parent().children('.app-notification').removeClass('bd-red');
-
-          if (!compareAsNumber || ((parseInt(oldVal)^parseInt(newVal)) & 4) != 0)
-            $('#zdirinvert').parent().children('.app-notification').addClass('bd-red');
-          else
-            $('#zdirinvert').parent().children('.app-notification').removeClass('bd-red');
-
-          if (!compareAsNumber || ((parseInt(oldVal)^parseInt(newVal)) & 8) != 0)
-            $('#adirinvert').parent().children('.app-notification').addClass('bd-red');
-          else
-            $('#adirinvert').parent().children('.app-notification').removeClass('bd-red');
-        } else if (j == 23) { // home axes
-          if (!compareAsNumber || ((parseInt(oldVal)^parseInt(newVal)) & 1) != 0)
-            $('#xHomeDir').parent().children('.app-notification').addClass('bd-red');
-          else
-            $('#xHomeDir').parent().children('.app-notification').removeClass('bd-red');
-
-          if (!compareAsNumber || ((parseInt(oldVal)^parseInt(newVal)) & 2) != 0)
-            $('#yHomeDir').parent().children('.app-notification').addClass('bd-red');
-          else
-            $('#yHomeDir').parent().children('.app-notification').removeClass('bd-red');
-
-          if (!compareAsNumber || ((parseInt(oldVal)^parseInt(newVal)) & 4) != 0)
-            $('#zHomeDir').parent().children('.app-notification').addClass('bd-red');
-          else
-            $('#zHomeDir').parent().children('.app-notification').removeClass('bd-red');
-
-          if (!compareAsNumber || ((parseInt(oldVal)^parseInt(newVal)) & 8) != 0)
-            $('#aHomeDir').parent().children('.app-notification').addClass('bd-red');
-          else
-            $('#aHomeDir').parent().children('.app-notification').removeClass('bd-red');
         }
       } else {
         input.closest('tr').find('.revert-button').removeAttr('modified');
         delete editedGrblParams[key];
-        if (!input.parent().is('td')) {
-          input.parent().removeClass('alert');
-        } else if (input.is('select')) {
-          input.removeClass('alert');
-        } else if (j == 3) {
+        if (j == 3) {
           $('#xdirinvert').parent().children('.app-notification').removeClass('bd-red');
           $('#ydirinvert').parent().children('.app-notification').removeClass('bd-red');
           $('#zdirinvert').parent().children('.app-notification').removeClass('bd-red');
           $('#adirinvert').parent().children('.app-notification').removeClass('bd-red');
+          input.parent().removeClass('alert');
         } else if (j == 23) { // home axes
           $('#xHomeDir').parent().children('.app-notification').removeClass('bd-red');
           $('#yHomeDir').parent().children('.app-notification').removeClass('bd-red');
           $('#zHomeDir').parent().children('.app-notification').removeClass('bd-red');
           $('#aHomeDir').parent().children('.app-notification').removeClass('bd-red');
+          input.parent().removeClass('alert');
+        } else if (!input.parent().is('td')) {
+          input.parent().removeClass('alert');
+        } else if (input.is('select')) {
+          input.removeClass('alert');
         }
       }
     } else if (Object.hasOwn(editedGrblParams, key)) {
@@ -639,11 +615,12 @@ function clearSettings() {
     content: `
 <div>Resetting the Grbl settings will restore them to the original firmware defaults.<br>
 <br>
-This is almost never what you want. "Firmware Defaults" is not the same as "Factory Settings".
-It is very common for CNC manufacturers to use generic firmware that is not custom-built for your specifc machine,
-and then customize it by writing the EEPROM settings before shipping. Those settings will be lost.<br>
+Keep in mind that there is a difference between "Firmware Defaults" and "Factory Settings".
+Often CNC manufacturers uses motherboards and firmware from another supplier, and then write their own settings to the EEPROM.
+Resetting the EEPROM will wipe out the factory settings and revert to the generic firmware defaults.<br>
 <br>
-If you wish to proceed, you should save a backup of the current settings first.<br>
+Only proceed if you are confident the firmware defaults are meant for your specific machine. You should always save a backup of the current settings first,
+in case the defaults don't work out.<br>
 <br>
 Would you like to continue?
 </div>`,
@@ -671,11 +648,12 @@ function clearEEPROM() {
     content: `
 <div>Resetting the EEPROM will restore all the Grbl settings to the firmware defaults, zero out all coordinate systems, and clear the $N and $I parameters.<br>
 <br>
-This is almost never what you want. "Firmware Defaults" is not the same as "Factory Settings".
-It is very common for CNC manufacturers to use generic firmware that is not custom-built for your specifc machine,
-and then customize it by writing the EEPROM settings before shipping. Those settings will be lost.<br>
+Keep in mind that there is a difference between "Firmware Defaults" and "Factory Settings".
+Often CNC manufacturers uses motherboards and firmware from another supplier, and then write their own settings to the EEPROM.
+Resetting the EEPROM will wipe out the factory settings and revert to the generic firmware defaults.<br>
 <br>
-If you wish to proceed, you should save a backup of the current settings first.<br>
+Only proceed if you are confident the firmware defaults are meant for your specific machine. You should always save a backup of the current settings first,
+in case the defaults don't work out.<br>
 <br>
 Would you like to continue?
 </div>`,
@@ -727,15 +705,26 @@ function setFluidNcConfig(data) {
   }
 }
 
+function onTableSearchChange(event) {
+  const oldString = $('#grblMetroTable').data('table').searchString;
+  const newString = $('#grblSettingsTableView .table-search-block input').val().trim().toLowerCase();
+  if (newString == newString) {
+    event.stopImmediatePropagation();
+  }
+}
+
 function setup_settings_table() {
   for (let key in grblParams) {
     const key2 = key.substr(1);
     const input = $('#val-' + key2 + '-input');
-    input.val(getEditorParamValue(key));
-    const setting = grblSettingsTemplate[key2];
-    // Metro UI destroys the tooltips for td and tr elements - readding here
-    if (setting !== undefined && setting.description.length > 0)
-      input.closest('td').prev().attr('title', setting.description);
+    if (input.length > 0) {
+      input.val(getEditorParamValue(key));
+      const setting = grblSettingsTemplate[key2];
+      // Metro UI destroys the tooltips for td and tr elements - re-adding here
+      if (setting !== undefined && setting.description.length > 0) {
+        input.closest('td').prev().attr('title', setting.description);
+      }
+    }
   }
   settingsUIConstructed = true;
 
@@ -748,6 +737,11 @@ function setup_settings_table() {
   $('#yHomeDir:checkbox').change(changeHomeDirInvert);
   $('#zHomeDir:checkbox').change(changeHomeDirInvert);
   $('#aHomeDir:checkbox').change(changeHomeDirInvert);
+
+  // Fix for a bug in Metro: When the search box loses focus, it gets a change event that refreshes the table after a short delay.
+  // This can mess up a settings edit already in progress. The fix is to suppress the change event if the search string hasn't changed.
+  const searchInput = $('#grblSettingsTableView .table-search-block input');
+  searchInput[0].addEventListener('change', onTableSearchChange, true); // this listener gets added multiple times, but addEventListener ignores duplicates
 
   // populate Direction Invert Checkboxes
   updateDirSettingChecks();

@@ -241,7 +241,7 @@ function onJobComplete(data) {
     if (data.failed) {
       completionStatus = "incomplete"
     }
-    console.log("Completed: " + completionStatus + " / Filename: " + loadedFileName + " / Estimated Runtime: " +timeConvert(estimateTime) +
+    console.log("Completed: " + completionStatus + " / Filename: " + loadedFileName + " / Estimated Runtime: " + minToTime(estimateTime) +
       " / Streaming Runtime: " + msToTime(runTime) + " / Start Date: " + startDateString + " / End Date: " + endDateString);
     const completedJob = {
       completed: !data.failed, // Did job complete?
@@ -289,7 +289,6 @@ function onJobComplete(data) {
 }
 
 function onQueueCount(data) {
-  // calc percentage
   const left = data[0];
   const total = data[1];
   const isJob = data[2];
@@ -300,7 +299,7 @@ function onQueueCount(data) {
   if (isJob && !isJogWidget && done > 0 && object?.userData?.pointCount > 2 && lastJobStartTime) {
     const timeremain = object.userData.totalTime;
     if (!isNaN(timeremain)) {
-      $('#timeRemaining').html(msToTime(new Date().getTime() - lastJobStartTime) + " / " + timeConvert(timeremain));
+      $('#timeRemaining').html(msToTime(new Date().getTime() - lastJobStartTime) + " / " + minToTime(timeremain));
     }
   }
   $('#gcodesent').html("Job Queue: " + data[0]);
@@ -1009,15 +1008,27 @@ function escapeHTML(html) {
   return document.createElement('div').appendChild(document.createTextNode(html)).parentNode.innerHTML;
 }
 
-function msToTime(duration) {
-//  let milliseconds = parseInt((duration % 1000) / 100);
-//  let seconds = Math.floor((duration / 1000) % 60);
-  let minutes = Math.floor((duration / (1000 * 60)) % 60);
-  let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+function msToTime(milliseconds) {
+  let seconds = Math.round(milliseconds / 1000);
+  let minutes = Math.floor(seconds / 60);
+  let hours = Math.floor(minutes / 60);
+  seconds %= 60;
+  minutes %= 60;
 
   hours = (hours < 10) ? "0" + hours : hours;
   minutes = (minutes < 10) ? "0" + minutes : minutes;
-//  seconds = (seconds < 10) ? "0" + seconds : seconds;
+  seconds = (seconds < 10) ? "0" + seconds : seconds;
 
-  return hours + "h" + minutes + "m";
+  return hours + "h:" + minutes + "m:" + seconds + "s";
+}
+
+function minToTime(minutes) {
+  minutes = Math.round(minutes);
+  let hours = Math.floor(minutes / 60);
+  minutes %= 60;
+
+  hours = (hours < 10) ? "0" + hours : hours;
+  minutes = (minutes < 10) ? "0" + minutes : minutes;
+
+  return hours + "h:" + minutes + "m";
 }

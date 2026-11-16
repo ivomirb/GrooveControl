@@ -56,7 +56,7 @@ function showJobLog() {
     }
     template += `<td class="pt-1 mt-0 pb-0 pt-0">` + date + ", " + time + `</td>`
     template += `<td class="pt-1 mt-0 pb-0 pt-0"><div style="max-width: 160px !important; word-wrap: break-word;">` + pastJobs[i].filename + `</div></td>`
-    template += `<td class="pt-1 mt-0 pb-0 pt-0">` + timeConvert(pastJobs[i].estruntime) + ` (Estimate)<br>` + msToTime(pastJobs[i].streamruntime) + ` (Streamed)</td>`
+    template += `<td class="pt-1 mt-0 pb-0 pt-0">` + minToTime(pastJobs[i].estruntime) + ` (Estimate)<br>` + msToTime(pastJobs[i].streamruntime) + ` (Streamed)</td>`
     template += `</tr>`
   }
 
