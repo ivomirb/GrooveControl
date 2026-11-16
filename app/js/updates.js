@@ -1,7 +1,8 @@
 var time = 10
-$(document).ready(function() {
-  checkUpdate()
-});
+// Update-Prüfung deaktiviert: beim Start wird nicht mehr bei GitHub nach neuen Versionen gefragt
+// $(document).ready(function() {
+//   checkUpdate()
+// });
 
 
 function checkUpdate() {

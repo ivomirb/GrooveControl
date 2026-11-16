@@ -188,7 +188,8 @@ $(document).ready(function() {
 
   });
 
-  getChangelog()
+  // Changelog-Abruf von GitHub deaktiviert (keine Verbindung zu GitHub beim Start)
+  // getChangelog()
 
   setInterval(function() {
     setWindowTitle();
