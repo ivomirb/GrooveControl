@@ -781,6 +781,17 @@ function onSettingsTableCreate() {
         style="padding-right:10px;" onchange="toggleModifiedFilter(this.checked)"/>`);
   }
 
+  // Fix for a bug in Metro: When the search box loses focus, it gets a change event that refreshes the table after a short delay.
+  // This can mess up a settings edit already in progress. The fix is to suppress the change event if the search string hasn't changed.
+  const searchInput = $('#grblSettingsTableView .table-search-block input');
+  searchInput[0].addEventListener('change', () => {
+    const oldString = $('#grblMetroTable').data('table').searchString;
+    const newString = searchInput.val().trim().toLowerCase();
+    if (newString == newString) {
+      event.stopImmediatePropagation();
+    }
+  }, true);
+
   setup_settings_table();
 }
 
@@ -788,7 +799,7 @@ function onSettingsTableCreate() {
 //   * homing enabled or disabled
 //   * the homing side for each axis (the homing side may need a pulloff offset)
 //      * the pulloff distance can be overriden for special use cases
-//   * the "home origin" feature 'Z' - if set, the pulloff is ignored
+//   * the "home origin" feature 'Z' - if set, the zero is on the homing side and the pulloff is ignored
 //   * the manual homing flag (ignores pulloff for the manually homed axes)
 //   * the FluidNC homing settings
 // Expects that grblParams and laststatus.machine.firmware.features.contains are up to date
