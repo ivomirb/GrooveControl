@@ -66,12 +66,70 @@ var express = require("express");
 var app = express();
 var http = require("http").Server(app);
 
+// Herkunftsprüfung (Schutz vor fremden Webseiten im Browser)
+// Erlaubt sind nur Anfragen an eine lokale Adresse (localhost, IP, Rechnername, *.local)
+// und – falls der Browser eine Herkunft (Origin) mitschickt – nur von genau dieser Adresse.
+// Anfragen ohne Origin (z. B. curl) sind erlaubt, solange die Zieladresse lokal ist.
+function isAllowedHost(hostHeader) {
+  if (!hostHeader) {
+    return false;
+  }
+  var hostname;
+  try {
+    hostname = new URL('http://' + hostHeader).hostname.toLowerCase();
+  } catch (e) {
+    return false;
+  }
+  hostname = hostname.replace(/^\[/, '').replace(/\]$/, ''); // IPv6 [::1] -> ::1
+  if (hostname === 'localhost' || hostname.endsWith('.local')) {
+    return true;
+  }
+  if (require('net').isIP(hostname)) {
+    return true;
+  }
+  return hostname.indexOf('.') === -1; // Rechnername ohne Domain
+}
+
+function isSameOriginRequest(req) {
+  var host = req.headers.host;
+  if (!isAllowedHost(host)) {
+    return false;
+  }
+  var origin = req.headers.origin;
+  if (origin === undefined) {
+    return true;
+  }
+  try {
+    return new URL(origin).host.toLowerCase() === host.toLowerCase();
+  } catch (e) {
+    return false; // z. B. Origin "null"
+  }
+}
+
+app.use(function checkRequestOrigin(req, res, next) {
+  var isReadOnly = (req.method === 'GET' || req.method === 'HEAD');
+  if (!isAllowedHost(req.headers.host) || (!isReadOnly && !isSameOriginRequest(req))) {
+    debug_log('Blocked request: ' + req.method + ' ' + req.url + ' Host: ' + req.headers.host + ' Origin: ' + req.headers.origin);
+    return res.status(403).send('Forbidden');
+  }
+  next();
+});
+
 //var ioServer = require('socket.io');
 const {
   Server: ioServer
 } = require('socket.io');
 
-var io = new ioServer();
+var io = new ioServer({
+  // Verbindungsaufbau nur von der eigenen Oberfläche (siehe isSameOriginRequest)
+  allowRequest: function(req, callback) {
+    var allowed = isSameOriginRequest(req);
+    if (!allowed) {
+      debug_log('Blocked Socket.IO connection: Host: ' + req.headers.host + ' Origin: ' + req.headers.origin);
+    }
+    callback(null, allowed);
+  }
+});
 
 var fs = require('fs');
 var path = require("path");
@@ -90,17 +148,6 @@ var fluidncConfig = "";
 app.use(express.static(path.join(__dirname, "app")));
 //app.use(express.limit('200M'));
 
-app.use(function setCommonHeaders(req, res, next) {
-  res.set("Access-Control-Allow-Private-Network", "true");
-  next();
-});
-
-app.all('/*', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header("Access-Control-Allow-Private-Network", "true");
-  next();
-});
 
 
 
@@ -429,8 +476,6 @@ checkPowerSettings()
 
 // JSON API
 app.get('/api/version', (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   data = {
     "application": "OMD",
     "version": require('./package').version,
@@ -439,36 +484,15 @@ app.get('/api/version', (req, res) => {
   res.send(JSON.stringify(data), null, 2);
 })
 
-app.get('/activate', (req, res) => {
-  debug_log(req.hostname)
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.send('Host: ' + req.hostname + ' asked to activate OpenBuilds CONTROL v' + require('./package').version);
-  showJogWindow()
-  setTimeout(function() {
-    io.sockets.emit('activate', req.hostname);
-  }, 500);
-})
-
 // Upload
 app.get('/upload', (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.sendFile(__dirname + '/app/upload.html');
 })
 
 app.get('/gcode', (req, res) => {
   if (uploadedgcode.indexOf('$') != 0) { // Ignore grblSettings jobs
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.send(uploadedgcode);
   }
-})
-
-app.get('/workspace', (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.send(uploadedworkspace);
 })
 
 // http-post version of runJob
@@ -507,8 +531,6 @@ app.post('/runjob', (req, res) => {
 
 // File Post
 app.post('/upload', function(req, res) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   //debug_log(req)
   uploadprogress = 0
   var form = new formidable.IncomingForm();
