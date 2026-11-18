@@ -65,7 +65,6 @@ config.grblWaitTime = 0.5;
 var express = require("express");
 var app = express();
 var http = require("http").Server(app);
-var https = require('https');
 
 //var ioServer = require('socket.io');
 const {
@@ -105,19 +104,6 @@ app.all('/*', function(req, res, next) {
 
 
 
-//Note when renewing Convert zerossl cert first `openssl.exe rsa -in domain-key.key -out domain-key.key`
-// fix error:    App threw an error during load
-//               Error: error:06000066:public key routines:OPENSSL_internal:DECODE_ERROR
-
-var httpsOptions = {
-  key: fs.readFileSync(path.join(__dirname, 'privkey1.pem')),
-  cert: fs.readFileSync(path.join(__dirname, 'fullchain1.pem'))
-};
-
-const httpsserver = https.createServer(httpsOptions, app).listen(3001, function() {
-  debug_log('https: listening on:' + ip.address() + ":3001");
-});
-
 const httpserver = http.listen(config.webPort, '0.0.0.0', httpServerSuccess).on('error', httpServerError);
 
 function httpServerSuccess() {
@@ -134,7 +120,6 @@ function httpServerError(error) {
 }
 
 io.attach(httpserver);
-io.attach(httpsserver);
 
 const grblStrings = require("./grblStrings.js");
 
@@ -184,9 +169,6 @@ var forceQuit
 var appIcon = null,
   jogWindow = null,
   mainWindow = null
-// Auto-Updater komplett deaktiviert: electron-updater wird nicht geladen,
-// es wird nie nach Updates gesucht und nichts heruntergeladen oder installiert.
-debug_log("AutoUpdater disabled")
 
 if (isElectron()) {
   var uploadsDir = electronApp.getPath('userData') + '/upload/';
@@ -621,83 +603,6 @@ io.on("connection", function(socket) {
     })
   })
 
-  socket.on("openInterfaceDir", function(data) {
-    dialog.showOpenDialog(jogWindow, {
-      properties: ['openDirectory'],
-      title: "Select the USB Flashdrive you want to use with Interface"
-    }).then(result => {
-      console.log(result.canceled)
-      console.log(result.filePaths)
-      io.sockets.emit("interfaceDrive", result.filePaths[0]);
-      status.interface.diskdrive = result.filePaths[0]
-    }).catch(err => {
-      console.log(err)
-    })
-  })
-
-  socket.on("openbuilds", function(data) {
-    const {
-      shell
-    } = require('electron')
-    shell.openExternal('https://www.openbuilds.com')
-  });
-
-  socket.on("openbuildspartstore", function(data) {
-    const {
-      shell
-    } = require('electron')
-    shell.openExternal('https://www.openbuildspartstore.com')
-  });
-
-  socket.on("carveco", function(data) {
-    const {
-      shell
-    } = require('electron')
-    shell.openExternal('https://carveco.com/carveco-software-range/?ref=openbuilds')
-  });
-
-  socket.on("fabber", function(data) {
-    const {
-      shell
-    } = require('electron')
-    shell.openExternal('https://www.getfabber.com/openbuilds?ref=OpenBuilds')
-  });
-
-  socket.on("lightburn", function(data) {
-    const {
-      shell
-    } = require('electron')
-    shell.openExternal('https://openbuildspartstore.com/lightburn/')
-  });
-
-  socket.on("vectric", function(data) {
-    const {
-      shell
-    } = require('electron')
-    shell.openExternal('https://openbuildspartstore.com/vectric/')
-  });
-
-  socket.on("opencam", function(data) {
-    const {
-      shell
-    } = require('electron')
-    shell.openExternal('https://cam.openbuilds.com')
-  });
-
-  socket.on("opendocs", function(data) {
-    const {
-      shell
-    } = require('electron')
-    shell.openExternal('https://docs.openbuilds.com/')
-  });
-
-  socket.on("openforum", function(data) {
-    const {
-      shell
-    } = require('electron')
-    shell.openExternal('https://openbuilds.com/threads/openbuilds-control-software.13121/')
-  });
-
   socket.on("gpuinfo", function(data) {
     // GPU
     var gpuInfoWindow = new BrowserWindow({
@@ -763,144 +668,6 @@ io.on("connection", function(socket) {
       appIcon.destroy();
     }
     electronApp.exit(0);
-  });
-
-  // Auto-Updater deaktiviert: Update-Anfragen aus der UI werden ignoriert
-  socket.on("applyUpdate", function(data) {
-    debug_log("applyUpdate ignored: AutoUpdater disabled")
-  })
-
-  socket.on("downloadUpdate", function(data) {
-    debug_log("downloadUpdate ignored: AutoUpdater disabled")
-  })
-
-  socket.on("writeInterfaceUsbDrive", function(data) {
-
-    debug_log(data)
-    //data.drive = mountpoint dest
-    //data.controller = type of controller
-    if (data.controller == "blackbox4x" || data.controller == "genericgrbl") {
-      var probesrc = path.join(__dirname, './app/wizards/interface/PROBE/');
-      var profilesrc = path.join(__dirname, './app/wizards/interface/PROFILESGRBL/');
-    } else if (data.controller == "blackboxx32" || data.controller == "genericgrblhal") {
-      var probesrc = path.join(__dirname, './app/wizards/interface/PROBE/');
-      var profilesrc = path.join(__dirname, './app/wizards/interface/PROFILESHAL/');
-    }
-
-    var probedest = path.join(data.drive, "/PROBE/");
-    var profiledest = path.join(data.drive, "/PROFILES/");
-
-    var ncp = require('ncp').ncp;
-    ncp.limit = 16;
-
-    var output = {
-      'command': 'Interface USB Drive',
-      'response': "Starting to copy data to " + data.drive,
-      'type': 'info'
-    }
-    io.sockets.emit('data', output);
-
-    var errorCount = 0;
-
-    if (data.ssid && data.psk) {
-
-
-      const folderPath = path.join(data.drive, "CONFIG");
-
-      // Create the subfolder if it doesn't exist and then write the file
-      fs.mkdir(folderPath, {
-        recursive: true
-      }, (err) => {
-        if (err) {
-          var output = {
-            'command': 'Interface USB Drive',
-            'response': `Failed to create folder ${folderPath}! Error: ${err}`,
-            'type': 'error'
-          };
-          io.sockets.emit('data', output);
-        } else {
-          var fileContent = `${data.ssid}\n${data.psk}`;
-
-          fs.writeFile(path.join(folderPath, "wifi.cfg"), fileContent, (err) => {
-            if (err) {
-              errorCount++;
-              var output = {
-                'command': 'Interface USB Drive',
-                'response': `Failed to create Wifi Configuration file in ${folderPath}! Error: ${err}`,
-                'type': 'error'
-              };
-              io.sockets.emit('data', output);
-            } else {
-              var output = {
-                'command': 'Interface USB Drive',
-                'response': `Created Wifi Configuration file in ${folderPath} successfully!`,
-                'type': 'success'
-              };
-              io.sockets.emit('data', output);
-            }
-          });
-        }
-      });
-
-    }
-
-    ncp(probesrc, probedest, function(err) {
-      if (err) {
-        var output = {
-          'command': 'Interface USB Drive',
-          'response': "Failed to copy PROBE macros to " + probedest + ":  " + JSON.stringify(err),
-          'type': 'error'
-        }
-        io.sockets.emit('data', output);
-        errorCount++
-      } else {
-        var output = {
-          'command': 'Interface USB Drive',
-          'response': "Copied PROBE macros to " + probedest + " succesfully!",
-          'type': 'success'
-        }
-        io.sockets.emit('data', output);
-      }
-    });
-
-
-    ncp(profilesrc, profiledest, function(err) {
-      if (err) {
-        var output = {
-          'command': 'Interface USB Drive',
-          'response': "Failed to copy MACHINE PROFILES to " + profiledest + ":  " + JSON.stringify(err),
-          'type': 'error'
-        }
-        io.sockets.emit('data', output);
-        errorCount++
-      } else {
-        var output = {
-          'command': 'Interface USB Drive',
-          'response': "Copied MACHINE PROFILES to " + profiledest + " succesfully!",
-          'type': 'success'
-        }
-        io.sockets.emit('data', output);
-      }
-    });
-
-
-
-    setTimeout(function() {
-      if (errorCount == 0) {
-        var output = {
-          'command': 'Interface USB Drive',
-          'response': "Finished copying supporting files to Drive " + data.drive,
-          'type': 'success'
-        }
-        io.sockets.emit('data', output);
-        var output = {
-          'command': 'Interface USB Drive',
-          'response': "Please Eject the drive (Safely Remove) and insert it into your Interface's USB port",
-          'type': 'info'
-        }
-        io.sockets.emit('data', output);
-      }
-    }, 500);
   });
 
   socket.on("connectTo", function(data) { // If a user picks a port to connect to, open a Node SerialPort Instance to it

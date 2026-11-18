@@ -18,7 +18,7 @@ body {
 }
 
 /* Implemented as default https://thayneco.com/expand-usb-port-selector-in-openbuilds-control/  */
-#section-jog div:nth-child(2) label {
+#connectionGroup label {
   width: 450px;
 }
 

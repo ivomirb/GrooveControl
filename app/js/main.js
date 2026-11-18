@@ -34,66 +34,6 @@ function setWindowTitle(status) {
 }
 
 
-function getReleaseStats() {
-  var url = "https://api.github.com/repos/OpenBuilds/OpenBuilds-CONTROL/releases/latest";
-  $.getJSON(url, function(data) {
-    console.log(data)
-    var assets = data.assets;
-    var downloadCount = 0
-    for (i = 0; i < assets.length; i++) {
-      if (assets[i].name.indexOf("exe") != -1) {
-        downloadCount = downloadCount + assets[i].download_count;
-      }
-      if (assets[i].name.indexOf("dmg") != -1) {
-        downloadCount = downloadCount + assets[i].download_count;
-      }
-      if (assets[i].name.indexOf("zip") != -1) {
-        downloadCount = downloadCount + assets[i].download_count;
-      }
-      if (assets[i].name.indexOf("AppImage") != -1) {
-        downloadCount = downloadCount + assets[i].download_count;
-      }
-    }
-    console.log("Latest version has already been installed " + downloadCount + " times")
-    $("#releaseStats").html(downloadCount)
-    $("#releaseDate").html(data.published_at.split("T")[0])
-  });
-
-}
-
-
-function getChangelog() {
-
-  // Splash Screen Begin
-
-  $("#changelog").empty()
-  var template2 = `<ul>`
-  $.get("https://raw.githubusercontent.com/OpenBuilds/OpenBuilds-CONTROL/master/CHANGELOG.txt?date=" + new Date().getTime(), function(data) {
-    var lines = data.split('\n');
-    if (lines.length < 12) {
-      var count = lines.length - 1
-    } else {
-      var count = 12
-    }
-    for (var line = 0; line < count - 1; line++) {
-      template2 += '<li>' + lines[line] + '</li>'
-    }
-    template2 += `</ul>`
-    $("#changelog").html(template2);
-
-    // Update Dialog
-    var template3 = `<h6>Changelog:</h6> <hr> <ul>`
-    for (var line = 0; line < 5; line++) {
-      template3 += '<li>' + lines[line] + '</li>'
-    }
-    template3 += `</ul>`
-
-    $("#changelogupdate").html(template3);
-
-
-  });
-}
-
 $(document).ready(function() {
 
   $('#openbuildslogosplash').fadeIn(100);
@@ -188,8 +128,6 @@ $(document).ready(function() {
 
   });
 
-  // Changelog-Abruf von GitHub deaktiviert (keine Verbindung zu GitHub beim Start)
-  // getChangelog()
 
   setInterval(function() {
     setWindowTitle();
@@ -351,50 +289,6 @@ function jobNeedsHoming() {
   }
 }
 
-function versionCompare(v1, v2, options) {
-  var lexicographical = options && options.lexicographical,
-    zeroExtend = options && options.zeroExtend,
-    v1parts = v1.split('.'),
-    v2parts = v2.split('.');
-
-  function isValidPart(x) {
-    return (lexicographical ? /^\d+[A-Za-z]*$/ : /^\d+$/).test(x);
-  }
-
-  if (!v1parts.every(isValidPart) || !v2parts.every(isValidPart)) {
-    return NaN;
-  }
-
-  if (zeroExtend) {
-    while (v1parts.length < v2parts.length) v1parts.push("0");
-    while (v2parts.length < v1parts.length) v2parts.push("0");
-  }
-
-  if (!lexicographical) {
-    v1parts = v1parts.map(Number);
-    v2parts = v2parts.map(Number);
-  }
-
-  for (var i = 0; i < v1parts.length; ++i) {
-    if (v2parts.length == i) {
-      return 1;
-    }
-
-    if (v1parts[i] == v2parts[i]) {
-      continue;
-    } else if (v1parts[i] > v2parts[i]) {
-      return 1;
-    } else {
-      return -1;
-    }
-  }
-
-  if (v1parts.length != v2parts.length) {
-    return -1;
-  }
-
-  return 0;
-}
 
 
 

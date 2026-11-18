@@ -144,16 +144,6 @@ function initSocket() {
     $("#websocketstatus").html("Connected")
   });
 
-  socket.on('interfaceDrive', function(data) {
-    console.log(data)
-    if (data.length > 1) {
-      $("#interfaceDriveLetterBtn").html("<i class='fab fa-usb'></i> Selected: " + data)
-      if ($("#profileTargetController").val() != "") {
-        $(".interfaceCopyBtn").removeClass('disabled');
-      }
-    }
-  })
-
   socket.on('gcodeupload', function(data) {
     var icon = ''
     var source = "api"
@@ -207,27 +197,6 @@ function initSocket() {
     var string = data.response
     var printLogCls = "fg-darkGreen"
     printLogModern(icon, source, string, printLogCls)
-  });
-
-  socket.on('updateready', function(data) {
-    // 0 = not connected
-    // 1 = Connected, but not Playing yet
-    // 2 = Connected, but not Playing yet
-    // 3 = Busy Streaming GCODE
-    // 4 = Paused
-    // 5 = Alarm State
-    // 6 = Firmware Upgrade State
-    if (laststatus.comms.connectionStatus < 3 && !continuousJogRunning) {
-      $('#availVersion').html(data)
-      getReleaseStats()
-      getChangelog();
-      Metro.dialog.open('#downloadUpdate')
-    }
-
-  });
-
-  socket.on('updateprogress', function(data) {
-    $('#downloadprogress').html(data + "%");
   });
 
   socket.on('fluidncConfig', function(data) {

@@ -5,7 +5,7 @@ OpenBuilds CONTROL – Electron-Host-Software für CNC-Maschinen mit Grbl / grbl
 
 ## Entwicklung
 
-- **Node 20** verwenden (wie in `.github/workflows/build.yml`; `.travis.yml` mit Node 12 ist veraltet).
+- **Node 20** verwenden (wie in `.github/workflows/build.yml`).
 - `npm install` – der `postinstall`-Hook baut native Module (`serialport`) gegen die Electron-Version neu.
 - **Start:** `npm run run-local` (= `electron .`).
 - `npm start` und `npm test` sind Platzhalter ohne Funktion. Es gibt **keine automatisierten Tests** –
@@ -18,7 +18,6 @@ OpenBuilds CONTROL – Electron-Host-Software für CNC-Maschinen mit Grbl / grbl
 ```
 index.js (Electron-Hauptprozess, ~4000 Zeilen, alles in einer Datei)
  ├─ Express-HTTP-Server (Port 3000, Fallback 3020/3200/3220, Override via WEB_PORT)
- │   + HTTPS auf 3001 (Zertifikate fullchain1.pem / privkey1.pem)
  │   liefert app/ aus und bietet REST-Endpunkte (/api/version, /upload, /runjob, /gcode, ...)
  ├─ Socket.IO-Server  ←→  UI (Events: connectTo, runJob, runCommand, jog, jogXY, jogTo,
  │                         setZero, gotoZero, probe, feedOverride, spindleOverride,

@@ -283,16 +283,7 @@
             <!-- Start Jog/Main -->
 
             <div class="section" id="section-jog">
-              <div class="group">
-                <button class="ribbon-button" onclick="socket.emit('openbuilds', true);">
-                  <span class="icon">
-                    <img src="img/openbuilds-logo.svg">
-                  </span>
-                  <span class="caption">OpenBuilds</span>
-                </button>
-                <span class="title">Visit</span>
-              </div>
-              <div class="group">
+              <div class="group" id="connectionGroup">
                 <div class="form-group">
                   <form class="form">
                     <select data-prepend="&nbsp;<i class='fab fa-usb'></i>" class="success" data-role="select" data-filter="false" id="portUSB" disabled>
@@ -324,41 +315,23 @@
               <div class="group">
                 <div>
                   <!-- Still used with browser based Open - don't delete -->
-                  <button id="openGcodeBtn" class="ribbon-button dropdown-toggle" title="Open a GCODE file">
+                  <button id="openGcodeBtn" class="ribbon-button" title="Open a GCODE file (*.gcode, *.gc, *.tap, *.nc, *.cnc)" onclick="document.getElementById('file').click()">
                     <span class="icon">
                       <span class="far fa-folder-open fg-amber"></span>
                     </span>
                     <span class="caption">Open<br>G-CODE</span>
                   </button>
-                  <ul class="ribbon-dropdown" data-role="dropdown" data-duration="100">
-                    <li class="btn-file"><a href="#"><input class="btn-file" id="file" type="file" accept=".gcode, .gc, .tap, .nc, .cnc" /><i class="far fa-folder-open fa-fw"></i> <b>Open GCODE</b> from File (*.gcode, *.gc, *.tap, *.nc, *.cnc)</a>
-                    </li>
-                    <li class="divider fg-gray"></li>
-
-                    <li class="" onclick="socket.emit('opencam', true);"><a href="#"><img width="16" src="img/openbuilds.svg"> OpenBuilds CAM</a></li>
-                    <li class="" onclick="socket.emit('lightburn', true);"><a href="#"><img width="16" src="affiliates/lightburn/lightburn.png"> Lightburn</a></li>
-                    <li class="" onclick="socket.emit('vectric', true);"><a href="#"><img width="16" src="affiliates/vectric/vectric.svg"> Vectric</a></li>
-
-                  </ul>
+                  <input id="file" type="file" accept=".gcode, .gc, .tap, .nc, .cnc" style="display: none;" />
                 </div>
 
                 <div>
                   <!-- Used in Electron only -->
-                  <button id="openGcodeBtnElectron19" class="ribbon-button dropdown-toggle" title="Open a GCODE file">
+                  <button id="openGcodeBtnElectron19" class="ribbon-button" title="Open a GCODE file (*.gcode, *.gc, *.tap, *.nc, *.cnc)" onclick="socket.emit('openFile')">
                     <span class="icon">
                       <span class="far fa-folder-open fg-amber"></span>
                     </span>
                     <span class="caption">Open<br>G-CODE</span>
                   </button>
-                  <ul class="ribbon-dropdown" data-role="dropdown" data-duration="100">
-                    <li class="btn-file" onclick="socket.emit('openFile')"><a href="#"><i class="far fa-folder-open fa-fw"></i> <b>Open GCODE</b> from File (*.gcode, *.gc, *.tap, *.nc, *.cnc)</a> </li>
-                    <li class="divider fg-gray"></li>
-
-                    <li class="" onclick="socket.emit('opencam', true);"><a href="#"><img width="16" src="img/openbuilds.svg"> OpenBuilds CAM</a></li>
-                    <li class="" onclick="socket.emit('lightburn', true);"><a href="#"><img width="16" src="affiliates/lightburn/lightburn.png"> Lightburn</a></li>
-                    <li class="" onclick="socket.emit('vectric', true);"><a href="#"><img width="16" src="affiliates/vectric/vectric.svg"> Vectric</a></li>
-
-                  </ul>
                 </div>
 
                 <span class="title">File</span>
@@ -385,7 +358,6 @@
                     <span class="caption">Run<br>Job</span>
                   </button>
                   <ul class="ribbon-dropdown" data-role="dropdown" data-duration="100" id="toolChangesMenu">
-                    <li class="" onclick="socket.emit('opencam', true);"><a href="#"><i class="fas fa-link fa-fw"></i> Open browser to https://cam.openbuilds.com</a></li>
                   </ul>
                 </div>
 
@@ -522,7 +494,6 @@
                     <li class="divider fg-gray"></li>
                     <li onclick="keyboardShortcutsEditor();"><a href="#"><i class="far fa-edit fa-fw"></i> Customize Keyboard Shortcuts</a></li>
                     <li class="divider fg-gray"></li>
-                    <li onclick="populateFlashDrivePrepForm();"><a href="#"><i class="fas fa-upload fa-fw"></i> Prepare USB Flashdrive for Interface</a></li>
                     <li class="divider fg-gray"></li>
                     <li onclick="showJobLog();"><a href="#"><i class="fas fa-history fa-fw"></i> Job Log</a></li>
                     <li class="divider fg-gray"></li>
@@ -600,25 +571,6 @@
                     <li class="divider"></li>
                 </div>
                 <span class="title">Settings</span>
-              </div>
-
-              <div class="group">
-                <button class="ribbon-button" onclick="socket.emit('opendocs', true);">
-                  <span class="icon">
-                    <i class="fas fa-book" data-fa-transform=""></i>
-                  </span>
-                  <span class="caption">OpenBuilds<br>Documentation</span>
-                </button>
-                <button class="ribbon-button" onclick="socket.emit('openforum', true);">
-                  <span class="icon">
-                    <span class="fa-layers fa-fw">
-                      <i class="far fa-comment-alt" data-fa-transform=""></i>
-                      <i class="fas fa-question" data-fa-transform="shrink-8 up-1"></i>
-                    </span>
-                  </span>
-                  <span class="caption">OpenBuilds<br>Forum</span>
-                </button>
-                <span class="title">Support</span>
               </div>
 
               <div class="group" style="width: 100px;">
@@ -1488,27 +1440,6 @@
 
     <div id="hiddendivs" style="display:none;">
 
-      <div class="dialog dark" id="downloadUpdate" data-role="dialog" data-overlay-click-close="false" data-to-top="true">
-        <div class="dialog-title">Update Ready</div>
-        <div class="dialog-content">
-          OpenBuilds-CONTROL v<span id="availVersion">1.0.100</span> has finished downloading and is ready to be installed!<br>
-          <small>Note that proceeding will:
-            <ul>
-              <li>Stop any running jobs</li>
-              <li>Shut down this instance of OpenBuilds CONTROL</li>
-              <li>Launch the installer for the new version</li>
-            </ul>
-          </small>
-          <small>You may want to wait until your machine is idle, and it it's a convenient time for you to do this, before continuing</small>
-          <p id="changelogupdate" class="text-small"></p>
-          This release has already been downloaded <span id="releaseStats">several</span> times since its release on <span id="releaseDate"></span>
-        </div>
-        <div class="dialog-actions ">
-          <button class="button js-dialog-close">Not right now</button>
-          <button class="button success js-dialog-close" onclick="socket.emit('applyUpdate', true)">OK, Proceed with Update</button>
-        </div>
-      </div>
-
       <div class="dialog dark" data-overlay-click-close="false" data-role="dialog" data-to-top="true" id="jogWidgetDialog">
         <div class="dialog-title"><i class="fas fa-mobile-alt"></i> Jog Widget</div>
         <div class="dialog-content" style="max-height: calc(100vh - 200px);overflow-y: auto; overflow-x: hidden;">
@@ -1907,7 +1838,6 @@
   <script type="text/javascript" src="js/viewer-ruler.js"></script>
 
   <script type="text/javascript" src="js/main.js"></script>
-  <script type="text/javascript" src="js/updates.js"></script>
   <script type="text/javascript" src="js/ui.js"></script>
 
   <script type="text/javascript" src="js/grbl-settings-defaults.js"></script>
@@ -1938,7 +1868,6 @@
 
   <script type="text/javascript" src="wizards/surfacing/surfacing.js"></script>
 
-  <script type="text/javascript" src="wizards/interface/usbprep.js"></script>
 
   <script type="text/javascript" src="wizards/jobstats/jobstats.js"></script>
 
