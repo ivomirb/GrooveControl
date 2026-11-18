@@ -36,7 +36,8 @@ import {
   addConnectionHandler,
   addDocReadyHandler,
   removeDocReadyHandler,
-  initServer
+  initServer,
+  getSessionToken
 } from './server.js';
 
 import {
@@ -393,7 +394,7 @@ function createJogWindow() {
     jogWindow.setOverlayIcon(nativeImage.createFromPath(iconPathW), 'Icon');
   }
 
-  let options = {query: { port: config.webPort }};
+  let options = {query: { port: config.webPort, token: getSessionToken() }}; // session token for the server's origin check
   if (safeMode) {
     options.query.safeMode = true;
   }
@@ -569,8 +570,6 @@ function main() {
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = '1';
 
   app.get('/api/version', (req, res) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     const data = {
       "application": "OMD",
       "version": status.driver.version,
@@ -581,8 +580,6 @@ function main() {
 
   app.get('/activate', (req, res) => {
     debug_log(req.hostname)
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.send('Host: ' + req.hostname + ' asked to activate Groove Control v' + status.driver.version);
     showJogWindow()
     setTimeout(function() {
