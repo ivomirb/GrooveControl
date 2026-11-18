@@ -94,7 +94,9 @@ function openFileDialog(data, callback) {
 
   dialog.showOpenDialog(jogWindowAPI.getJogWindow(), {
     title: data.title,
-    filters: data.filters,
+    // On macOS the search field of the open dialog finds no files (e.g. *.nc) when file type filters are set,
+    // so show the dialog without filters there, like the original OpenBuilds CONTROL
+    filters: process.platform === 'darwin' ? undefined : data.filters,
     defaultPath: defaultPath,
     properties: ['openFile']
   }).then((result) => {
