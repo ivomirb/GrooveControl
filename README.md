@@ -65,8 +65,8 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** Allow clearing the key assignment in the keyboard shortcut editor
 * **Improvement:** The keyboard shortcuts are included in the button tooltips to make them more discoverable
 * **Improvement:** New settings to disable the autostart and the tray icon, making it behave like a regular desktop app
-* **Improvement:** Windows installer setting to control the file associations for G-code file extensions
-* **Improvement:** The dialogs for opening files remember their directory, with separate settings for G-code, macros and grbl settings
+* **Improvement:** Windows installer setting to control the file associations for G-code file types
+* **Improvement:** The dialogs for opening files remember their directory, with separate settings for G-code, macros and Grbl settings
 * **Improvement:** The position of the main window is preserved between runs
 * **Improvement:** Improved readability for Light and Dark themes
 * **Bug Fix:** Fix for dragging sliders with the mouse to their min and max position
@@ -74,8 +74,9 @@ Here are the major changes from the original OpenBuilds CONTROL
 ### 3D View
 
 * **New Feature:** Added playback controls to the simulation and fixed many bugs
-* **Improvement:** Options to hide graphical elements like the grid, ruler, tool marker, and more
+* **Improvement:** Options to hide view elements like the grid, ruler, tool marker, and more
 * **Improvement:** Optimized memory usage to allow for loading of larger files
+* **Improvement:** Option to rotate the view with the left or middle mouse button
 * **Bug Fix:** Updated the 3D view to properly show arcs in the XZ and YZ planes
 * **Bug Fix:** Fixed the orbiting controls rotation axis
 * **Bug Fix:** Fixed the wrong bounding box for the machine area
