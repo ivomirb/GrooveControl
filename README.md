@@ -15,17 +15,28 @@ More major features are in the works or planned for future releases.
 
 ![Screenshot](docs/screenshot.png)
 
-## Download
-*work in progress, the first public release is expected mid-November*
+## Download Groove Control
 
-**Latest version**
+**Latest version 1.0.0**
 
-You can find the latest version here: [Latest Release](https://github.com/ivomirb/GrooveControl/releases/latest)
+> **Windows Installer:** [GrooveControl-Setup-1.0.0.exe](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-Setup-1.0.0.exe)
+>
+> **Linux amd64 Installer:** [GrooveControl_1.0.0_amd64.deb](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl_1.0.0_amd64.deb)
+>
+> **Linux amd64 AppImage:** [GrooveControl-1.0.0.AppImage](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0.AppImage)
+>
+> **MacOS arm64 Zip:** [GrooveControl-1.0.0-arm64-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0-arm64-mac.zip)
+>
+> **MacOS arm64 Installer:** [GrooveControl-1.0.0-arm64.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0-arm64.dmg)
+>
+> **MacOS x64 Zip:** [GrooveControl-1.0.0-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0-mac.zip)
+>
+> **MacOS x64 Installer:** [GrooveControl-1.0.0.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0.dmg)
 
-**Older versions**
+<!-- **Older versions**
 
 See all past versions here: [All Releases](https://github.com/ivomirb/GrooveControl/releases)
-
+-->
 **Few things to keep in mind**
 
 * The Windows binaries are unsigned. You will have to work around the Smart Screen restrictions to get it running.<br>
