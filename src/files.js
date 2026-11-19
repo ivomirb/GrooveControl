@@ -297,23 +297,17 @@ function onDocReady(result) {
 
 function initFiles() {
   app.get('/upload', (req, res) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.sendFile(rootDir + '/app/upload.html');
   })
 
   app.get('/gcode', (req, res) => {
     const gcode = getCurrentGcode();
     if (gcode.indexOf('$') != 0) { // Ignore grblSettings jobs
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       res.send(gcode);
     }
   })
 
   app.get('/workspace', (req, res) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.send(uploadedWorkspace);
   })
 

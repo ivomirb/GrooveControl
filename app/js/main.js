@@ -221,7 +221,7 @@ function runJobFileInternal(gcode) {
   const xhr = new XMLHttpRequest();
 
   captureWcsHistory("", "", true);
-  xhr.open('POST', serverURL + "/runjob", true);
+  xhr.open('POST', withServerToken(serverURL + "/runjob"), true);
   xhr.send(formData);
   if (useEditor) {
     printLog(`<span class="fg-darkRed">[ g-code parser ]</span><span class='fg-darkGray'> G-code File (from gcode editor) sent to backend </span>`);
@@ -396,7 +396,7 @@ function saveBlobToDisk(blob, filePath, params) {
       resolve(xhr.response);
     };
   });
-  xhr.open('POST', serverURL + "/saveFile", true);
+  xhr.open('POST', withServerToken(serverURL + "/saveFile"), true);
   xhr.send(formData);
 
   return promise;

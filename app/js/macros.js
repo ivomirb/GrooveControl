@@ -322,7 +322,7 @@ This setting is for the rare cases when you have a macro that is needed during t
 
   IconPicker.Init({
     // Required: You have to set the path of IconPicker JSON file to "jsonUrl" option. e.g. '/content/plugins/IconPicker/dist/iconpicker-1.5.0.json'
-    jsonUrl: serverURL + '/lib/furcanIconPicker/iconpicker-1.5.0.json',
+    jsonUrl: withServerToken(serverURL + '/lib/furcanIconPicker/iconpicker-1.5.0.json'),
     searchPlaceholder: 'Search Macro Icon',
     showAllButton: 'Show All',
     cancelButton: 'Cancel',

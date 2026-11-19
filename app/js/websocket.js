@@ -3,6 +3,12 @@
 var socket, laststatus, lastsysinfo;
 var serverPort;
 var serverURL;
+var serverToken = ''; // session token of the desktop app window (empty in the browser)
+
+// appends the session token to a server URL (desktop app window only)
+function withServerToken(url) {
+  return serverToken ? url + (url.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(serverToken) : url;
+}
 var grblParams = {}
 var bellstate = false;
 var waitingForStatus = false;
@@ -735,8 +741,9 @@ function initSocket() {
     const urlParams = new URLSearchParams(window.location.search);
     serverPort = urlParams.get("port");
     serverURL = "http://localhost:" + serverPort;
+    serverToken = urlParams.get("token") || '';
   }
-  socket = io.connect(serverURL, {timeout: 60000});
+  socket = io.connect(serverURL, {timeout: 60000, query: serverToken ? {token: serverToken} : {}});
   const icon = ''
   const source = "websocket"
   const string = "Bidirectional Websocket Interface Started Succesfully"
