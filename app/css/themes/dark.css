@@ -650,14 +650,6 @@ body.theme_dark, .theme_dark div.window, .theme_dark .card {
   box-shadow: inset 0 -2px 0 #aaa;
 }
 
-.theme_dark .light_theme_only {
-  display: none !important;
-}
-
-.theme_dark .dark_theme_only {
-  display: block !important;
-}
-
 .theme_dark #realFeed,
 .theme_dark #realSpeed {
   border: 1px solid #777;

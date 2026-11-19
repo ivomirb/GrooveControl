@@ -616,7 +616,7 @@ function clearSettings() {
 <div>Resetting the Grbl settings will restore them to the original firmware defaults.<br>
 <br>
 Keep in mind that there is a difference between "Firmware Defaults" and "Factory Settings".
-Often CNC manufacturers uses motherboards and firmware from another supplier, and then write their own settings to the EEPROM.
+Often CNC manufacturers use motherboards and firmware from a separate supplier, and then write their own settings to the EEPROM.
 Resetting the EEPROM will wipe out the factory settings and revert to the generic firmware defaults.<br>
 <br>
 Only proceed if you are confident the firmware defaults are meant for your specific machine. You should always save a backup of the current settings first,
@@ -649,7 +649,7 @@ function clearEEPROM() {
 <div>Resetting the EEPROM will restore all the Grbl settings to the firmware defaults, zero out all coordinate systems, and clear the $N and $I parameters.<br>
 <br>
 Keep in mind that there is a difference between "Firmware Defaults" and "Factory Settings".
-Often CNC manufacturers uses motherboards and firmware from another supplier, and then write their own settings to the EEPROM.
+Often CNC manufacturers use motherboards and firmware from a separate supplier, and then write their own settings to the EEPROM.
 Resetting the EEPROM will wipe out the factory settings and revert to the generic firmware defaults.<br>
 <br>
 Only proceed if you are confident the firmware defaults are meant for your specific machine. You should always save a backup of the current settings first,
