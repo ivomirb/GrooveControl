@@ -20,11 +20,11 @@ More major features are in the works or planned for future releases.
 
 **Latest version**
 
-You can find the latest version here: [Latest Release](releases/latest)
+You can find the latest version here: [Latest Release](https://github.com/ivomirb/GrooveControl/releases/latest)
 
 **Older versions**
 
-See all past versions here: [All Releases](releases)
+See all past versions here: [All Releases](https://github.com/ivomirb/GrooveControl/releases)
 
 **Few things to keep in mind**
 
