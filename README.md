@@ -15,17 +15,28 @@ More major features are in the works or planned for future releases.
 
 ![Screenshot](docs/screenshot.png)
 
-## Download
-*work in progress, the first public release is expected mid-November*
+## Download Groove Control
 
-**Latest version**
+**Latest version 1.0.0**
 
-You can find the latest version here: [Latest Release](releases/latest)
+> **Windows Installer:** [GrooveControl-Setup-1.0.0.exe](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-Setup-1.0.0.exe)
+>
+> **Linux amd64 Installer:** [GrooveControl_1.0.0_amd64.deb](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl_1.0.0_amd64.deb)
+>
+> **Linux amd64 AppImage:** [GrooveControl-1.0.0.AppImage](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0.AppImage)
+>
+> **MacOS arm64 Zip:** [GrooveControl-1.0.0-arm64-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0-arm64-mac.zip)
+>
+> **MacOS arm64 Installer:** [GrooveControl-1.0.0-arm64.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0-arm64.dmg)
+>
+> **MacOS x64 Zip:** [GrooveControl-1.0.0-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0-mac.zip)
+>
+> **MacOS x64 Installer:** [GrooveControl-1.0.0.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0.dmg)
 
-**Older versions**
+<!-- **Older versions**
 
-See all past versions here: [All Releases](releases)
-
+See all past versions here: [All Releases](https://github.com/ivomirb/GrooveControl/releases)
+-->
 **Few things to keep in mind**
 
 * The Windows binaries are signed only with a test certificate, intended to test the GitHub release process.
@@ -68,8 +79,8 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** Allow clearing the key assignment in the keyboard shortcut editor
 * **Improvement:** The keyboard shortcuts are included in the button tooltips to make them more discoverable
 * **Improvement:** New settings to disable the autostart and the tray icon, making it behave like a regular desktop app
-* **Improvement:** Windows installer setting to control the file associations for G-code file extensions
-* **Improvement:** The dialogs for opening files remember their directory, with separate settings for G-code, macros and grbl settings
+* **Improvement:** Windows installer setting to control the file associations for G-code file types
+* **Improvement:** The dialogs for opening files remember their directory, with separate settings for G-code, macros and Grbl settings
 * **Improvement:** The position of the main window is preserved between runs
 * **Improvement:** Improved readability for Light and Dark themes
 * **Bug Fix:** Fix for dragging sliders with the mouse to their min and max position
@@ -77,8 +88,9 @@ Here are the major changes from the original OpenBuilds CONTROL
 ### 3D View
 
 * **New Feature:** Added playback controls to the simulation and fixed many bugs
-* **Improvement:** Options to hide graphical elements like the grid, ruler, tool marker, and more
+* **Improvement:** Options to hide view elements like the grid, ruler, tool marker, and more
 * **Improvement:** Optimized memory usage to allow for loading of larger files
+* **Improvement:** Option to rotate the view with the left or middle mouse button
 * **Bug Fix:** Updated the 3D view to properly show arcs in the XZ and YZ planes
 * **Bug Fix:** Fixed the orbiting controls rotation axis
 * **Bug Fix:** Fixed the wrong bounding box for the machine area
@@ -186,6 +198,8 @@ The benefits of any additions will be weighed against their impact on the overal
 * **Tool change support** - allow for manual or assisted tool change
 
 * **Better use of larger screens** - will allow moving one of the main tabs (e.g. 3d view) to a secondary panel
+
+* **Improve phone widget** - jog controls for A axis, add buttons for running jobs and using the probe 
 
 That said, new features can be added via macros as well. The bar for those is lower than for features in the main software,
 since they are optional addons, and usually address a niche need.

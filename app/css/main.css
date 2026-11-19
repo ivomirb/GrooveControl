@@ -336,11 +336,11 @@ select {
   padding: 0 1rem;
 }
 
-.light_theme_only {
-  display: block;
+.dark_theme_only:not(.theme_dark .dark_theme_only) {
+  display: none;
 }
 
-.dark_theme_only {
+.theme_dark .light_theme_only {
   display: none;
 }
 

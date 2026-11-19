@@ -464,7 +464,7 @@ The spindle will automatically start when the job is resumed.">
 
             <div class="section" id="section-troubleshooting">
               <div class="group">
-                <button class="ribbon-button" onclick="socket.emit('opengroove', true);">
+                <button class="ribbon-button" onclick="socket.emit('opengroove', true);" title="Visit Groove Control website">
                   <span class="icon" style="justify-items:center;">
                     <img class="light_theme_only" src="./img/groove-logo_b.svg">
                     <img class="dark_theme_only" src="./img/groove-logo_w.svg">
@@ -475,13 +475,13 @@ The spindle will automatically start when the job is resumed.">
               </div>
 
               <div class="group">
-                <button class="ribbon-button" onclick="socket.emit('openwiki');">
+                <button class="ribbon-button" onclick="socket.emit('openwiki');" title="Read Groove Control documentation wiki">
                   <span class="icon">
                     <i class="fas fa-book"></i>
                   </span>
                   <span class="caption">Groove<br>Docs</span>
                 </button>
-                <button class="ribbon-button" onclick="socket.emit('openforum');">
+                <button class="ribbon-button" onclick="socket.emit('openforum');" title="Visit Groove Control discussion forum">
                   <span class="icon">
                     <span class="fa-layers fa-fw">
                       <i class="far fa-comment-alt"></i>
@@ -491,17 +491,17 @@ The spindle will automatically start when the job is resumed.">
                   <span class="caption">Groove<br>Forum</span>
                 </button>
                 <div>
-                  <button class="ribbon-button dropdown-toggle">
+                  <button class="ribbon-button dropdown-toggle" title="A collection of helpful CNC websites">
                     <span class="icon">
                       <i class="fas fa-atlas"></i>
                     </span>
                     <span class="caption">CNC<br>Resources</span>
                   </button>
                   <ul class="ribbon-dropdown grblmode" data-role="dropdown" data-duration="100">
-                    <li onclick="socket.emit('openresource', 'obarchive')"><a href="#">OpenBuilds Archive</a></li>
-                    <li onclick="socket.emit('openresource', 'ivocnc')"><a href="#">Ivo's CNC Corner</a></li>
-                    <li onclick="socket.emit('openresource', 'grblref')"><a href="#">SainSmart Grbl Quick Reference</a></li>
-                    <li onclick="socket.emit('openresource', 'gcoderef')"><a href="#">CNC Cookbook G-code Reference</a></li>
+                    <li onclick="socket.emit('openresource', 'obarchive')"><a href="#"><img width="16" src="img/webicons/openbuilds.svg" style="vertical-align:text-top;" /> OpenBuilds Archive</a></li>
+                    <li onclick="socket.emit('openresource', 'ivocnc')"><a href="#"><img width="16" src="img/webicons/ivo-logo.svg" class="light_theme_only" style="vertical-align:text-top;" /><img width="16" src="img/webicons/ivo-logo_w.svg" class="dark_theme_only" style="vertical-align:text-top;" /> Ivo's CNC Corner</a></li>
+                    <li onclick="socket.emit('openresource', 'grblref')"><a href="#"><span class="fas fa-atlas" style="width:16px; height:16px; vertical-align:text-top;" ></span> SainSmart Grbl Quick Reference</a></li>
+                    <li onclick="socket.emit('openresource', 'gcoderef')"><a href="#"><span class="fas fa-atlas" style="width:16px; height:16px; vertical-align:text-top;" ></span> CNC Cookbook G-code Reference</a></li>
                   </ul>
                 </div>
                 <span class="title">Support</span>

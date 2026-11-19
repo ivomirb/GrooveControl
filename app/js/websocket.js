@@ -626,7 +626,7 @@ function onStatus(status) {
   }
 
   if (!isJogWidget && (!laststatus || laststatus.comms.interfaces.activePort != status.comms.interfaces.activePort)) {
-    $('#activeportstatus').html(status.comms.interfaces.activePort || "none")
+    $('#activeportstatus').html(status.comms.interfaces.activePort || "none");
     setWindowTitle(status);
   }
 
