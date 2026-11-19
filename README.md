@@ -196,6 +196,8 @@ The benefits of any additions will be weighed against their impact on the overal
 
 * **Better use of larger screens** - will allow moving one of the main tabs (e.g. 3d view) to a secondary panel
 
+* **Improve phone widget** - jog controls for A axis, add buttons for running jobs and using the probe 
+
 That said, new features can be added via macros as well. The bar for those is lower than for features in the main software,
 since they are optional addons, and usually address a niche need.
 I am more willing to add new features this way, especially if they can be back-ported to the original software.
