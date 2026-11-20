@@ -1,3 +1,6 @@
+v1.0.1
+* Fix for file browser dialogs on MacOS
+
 v1.0.0
 
 This is the first release of Groove Control.
