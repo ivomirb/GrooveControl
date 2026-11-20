@@ -46,7 +46,7 @@ A real certificate costs money. One will be added in the future for sure, but at
 that enough people are even going to use it.<br>
 If you wish to speed up the process, you can contribute to this funding goal: https://github.com/sponsors/ivomirb
 
-* The Mac binaries are completely untested and not notarized. I don't have a Mac to test them.<br>
+* The Mac binaries are not notarized and not well tested. I don't have a Mac to test them.<br>
 If you are a Mac developer and you are willing to help get things started, let me know
 
 
