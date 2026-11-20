@@ -10,11 +10,11 @@
 // Updated by PvdW in 2018 - Webworker Version
 // Updated by PvdW in 2019 - Improve Performance
 // Updated by PvdW in 2021 - New Sim Data, Smaller footprint, more efficient "lines" userData
-// Updated by Ivo in 2026 - Fixed arc maths, removed dependency on THREE, removed fake points
+// Updated by Ivo in 2026 - Fixed arc maths, removed dependency on THREE, removed fake points, more precise job estimate
 
 self.onmessage = function(e) {
   try {
-    const object = createObjectFromGCode(e.data.data);
+    const object = createObjectFromGCode(e.data.data, e.data.machineParams);
 
     // use transferrable arrays for the raw data, which avoids serializing across threads
     const gArray = new Int8Array(new ArrayBuffer(object.linePoints.length));
@@ -41,6 +41,7 @@ self.onmessage = function(e) {
     const result = {
       pointCount: object.linePoints.length,
       totalTime: object.totalTime,
+      preciseEstimate: !!e.data.machineParams,
       toolRanges: object.toolRanges,
       gArray: gArray,
       srcArray: srcArray,
@@ -75,6 +76,9 @@ const ARC_SEGMENT_COUNT = 20;
 // A better approach would be to take into account the sharpness of each turn.
 // The specific machine settings can also be considered.
 const TIME_FUDGE_FACTOR = 1.32;
+
+// The new more precise algorithm works much better. Add 1% fudge to be on the safe side
+const TIME_FUDGE_FACTOR_PRECISE = 1.01;
 
 const gcodeHandlers = {
   // G0: rapid move
@@ -222,7 +226,7 @@ function calcPointDistance(a, b) {
 
 class GCodeParser {
 
-constructor(handlers, modalHandlers) {
+constructor(handlers, modalHandlers, machineParams) {
   this.handlers = handlers;
   this.modalHandlers = modalHandlers;
   this.src = 0;
@@ -241,6 +245,13 @@ constructor(handlers, modalHandlers) {
   this.linePoints = [];
   this.toolRanges = [];
   this.currentToolRange = null;
+
+  if (machineParams) {
+    machineParams.xMaxFeed /= 60;
+    machineParams.yMaxFeed /= 60;
+    machineParams.zMaxFeed /= 60;
+  };
+  this.machineParams = machineParams;
 }
 
 createArcPoints(centerX, centerY, startZ, endZ, radius, startAngle, endAngle, plane) {
@@ -425,11 +436,11 @@ addArcSegment(args, p1, p2, arcInfo) {
   const arcPoints = this.createArcFrom2PtsAndCenter(vp1, vp2, center, arcInfo.clockwise);
 
   let duration = 0;
+  const feed = this.feedrate > 0 ? this.feedrate : 1000;
   // calc length of one segment of the arc, they should all be the same
   const segLength = calcPointDistance(arcPoints[0], arcPoints[1]);
   if (segLength > 0) {
-    const fr = this.feedrate > 0 ? this.feedrate : 1000;
-    duration = segLength / fr;
+    duration = segLength / feed;
     duration = duration * TIME_FUDGE_FACTOR;
   }
 
@@ -445,6 +456,7 @@ addArcSegment(args, p1, p2, arcInfo) {
       g: 2,
       startTime: this.totalTime,
       duration: 0,
+      feed: feed,
     });
   }
   for (let i = 1; i < arcPoints.length; i++) {
@@ -457,6 +469,7 @@ addArcSegment(args, p1, p2, arcInfo) {
       g: 2,
       startTime: this.totalTime,
       duration: duration,
+      feed: feed,
     });
     this.totalTime += duration;
   }
@@ -476,22 +489,29 @@ addLineSegment(args, p1, p2) {
   const dist = calcPointDistance(vp1, vp2);
 
   let duration = 0;
+  let feed;
+  if (this.machineParams) {
+    // the "10000" for G0 will be capped by the machineParams during recalcTotalTime
+    feed = args.g == 0 ? 10000 : (this.feedrate ? this.feedrate : 1000);
+  } else {
+    // the "1000" for G0 will be replaced during simulation with the real rapid rate from $110
+    feed = args.g == 0 ? 1000 : (this.feedrate ? this.feedrate : 1000);
+  }
   if (dist > 0) {
-    // the "1000" for G0 will be replaced during simulation with the real rapid rate
-    const fr = args.g == 0 ? 1000 : (this.feedrate ? this.feedrate : 100);
-    duration = dist / fr;
+    duration = dist / feed;
     duration = duration * TIME_FUDGE_FACTOR;
   }
 
   this.linePoints.push({
-    startTime: this.totalTime,
-    duration: duration,
     src: this.src,
     offset: this.offset,
     x: p2.x,
     y: p2.y,
     z: p2.z,
     g: args.g,
+    startTime: this.totalTime,
+    duration: duration,
+    feed: feed,
   });
 
   this.totalTime += duration;
@@ -667,28 +687,58 @@ parseGcode(gcode) {
   }
   this.addToolRange(-1);
 
-  // replace XY=NaN with the first known coordinates
-  // replace Z=NaN with the highest Z in the object
   const linePoints = this.linePoints;
   let firstX = undefined;
   let firstY = undefined;
+
+  let minX = undefined;
+  let maxX = undefined;
+  let minY = undefined;
+  let maxY = undefined;
+  let minZ = undefined;
   let maxZ = undefined;
+
   for (const point of linePoints) {
     const x = point.x;
     const y = point.y;
     const z = point.z;
 
-    if (firstX == undefined && !isNaN(x)) {
-      firstX = x;
+    if (!isNaN(x)) {
+      if (firstX == undefined) {
+        firstX = x;
+      }
+      if (minX == undefined || minX > x) {
+        minX = x;
+      }
+      if (maxX == undefined || maxX < x) {
+        maxX = x;
+      }
     }
-    if (firstY == undefined && !isNaN(y)) {
-      firstY = y;
+
+    if (!isNaN(y)) {
+      if (firstY == undefined) {
+        firstY = y;
+      }
+      if (minY == undefined || minY > y) {
+        minY = y;
+      }
+      if (maxY == undefined || maxY < y) {
+        maxY = y;
+      }
     }
-    if (!isNaN(z) && (maxZ == undefined || maxZ < z)) {
-      maxZ = z;
+
+    if (!isNaN(z)) {
+      if (minZ == undefined || minZ > z) {
+        minZ = z;
+      }
+      if (maxZ == undefined || maxZ < z) {
+        maxZ = z;
+      }
     }
   }
 
+  // replace XY=NaN with the first known coordinates
+  // replace Z=NaN with the highest Z in the object
   for (let point of linePoints) {
     if (isNaN(point.x)) {
       point.x = firstX || 0;
@@ -701,15 +751,154 @@ parseGcode(gcode) {
     }
   }
 
+  if (this.machineParams) {
+    this.recalcTotalTime();
+  }
+
   self.postMessage({
     progress: 100,
   });
 }
 
+// v1 - previous speed, v2 - current speed, v3 - next speed
+computeMoveTime(v1, v2, v3, dist, accel) {
+  let t1 = Math.abs(v2 - v1) / accel;
+  let t3 = Math.abs(v3 - v2) / accel;
+  let dist1 = (t1 * (v1 + v2)) / 2;
+  let dist3 = (t3 * (v2 + v3)) / 2;
+  let dist2 = dist - dist1 - dist3;
+  if (dist2 > 0) {
+    // enough time to accelerate and decelerate
+    let t2 = dist2 / v2;
+    return {time: t1 + t2 + t3, feed: v3};
+  } else if (v1 >= v2) { // v2 >= v3
+    if (dist1 > dist) {
+      // not enough time to decelerate to v2
+      return {time: t1, feed: v3}; // instant deceleration, will underestimate the time
+    }
+    // decelerate to v2 over t1 and dist1
+    dist -= dist1;
+    return {time: t1 + 2 * dist / (v2 + v3), feed: v3}; // increase acceleration to match the distance, will underestimate the time
+  } else { // v1 < v2, v2 >= v3
+    let t = Math.abs(v3 - v1) / accel;
+    dist2 = (t * (v1 + v3)) / 2;
+    if (dist2 > dist) {
+      if (v1 < v3) {
+        // not enough time to accelerate from v1 to v3
+        t = (Math.sqrt(v1*v1 + 2*accel*dist) - v1) / accel;
+        return {time: t, feed: v1 + accel * t}; // get as fast as there's time
+      } else {
+        return {time: 2 * dist / (v1 + v3), feed: v3}; // increase acceleration to match the distance, will underestimate the time
+      }
+    } else {
+      // enough time to accelerate to vmax and then decelerate to v3
+      let vmax = Math.sqrt(accel*dist + (v1*v1 + v3*v3) / 2);
+      return {time: (2*vmax - v1 - v3) / accel, feed: v3};
+    }
+  }
+}
+
+computeMaxFeed(dx, dy, dz) {
+  let tx = Math.abs(dx / this.machineParams.xMaxFeed);
+  let ty = Math.abs(dy / this.machineParams.yMaxFeed);
+  let tz = Math.abs(dz / this.machineParams.zMaxFeed);
+  let t = Math.max(tx, Math.max(ty, tz));
+  return 1 / t;
+}
+
+computeMaxAccel(dx, dy, dz) {
+  let tx = Math.abs(dx / this.machineParams.xAccel);
+  let ty = Math.abs(dy / this.machineParams.yAccel);
+  let tz = Math.abs(dz / this.machineParams.zAccel);
+  let t = Math.max(tx, Math.max(ty, tz));
+  return 1 / t;
+}
+
+recalcTotalTime() {
+  let linePoints = this.linePoints;
+  if (linePoints.length < 2) return; // no points
+
+  linePoints[0].duration = 0;
+  let curPoint;
+  let dx1, dy1, dz1, len1;
+
+  // find first point
+  let pointIdx = 1;
+  for (;pointIdx < linePoints.length; pointIdx++) {
+    curPoint = linePoints[pointIdx];
+
+    dx1 = curPoint.x - linePoints[0].x;
+    dy1 = curPoint.y - linePoints[0].y;
+    dz1 = curPoint.z - linePoints[0].z;
+    len1 = Math.sqrt((dx1*dx1) + (dy1*dy1) + (dz1*dz1));
+
+    if (len1 > 0) {
+      dx1 /= len1;
+      dy1 /= len1;
+      dz1 /= len1;
+      break;
+    }
+
+    curPoint.duration = 0;
+  }
+
+  let prevFeed = 0;
+  for (pointIdx++; pointIdx <= linePoints.length; pointIdx++) {
+    let dx2, dy2, dz2;
+    let len2;
+    let nextFeed;
+    let nextPoint;
+    if (pointIdx < linePoints.length) {
+      nextPoint = linePoints[pointIdx];
+      dx2 = nextPoint.x - curPoint.x;
+      dy2 = nextPoint.y - curPoint.y;
+      dz2 = nextPoint.z - curPoint.z;
+      len2 = Math.sqrt((dx2*dx2) + (dy2*dy2) + (dz2*dz2));
+      if (len2 == 0) {
+        // no movement, skip to the next point
+        curPoint.duration = 0;
+        continue;
+      }
+      dx2 /= len2;
+      dy2 /= len2;
+      dz2 /= len2;
+      nextFeed = nextPoint.feed / 60;
+    } else {
+      dx2 = 0;
+      dy2 = 0;
+      dz2 = 0;
+      len2 = 0;
+      nextFeed = 0;
+    }
+
+    let accel = this.computeMaxAccel(dx1, dy1, dz1);
+    let maxFeed = this.computeMaxFeed(dx1, dy1, dz1);
+    let curFeed = Math.min(curPoint.feed / 60, maxFeed);
+    let endFeed = Math.max(Math.min((dx1*dx2 + dy1*dy2 + dz1*dz2) * nextFeed, curFeed), 0);
+
+    let {time, feed} = this.computeMoveTime(prevFeed, curFeed, endFeed, len1, accel);
+    curPoint.duration = time / 60;
+
+    prevFeed = feed;
+    curPoint = nextPoint;
+    dx1 = dx2;
+    dy1 = dy2;
+    dz1 = dz2;
+    len1 = len2;
+  }
+
+  this.totalTime = 0;
+  for (let point of linePoints) {
+    point.duration *= TIME_FUDGE_FACTOR_PRECISE;
+    point.startTime = this.totalTime;
+    this.totalTime += point.duration;
+  }
+}
+
 } // end of class GCodeParser
 
-function createObjectFromGCode(gcode) {
-  const parser = new GCodeParser(gcodeHandlers, gcodeModalHandlers);
+function createObjectFromGCode(gcode, machineParams) {
+  const parser = new GCodeParser(gcodeHandlers, gcodeModalHandlers, machineParams);
   parser.parseGcode(gcode);
 
   const data = {
