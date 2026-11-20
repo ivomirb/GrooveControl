@@ -41,6 +41,8 @@ import {
 var bypassFileSec = false; // when false, only files from the allowedFilePaths set can be accessed
 var allowedFilePaths = new Set();
 
+const enableFileFilters = process.platform !== 'darwin'; // MacOS doesn't handle file filters very well (search functionality is broken), so just disable them
+
 const fileSecurityMessage = `
 
 For security reasons, only files that are picked from a file browser can be accessed.
@@ -93,7 +95,7 @@ function openFileDialog(data, callback) {
 
   dialog.showOpenDialog(jogWindowAPI.getJogWindow(), {
     title: data.title,
-    filters: data.filters,
+    filters: enableFileFilters ? data.filters : undefined,
     defaultPath: defaultPath,
     properties: ['openFile']
   }).then((result) => {
@@ -118,7 +120,7 @@ function saveFileDialog(data, callback) {
 
   dialog.showSaveDialog(jogWindowAPI.getJogWindow(), {
     title: data.title,
-    filters: data.filters,
+    filters: enableFileFilters ? data.filters : undefined,
     defaultPath: defaultPath,
     properties: ['dontAddToRecent']
   }).then((result) => {
@@ -169,13 +171,14 @@ function readTextFile(filePath, params, callback) {
 
 function openGcodeFile() {
   const defaultPath = persistentConfig.defaultPaths["gcode"] || persistentConfig.defaultPaths["last"];
+  const gcodeFileFilters = [
+    {name: "G-code files", extensions: ["gcode", "gc", "tap", "nc", "cnc"]},
+    {name: "All files", extensions: ["*"]},
+  ];
 
   dialog.showOpenDialog(jogWindowAPI.getJogWindow(), {
     title: "Open G-code",
-    filters: [
-      {name: "G-code files", extensions: ["gcode", "gc", "tap", "nc", "cnc"]},
-      {name: "All files", extensions: ["*"]},
-    ],
+    filters: enableFileFilters ? gcodeFileFilters : undefined,
     defaultPath: defaultPath,
     properties: ['openFile']
   }).then((result) => {

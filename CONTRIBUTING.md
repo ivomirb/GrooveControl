@@ -42,6 +42,13 @@ Depending on the scope, I may decide to spin up a new branch just for it.
 
 Is any of this a good idea? I don't know. I am making it up as I go. It remains to be seen.
 
+### AI-generated code
+
+While I myself do not partake (this is a hobby project, and I don't find AI coding fun), you are welcome to submit such code.
+
+However - keep in mind that every line will be hand-examined and tested before it goes in. Since AI code tends to be on the verbose side, the process will take longer.
+Code that is overly complicated or boilerplaty will be mercilessly simplified.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the [LICENSE](https://github.com/ivomirb/GrooveControl/blob/master/LICENSE) of the repository.
