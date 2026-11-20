@@ -102,12 +102,6 @@
       },
       "fileAssociations": [
         {
-          "ext": "obc",
-          "name": "OpenBuilds CAM Project",
-          "description": "OpenBuilds CAM Project",
-          "role": "Viewer"
-        },
-        {
           "ext": "gcode",
           "name": "G-code File",
           "description": "G-code File",
@@ -157,12 +151,6 @@
         "AppImage"
       ],
       "fileAssociations": [
-        {
-          "ext": "obc",
-          "name": "OpenBuilds CAM Project",
-          "description": "OpenBuilds CAM Project",
-          "role": "Viewer"
-        },
         {
           "ext": "gcode",
           "name": "G-code File",

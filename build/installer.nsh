@@ -4,8 +4,6 @@
 !macro customPageAfterChangeDir
   Var GcCheckbox
   Var GcCheckbox_State
-  Var CamCheckbox
-  Var CamCheckbox_State
 
   Function customShowPage
     ; 1. Create the dialog layout frame
@@ -23,25 +21,16 @@
     ${NSD_CreateCheckbox} 5 15u 100% 10u "G-code files (*.nc, *.gc, *.gcode, *.tap, *.cnc)"
     Pop $GcCheckbox
 
-    ${NSD_CreateCheckbox} 5 30u 100% 10u "OpenBuilds CAM projects (*.obc)"
-    Pop $CamCheckbox
-
     ${If} $GcCheckbox_State == ""
       StrCpy $GcCheckbox_State ${BST_CHECKED}
     ${EndIf}
 
-    ${If} $CamCheckbox_State == ""
-      StrCpy $CamCheckbox_State ${BST_CHECKED}
-    ${EndIf}
-
     ${NSD_SetState} $GcCheckbox $GcCheckbox_State
-    ${NSD_SetState} $CamCheckbox $CamCheckbox_State
     nsDialogs::Show
   FunctionEnd
 
   Function customLeavePage
     ${NSD_GetState} $GcCheckbox $GcCheckbox_State
-    ${NSD_GetState} $CamCheckbox $CamCheckbox_State
   FunctionEnd
 
   Page custom customShowPage customLeavePage
@@ -55,9 +44,6 @@
     !insertmacro APP_ASSOCIATE "nc" "G-code File" "G-code File" "$appExe,0" "Open with GrooveControl" "$appExe $\"%1$\""
     !insertmacro APP_ASSOCIATE "cnc" "G-code File" "G-code File" "$appExe,0" "Open with GrooveControl" "$appExe $\"%1$\""
   ${EndIf}
-  ${If} $CamCheckbox_State == ${BST_CHECKED}
-    !insertmacro APP_ASSOCIATE "obc" "OpenBuilds CAM Project" "OpenBuilds CAM Project" "$appExe,0" "Open with GrooveControl" "$appExe $\"%1$\""
-  ${EndIf}
 !macroend
 
 !macro customUnInstall
@@ -66,5 +52,4 @@
   !insertmacro APP_UNASSOCIATE "tap" "G-code File"
   !insertmacro APP_UNASSOCIATE "nc" "G-code File"
   !insertmacro APP_UNASSOCIATE "cnc" "G-code File"
-  !insertmacro APP_UNASSOCIATE "obc" "OpenBuilds CAM Project"
 !macroend

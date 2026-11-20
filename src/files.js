@@ -38,7 +38,6 @@ import {
 
 
 // Global variables
-var uploadedWorkspace = ""; // var to store uploaded OpenBuildsCAM Workspace
 var bypassFileSec = false; // when false, only files from the allowedFilePaths set can be accessed
 var allowedFilePaths = new Set();
 
@@ -229,20 +228,15 @@ function readGcodeFile(filePath, showErrorDlg, onSuccess) {
       }
       debug_log(err);
     } else if (data) {
-      if (filePath.endsWith('.obc')) { // OpenBuildsCAM Workspace
-        uploadedWorkspace = data;
-        shell.openExternal('https://github.com/OpenBuilds/OpenBuilds-CAM')
-      } else { // GCODE
-        setCurrentGcode(data);
-        status.misc.lastFilePath = filePath;
-        const payload = {
-          gcode: data,
-          filename: path.basename(status.misc.lastFilePath)
-        }
-        serverEmit('gcodeupload', payload);
-        if (onSuccess) {
-          onSuccess(filePath, data);
-        }
+      setCurrentGcode(data);
+      status.misc.lastFilePath = filePath;
+      const payload = {
+        gcode: data,
+        filename: path.basename(status.misc.lastFilePath)
+      }
+      serverEmit('gcodeupload', payload);
+      if (onSuccess) {
+        onSuccess(filePath, data);
       }
     }
   });
@@ -296,21 +290,6 @@ function onDocReady(result) {
 }
 
 function initFiles() {
-  app.get('/upload', (req, res) => {
-    res.sendFile(rootDir + '/app/upload.html');
-  })
-
-  app.get('/gcode', (req, res) => {
-    const gcode = getCurrentGcode();
-    if (gcode.indexOf('$') != 0) { // Ignore grblSettings jobs
-      res.send(gcode);
-    }
-  })
-
-  app.get('/workspace', (req, res) => {
-    res.send(uploadedWorkspace);
-  })
-
   app.post('/saveFile', saveFileRequest);
 
   addConnectionHandler(onConnection);

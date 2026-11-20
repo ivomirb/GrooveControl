@@ -91,12 +91,9 @@ function onSecondInstance(event, commandLine, workingDirectory) {
   for (let i = 0; i < commandLine.length; i++) {
     const arg = commandLine[i];
     const ext = path.extname(arg).toLowerCase();
-    if ([".obc", ".gcode", ".gc", ".tap", ".nc", ".cnc"].indexOf(ext) >= 0) {
+    if ([".gcode", ".gc", ".tap", ".nc", ".cnc"].indexOf(ext) >= 0) {
       allowedFilePaths.add(arg);
       readGcodeFile(arg, true, addRecentFile);
-      if (ext == ".obc") {
-        return;
-      }
     }
   }
 
@@ -567,24 +564,6 @@ function onConnection(socket) {
 
 function main() {
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = '1';
-
-  app.get('/api/version', (req, res) => {
-    const data = {
-      "application": "OMD",
-      "version": status.driver.version,
-      "ipaddress": ip.address() + ":" + config.webPort
-    };
-    res.send(JSON.stringify(data), null, 2);
-  })
-
-  app.get('/activate', (req, res) => {
-    debug_log(req.hostname)
-    res.send('Host: ' + req.hostname + ' asked to activate Groove Control v' + status.driver.version);
-    showJogWindow()
-    setTimeout(function() {
-      serverEmit('activate', req.hostname);
-    }, 500);
-  })
 
   app.on('certificate-error', function(event, webContents, url, error,
     certificate, callback) {
