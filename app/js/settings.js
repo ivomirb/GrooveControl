@@ -51,6 +51,10 @@ function updateSettingsState() {
   enableViaClass('#keyboardAssignmentPrompt', enableKeyboardShortcuts);
   enableViaClass('#keyboardAssignmentForm', enableKeyboardShortcuts);
 
+  const enableGamepad = $('#enableGamepad').prop('checked');
+  enableViaClass('#gamepadAssignmentPrompt', enableGamepad);
+  enableViaClass('#gamepadAssignmentForm', enableGamepad);
+  enableViaClass('#gamepadSettingsPanel', enableGamepad);
 }
 
 const appSettingsDlg = `
@@ -58,7 +62,7 @@ const appSettingsDlg = `
 <ul class="tabs-holder">
   <li><a id="mainSettingsTab" href="#mainSettings" style="font-size:14px;"><i class="fas fa-sliders-h"></i> Main</a></li>
   <li><a id="keyboardSettingsTab" href="#keyboardSettings" style="font-size:14px;"><i class="fas fa-keyboard"></i> Keyboard</a></li>
-<!--  <li><a id="gamepadSettingsTab" href="#gamepadSettings" style="font-size:14px;"><i class="fas fa-gamepad"></i> Gamepad</a></li> -->
+  <li><a id="gamepadSettingsTab" href="#gamepadSettings" style="font-size:14px;"><i class="fas fa-gamepad"></i> Gamepad</a></li>
   <li><a id="rotarySettingsTab" href="#rotarySettings" style="font-size:14px;"><i class="fab fa-ubuntu"></i> Rotary</a></li>
 <!--  <li><a id="toolchangeSettingsTab" href="#toolchangeSettings" style="font-size:14px;"><i class="fas fa-tools"></i> Toolchange</a></li> -->
 </ul>
@@ -189,8 +193,60 @@ The animation is smoother at the expense of some accuracy and a small lag of aro
   <span class="fg-red" id="alreadyAssignedWarnKbd" style="display: none; position:absolute; bottom:-18px;"></span>
 </div>
 
-<!--<div class="section" id="gamepadSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
-</div> -->
+<div class="section" id="gamepadSettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
+  <span class="border-bottom bd-dialog">
+    <input type="checkbox" data-role="checkbox" data-style="2" data-caption="Enable Gamepad" id="enableGamepad" onclick="showGamepadWarning(); updateSettingsState()"/>
+  </span>
+  <div style="width:120px; height:100px; position:absolute; top:48px; right:40px;">
+    <canvas id="gamepadViewCanvas" width="130" height="110" />
+  </div>
+
+  <div class="row mt-1 ml-3 mr-1" id="gamepadSettingsPanel">
+    <div>
+      <div class="row" style="align-items:center;">
+        <label style="margin-top:4px; padding-left:4px; width:160px;">Invert Axis</label>
+        <span class="text-small" style="margin-left:12px">X</span>
+        <label class="toggle contrast" style="padding-left:4px;">
+          <input type="checkbox" id="gamepadInvertX"/><div></div>
+        </label>
+        <span class="text-small" style="padding-left:28px">Y</span>
+        <label class="toggle contrast" style="padding-left:4px;">
+          <input type="checkbox" id="gamepadInvertY"/><div></div>
+        </label>
+        <span class="text-small" style="padding-left:28px">Z</span>
+        <label class="toggle contrast" style="padding-left:4px;">
+          <input type="checkbox" id="gamepadInvertZ"/><div></div>
+        </label>
+      </div>
+      <div class="row mb-1">
+        <label style="margin-top:4px; padding-left:4px; width:160px;">Joystick Deadzone</label>
+        <div style="margin-left:10px; width:200px;">
+          <input type="number" style="text-align:right;" data-role="input" data-editable="true" data-clear-button="false" data-append="%" id="analogDeadzone" />
+        </div>
+      </div>
+      <div class="row mb-1">
+        <label style="margin-top:4px; padding-left:4px; width:160px;">Button Name Set
+          <span class="far fa-question-circle ml-1" title="Select the button name set that best fits your controller.
+The choice doesn't change how the gamepad will function, only how the button names are shown in the UI.
+More button sets can be added in future versions as needed."></span>
+        </label>
+        <div style="margin-left:10px; width:200px;">
+          <select data-role="select" id="selectButtonPreset" data-filter="false" data-on-change="onGamepadPresetChange" class="compact-options">
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-1 border-top bd-dialog"></div>
+  <span id="gamepadAssignmentPrompt" style="font-size:14px;">Click below to assign a gamepad button to each action.</span>
+  <div class="p-0 mt-2" style="overflow-y:auto; height:430px;">
+    <form id="gamepadAssignmentForm" style="padding:2px 0px;">
+    </form>
+  </div>
+  <div class="mt-1 border-top bd-dialog"></div>
+  <span class="fg-red" id="alreadyAssignedWarnButton" style="display: none; position:absolute; bottom:-18px;"></span>
+</div>
 
 <div class="section" id="rotarySettings" style="height:500px; flex-direction:column; border-bottom: 0px;">
   <div style="display:flex;">
@@ -252,6 +308,7 @@ function applyAppSettings() {
   }
 
   applyKeyboardSettings();
+  applyGamepadSettings();
   updateButtonTooltips();
 
   if (reload) {
@@ -260,6 +317,7 @@ function applyAppSettings() {
 }
 
 function cancelAppSettings() {
+  cancelGamepadSettings();
 }
 
 function showAppSettings(category) {
@@ -330,6 +388,7 @@ function showAppSettings(category) {
   $('#disable4thAxisCheck').prop('checked', disable4thAxis);
 
   initKeyboardEditor();
+  initGamepadEditor();
 
   if (category) {
     const tab = $('#' + category + "SettingsTab");

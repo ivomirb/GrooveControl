@@ -1,7 +1,7 @@
 "use strict";
 
 const APP_NAME = "Groove Control";
-const APP_VERSION = 1000.000; // 1.0.0 (convenient way to represent the version as a number)
+const APP_VERSION = 1001.000; // 1.1.0 (convenient way to represent the version as a number)
 
 var currentGcode = ""; // this should always match what is in the 3d view, but the editor contents may be different
 var loadedFileName = ""; // name for the contents of the editor, usually the last loaded file

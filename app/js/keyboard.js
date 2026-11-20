@@ -244,7 +244,7 @@ function keyInUse(newVal, forMacro) {
   } else {
     // Check currently edited in keys, not saved yet
     for (const action of inputActions) {
-      if (action != focusedKbdAction) {
+      if (!action.gamepad && action != focusedKbdAction) {
         const input = $('#' + action.name + 'newKey');
         if (input.val().toLowerCase() == newVal) {
           inUse = true;
@@ -265,6 +265,7 @@ function initKeyboardEditor() {
   focusedKbdAction = undefined;
 
   for (const action of inputActions) {
+    if (action.gamepad) continue;
     $('#keyboardAssignmentForm').append(`
       <div class="row mt-1 ml-1 mr-1">
         <label class="cell-sm-6" style="margin-top:4px">` + action.label + `</label>
@@ -283,7 +284,7 @@ function initKeyboardEditor() {
 function applyKeyboardSettings() {
   keyboardShortcuts = {};
   for (const action of inputActions) {
-    keyboardShortcuts[action.name] = $('#' + action.name + 'newKey').val().toLowerCase();
+    keyboardShortcuts[action.name] = action.gamepad ? "" : $('#' + action.name + 'newKey').val().toLowerCase();
   }
 
   localStorage.setItem('keyboardShortcuts', JSON.stringify(keyboardShortcuts));

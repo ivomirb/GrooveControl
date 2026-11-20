@@ -3,7 +3,35 @@
 var dlgContext = {};
 
 const inputActions = [
-  { // X-
+  { // Activate Joystick Jog
+    name: "analogJogActivate",
+    friendlyName: "Activate Joystick Move",
+    label: `Activate Joystick Move<br><span class="text-small">Click to activate joysticks</span>`,
+    defaultKey: "",
+    keydown: activateAnalogJog,
+    gamepad: true,
+    dlgContext: "probe",
+  },
+
+  { // Precise Joystick Move (25% speed)
+    name: "analogJogPrecise",
+    friendlyName: "Precise Joystick Move",
+    label: `Precise Joystick Move<br><span class="text-small">Press and hold to move at 25% speed</span>`,
+    defaultKey: "",
+    gamepad: true,
+    singleKey: true,
+  },
+
+  { // Combo Button
+    name: "combo",
+    friendlyName: "Combo Button",
+    label: `Combo Button<br><span class="text-small">Press and hold for 2-button combos</span>`,
+    defaultKey: "",
+    gamepad: true,
+    singleKey: true,
+  },
+
+    { // X-
     name: "xM",
     friendlyName: "Jog X-",
     label: `<i class="fas fa-arrow-left fg-red fa-fw"></i> Jog X-`,
@@ -464,6 +492,19 @@ function replaceHotkeyTokens(tooltip, forMenu) {
           }
         }
       }
+      if (!disableGamepad) {
+        const button = getGamepadButtonName(gamepadShortcuts[action.name]);
+        if (button != "") {
+          if (hotkey != "") {
+            hotkey += ", ";
+          }
+          if (forMenu && button.length > 2) {
+            hotkey += button;
+          } else {
+            hotkey += "Gamepad: " + button;
+          }
+        }
+      }
       if (hotkey == "") {
         return "";
       }
@@ -538,6 +579,16 @@ function advanceProbeSequence() {
   }
 }
 
+function activateAnalogJog() {
+  if (gamepadId !== null && laststatus && laststatus.comms.connectionStatus == 2) {
+    const gamepad = navigator.getGamepads()[gamepadId];
+    if (gamepad) {
+      gamepad.vibrationActuator.playEffect("dual-rumble", {startDelay: 0, duration: 75, strongMagnitude: 0, weakMagnitude: 0.75});
+      analogJogActiveStart = new Date().getTime();
+    }
+  }
+}
+
 function addDlgContext(context) {
   dlgContext[context] = true;
 }
@@ -557,6 +608,7 @@ function findInputAction(name) {
 
 function actionsDocReady() {
   initKeyboardActions();
+  initGamepadActions();
 
   if (!isJogWidget) {
     updateButtonTooltips();

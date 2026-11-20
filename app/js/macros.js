@@ -3,6 +3,7 @@
 var buttonsarray = [];
 var macroCodeType = "gcode";
 var currentEditMacro = undefined;
+var currentEditMacroButton = false;
 var failedAutorunButtons = [];
 
 // eslint-disable-next-line no-unused-vars
@@ -53,8 +54,13 @@ function populateMacroButtons(runStartups) {
       shortcutIcon = "fas fa-exclamation-triangle fa-fw fg-red";
     }
     else if (button.shortcut && button.shortcut.length > 0) {
-      shortcut = ": [" + capitalizeShortcut(button.shortcut) + "]";
-      shortcutIcon = "macrokbd-icon far fa-keyboard fa-fw";
+      if (button.shortcut.startsWith("button ") || button.shortcut.startsWith("*button ")) {
+        shortcut = ": [" + getGamepadButtonName(button.shortcut) + "]";
+        shortcutIcon = "macrokbd-icon fas fa-gamepad fa-fw";
+      } else {
+        shortcut = ": [" + capitalizeShortcut(button.shortcut) + "]";
+        shortcutIcon = "macrokbd-icon far fa-keyboard fa-fw";
+      }
     }
 
     let codetypeDisplay = button.codetype;
@@ -117,6 +123,7 @@ function onMacroShorcutKeyDown(event) {
       $('#alreadyAssignedWarnMacro').hide();
       $('#macrokeyboardshortcut').val(capitalizeShortcut(newVal));
       $('#macrokeyboardshortcut').parent().removeClass('alert').addClass('primary');
+      currentEditMacroButton = false;
     }
   }
 }
@@ -150,6 +157,7 @@ function editMacro(buttonIdx, fileName, script) {
   let shortcut = "";
   let jsrunonstartup = "";
   let jsrunalways = "";
+  currentEditMacroButton = false;
 
   if (buttonIdx >= 0) {
     button = buttonsarray[buttonIdx];
@@ -161,7 +169,13 @@ function editMacro(buttonIdx, fileName, script) {
     color = button.colorClass;
     tooltip = button.tooltip;
     if (button.shortcut && button.shortcut.length > 0) {
-      shortcut = capitalizeShortcut(button.shortcut);
+      shortcut = button.shortcut;
+      if (shortcut.startsWith("button ") || shortcut.startsWith("*button ")) {
+        shortcut = getGamepadButtonName(shortcut);
+        currentEditMacroButton = shortcut;
+      } else {
+        shortcut = capitalizeShortcut(shortcut);
+      }
     }
     jsrunonstartup = button.jsrunonstartup ? "checked" : "";
     jsrunalways = button.jsrunalways ? "checked" : "";
@@ -267,7 +281,7 @@ This setting is for the rare cases when you have a macro that is needed during t
             <input id="macrokeyboardshortcut" readonly class="macrokeyboardshortcutinput" type="text" value="` + shortcut + `" data-role="input" data-clear-button="true" data-editable="true"
               onfocus="onMacroShortcutGetFocus()" onblur="onMacroShortcutLoseFocus()" onchange="onMacroShortcutInputChange()">
             <span class="text-small fg-red" id="alreadyAssignedWarnMacro" style="display: none; position:absolute; bottom:-20px;"></span>
-            <span class="text-small">Click above to assign a new Keyboard Shortcut to the action.<br>Ctrl, Alt and Shift can be added to create key combinations.</span>
+            <span class="text-small">Click above to assign a new Keyboard / Gamepad Shortcut to the action.<br>Ctrl, Alt and Shift can be added to create key combinations.</span>
           </div>
       </div>
     </div>
@@ -297,7 +311,7 @@ This setting is for the rare cases when you have a macro that is needed during t
           button.javascript = $('#macrojs').val();
           button.colorClass = $('#macrocolor').val();
           button.tooltip = $('#macrotooltip').val();
-          button.shortcut = $('#macrokeyboardshortcut').val().toLowerCase();
+          button.shortcut = currentEditMacroButton || $('#macrokeyboardshortcut').val().toLowerCase();
           button.jsrunonstartup = $('#jsRunOnStartup').is(':checked');
           button.jsrunalways = $('#jsRunAlways').is(':checked');
           const failed = failedAutorunButtons.indexOf(button);
