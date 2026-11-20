@@ -8,8 +8,6 @@ import express from 'express';
 import path from 'path';
 import ip from 'ip';
 import http from 'http';
-import crypto from 'crypto';
-import net from 'net';
 // import https from 'https';
 
 
@@ -22,93 +20,11 @@ import {
 } from './core.js';
 
 
-// Protection against foreign web pages open in a browser on this computer or in the LAN.
-// Only requests to a local host (localhost, IP address, bare host name, *.local) are accepted, and they must either
-// - carry the session token (the desktop app window, which is loaded from file://), or
-// - come from that same host (the mobile jog page in a browser), or send no Origin at all (e.g. curl).
-const sessionToken = crypto.randomBytes(32).toString('hex'); // new on every start, never stored
-
-function getSessionToken() {
-  return sessionToken;
-}
-
-function isAllowedHost(hostHeader) {
-  if (!hostHeader) {
-    return false;
-  }
-  let hostname;
-  try {
-    hostname = new URL('http://' + hostHeader).hostname.toLowerCase();
-  } catch {
-    return false;
-  }
-  hostname = hostname.replace(/^\[/, '').replace(/\]$/, ''); // IPv6 [::1] -> ::1
-  if (hostname === 'localhost' || hostname.endsWith('.local')) {
-    return true;
-  }
-  if (net.isIP(hostname)) {
-    return true;
-  }
-  return hostname.indexOf('.') === -1; // bare host name without a domain
-}
-
-function hasValidToken(req) {
-  let token;
-  try {
-    token = new URL(req.url, 'http://localhost').searchParams.get('token');
-  } catch {
-    return false;
-  }
-  if (!token || token.length !== sessionToken.length) {
-    return false;
-  }
-  return crypto.timingSafeEqual(Buffer.from(token), Buffer.from(sessionToken));
-}
-
-function isSameOrigin(req) {
-  const origin = req.headers.origin;
-  if (origin === undefined) {
-    return true;
-  }
-  try {
-    return new URL(origin).host.toLowerCase() === req.headers.host.toLowerCase();
-  } catch {
-    return false; // e.g. Origin "null"
-  }
-}
-
-function isTrustedRequest(req) {
-  return isAllowedHost(req.headers.host) && (hasValidToken(req) || isSameOrigin(req));
-}
-
-function checkRequestOrigin(req, res, next) {
-  const isReadOnly = (req.method === 'GET' || req.method === 'HEAD');
-  if (!isAllowedHost(req.headers.host) || (!isReadOnly && !isTrustedRequest(req))) {
-    debug_log('Blocked request: ' + req.method + ' ' + req.path + ' Host: ' + req.headers.host + ' Origin: ' + req.headers.origin);
-    return res.status(403).send('Forbidden');
-  }
-  if (req.headers.origin !== undefined && hasValidToken(req)) {
-    // let the desktop app window (file://) read the response
-    res.set('Access-Control-Allow-Origin', req.headers.origin);
-  }
-  next();
-}
-
 // Global variables
-const io = new ioServer({
-  // accept connections only from the desktop app window (token) or from the same host
-  allowRequest: function(req, callback) {
-    const allowed = isTrustedRequest(req);
-    if (!allowed) {
-      debug_log('Blocked Socket.IO connection: Host: ' + req.headers.host + ' Origin: ' + req.headers.origin);
-    }
-    callback(null, allowed);
-  }
-});
+const io = new ioServer({allowRequest: allowServerRequest});
 const app = express();
-// The check must be registered first: other modules (files.js, grblSender.js) add their routes
-// before initServer() runs, and Express handles middleware in registration order
-app.use(checkRequestOrigin);
+app.use(checkRequestOrigin); // do this first to catch all requests
+
 var httpServer;
 var connectionHandlers = [];
 var docReadyHandlers = [];
@@ -152,6 +68,28 @@ function onConnection(socket) {
   connectionHandlers.forEach((x) => x(socket));
 
   socket.on('docReady', onDocReady);
+}
+
+// Security improvements: allow requests only from local origin
+
+function isAllowedOrigin(origin) {
+  return origin == undefined;
+}
+
+function allowServerRequest(req, callback) {
+  return callback(null, isAllowedOrigin(req.headers.origin));
+}
+
+function checkRequestOrigin(req, res, next) {
+  const origin = req.headers.origin;
+  if (isAllowedOrigin(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Private-Network", "true");
+  } else {
+    return res.status(403).send('Forbidden');
+  }
+  next();
 }
 
 function httpServerSuccess() {
@@ -206,7 +144,6 @@ function serverEmitOutput(data) {
 
 export {
   app,
-  getSessionToken,
   serverEmit,
   serverEmitOutput,
   addConnectionHandler,
