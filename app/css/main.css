@@ -383,3 +383,20 @@ select {
 .bd-dialog {
   border-color: #ddd !important;
 }
+
+#sidePanel {
+  background-color: #f5f6f7;
+}
+
+#sidePanel .section {
+  display: flex;
+  padding: 4px 4px;
+  border-bottom: 1px solid #dadbdc;
+  -webkit-box-pack: start;
+  justify-content: flex-start;
+}
+
+.gutter {
+  border-color: #ddd !important;
+  background-color: #ddd !important;
+}

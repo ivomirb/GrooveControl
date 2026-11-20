@@ -2,6 +2,7 @@
 
 var MAX_WCS_HISTORY = 5;
 var WCS_HISTORY_TIMEOUT = 3000; // WCS changes within that timeout of the last one are ignored
+var MIN_SIDEPANEL_WIDTH = 1400; // the window width at which the side panel becomes available
 
 var wcsHistory = {
   G54: [],
@@ -15,6 +16,7 @@ var wcsHistory = {
 var wcsHistoryEmpty = true;
 var lastWcsCapture = {};
 var rippleTimeout = undefined;
+var pinnedTabName = undefined;
 
 function addRemoveClass(element, className, add) {
   if (typeof element == "string") {
@@ -348,8 +350,96 @@ function deleteContentTab(tabName) {
 }
 
 function activateContentTab(tabName) {
-  const tab = $('#' + tabName);
-  tab.click();
+  if (tabName != pinnedTabName) {
+    const tab = $('#' + tabName);
+    tab.click();
+  }
+}
+
+function pinTabInternal(tabName) {
+  if (pinnedTabName == tabName) {
+    return;
+  }
+
+  if (pinnedTabName) {
+    const tab = $('#' + pinnedTabName);
+    const contentId = tab.attr('href');
+    const content = $(contentId);
+    $('#mainTabHolder').append(content);
+    tab.show().click();
+  }
+
+	$('#sidePanelTab').children('span').hide();
+  if (tabName) {
+    const tab = $('#' + tabName);
+    const contentId = tab.attr('href');
+    const content = $(contentId);
+    $('#sidePanelTab').parent().show();
+    $('#sidePanelTab').show().children('#' + tabName + '2').show();
+    $('#sidePanel').append(content);
+    $('#sidePanel').show();
+    $('#manualControlPanel > .gutter').show();
+    tab.hide();
+    if (tab.parent().hasClass("active") && !pinnedTabName) {
+      let next = tab.parent().next();
+      if (next.length == 0) {
+        next = tab.parent().prev();
+      }
+      next.children('a').click();
+    }
+  }
+  else {
+    $('#sidePanelTab').parent().hide();
+    $('#sidePanel').hide();
+    $('#manualControlPanel > .gutter').hide();
+  }
+  pinnedTabName = tabName;
+}
+
+function pinTab(event, tabName) {
+  event.stopPropagation();
+  pinTabInternal(tabName);
+  localStorage.setItem('pinnedTab', tabName);
+}
+
+function onWindowResize() {
+  const width = window.innerWidth;
+  if (width >= MIN_SIDEPANEL_WIDTH) {
+    $('.pinbutton').show();
+    pinTabInternal(localStorage.getItem('pinnedTab'));
+  }
+  else {
+    pinTabInternal("");
+    $('.pinbutton').hide();
+    $('#sidePanel').hide();
+    $('#manualControlPanel > .gutter').hide();
+  }
+}
+
+function uiDocReady() {
+  $(window).on('resize', onWindowResize);
+  if (localStorage.getItem('pinnedTab') == null) { // on first run show the viewer
+    localStorage.setItem('pinnedTab', "gcodeviewertab");
+  }
+  const tabName = localStorage.getItem('pinnedTab');
+  if (tabName && $('#' + tabName).length == 0) { // tab doesn't exist
+    localStorage.setItem('pinnedTab', "");
+  }
+
+  if (localStorage.getItem('sidePanelSize')) {
+    let panelSize = JSON.parse(localStorage.getItem('sidePanelSize'));
+    if (Array.isArray(panelSize) && typeof panelSize[0] == 'string' && typeof panelSize[1] == 'string') {
+      $('#jogcontrols').parent().css('flex-basis', panelSize[0]);
+      $('#sidePanel').css('flex-basis', panelSize[1]);
+    }
+  }
+
+  const observer = new ResizeObserver(() => {
+    const panelSize = [$('#jogcontrols').parent().css('flex-basis'), $('#sidePanel').css('flex-basis')];
+    localStorage.setItem('sidePanelSize', JSON.stringify(panelSize));
+  });
+  observer.observe(document.getElementById('sidePanel'));
+  onWindowResize();
 }
 
 // Wrapper for Metro.dialog.create that adds a secondary overlay to cover the dialogs below

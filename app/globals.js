@@ -136,4 +136,5 @@ const usedFunctions = {
   runGcodeAllTools,
   runGcodeSection,
   addReloadHandler,
+  pinTab,
 };

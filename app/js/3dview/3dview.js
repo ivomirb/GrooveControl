@@ -113,7 +113,7 @@ function parseGcodeInWebWorker(gcode) {
     const worker = new Worker('js/3dview/verylitegcodeviewer.js');
     worker.addEventListener('message', function(e) {
       if (e.data.progress != undefined) {
-        $('#3dviewlabel').html(' 3D View (rendering, please wait... ' + e.data.progress + '% )')
+        $('.3dviewlabel').html(' 3D View (rendering, please wait... ' + e.data.progress + '% )')
       } else {
         object = convertParsedDataToObject(e.data);
         if (!viewSettings.toolpath) {
@@ -143,14 +143,14 @@ function parseGcodeInWebWorker(gcode) {
           } else {
             $('#timeRemaining').html("");
           }
-          $('#3dviewicon').removeClass('fa-pulse');
-          $('#3dviewlabel').html(' 3D View');
+          $('.3dviewicon').removeClass('fa-pulse');
+          $('.3dviewlabel').html(' 3D View');
         } else {
           // Didn't get an Object
           activateContentTab('consoletab');
           $('#timeRemaining').html("");
-          $('#3dviewicon').removeClass('fa-pulse');
-          $('#3dviewlabel').html(' 3D View');
+          $('.3dviewicon').removeClass('fa-pulse');
+          $('.3dviewlabel').html(' 3D View');
         }
       }
 

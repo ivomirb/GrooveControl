@@ -123,6 +123,8 @@ $(document).ready(function() {
       deleteContentTab('gcodeviewertab');
       activateContentTab('consoletab');
     }
+
+    uiDocReady();
   }
 
   initSocket();
