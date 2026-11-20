@@ -22,52 +22,16 @@ import {
 } from './core.js';
 
 
-// Global variables
-const sessionToken = crypto.randomBytes(32).toString('hex');
-const io = new ioServer({allowRequest: serverAllowRequest});
-const app = express();
-var httpServer;
-var connectionHandlers = [];
-var docReadyHandlers = [];
-
-
-function addConnectionHandler(handler) {
-  removeConnectionHandler(handler);
-  connectionHandlers.push(handler);
-}
-
-function removeConnectionHandler(handler) {
-  let index = connectionHandlers.indexOf(handler);
-  if (index >= 0) {
-    connectionHandlers.splice(index, 1);
-  }
-}
-
-function addDocReadyHandler(handler) {
-  removeDocReadyHandler(handler);
-  docReadyHandlers.push(handler);
-}
-
-function removeDocReadyHandler(handler) {
-  let index = docReadyHandlers.indexOf(handler);
-  if (index >= 0) {
-    docReadyHandlers.splice(index, 1);
-  }
-}
-
-function onDocReady(callback) {
-  serverEmit('status', status);
-  const result = {
-    platform: process.platform,
-  };
-  docReadyHandlers.forEach((x) => x(result));
-  callback(result);
-}
-
 // Protection against foreign web pages open in a browser on this computer or in the LAN.
 // Only requests to a local host (localhost, IP address, bare host name, *.local) are accepted, and they must either
 // - carry the session token (the desktop app window, which is loaded from file://), or
 // - come from that same host (the mobile jog page in a browser), or send no Origin at all (e.g. curl).
+const sessionToken = crypto.randomBytes(32).toString('hex'); // new on every start, never stored
+
+function getSessionToken() {
+  return sessionToken;
+}
+
 function isAllowedHost(hostHeader) {
   if (!hostHeader) {
     return false;
@@ -130,13 +94,56 @@ function checkRequestOrigin(req, res, next) {
   next();
 }
 
-// Accept connections only from the desktop app window (token) or from the same host
-function serverAllowRequest(req, callback) {
-  const allowed = isTrustedRequest(req);
-  if (!allowed) {
-    debug_log('Blocked Socket.IO connection: Host: ' + req.headers.host + ' Origin: ' + req.headers.origin);
+// Global variables
+const io = new ioServer({
+  // accept connections only from the desktop app window (token) or from the same host
+  allowRequest: function(req, callback) {
+    const allowed = isTrustedRequest(req);
+    if (!allowed) {
+      debug_log('Blocked Socket.IO connection: Host: ' + req.headers.host + ' Origin: ' + req.headers.origin);
+    }
+    callback(null, allowed);
   }
-  callback(null, allowed);
+});
+const app = express();
+// The check must be registered first: other modules (files.js, grblSender.js) add their routes
+// before initServer() runs, and Express handles middleware in registration order
+app.use(checkRequestOrigin);
+var httpServer;
+var connectionHandlers = [];
+var docReadyHandlers = [];
+
+function addConnectionHandler(handler) {
+  removeConnectionHandler(handler);
+  connectionHandlers.push(handler);
+}
+
+function removeConnectionHandler(handler) {
+  let index = connectionHandlers.indexOf(handler);
+  if (index >= 0) {
+    connectionHandlers.splice(index, 1);
+  }
+}
+
+function addDocReadyHandler(handler) {
+  removeDocReadyHandler(handler);
+  docReadyHandlers.push(handler);
+}
+
+function removeDocReadyHandler(handler) {
+  let index = docReadyHandlers.indexOf(handler);
+  if (index >= 0) {
+    docReadyHandlers.splice(index, 1);
+  }
+}
+
+function onDocReady(callback) {
+  serverEmit('status', status);
+  const result = {
+    platform: process.platform,
+  };
+  docReadyHandlers.forEach((x) => x(result));
+  callback(result);
 }
 
 function onConnection(socket) {
@@ -197,22 +204,14 @@ function serverEmitOutput(data) {
   io.sockets.emit('data', data);
 }
 
-// The check must be registered first: other modules (files.js, grblSender.js) add their routes
-// before initServer() runs, and Express handles middleware in registration order
-app.use(checkRequestOrigin);
-
-function getSessionToken() {
-  return sessionToken;
-}
-
 export {
   app,
+  getSessionToken,
   serverEmit,
   serverEmitOutput,
   addConnectionHandler,
   removeConnectionHandler,
   addDocReadyHandler,
   removeDocReadyHandler,
-  getSessionToken,
   initServer,
 };

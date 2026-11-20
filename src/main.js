@@ -36,8 +36,8 @@ import {
   addConnectionHandler,
   addDocReadyHandler,
   removeDocReadyHandler,
-  getSessionToken,
-  initServer
+  initServer,
+  getSessionToken
 } from './server.js';
 
 import {
@@ -394,7 +394,7 @@ function createJogWindow() {
     jogWindow.setOverlayIcon(nativeImage.createFromPath(iconPathW), 'Icon');
   }
 
-  let options = {query: { port: config.webPort, token: getSessionToken() }};
+  let options = {query: { port: config.webPort, token: getSessionToken() }}; // session token for the server's origin check
   if (safeMode) {
     options.query.safeMode = true;
   }
