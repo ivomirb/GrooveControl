@@ -51,11 +51,13 @@
   ],
   "repository": "https://github.com/ivomirb/GrooveControl",
   "build": {
+    "releaseInfo": {
+      "releaseName": "v${version}"
+    },
     "publish": [
       {
         "provider": "github",
-        "vPrefixedTagName": true,
-        "releaseName": "v${version}"
+        "vPrefixedTagName": true
       }
     ],
     "icon": "build/icons_w2/icon_w2.icns",
