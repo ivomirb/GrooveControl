@@ -62,12 +62,12 @@ function createAutoUpdater(isPackaged) {
   });
 
   autoUpdater.on('error', (ev, err) => {
-    const string = err ? 'Error in auto-updater: \n' + err.split('SyntaxError')[0] : 'Error in auto-updater';
+    const string = err ? 'Error in auto-updater: ' + err.split('SyntaxError')[0] : 'Error in auto-updater';
     const output = {
       'command': 'autoupdate',
       'response': string
     }
-    serverEmit('updatedata', output);
+    serverEmit('update-error', output);
   })
 
   autoUpdater.on('download-progress', (ev) => {
