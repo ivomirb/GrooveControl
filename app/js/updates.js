@@ -1,5 +1,7 @@
 "use strict";
 
+var downloadDialog;
+
 function getReleaseStats() {
   const url = "https://api.github.com/repos/ivomirb/GrooveControl/releases/latest";
   $.getJSON(url, function(data) {
@@ -67,14 +69,18 @@ function setChangelog(changelogText) {
 function downloadAndInstall() {
   let template = `
   <div class="dialog-content">
-    <div id="installProgress" data-role="progress" data-value="0"></div>
+    <div id="downloadProgress" data-role="progress" data-value="0"></div>
+    <span id="downloadErrorMsg"></span>
   </div>`;
 
-  Metro.dialog.create({
+  downloadDialog = metroTopDialog({
     title: "Download Update",
     content: template,
     width: 600,
     clsDialog: 'dark',
+    onClose: function () {
+      downloadDialog = undefined;
+    },
     actions: [{
         caption: "Cancel",
         cls: "js-dialog-close",
@@ -161,19 +167,23 @@ function onUpdateAvailable(info) {
 }
 
 function updatesFirstStatus(status) {
-  socket.on('updatedata', function(data) {
+  socket.on('update-error', function(data) {
     const icon = '';
     const source = data.command;
-    const string = data.response;
+    const string = data.response.split('\n')[0].replace(", raw info: {", "");
     const printLogCls = "fg-darkGreen";
     printLogModern(icon, source, string, printLogCls);
+    if (downloadDialog) {
+      $('#downloadErrorMsg').html(escapeHTML(string));
+      downloadDialog.find('.js-dialog-close:not(.closer)').addClass('alert').html("Close");
+    }
   });
 
   socket.on('update-available', onUpdateAvailable);
 
   socket.on('download-progress', function(data) {
     if (data >= 0) {
-      $('#installProgress').data('progress').val(data);
+      $('#downloadProgress').data('progress').val(data);
     } else {
       const icon = '';
       const source = "autoupdate";

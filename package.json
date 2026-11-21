@@ -142,6 +142,7 @@
           ]
         }
       ],
+      "verifyUpdateCodeSignature": false,
       "icon": "build/icons_w2/icon_w2.ico"
     },
     "linux": {
