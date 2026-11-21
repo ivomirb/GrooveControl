@@ -16,12 +16,14 @@ document.addEventListener('contextmenu', function(e) {
 }, false);
 
 function setWindowTitle(status) {
-  let string = "Groove Control";
+  let string = "";
 
   status = status || laststatus;
   if (status) {
     string += " v" + status.driver.version;
   }
+
+  document.title = APP_NAME + string;
 
   if (loadedFileName.length > 0) {
     string += " / " + loadedFileName;
@@ -32,7 +34,6 @@ function setWindowTitle(status) {
   }
 
   $('#windowtitle').html(string);
-  document.title = string;
 }
 
 function resetSplash() {
