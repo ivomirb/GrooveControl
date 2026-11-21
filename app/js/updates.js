@@ -170,7 +170,7 @@ function updatesFirstStatus(status) {
   socket.on('update-error', function(data) {
     const icon = '';
     const source = data.command;
-    const string = data.response.split('\n')[0];
+    const string = data.response.split('\n')[0].replace(", raw info: {", "");
     const printLogCls = "fg-darkGreen";
     printLogModern(icon, source, string, printLogCls);
     if (downloadDialog) {
