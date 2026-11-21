@@ -23,6 +23,8 @@ function setWindowTitle(status) {
     string += " v" + status.driver.version;
   }
 
+  document.title = APP_NAME + string;
+
   if (loadedFileName.length > 0) {
     string += " / " + loadedFileName;
   }
@@ -32,7 +34,6 @@ function setWindowTitle(status) {
   }
 
   $('#windowtitle').html(string);
-  document.title = string;
 }
 
 function resetSplash() {
