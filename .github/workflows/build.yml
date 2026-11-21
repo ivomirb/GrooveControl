@@ -36,6 +36,7 @@ jobs:
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Compile and Package App
+        shell: bash
         run: npx electron-builder --publish always -c.releaseInfo.releaseName="v${{ steps.pkg.outputs.version }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
