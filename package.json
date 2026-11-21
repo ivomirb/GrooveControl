@@ -1,6 +1,6 @@
 {
   "name": "GrooveControl",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "GPL-3.0",
   "description": "GrooveControl G-code Sender",
   "author": "github.com/ivomirb <cnc@ibeltchev.com>",

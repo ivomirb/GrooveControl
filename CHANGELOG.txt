@@ -1,5 +1,6 @@
-v1.0.1
-* Fix for file browser dialogs on MacOS
+v1.0.2
+* Improved error handling in the auto-updater
+* Fix for search in file dialogs on MacOS
 
 v1.0.0
 
