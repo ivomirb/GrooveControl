@@ -1,0 +1,5 @@
+* Update version in package.json
+* Run "npm install" to update package-lock.json
+* Update APP_VERSION in app\js\main.js
+* Update CHANGELOG.txt
+* Update links in README.md

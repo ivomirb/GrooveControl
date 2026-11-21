@@ -17,21 +17,21 @@ More major features are in the works or planned for future releases.
 
 ## Download Groove Control
 
-**Latest version 1.0.1**
+**Latest version 1.0.2**
 
-> **Windows Installer:** [GrooveControl-Setup-1.0.1.exe](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.1/GrooveControl-Setup-1.0.1.exe)
+> **Windows Installer:** [GrooveControl-Setup-1.0.2.exe](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-Setup-1.0.2.exe)
 >
-> **Linux amd64 Installer:** [GrooveControl_1.0.1_amd64.deb](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.1/GrooveControl_1.0.1_amd64.deb)
+> **Linux amd64 Installer:** [GrooveControl_1.0.1_amd64.deb](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl_1.0.1_amd64.deb)
 >
-> **Linux amd64 AppImage:** [GrooveControl-1.0.1.AppImage](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.1/GrooveControl-1.0.1.AppImage)
+> **Linux amd64 AppImage:** [GrooveControl-1.0.2.AppImage](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2.AppImage)
 >
-> **MacOS arm64 Zip:** [GrooveControl-1.0.1-arm64-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.1/GrooveControl-1.0.1-arm64-mac.zip)
+> **MacOS arm64 Zip:** [GrooveControl-1.0.2-arm64-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2-arm64-mac.zip)
 >
-> **MacOS arm64 Installer:** [GrooveControl-1.0.1-arm64.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.1/GrooveControl-1.0.1-arm64.dmg)
+> **MacOS arm64 Installer:** [GrooveControl-1.0.2-arm64.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2-arm64.dmg)
 >
-> **MacOS x64 Zip:** [GrooveControl-1.0.1-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.1/GrooveControl-1.0.1-mac.zip)
+> **MacOS x64 Zip:** [GrooveControl-1.0.2-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2-mac.zip)
 >
-> **MacOS x64 Installer:** [GrooveControl-1.0.1.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.1/GrooveControl-1.0.1.dmg)
+> **MacOS x64 Installer:** [GrooveControl-1.0.2.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2.dmg)
 
 <!-- **Older versions**
 
