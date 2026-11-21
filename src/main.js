@@ -2,7 +2,6 @@
 
 // System dependencies
 import path from 'path';
-import ip from 'ip';
 import isPi from 'detect-rpi';
 import {
   BrowserWindow,

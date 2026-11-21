@@ -705,14 +705,6 @@ function setFluidNcConfig(data) {
   }
 }
 
-function onTableSearchChange(event) {
-  const oldString = $('#grblMetroTable').data('table').searchString;
-  const newString = $('#grblSettingsTableView .table-search-block input').val().trim().toLowerCase();
-  if (newString == newString) {
-    event.stopImmediatePropagation();
-  }
-}
-
 function setup_settings_table() {
   for (let key in grblParams) {
     const key2 = key.substr(1);
@@ -737,11 +729,6 @@ function setup_settings_table() {
   $('#yHomeDir:checkbox').change(changeHomeDirInvert);
   $('#zHomeDir:checkbox').change(changeHomeDirInvert);
   $('#aHomeDir:checkbox').change(changeHomeDirInvert);
-
-  // Fix for a bug in Metro: When the search box loses focus, it gets a change event that refreshes the table after a short delay.
-  // This can mess up a settings edit already in progress. The fix is to suppress the change event if the search string hasn't changed.
-  const searchInput = $('#grblSettingsTableView .table-search-block input');
-  searchInput[0].addEventListener('change', onTableSearchChange, true); // this listener gets added multiple times, but addEventListener ignores duplicates
 
   // populate Direction Invert Checkboxes
   updateDirSettingChecks();
@@ -787,7 +774,7 @@ function onSettingsTableCreate() {
   searchInput[0].addEventListener('change', () => {
     const oldString = $('#grblMetroTable').data('table').searchString;
     const newString = searchInput.val().trim().toLowerCase();
-    if (newString == newString) {
+    if (oldString == newString) {
       event.stopImmediatePropagation();
     }
   }, true);

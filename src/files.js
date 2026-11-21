@@ -6,13 +6,11 @@ import fs from 'fs';
 import multer from 'multer';
 import {
   dialog,
-  shell,
 } from 'electron';
 
 
 // App dependencies
 import {
-  rootDir,
   debug_log,
   status,
   config,
