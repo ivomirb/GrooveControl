@@ -17,21 +17,21 @@ More major features are in the works or planned for future releases.
 
 ## Download Groove Control
 
-**Latest version 1.0.0**
+**Latest version 1.0.2**
 
-> **Windows Installer:** [GrooveControl-Setup-1.0.0.exe](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-Setup-1.0.0.exe)
+> **Windows Installer:** [GrooveControl-Setup-1.0.2.exe](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-Setup-1.0.2.exe)
 >
-> **Linux amd64 Installer:** [GrooveControl_1.0.0_amd64.deb](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl_1.0.0_amd64.deb)
+> **Linux amd64 Installer:** [GrooveControl_1.0.1_amd64.deb](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl_1.0.1_amd64.deb)
 >
-> **Linux amd64 AppImage:** [GrooveControl-1.0.0.AppImage](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0.AppImage)
+> **Linux amd64 AppImage:** [GrooveControl-1.0.2.AppImage](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2.AppImage)
 >
-> **MacOS arm64 Zip:** [GrooveControl-1.0.0-arm64-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0-arm64-mac.zip)
+> **MacOS arm64 Zip:** [GrooveControl-1.0.2-arm64-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2-arm64-mac.zip)
 >
-> **MacOS arm64 Installer:** [GrooveControl-1.0.0-arm64.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0-arm64.dmg)
+> **MacOS arm64 Installer:** [GrooveControl-1.0.2-arm64.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2-arm64.dmg)
 >
-> **MacOS x64 Zip:** [GrooveControl-1.0.0-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0-mac.zip)
+> **MacOS x64 Zip:** [GrooveControl-1.0.2-mac.zip](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2-mac.zip)
 >
-> **MacOS x64 Installer:** [GrooveControl-1.0.0.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.0/GrooveControl-1.0.0.dmg)
+> **MacOS x64 Installer:** [GrooveControl-1.0.2.dmg](https://github.com/ivomirb/GrooveControl/releases/download/v1.0.2/GrooveControl-1.0.2.dmg)
 
 <!-- **Older versions**
 
@@ -42,8 +42,8 @@ See all past versions here: [All Releases](https://github.com/ivomirb/GrooveCont
 * The Windows binaries are signed only with a test certificate, intended to test the GitHub release process.
 The certificate is not recognized by Windows. You will get a notification from SmartScreen about untrusted software.
 You will need to click on "More Info" and then "Run anyway".<br>
-A real certificate costs money. One will be added in the future for sure, but at this time I can't justify the expense until I know
-that enough people are even going to use it.<br>
+A real certificate costs money. One will be added in the future for sure, but at this time I can't justify the expense
+until I know that enough people are even going to use it.<br>
 If you wish to speed up the process, you can contribute to this funding goal: https://github.com/sponsors/ivomirb
 
 * The Mac binaries are not notarized and not well tested. I don't have a Mac to test them.<br>
@@ -79,6 +79,7 @@ Here are the major changes from the original OpenBuilds CONTROL
 * **Improvement:** Allow clearing the key assignment in the keyboard shortcut editor
 * **Improvement:** The keyboard shortcuts are included in the button tooltips to make them more discoverable
 * **Improvement:** New settings to disable the autostart and the tray icon, making it behave like a regular desktop app
+* **Improvement:** The auto-update feature asks before downloading the next installer. It can skip a version or could be completely turned off
 * **Improvement:** Windows installer setting to control the file associations for G-code file types
 * **Improvement:** The dialogs for opening files remember their directory, with separate settings for G-code, macros and Grbl settings
 * **Improvement:** The position of the main window is preserved between runs

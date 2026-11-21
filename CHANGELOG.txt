@@ -5,8 +5,9 @@ v1.1.0
 * Security fix: Prevent external websites from accessing the app
 * Security fix: OpenBuilds CAM integraton is removed, as the website doesn't exist anymore and causes security issues
 
-v1.0.1
-* Fix for file browser dialogs on MacOS
+v1.0.2
+* Improved error handling in the auto-updater
+* Fix for search in file dialogs on MacOS
 
 v1.0.0
 
