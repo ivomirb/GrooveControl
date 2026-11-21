@@ -51,9 +51,6 @@
   ],
   "repository": "https://github.com/ivomirb/GrooveControl",
   "build": {
-    "releaseInfo": {
-      "releaseName": "v${version}"
-    },
     "publish": [
       {
         "provider": "github",
