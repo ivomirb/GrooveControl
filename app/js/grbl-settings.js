@@ -774,7 +774,7 @@ function onSettingsTableCreate() {
   searchInput[0].addEventListener('change', () => {
     const oldString = $('#grblMetroTable').data('table').searchString;
     const newString = searchInput.val().trim().toLowerCase();
-    if (newString == newString) {
+    if (oldString == newString) {
       event.stopImmediatePropagation();
     }
   }, true);
