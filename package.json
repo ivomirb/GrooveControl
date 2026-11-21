@@ -54,7 +54,8 @@
     "publish": [
       {
         "provider": "github",
-        "vPrefixedTagName": true
+        "vPrefixedTagName": true,
+        "releaseName": "v${version}"
       }
     ],
     "icon": "build/icons_w2/icon_w2.icns",
