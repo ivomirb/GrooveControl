@@ -2,6 +2,7 @@ v1.1.0
 * New feature: Support for a gamepad. You can jog with the analog sticks and assign actions to buttons
 * New feature: Large monitor support. You can view two panels at the same time (e.g. the 3d view and the G-code editor)
 * Improvement: More acurrate job duration estimate
+* Safety fix: Stop the machine when the app is closed or when the port is disconnected
 * Security fix: Prevent external websites from accessing the app
 * Security fix: OpenBuilds CAM integraton is removed, as the website doesn't exist anymore and causes security issues
 
