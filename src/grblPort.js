@@ -23,7 +23,7 @@ import {
 
 
 // Global variables
-var port = null;
+var grblPort = null;
 var oldIpList;
 var portOpenHandlers = [];
 var portCloseHandlers = [];
@@ -108,7 +108,7 @@ function onPortError(err) {
     });
 
     if (status.comms.connectionStatus > 0) {
-      debug_log('WARN: Closing Port ' + port.path);
+      debug_log('WARN: Closing Port ' + grblPort.path);
       status.comms.connectionStatus = 0;
       closePort();
     } else {
@@ -125,7 +125,7 @@ function onPortClose() {
     type: 'info'
   });
   closePort();
-  port = null;
+  grblPort = null;
 }
 
 function connectTo(data) { // If a user picks a port to connect to, open a Node SerialPort Instance to it
@@ -142,7 +142,7 @@ function connectTo(data) { // If a user picks a port to connect to, open a Node 
         allowHupcl = true // Fix for autoreset getting stuck on MacOS with Silabs Chip
       }
 
-      port = new SerialPort({
+      grblPort = new SerialPort({
         path: data.port,
         baudRate: parseInt(data.baud),
         rtscts: allowRtsCts,
@@ -150,36 +150,47 @@ function connectTo(data) { // If a user picks a port to connect to, open a Node 
       });
     } else if (data.type == "telnet") {
       console.log("connect", "Connecting to " + data.ip + " via " + data.type);
-      port = net.connect(23, data.ip);
-      port.isOpen = true;
+      grblPort = net.connect(23, data.ip);
+      grblPort.isOpen = true;
     }
 
-    port.on('error', onPortError);
+    grblPort.on('error', onPortError);
 
-    port.on('ready', function() {
-      portOpenHandlers.forEach((x) => x(port, data));
+    grblPort.on('ready', function() {
+      portOpenHandlers.forEach((x) => x(grblPort, data));
     });
 
-    port.on('open', function() {
-      portOpenHandlers.forEach((x) => x(port, data));
+    grblPort.on('open', function() {
+      portOpenHandlers.forEach((x) => x(grblPort, data));
     });
 
-    port.on('close', onPortClose);
+    grblPort.on('close', onPortClose);
   }
 }
 
 function closePort() {
   portCloseHandlers.forEach((x) => x());
-  if (!port) return;
+  if (!grblPort) return;
 
   if (status.comms.interfaces.type == "usb") {
-    if (port.isOpen) {
-      port.drain(port.close());
+    if (grblPort.isOpen) {
+      let timeout;
+      const port = grblPort;
+      function closePortInternal() {
+        if (timeout != undefined) {
+          port.close();
+          clearTimeout(timeout);
+          timeout = undefined;
+        }
+      }
+
+      timeout = setTimeout(closePortInternal, 500);
+      grblPort.drain(closePortInternal);
     }
   } else if (status.comms.interfaces.type == "telnet") {
-    if (port.isOpen) {
-      port.destroy();
-      port.isOpen = false;
+    if (grblPort.isOpen) {
+      grblPort.destroy();
+      grblPort.isOpen = false;
     }
   }
 }
@@ -290,7 +301,7 @@ function onConnection(socket) {
 
   socket.on('closePort', function() { // Close machine port and dump queue
     if (status.comms.connectionStatus > 0) {
-      debug_log('WARN: Closing Port ' + port.path);
+      debug_log('WARN: Closing Port ' + grblPort.path);
       closePort();
     } else {
       debug_log('ERROR: Machine connection not open!');
