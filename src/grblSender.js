@@ -61,13 +61,15 @@ var queueLengthInternal;
 var jobCompletedMsg = ""; // message sent when job is done
 var pendingJobCallbacks = [];
 var currentGcode = ""; // the gcode for the current job
+var pendingStop = 0; // 0 - no stop, 1 - just issued (ignore next status), 2 - waiting for idle or hold:0
+var pendingStopTimeout = undefined;
+var finalizeStopCallback = undefined;
+const finalizeStopStates = ["Idle", "Alarm", "Hold:0", "Door:0", "Door:1"]; // stop is complete if one of these states is reached
 
 const GRBL_RX_BUFFER_SIZE = 127;
 const GRBLHAL_RX_BUFFER_SIZE = 1023;
 
-// FluidNC test
 var fluidncConfig = "";
-// FluidNC end test
 
 var analogJogState = 0; // 0 - none, 1 - jogging, 2 - stopping (waiting for OK to send stop), 3 - stopped, attempting to continue queue
 var analogJogType = ""; // valid only if analogJogState=1
@@ -273,6 +275,13 @@ function parseStatusReport(data) {
     } else if (status.comms.runStatus == "Idle" && mpgJogSettings.count == 0) {
       mpgJogState = 0;
     }
+  }
+
+  if (pendingStop == 1) {
+    pendingStop = 2;
+  }
+  else if (pendingStop == 2 && finalizeStopStates.includes(state)) {
+    finalizeStop();
   }
 }
 
@@ -492,7 +501,6 @@ function handleGreeting(data, command) {
       } else {
         if (status.comms.connectionStatus > 0) {
           debug_log('WARN: Closing Port ' + port.path + " /  v" + parseFloat(status.machine.firmware.version));
-          // closePort();
         } else {
           debug_log('ERROR: Machine connection not open!');
         }
@@ -733,7 +741,7 @@ function onGrblDetected() {
 
   serverEmitOutput({
     command: 'connect',
-    response: "Firmware Detected:  " + status.machine.firmware.platform + " version " + status.machine.firmware.version + " dated " + status.machine.firmware.date + " on " + status.comms.interfaces.activePort,
+    response: "Firmware Detected:  " + status.machine.firmware.platform + " version " + status.machine.firmware.version + " on " + status.comms.interfaces.activePort,
     type: 'success'
   });
 }
@@ -881,8 +889,7 @@ function addLinesToQueue(data, isJob) {
 }
 
 function runJob(object, callback) {
-  if (status.comms.connectionStatus < 2) {
-    debug_log('ERROR: Machine connection not open!');
+  if (status.comms.connectionStatus < 2 || pendingStop > 0) {
     if (callback) {
       callback(false);
     }
@@ -938,13 +945,9 @@ function runJob(object, callback) {
 
 function runCommand(data) {
   debug_log('Run Command (' + data.replace('\n', '|') + ')');
-  if (status.comms.connectionStatus > 0) {
-    if (data) {
-      addLinesToQueue(data, false);
-      send1Q();
-    }
-  } else {
-    debug_log('ERROR: Machine connection not open!');
+  if (status.comms.connectionStatus > 0 && data && pendingStop == 0) {
+    addLinesToQueue(data, false);
+    send1Q();
   }
 }
 
@@ -1053,8 +1056,11 @@ function finalizeJob(success) {
   }
 }
 
-const modalCommands = ['G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G17', 'G18', 'G19', 'G90', 'G91', 'G91.1', 'G93', 'G94', 'G20', 'G21', 'G40', 'G43.1', 'G49', 'M0', 'M1', 'M2', 'M30', 'M3', 'M03', 'M4', 'M04', 'M5', 'M7', 'M8', 'M9'];
-const modalCommandsRegExp = new RegExp(modalCommands.join("|"));
+const modalCommands = [
+  'G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G17', 'G18', 'G19',
+  'G90', 'G91', 'G91.1', 'G93', 'G94', 'G20', 'G21', 'G40', 'G43.1', 'G49',
+  'M0', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7', 'M8', 'M9', 'M30',
+  'M00', 'M01', 'M02', 'M03', 'M04', 'M05', 'M07', 'M08', 'M09'];
 
 // Returns true if a modal command was found
 function addQToEnd(gcode) {
@@ -1067,7 +1073,7 @@ function addQToEnd(gcode) {
   else if (testGcode == "$CD") {
     fluidncConfig = ""; // empty string
   }
-  else if (!testGcode.startsWith("$J=") && modalCommandsRegExp.test(testGcode)) {
+  else if (!testGcode.startsWith("$J=") && modalCommands.includes(testGcode)) {
     gcodeQueue.push("$G");
     return true;
   }
@@ -1087,18 +1093,28 @@ function addQToEndAndKick(gcode) {
 }
 
 function addQRealtime(gcode) {
-  // realtime command skip the queue as it doesnt respond with an ok
+  // realtime command skip the queue as it doesn't respond with an ok
   // doesn't count towards the RX buffer limit
   machineSendRealtime(gcode);
+}
+
+function finalizeStop() {
+  addQRealtime(String.fromCharCode(0x18)); // ctrl-x
+  clearTimeout(pendingStopTimeout);
+  pendingStopTimeout = undefined;
+  pendingStop = 0;
+  if (finalizeStopCallback) finalizeStopCallback();
+  finalizeStopCallback = undefined;
 }
 
 // 'abort' - immediate reset
 // 'stop' - hold first, then reset
 // 'jog' - stops an ongoing jog
 // 'smart' - depends on the current status: nothing if idle, 'jog' if jogging, or 'stop' otherwise
-function stop(data) {
+function stop(data, callback) {
   if (status.comms.connectionStatus == 0) {
     debug_log('ERROR: Machine connection not open!');
+    if (callback) callback();
     return;
   }
 
@@ -1108,7 +1124,10 @@ function stop(data) {
   if (data.jog) data = 'jog';
 
   if (data == 'smart') {
-    if (status.comms.connectionStatus == 2 && sentBuffer.length == 0 && status.comms.runStatus == "Idle") return;
+    if (status.comms.connectionStatus == 2 && sentBuffer.length == 0 && status.comms.runStatus == "Idle") {
+      if (callback) callback();
+      return;
+    }
     data = status.comms.runStatus == "Jog" ? 'jog' : 'stop';
   }
 
@@ -1121,12 +1140,13 @@ function stop(data) {
       break;
 
     case 'stop':
+      finalizeStopCallback = finalizeStopCallback || callback;
+      if (pendingStop > 0) return; // already stopping
       addQRealtime('!'); // hold
       status.comms.alarm = "";
-
-      setTimeout(function() {
-        addQRealtime(String.fromCharCode(0x18)); // ctrl-x
-      }, 200);
+      pendingStop = 1;
+      pendingStopTimeout = setTimeout(finalizeStop, 1000); // use a generous timeout to ensure hold:0 is reached
+      callback = undefined;
       break;
 
     case 'jog':
@@ -1142,6 +1162,13 @@ function stop(data) {
   status.comms.blocked = false;
   status.comms.paused = false;
   clearGcodeQueue(false);
+  if (callback) callback();
+}
+
+function stopAndClosePort() {
+  if (status.comms.connectionStatus > 0) {
+    stop('stop', closePort);
+  }
 }
 
 function pause() {
@@ -1457,6 +1484,8 @@ function onConnection(socket) {
   socket.on('resume', unpause);
   socket.on('stop', stop);
 
+  socket.on('closePort', stopAndClosePort);
+
   socket.on('clearAlarm', clearAlarm);
 
   socket.on('resetMachine', function() {
@@ -1572,5 +1601,6 @@ export {
   addQRealtime,
   getCurrentGcode,
   setCurrentGcode,
+  stopAndClosePort,
   initGrblSender
 };

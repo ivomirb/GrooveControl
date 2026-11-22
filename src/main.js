@@ -50,10 +50,12 @@ import {
 } from './systemInfo.js';
 
 import {
+  addPortCloseHandler,
   initGrblPort
 } from './grblPort.js';
 
 import {
+  stopAndClosePort,
   initGrblSender
 } from './grblSender.js';
 
@@ -74,10 +76,9 @@ var devMode = false;
 var safeMode = false;
 var appCreated = false;
 var forceShowGui = false;
+var isExitingApp = false;
 
-var appIcon = null,
-  jogWindow = null,
-  forceQuit;
+var appIcon = null, jogWindow = null;
 
 
 // eslint-disable-next-line no-unused-vars
@@ -159,11 +160,29 @@ function createApp() {
   }
 }
 
+function exitAppNow() {
+  electronApp.exit(0);
+}
+
 function exitApp() {
+  if (isExitingApp) return;
+  isExitingApp = true;
   if (appIcon) {
     appIcon.destroy();
   }
-  electronApp.exit(0);
+  if (status.comms.connectionStatus == 0) {
+    exitAppNow();
+  } else {
+    // try to stop gracefully for 2 seconds, then force exit
+    addPortCloseHandler(exitAppNow);
+    stopAndClosePort();
+    setTimeout(exitAppNow, 2000);
+  }
+}
+
+function exitAppHandler(event) {
+  event.preventDefault();
+  exitApp();
 }
 
 function createMacMenu() {
@@ -285,9 +304,7 @@ function createTrayIcon() {
   } else { // darwin
     const dockMenu = Menu.buildFromTemplate([{
       label: 'Quit Groove Control',
-      click() {
-        electronApp.exit(0);
-      }
+      click: exitApp,
     }])
     electronApp.dock.setMenu(dockMenu)
   };
@@ -399,10 +416,12 @@ function createJogWindow() {
     jogWindow.webContents.openDevTools();
   }
 
-  jogWindow.on('close', function() {
-    if (!forceQuit) {
+  jogWindow.on('close', function(event) {
+    event.preventDefault();
+    if (persistentConfig.trayIcon) {
       jogWindow.hide();
-      return false;
+    } else {
+      exitApp();
     }
   });
 
@@ -447,8 +466,7 @@ function initElectron() {
   const gotTheLock = electronApp.requestSingleInstanceLock()
   if (!gotTheLock) {
     debug_log("Already running! Check the System Tray")
-    electronApp.exit(0);
-    electronApp.quit();
+    exitAppNow();
     return;
   }
 
@@ -459,19 +477,15 @@ function initElectron() {
   // Some APIs can only be used after this event occurs.
   electronApp.on('ready', createApp);
 
-  electronApp.on('before-quit', function() {
-    forceQuit = true;
-  })
-
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   // We don't take that route, we close it completely
-  electronApp.on('will-quit', exitApp);
+  electronApp.on('will-quit', exitAppHandler);
 
   // Quit when all windows are closed.
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  electronApp.on('window-all-closed', exitApp);
+  electronApp.on('window-all-closed', exitAppHandler);
 
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.

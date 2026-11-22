@@ -897,7 +897,7 @@ function selectPort(port) {
 };
 
 function closePort() {
-  socket.emit('closePort', 1);
+  socket.emit('closePort');
   populatePortsMenu();
   $('#controlTab').click();
   activateContentTab('consoletab');
