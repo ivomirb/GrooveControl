@@ -23,22 +23,27 @@ function populateMacroButtons(runStartups) {
   for (let i = 0; i < buttonsarray.length; i++) {
     const button = buttonsarray[i];
 
-    if (button.jsrunonstartup && runStartups) {
-      try {
-        executeJS(button.javascript);
-        const icon = "";
-        const source = "macros";
-        const string = "Macro: <b>" + button.title + "</b> executed on startup!";
-        const printLogCls = "fg-blue";
-        printLogModern(icon, source, string, printLogCls);
-      } catch(ex) {
-        const icon = "";
-        const source = "macros";
-        const string = "Macro: <b>" + button.title + "</b> failed on startup!";
-        const printLogCls = "fg-red";
-        printLogModern(icon, source, string, printLogCls);
-        printLogModern(icon, source, escapeHTML(ex.toString()), printLogCls);
-        failedAutorunButtons.push(button);
+    if (button.codetype == "javascript") {
+      if (button.javascript && button.javascript.startsWith(JAVASCRIPT_LOAD_PREFIX)) {
+        button.javascript = loadJavascriptFile(button.javascript);
+      }
+      if (button.jsrunonstartup && runStartups) {
+        try {
+          executeJS(button.javascript);
+          const icon = "";
+          const source = "macros";
+          const string = "Macro: <b>" + button.title + "</b> executed on startup!";
+          const printLogCls = "fg-blue";
+          printLogModern(icon, source, string, printLogCls);
+        } catch(ex) {
+          const icon = "";
+          const source = "macros";
+          const string = "Macro: <b>" + button.title + "</b> failed on startup!";
+          const printLogCls = "fg-red";
+          printLogModern(icon, source, string, printLogCls);
+          printLogModern(icon, source, escapeHTML(ex.toString()), printLogCls);
+          failedAutorunButtons.push(button);
+        }
       }
     }
 
@@ -67,9 +72,6 @@ function populateMacroButtons(runStartups) {
     let buttonClass = "macrobtn-grbl";
     if (button.codetype == "javascript") {
       buttonClass = button.jsrunalways ? "macrobtn-always" : "macrobtn-js";
-      if (button.javascript && button.javascript.startsWith(JAVASCRIPT_LOAD_PREFIX)) {
-        button.javascript = loadJavascriptFile(button.javascript);
-      }
       if (button.jsrunonstartup) {
         codetypeDisplay = "js:autorun";
       }
@@ -196,11 +198,11 @@ function editMacro(buttonIdx, fileName, script) {
       }
     }
   }
-
+/*
   if (codetype == "javascript" && javascript && javascript.startsWith(JAVASCRIPT_LOAD_PREFIX)) {
     javascript = loadJavascriptFile(javascript);
   }
-
+*/
   const macroTemplate = `<form id="macroEditForm">
   <div class="p-1 m-0">
       <div class="row mb-2" style="align-items:center;">
