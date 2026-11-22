@@ -590,9 +590,6 @@ function onStatus(status) {
   if (status.comms.connectionStatus == 0) {
     $('#grblButtons').hide();
     $('#firmwarename').html('');
-    if (localStorage.getItem('jogOverride')) {
-      jogOverride(localStorage.getItem('jogOverride'));
-    }
     if (laststatus && laststatus.comms.connectionStatus != 0) {
       $('#grblconfig').empty();
       if ($('#grblPanel').is(':visible')) {

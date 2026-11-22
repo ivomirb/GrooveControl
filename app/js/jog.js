@@ -410,6 +410,9 @@ function toastJogNotIdle() {
 }
 
 function jogDocReady() {
+  if (localStorage.getItem('jogOverride')) {
+    jogOverride(localStorage.getItem('jogOverride'));
+  }
 
   if (localStorage.getItem('continuousJog')) {
     continuousJogMode = JSON.parse(localStorage.getItem('continuousJog')) == true;
