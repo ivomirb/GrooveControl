@@ -1,5 +1,6 @@
 v1.0.3
 * Add optional second pass to the Z probe to improve accuracy
+* Step calculators for settings $100, $101, $102 and $103 remember their last used settings
 
 v1.0.2
 * Improved error handling in the auto-updater

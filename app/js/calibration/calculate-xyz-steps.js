@@ -6,7 +6,7 @@ const grblcalctemplateXYZ = `<div>
           <tr id="actuatorrow">
             <td style="width: 30%;">Actuator Type</td>
             <td style="width: 70%;">
-              <select class="compact-options" data-role="select" data-filter="false" id="actuatorselect" data-on-change="updateCalXyzControls();">
+              <select class="compact-options" data-role="select" data-filter="false" id="actuatorselect" data-on-change="updateCalcXYZcontrols();">
                 <option value="belt">Belt Driven</option>
                 <option value="screw" selected>Screw Driven (Ballscrew or Leadscrew)</option>
               </select>
@@ -19,7 +19,7 @@ Divide the value by 10. Round to the nearest mm, as the pitches are standard.
 Note: some larger ballscrews have multiple helixes running in parallel.
 You will have to further divide by that count"></span></td>
             <td>
-              <select class="compact-options" data-role="select" data-filter="false" id="leadscrewselect" data-on-change="updateCalXyzControls();">
+              <select class="compact-options" data-role="select" data-filter="false" id="leadscrewselect" data-on-change="updateCalcXYZcontrols();">
                 <option value="1">1 mm pitch (e.g. size 1001, 1201)</option>
                 <option value="2">2 mm pitch (e.g. size 1202, 1602)</option>
                 <option value="4">4 mm pitch (e.g. size 1204, 1604, 2004)</option>
@@ -32,7 +32,7 @@ You will have to further divide by that count"></span></td>
           <tr id="beltrow" style="display: none;">
             <td>Belt Type</td>
             <td>
-              <select class="compact-options" data-role="select" data-filter="false" id="beltselect" data-on-change="updateCalXyzControls();">
+              <select class="compact-options" data-role="select" data-filter="false" id="beltselect" data-on-change="updateCalcXYZcontrols();">
                 <option value="2">GT2 (2 mm per tooth)</option>
                 <option value="3">GT3 (3 mm per tooth)</option>
               </select>
@@ -41,7 +41,7 @@ You will have to further divide by that count"></span></td>
           <tr id="pulleyrow" style="display: none;">
             <td>Pulley Type</td>
             <td>
-              <select class="compact-options" data-role="select" data-filter="false" id="pulleyselect" data-on-change="updateCalXyzControls();">
+              <select class="compact-options" data-role="select" data-filter="false" id="pulleyselect" data-on-change="updateCalcXYZcontrols();">
                 <option value="14">14 Teeth</option>
                 <option value="16">16 Teeth</option>
                 <option value="20" selected>20 Teeth</option>
@@ -56,7 +56,7 @@ You will have to further divide by that count"></span></td>
           <tr>
             <td>Motor Type</td>
             <td>
-              <select data-role="select" data-filter="false" id="motorselect" data-on-change="updateCalXyzControls();">
+              <select data-role="select" data-filter="false" id="motorselect" data-on-change="updateCalcXYZcontrols();">
                 <option value="200">1.8&deg; (200 steps per rotation)</option>
                 <option value="400">0.9&deg; (400 steps per rotation)</option>
                 <option value="0">Custom</option>
@@ -66,7 +66,7 @@ You will have to further divide by that count"></span></td>
           <tr id="microsteprow">
             <td>Microstepping Type</td>
             <td>
-              <select class="compact-options" data-role="select" data-filter="false" id="microstepselect" data-on-change="updateCalXyzControls();">
+              <select class="compact-options" data-role="select" data-filter="false" id="microstepselect" data-on-change="updateCalcXYZcontrols();">
                 <option value="32">1/32 Step</option>
                 <option value="16">1/16 Step</option>
                 <option value="8" selected>1/8 Step</option>
@@ -83,7 +83,7 @@ Select Custom motor type to set this manually"></span></td>
           <tr id="microsteprow3">
             <td>Custom Microsteps<span class="far fa-question-circle ml-1" title="Enter the number of microsteps required for one rotation of the motor.
 This can be adjusted via switches on the stepper driver or the motor itself"></span></td>
-            <td><input data-role="input" data-clear-button="false" data-append="steps/rotation" type="text" id="customsteps" onchange="updateCalXyzControls()"></td>
+            <td><input data-role="input" data-clear-button="false" data-append="steps/rotation" type="text" id="customsteps" onchange="updateCalcXYZcontrols()"></td>
           </tr>
           <tr>
             <td><b>Calculated Value</b><span class="far fa-question-circle ml-1" title="Microsteps divided by the travel distance"></span></td>
@@ -93,6 +93,31 @@ This can be adjusted via switches on the stepper driver or the motor itself"></s
       </table>
 
 </div>`
+
+function readCalcXYZdefaults(settingsName) {
+  const settings = JSON.parse(localStorage.getItem(settingsName));
+  if (settings) {
+    $('#actuatorselect').val(settings.actuatorselect);
+    $('#motorselect').val(settings.motorselect);
+    $('#microstepselect').val(settings.microstepselect);
+    $('#beltselect').val(settings.beltselect);
+    $('#pulleyselect').val(settings.pulleyselect);
+    $('#leadscrewselect').val(settings.leadscrewselect);
+    $('#customsteps').val(settings.customsteps);
+  }
+}
+
+function writeCalcXYZdefaults(settingsName) {
+  let settings = {};
+  settings.actuatorselect = $('#actuatorselect').data('select').val();
+  settings.beltselect = parseInt($('#beltselect').data('select').val());
+  settings.pulleyselect = parseInt($('#pulleyselect').data('select').val());
+  settings.leadscrewselect = parseInt($('#leadscrewselect').data('select').val());
+  settings.motorselect = parseInt($('#motorselect').data('select').val());
+  settings.microstepselect = parseInt($('#microstepselect').data('select').val());
+  settings.customsteps = $('#customsteps').val();
+  localStorage.setItem(settingsName, JSON.stringify(settings));
+}
 
 function xstepspermm() {
   Metro.dialog.create({
@@ -105,16 +130,20 @@ function xstepspermm() {
         onclick: function() {
           $('#val-100-input').val($('#calculatedstepspermm').val());
           checkifchanged();
+          writeCalcXYZdefaults('calcXsteps');
         }
       },
       {
         caption: "Cancel",
         cls: "js-dialog-close",
-        onclick: function() {}
+        onclick: function() {
+          writeCalcXYZdefaults('calcXsteps');
+        }
       }
     ]
   });
-  setTimeout(updateCalXyzControls, 0);
+  readCalcXYZdefaults('calcXsteps');
+  setTimeout(updateCalcXYZcontrols, 0);
 }
 
 function ystepspermm() {
@@ -128,16 +157,20 @@ function ystepspermm() {
         onclick: function() {
           $('#val-101-input').val($('#calculatedstepspermm').val());
           checkifchanged();
+          writeCalcXYZdefaults('calcYsteps');
         }
       },
       {
         caption: "Cancel",
         cls: "js-dialog-close",
-        onclick: function() {}
+        onclick: function() {
+          writeCalcXYZdefaults('calcYsteps');
+        }
       }
     ]
   });
-  setTimeout(updateCalXyzControls, 0);
+  readCalcXYZdefaults('calcYsteps');
+  setTimeout(updateCalcXYZcontrols, 0);
 }
 
 function zstepspermm() {
@@ -151,19 +184,23 @@ function zstepspermm() {
         onclick: function() {
           $('#val-102-input').val($('#calculatedstepspermm').val());
           checkifchanged();
+          writeCalcXYZdefaults('calcZsteps');
         }
       },
       {
         caption: "Cancel",
         cls: "js-dialog-close",
-        onclick: function() {}
+        onclick: function() {
+          writeCalcXYZdefaults('calcZsteps');
+        }
       }
     ]
   });
-  setTimeout(updateCalXyzControls, 0);
+  readCalcXYZdefaults('calcZsteps');
+  setTimeout(updateCalcXYZcontrols, 0);
 }
 
-function updateCalXyzControls() {
+function updateCalcXYZcontrols() {
   const actuatorselect = $('#actuatorselect').data('select').val();
   const motorselect = parseInt($('#motorselect').data('select').val());
   const microstepselect = parseInt($('#microstepselect').data('select').val());
