@@ -10,6 +10,7 @@ var zprobeplate = {
   xoffset: 0,
   yoffset: 0,
   zoffset: 20,
+  secondpass: false,
   xyzmode: false,
   name: "OpenBuilds Z Touchplate",
 }
@@ -42,6 +43,9 @@ $(document).ready(function() {
   if (localStorage.getItem('z0platethickness')) {
     zprobeplate.zoffset = localStorage.getItem('z0platethickness');
   }
+  if (localStorage.getItem('z0secondpass')) {
+    zprobeplate.secondpass = localStorage.getItem('z0secondpass') == "true";
+  }
 
   if (localStorage.getItem('probediameterxyz')) {
     const probediameterxyz = localStorage.getItem('probediameterxyz');
@@ -63,6 +67,12 @@ $('#z0platethickness').keyup(function() {
   zprobeplate.zoffset = $('#z0platethickness').val()
 });
 
+$('#z0secondpass').on('click', function() {
+  const checked = $(this).is(':checked');
+  localStorage.setItem('z0secondpass', checked);
+  zprobeplate.secondpass = checked;
+});
+
 $('#probediameterxyz').keyup(function() {
   localStorage.setItem('probediameterxyz', $('#probediameterxyz').val())
 });
@@ -72,6 +82,7 @@ $('#probeunitxyz').change(function() {
 });
 
 function probeDlgOnClose() {
+  localStorage.setItem('probejro', $('#probeJro').data('slider').val());
   jogOverride(storedJro);
   removeDlgContext("probe");
 }
@@ -83,7 +94,11 @@ function initProbeDialog() {
   pollProbeInPlace();
 
   storedJro = $('#jro').data('slider').val();
-  $('#probeJro').data('slider').val(storedJro);
+  if (localStorage.getItem('probejro')) {
+    $('#probeJro').data('slider').val(parseInt(localStorage.getItem('probejro')));
+  } else {
+    $('#probeJro').data('slider').val(storedJro);
+  }
 }
 
 function openProbeDialog() {
@@ -287,6 +302,7 @@ function probezplatetab() {
   $('#probe-z').show();
   $('#xyzdatum').hide();
   $('#zplatesettings').show();
+  $('#z0secondpass').show();
   $('.img-probe').hide();
   $('#img-probe-zplate').show();
   $('#toggle-probe-advanced').hide();
@@ -294,6 +310,7 @@ function probezplatetab() {
   $('#toggle-probe-advanced-content').data('collapse').collapse()
   pollProbeInPlace();
   $('#z0platethickness').val(zprobeplate.zoffset)
+  $('#z0secondpass').prop('checked', zprobeplate.secondpass)
   $('.probetabxyz').removeClass('active');
   $('#probezplatetab').addClass('active');
   if (zprobeplate.zoffset != 20) {
@@ -354,6 +371,10 @@ $('#probe-c, #probe-c-text').on('click', function() {
 });
 
 function probetype(type) {
+  let select = $('#selectProbeType').data('select');
+  if (select.val() != type) {
+    select.val(type);
+  }
   localStorage.setItem('probeType', type);
   if (type == "xyz") {
     $('.needsXYZProbe').show()
@@ -575,7 +596,7 @@ function runProbeNew() {
     G38.2 Z-25 F100
     G4 P0.4
     G10 P0 L20 Z` + zoffset + `
-    $J=G91G21Z5F1000
+    $J=G91 G21 Z5 F1000
     `
 
     socket.off('prbResult'); // Disable old listeners
@@ -583,24 +604,29 @@ function runProbeNew() {
   }
 
   if (probemode.mode == "zplate") {
-    let zoffset = probemode.probe.zoffset // not *-1 as its offset in z pos
-    const thickness = $('#z0platethickness').val()
-    if (thickness != probemode.probe.zoffset) {
-      zoffset = thickness; // custom value from Advanced
-    }
+    const zoffset = $('#z0platethickness').val();
 
     captureWcsHistory('Before <b>Probe Z</b>');
 
-    const zmacro = `
+    let zmacro = `
     ; Header
     G21 ; mm mode
     G10 P0 L20 Z0 ; zero out current location
 
     ; Probe Z
     G38.2 Z-25 F100 ; Probe Z
-    G4 P0.4
+    G4 P0.4`;
+
+    if (zprobeplate.secondpass) {
+      zmacro += `
+        G1 G91 Z1 F1000; Retract 1 mm
+        G38.2 Z-5 F50 ; Second pass
+        G4 P0.4`;
+    }
+
+    zmacro += `
     G10 P0 L20 Z` + zoffset + ` ; Set Z` + zoffset + ` where ` + zoffset + ` is thickness of plate
-    $J=G91G21Z5F1000 ; retract
+    $J=G91 G21 Z5 F1000 ; retract
     `
 
     socket.off('prbResult'); // Disable old listeners
