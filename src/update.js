@@ -131,7 +131,20 @@ export function initUpdate(isPackaged) {
   try {
     const changelog = path.join(rootDir, "CHANGELOG.txt");
     let text = fs.readFileSync(changelog, 'utf8');
-    text = text.split(/\r?\n/, MAX_CHANGELOG_LINES);
+    text = text.split(/\r?\n/, MAX_CHANGELOG_LINES + 10);
+
+    // cut off the line count at next new section after the first MAX_CHANGELOG_LINES lines, trim empty lines at the end
+    let length = MAX_CHANGELOG_LINES;
+    for (let i = MAX_CHANGELOG_LINES; i < text.length; i++) {
+      if (text[i][0] == 'v') {
+        break;
+      }
+      if (text[i].length > 0) {
+        length = i + 1;
+      }
+    }
+    text.length = length;
+
     changelogText = text.join('\n');
   } catch (err) {
     debug_log(err);
