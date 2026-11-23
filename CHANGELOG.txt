@@ -1,3 +1,6 @@
+v1.0.3
+* Add optional second pass to the Z probe to improve accuracy
+
 v1.0.2
 * Improved error handling in the auto-updater
 * Fix for search in file dialogs on MacOS
