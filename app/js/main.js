@@ -26,7 +26,7 @@ function setWindowTitle(status) {
   document.title = APP_NAME + string;
 
   if (loadedFileName.length > 0) {
-    string += " / " + loadedFileName;
+    string += " / " + escapeHTML(loadedFileName);
   }
 
   if (status && status.comms.interfaces.activePort) {
