@@ -202,7 +202,17 @@ function onSocketData(data) {
     const string = toPrint
     const printLogCls = lineColor
     printLogModern(icon, source, string, printLogCls)
-  };
+  }
+
+  if (data.response == 'ok' && data.command == '$$') {
+    if (grblParams.$13 != '0') {
+    const icon = '';
+    const source = "$$";
+    const string = "Grbl setting $13 is " + grblParams.$13 + ". Groove Control requires it to be 0. The DRO values will be wrong.";
+    const printLogCls = "fg-red";
+    printLogModern(icon, source, string, printLogCls);
+    }
+  }
 }
 
 function onGrbl(firmware) {
