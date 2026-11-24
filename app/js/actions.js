@@ -418,7 +418,7 @@ const shortcutTooltips = [
   },
   {
     id: '#chkSize',
-    tooltip: "Outlines the XY bounding area of the loaded job\nSafety tip: Before you run this, raise the spindle to a sufficient height to avoid any obstacles",
+    tooltip: "Outlines the XY bounding area of the current job by jogging around the perimeter\nSafety tip: Before you run this, raise the spindle to a sufficient height to avoid any obstacles",
     tooltip2: "$checkSize",
   },
   {

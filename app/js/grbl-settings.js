@@ -899,11 +899,11 @@ function updateGotoLimits() {
   addRemoveClass($('#gotoAMinMpos, #gotoAMaxMpos'), 'disabled', parseFloat(grblParams.$133) == 0);
 
   $('#gotozeroZmPosXYwPos > a > .oord').html(limits.maxZ.toFixed(0));
-  const command = isJogWidget ? "G53" : "G0 G53";
-  const commandXY = command + " X"+ limits.X0.toFixed(0) +" Y" + limits.Y0.toFixed(0);
-  const commandZ = command + " Z" + limits.Z0.toFixed(0);
-  if (limits.homingMask && limits.homingMask.z)
+  const commandXY = "$J=G53 X"+ limits.X0.toFixed(0) +" Y" + limits.Y0.toFixed(0);
+  const commandZ = "$J=G53 Z" + limits.Z0.toFixed(0);
+  if (limits.homingMask && limits.homingMask.z) {
     $('#gotozeroMPos > a > .gcode').html(commandXY + ", " + commandZ);
-  else
+  } else {
     $('#gotozeroMPos > a > .gcode').html(commandZ + ", " + commandXY);
+  }
 }
