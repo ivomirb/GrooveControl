@@ -277,11 +277,11 @@ function applyAppSettings() {
   viewerOrbitButton = $('#viewerOrbitButton').val();
   setViewControls(viewerOrbitButton);
 
-  localStorage.setItem('disable3Dviewer', disable3Dviewer);
-  localStorage.setItem('disable3Dskybox', disable3Dskybox);
-  localStorage.setItem('disable3Dgcodepreview', disable3Dgcodepreview);
-  localStorage.setItem('disableConeInterpolation', disableConeInterpolation);
-  localStorage.setItem('viewerOrbitButton', viewerOrbitButton);
+  setSettingBool('disable3Dviewer', disable3Dviewer);
+  setSettingBool('disable3Dskybox', disable3Dskybox);
+  setSettingBool('disable3Dgcodepreview', disable3Dgcodepreview);
+  setSettingBool('disableConeInterpolation', disableConeInterpolation);
+  setSettingString('viewerOrbitButton', viewerOrbitButton);
 
   if (laststatus.driver.platform == "win32" || laststatus.driver.platform == "linux") {
     socket.emit('trayIcon', {enabled: $('#enableTrayIconCheck').prop('checked'), style: $('#selectTrayIconStyle').val()});
@@ -292,14 +292,14 @@ function applyAppSettings() {
   socket.emit('enableUpdates', $('#enableUpdatesCheck').prop('checked'));
 
   disable4thAxis = $('#disable4thAxisCheck').prop('checked');
-  localStorage.setItem('disable4thAxis', disable4thAxis);
+  setSettingBool('disable4thAxis', disable4thAxis);
   updateWcsHistory();
 
   spindleDelay(parseInt($('#spindleDelay').val()));
 
   disableZDist100 = $('#disableZDist100Check').prop('checked');
   disableZCont = $('#disableZContCheck').prop('checked');
-  localStorage.setItem('disableZjog', JSON.stringify({dist100: disableZDist100, cont: disableZCont}));
+  setSettingObject('disableZjog', {dist100: disableZDist100, cont: disableZCont});
   evaluateZJogDisable();
 
   const themeId = $('#selectTheme').val();
@@ -400,27 +400,102 @@ function showAppSettings(category) {
   updateSettingsState();
 }
 
+function getSettingBool(name, def) {
+  const val = localStorage.getItem(name);
+  if (val == "true") return true;
+  if (val == "false") return false;
+  return def;
+}
+
+function setSettingBool(name, val) {
+  localStorage.setItem(name, val ? "true" : "false");
+}
+
+function getSettingString(name, def) {
+  const val = localStorage.getItem(name);
+  if (typeof val == "string") return val;
+  return def;
+}
+
+function setSettingString(name, val) {
+  localStorage.setItem(name, String(val));
+}
+
+function getSettingEnum(name, list) {
+  const val = localStorage.getItem(name);
+  if (list.includes(val)) return val;
+  return list[0];
+}
+
+function setSettingEnum(name, val) {
+  localStorage.setItem(name, val);
+}
+
+function getSettingNumber(name, def, min, max) {
+  const val = localStorage.getItem(name);
+  if (val != null && val != undefined) {
+    const num = parseFloat(val);
+    if (!isNaN(num)) {
+      if (min != undefined && num < min) return min;
+      if (max != undefined && num > max) return max;
+      return num;
+    }
+  }
+  return def;
+}
+
+function setSettingNumber(name, val) {
+  localStorage.setItem(name, String(val));
+}
+
+function getSettingObject(name, def) {
+  let val = localStorage.getItem(name);
+  if (!val) return def;
+  try {
+    val = JSON.parse(val);
+  } catch {
+    return def;
+  }
+  if (typeof val == "object") {
+    let result = {};
+    for (let prop in def) {
+      if (typeof(val[prop]) == typeof(def[prop])) {
+        result[prop] = val[prop];
+      } else {
+        result[prop] = def[prop];
+      }
+    }
+    return result;
+  }
+  return def;
+}
+
+function setSettingObject(name, val) {
+  localStorage.setItem(name, JSON.stringify(val));
+}
+
 function initSettings() {
-  disable3Dviewer = localStorage.getItem('disable3Dviewer') != null && (JSON.parse(localStorage.getItem('disable3Dviewer')) == true);
-  disable3Dskybox = localStorage.getItem('disable3Dskybox') != null && (JSON.parse(localStorage.getItem('disable3Dskybox')) == true);
-  disable3Dgcodepreview = localStorage.getItem('disable3Dgcodepreview') != null && (JSON.parse(localStorage.getItem('disable3Dgcodepreview')) == true);
-  disableConeInterpolation = localStorage.getItem('disableConeInterpolation') != null && (JSON.parse(localStorage.getItem('disableConeInterpolation')) == true);
-  viewerOrbitButton = localStorage.getItem('viewerOrbitButton') || "left";
-  disable4thAxis = localStorage.getItem('disable4thAxis') != null  && (JSON.parse(localStorage.getItem('disable4thAxis')) == true);
+  disable3Dviewer = getSettingBool('disable3Dviewer', false);
+  disable3Dskybox = getSettingBool('disable3Dskybox', false);
+  disable3Dgcodepreview = getSettingBool('disable3Dgcodepreview', false);
+  disableConeInterpolation = getSettingBool('disableConeInterpolation', false);
+  viewerOrbitButton = getSettingEnum('viewerOrbitButton', ["left", "middle"]);
+  disable4thAxis = getSettingBool('disable4thAxis', false);
 
   $('#runSimBtn').parent().toggle(!disable3Dgcodepreview);
 
-  if (localStorage.getItem('disableZjog')) {
-    const disableZjog = JSON.parse(localStorage.getItem('disableZjog'));
-    disableZDist100 = disableZjog.dist100 == true;
-    disableZCont = disableZjog.cont == true;
-  }
+  const disableZjog = getSettingObject('disableZjog', {dist100: false, cont: false});
+  disableZDist100 = disableZjog.dist100;
+  disableZCont = disableZjog.cont;
 
   if (localStorage.getItem('disabledWarnings')) {
-    const warnings = JSON.parse(localStorage.getItem('disabledWarnings'));
-    if (typeof warnings == "object") {
-      disabledWarnings = warnings;
-    }
+    try {
+      const warnings = JSON.parse(localStorage.getItem('disabledWarnings'));
+      if (typeof warnings == "object") {
+        disabledWarnings = warnings;
+      }
+    // eslint-disable-next-line no-empty
+    } catch {}
   }
 }
 

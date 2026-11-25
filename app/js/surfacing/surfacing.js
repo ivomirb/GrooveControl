@@ -146,25 +146,21 @@ function populateSurfaceToolForm() {
     ]
   });
 
-  let data;
-  if (localStorage.getItem('lastSurfacingTool')) {
-    data = JSON.parse(localStorage.getItem('lastSurfacingTool'));
-  } else {
-    data = {
-      surfaceDiameter: 22,
-      surfaceStepover: 40,
-      surfaceFeedrate: 800,
-      surfaceX: 200,
-      surfaceY: 300,
-      surfaceDepth: 3,
-      surfaceFinalDepth: 3,
-      surfaceCoolant: "enabled",
-      surfaceFraming: "enabled",
-      extendRadius: "disabled",
-      surfaceRPM: 1000,
-      surfaceDirection: "X"
-    };
-  }
+  const data = getSettingObject('lastSurfacingTool', {
+    surfaceDiameter: 22,
+    surfaceStepover: 40,
+    surfaceFeedrate: 800,
+    surfaceX: 200,
+    surfaceY: 300,
+    surfaceDepth: 3,
+    surfaceFinalDepth: 3,
+    surfaceCoolant: "enabled",
+    surfaceFraming: "enabled",
+    extendRadius: "disabled",
+    surfaceRPM: 1000,
+    surfaceDirection: "X"
+  });
+
   $('#surfaceDiameter').val(data.surfaceDiameter);
   $('#surfaceStepover').val(data.surfaceStepover);
   $('#surfaceFeedrate').val(data.surfaceFeedrate);
@@ -187,8 +183,6 @@ function populateSurfaceToolForm() {
   }
 
   $('#surfaceRPM').val(data.surfaceRPM)
-  const $radios = $('input:radio[name=surfaceType]');
-  $radios.filter("[value=" + data.surfaceType + "]").prop("checked", true);
 
   if (data.surfaceDirection != undefined) {
     $('#surfaceDirection').val(data.surfaceDirection); // Restore surface direction
@@ -198,15 +192,14 @@ function populateSurfaceToolForm() {
 
 function createSurfaceGcode() {
   let data = {
-    surfaceDiameter: $('#surfaceDiameter').val(),
-    surfaceStepover: $('#surfaceStepover').val(),
-    surfaceFeedrate: $('#surfaceFeedrate').val(),
-    surfaceX: $('#surfaceX').val(),
-    surfaceY: $('#surfaceY').val(),
+    surfaceDiameter: parseFloat($('#surfaceDiameter').val()),
+    surfaceStepover: parseFloat($('#surfaceStepover').val()),
+    surfaceFeedrate: parseFloat($('#surfaceFeedrate').val()),
+    surfaceX: parseFloat($('#surfaceX').val()),
+    surfaceY: parseFloat($('#surfaceY').val()),
     surfaceDepth: parseFloat($('#surfaceDepth').val()),
     surfaceFinalDepth: parseFloat($('#surfaceFinalDepth').val()),
-    surfaceType: $("input[name='surfaceType']:checked").val(),
-    surfaceRPM: $('#surfaceRPM').val(),
+    surfaceRPM: parseFloat($('#surfaceRPM').val()),
     surfaceCoolant: $('#surfaceCoolant').val(),
     surfaceFraming: $('#surfaceFraming').val(),
     extendRadius: $('#extendRadius').val(),
@@ -220,7 +213,7 @@ function createSurfaceGcode() {
     data.surfaceFinalDepth = data.surfaceDepth;
   }
 
-  localStorage.setItem('lastSurfacingTool', JSON.stringify(data));
+  setSettingObject('lastSurfacingTool', data);
 
   let startpoint, endpoint, primaryAxis, secondaryAxis;
   const offsetRadius = data.extendRadius == "enabled" ? 0 : data.surfaceDiameter / 2;

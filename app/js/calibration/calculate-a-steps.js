@@ -55,14 +55,19 @@ Examples:
 </div>`
 
 function readCalcAdefaults() {
-  const settings = JSON.parse(localStorage.getItem('calcAsteps'));
-  if (settings) {
-    $('#motorselect').val(settings.motorselect);
-    $('#microstepselect').val(settings.microstepselect);
-    $('#customsteps').val(settings.customsteps);
-    $('#gearboxgear1').val(settings.gearboxgear1);
-    $('#gearboxgear2').val(settings.gearboxgear2);
-  }
+  const settings = getSettingObject('calcAsteps', {
+    motorselect: 200,
+    microstepselect: 8,
+    customsteps: "",
+    gearboxgear1: 1,
+    gearboxgear2: 1,
+  });
+
+  $('#motorselect').val(settings.motorselect);
+  $('#microstepselect').val(settings.microstepselect);
+  $('#customsteps').val(settings.customsteps);
+  $('#gearboxgear1').val(settings.gearboxgear1);
+  $('#gearboxgear2').val(settings.gearboxgear2);
 }
 
 function writeCalcAdefaults() {
@@ -72,7 +77,7 @@ function writeCalcAdefaults() {
   settings.customsteps = $('#customsteps').val();
   settings.gearboxgear1 = parseFloat($('#gearboxgear1').val());
   settings.gearboxgear2 = parseFloat($('#gearboxgear2').val());
-  localStorage.setItem('calcAsteps', JSON.stringify(settings));
+  setSettingObject('calcAsteps', settings);
 }
 
 function astepspermm() {

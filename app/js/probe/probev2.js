@@ -37,52 +37,46 @@ var probemode = {
 
 var storedJro;
 
-$(document).ready(function() {
-  $('.needsXYZProbe').toggle(localStorage.getItem('probeType') != "z");
+function probeDocReady() {
+  $('.needsXYZProbe').toggle(getSettingEnum('probeType', ["xyz", "z", "custom"]) != "z");
 
-  if (localStorage.getItem('z0platethickness')) {
-    zprobeplate.zoffset = localStorage.getItem('z0platethickness');
-  }
-  if (localStorage.getItem('z0secondpass')) {
-    zprobeplate.secondpass = localStorage.getItem('z0secondpass') == "true";
-  }
+  zprobeplate.zoffset = getSettingNumber('z0platethickness', 20);
+  zprobeplate.secondpass = getSettingBool('z0secondpass', false);
 
-  if (localStorage.getItem('probediameterxyz')) {
-    const probediameterxyz = localStorage.getItem('probediameterxyz');
-    $('#probediameterxyz').val(probediameterxyz)
-  }
+  const probediameterxyz = getSettingNumber('probediameterxyz', 6.35);
+  $('#probediameterxyz').val(probediameterxyz);
 
-  if (localStorage.getItem('probeunitxyz')) {
-    const probeunitxyz = localStorage.getItem('probeunitxyz');
-    $('#probeunitxyz').data('select').val(probeunitxyz)
-  }
-});
+  const probeunitxyz = getSettingEnum('probeunitxyz', ["mm", "inch"]);
+  $('#probeunitxyz').data('select').val(probeunitxyz);
 
-if (localStorage.getItem('customProbe')) {
-  customprobeplate = (JSON.parse(localStorage.getItem('customProbe')));
+  customprobeplate = getSettingObject('customProbe', {
+    xoffset: 6,
+    yoffset: 6,
+    zoffset: 8,
+    xyzmode: true,
+    name: "Custom XYZ Touchplate"});
+
+  $('#z0platethickness').keyup(function() {
+    zprobeplate.zoffset = $('#z0platethickness').val();
+    setSettingNumber('z0platethickness', zprobeplate.zoffset);
+  });
+
+  $('#z0secondpass').on('click', function() {
+    zprobeplate.secondpass = $(this).is(':checked');
+    setSettingBool('z0secondpass', zprobeplate.secondpass);
+  });
+
+  $('#probediameterxyz').keyup(function() {
+    setSettingNumber('probediameterxyz', $('#probediameterxyz').val());
+  });
+
+  $('#probeunitxyz').change(function() {
+    setSettingString('probeunitxyz', $('#probeunitxyz').val());
+  });
 }
 
-$('#z0platethickness').keyup(function() {
-  localStorage.setItem('z0platethickness', $('#z0platethickness').val())
-  zprobeplate.zoffset = $('#z0platethickness').val()
-});
-
-$('#z0secondpass').on('click', function() {
-  const checked = $(this).is(':checked');
-  localStorage.setItem('z0secondpass', checked);
-  zprobeplate.secondpass = checked;
-});
-
-$('#probediameterxyz').keyup(function() {
-  localStorage.setItem('probediameterxyz', $('#probediameterxyz').val())
-});
-
-$('#probeunitxyz').change(function() {
-  localStorage.setItem('probeunitxyz', $('#probeunitxyz').val())
-});
-
 function probeDlgOnClose() {
-  localStorage.setItem('probejro', $('#probeJro').data('slider').val());
+  setSettingNumber('probejro', $('#probeJro').data('slider').val());
   jogOverride(storedJro);
   removeDlgContext("probe");
 }
@@ -94,37 +88,26 @@ function initProbeDialog() {
   pollProbeInPlace();
 
   storedJro = $('#jro').data('slider').val();
-  if (localStorage.getItem('probejro')) {
-    $('#probeJro').data('slider').val(parseInt(localStorage.getItem('probejro')));
-  } else {
-    $('#probeJro').data('slider').val(storedJro);
-  }
+  $('#probeJro').data('slider').val(getSettingNumber('probejro', storedJro, 1, 100));
 }
 
 function openProbeDialog() {
   initProbeDialog();
-  if (localStorage.getItem('probeType')) {
-    probetype(localStorage.getItem('probeType'))
-    if (localStorage.getItem('probeType') == "z") { // Z Touchplate
-      setTimeout(function() {
-        probezplatetab()
-        $('.probetabxyz').removeClass('active')
-        $('#probezplatetab').addClass('active')
-      }, 100)
-    } else if (localStorage.getItem('probeType') == "xyz") { // OpenBuilds Probe Plus XYZ
-      setTimeout(function() {
-        probeautotab()
-        $('.probetabxyz').removeClass('active')
-        $('#probeautotab').addClass('active')
-      }, 100)
-    } else { // Custom Probe
-      setTimeout(function() {
-        probexyztab()
-        $('.probetabxyz').removeClass('active')
-        $('#probexyztab').addClass('active')
-      }, 100)
-    }
-  } else {
+  const probeType = getSettingEnum('probeType', ["xyz", "z", "custom"]);
+  probetype(probeType);
+  if (probeType == "z") { // Z Touchplate
+    setTimeout(function() {
+      probezplatetab()
+      $('.probetabxyz').removeClass('active')
+      $('#probezplatetab').addClass('active')
+    }, 100)
+  } else if (probeType == "xyz") { // OpenBuilds Probe Plus XYZ
+    setTimeout(function() {
+      probeautotab()
+      $('.probetabxyz').removeClass('active')
+      $('#probeautotab').addClass('active')
+    }, 100)
+  } else { // Custom Probe
     setTimeout(function() {
       probexyztab()
       $('.probetabxyz').removeClass('active')
@@ -135,22 +118,9 @@ function openProbeDialog() {
 
 function openProbeXDialog() {
   initProbeDialog();
-  if (localStorage.getItem('probeType')) {
-    probetype(localStorage.getItem('probeType'))
-    if (localStorage.getItem('probeType') == "z") {
-      // setTimeout(function() {
-      //   probezplatetab()
-      //   $('.probetabxyz').removeClass('active')
-      //   $('#probezplatetab').addClass('active')
-      // }, 100)
-    } else {
-      setTimeout(function() {
-        probextab()
-        $('.probetabxyz').removeClass('active')
-        $('#probextab').addClass('active')
-      }, 100)
-    }
-  } else {
+  const probeType = getSettingEnum('probeType', ["xyz", "z", "custom"]);
+  probetype(probeType);
+  if (probeType != "z") {
     setTimeout(function() {
       probextab()
       $('.probetabxyz').removeClass('active')
@@ -161,22 +131,9 @@ function openProbeXDialog() {
 
 function openProbeYDialog() {
   initProbeDialog();
-  if (localStorage.getItem('probeType')) {
-    probetype(localStorage.getItem('probeType'))
-    if (localStorage.getItem('probeType') == "z") {
-      // setTimeout(function() {
-      //   probezplatetab()
-      //   $('.probetabxyz').removeClass('active')
-      //   $('#probezplatetab').addClass('active')
-      // }, 100)
-    } else {
-      setTimeout(function() {
-        probeytab()
-        $('.probetabxyz').removeClass('active')
-        $('#probeytab').addClass('active')
-      }, 100)
-    }
-  } else {
+  const probeType = getSettingEnum('probeType', ["xyz", "z", "custom"]);
+  probetype(probeType);
+  if (probeType != "z") {
     setTimeout(function() {
       probeytab()
       $('.probetabxyz').removeClass('active')
@@ -187,21 +144,14 @@ function openProbeYDialog() {
 
 function openProbeZDialog() {
   initProbeDialog();
-  if (localStorage.getItem('probeType')) {
-    probetype(localStorage.getItem('probeType'))
-    if (localStorage.getItem('probeType') == "z") {
-      setTimeout(function() {
-        probezplatetab()
-        $('.probetabxyz').removeClass('active')
-        $('#probezplatetab').addClass('active')
-      }, 100)
-    } else {
-      setTimeout(function() {
-        probeztab()
-        $('.probetabxyz').removeClass('active')
-        $('#probeztab').addClass('active')
-      }, 100)
-    }
+  const probeType = getSettingEnum('probeType', ["xyz", "z", "custom"]);
+  probetype(probeType);
+  if (probeType == "z") {
+    setTimeout(function() {
+      probezplatetab()
+      $('.probetabxyz').removeClass('active')
+      $('#probezplatetab').addClass('active')
+    }, 100)
   } else {
     setTimeout(function() {
       probeztab()
@@ -375,7 +325,7 @@ function probetype(type) {
   if (select.val() != type) {
     select.val(type);
   }
-  localStorage.setItem('probeType', type);
+  setSettingEnum('probeType', type);
   if (type == "xyz") {
     $('.needsXYZProbe').show()
     probemode.probe = xyzprobeplate // customprobeplate, xyzprobeplate, zprobeplate
@@ -720,6 +670,6 @@ function saveEditCustomProbe() {
     xyzmode: true, // stays
     name: "Custom Z Touchplate", // stays
   };
-  localStorage.setItem('customProbe', JSON.stringify(customprobeplate));
+  setSettingObject('customProbe', customprobeplate);
   probetype('custom');
 }

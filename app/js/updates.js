@@ -95,7 +95,7 @@ function downloadAndInstall() {
 }
 
 function onUpdateAvailable(info) {
-  if (localStorage.getItem('skipVersion') == info.version) {
+  if (getSettingString('skipVersion', "") == info.version) {
     const icon = '';
     const source = "autoupdate";
     const string = "Ignoring update to version " + info.version + " because of a request to skip it.";
@@ -152,7 +152,7 @@ function onUpdateAvailable(info) {
         caption: "Skip this version",
         cls: "js-dialog-close",
         onclick: function() {
-          localStorage.setItem('skipVersion', info.version);
+          setSettingString('skipVersion', info.version);
         }
       },
       {

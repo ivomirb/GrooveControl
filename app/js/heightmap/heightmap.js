@@ -1232,14 +1232,17 @@ function toggleHeightmapTools() {
 
 function heightmapDocReady() {
   // read settings
-  const settings = JSON.parse(localStorage.getItem('heightmapSettings'));
-  if (settings) {
-    for (let prop in settings) {
-      if (prop in heightmapSettings && typeof(settings[prop]) == typeof(heightmapSettings[prop])) {
-        heightmapSettings[prop] = settings[prop];
+  try {
+    const settings = JSON.parse(localStorage.getItem('heightmapSettings'));
+    if (settings) {
+      for (let prop in settings) {
+        if (prop in heightmapSettings && typeof(settings[prop]) == typeof(heightmapSettings[prop])) {
+          heightmapSettings[prop] = settings[prop];
+        }
       }
     }
-  }
+  // eslint-disable-next-line no-empty
+  } catch {}
 
   addRemoveClass('#toggleHeightmapTools', 'checked', heightmapSettings.enabled);
   $('.heightmap').toggle(heightmapSettings.enabled);

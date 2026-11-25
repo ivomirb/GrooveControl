@@ -226,9 +226,7 @@ function onGrbl(firmware) {
 
   $('#grblButtons').show();
   $('#firmwarename').html(firmware.platform);
-  if (localStorage.getItem('jogOverride')) {
-    jogOverride(localStorage.getItem('jogOverride'));
-  }
+  jogOverride(getSettingNumber('jogOverride', 100, 1, 100));
 }
 
 function onJobComplete(data) {
@@ -887,7 +885,7 @@ function selectPort(port) {
       baud: false,
       type: "telnet"
     };
-    localStorage.setItem('lastip', port);
+    setSettingString('lastip', port);
   } else {
     data = {
       port: port,
@@ -897,7 +895,7 @@ function selectPort(port) {
   }
   if (port.length > 1) {
     socket.emit('connectTo', data);
-    localStorage.setItem('lastGrblPort', port);
+    setSettingString('lastGrblPort', port);
   } else {
     printLog("[connect] No Ports/IP selected/entered")
   }
@@ -912,7 +910,7 @@ function closePort() {
 
 function populatePortsMenu() {
   if (laststatus) {
-    const lastGrblPort = localStorage.getItem('lastGrblPort');
+    const lastGrblPort = getSettingString('lastGrblPort', "");
     let foundPort = false;
     let response = ``
     if (laststatus.comms.interfaces.ports.length == 0) {

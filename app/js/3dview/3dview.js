@@ -158,21 +158,24 @@ function parseGcodeInWebWorker(gcode) {
     }, false);
 
     let machineParams = {
-      xMaxFeed: parseFloat(grblParams.$110),
-      yMaxFeed: parseFloat(grblParams.$111),
-      zMaxFeed: parseFloat(grblParams.$112),
-      xAccel: parseFloat(grblParams.$120),
-      yAccel: parseFloat(grblParams.$121),
-      zAccel: parseFloat(grblParams.$122),
+      xMaxFeed: grblParams.$110 ? parseFloat(grblParams.$110) : undefined,
+      yMaxFeed: grblParams.$111 ? parseFloat(grblParams.$111) : undefined,
+      zMaxFeed: grblParams.$112 ? parseFloat(grblParams.$112) : undefined,
+      xAccel: grblParams.$120 ? parseFloat(grblParams.$120) : undefined,
+      yAccel: grblParams.$121 ? parseFloat(grblParams.$121) : undefined,
+      zAccel: grblParams.$122 ? parseFloat(grblParams.$122) : undefined,
     };
     if (localStorage.getItem('machineParams') != null) {
-      let settings = JSON.parse(localStorage.getItem('machineParams'));
-      machineParams.xMaxFeed = machineParams.xMaxFeed || settings.xMaxFeed;
-      machineParams.yMaxFeed = machineParams.yMaxFeed || settings.yMaxFeed;
-      machineParams.zMaxFeed = machineParams.zMaxFeed || settings.zMaxFeed;
-      machineParams.xAccel = machineParams.xAccel || settings.xAccel;
-      machineParams.yAccel = machineParams.yAccel || settings.yAccel;
-      machineParams.zAccel = machineParams.zAccel || settings.zAccel;
+      try {
+        const settings = JSON.parse(localStorage.getItem('machineParams'));
+        machineParams.xMaxFeed = machineParams.xMaxFeed || settings.xMaxFeed;
+        machineParams.yMaxFeed = machineParams.yMaxFeed || settings.yMaxFeed;
+        machineParams.zMaxFeed = machineParams.zMaxFeed || settings.zMaxFeed;
+        machineParams.xAccel = machineParams.xAccel || settings.xAccel;
+        machineParams.yAccel = machineParams.yAccel || settings.yAccel;
+        machineParams.zAccel = machineParams.zAccel || settings.zAccel;
+      // eslint-disable-next-line no-empty
+      } catch {}
     }
     machineParams.xMaxFeed = machineParams.xMaxFeed || 1000;
     machineParams.yMaxFeed = machineParams.yMaxFeed || 1000;

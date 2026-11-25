@@ -41,7 +41,7 @@ function jogOverride(newVal, temp) {
   }
 
   if (!temp) {
-    localStorage.setItem('jogOverride', newVal);
+    setSettingNumber('jogOverride', newVal);
     if ($('#jro').data('slider').val() != newVal) {
       $('#jro').data('slider').val(newVal);
     }
@@ -79,7 +79,7 @@ function setADist(newADist) {
 
 function jogToggleMode(forceMode) {
   continuousJogMode = forceMode != undefined ? forceMode : !continuousJogMode;
-  localStorage.setItem('continuousJog', continuousJogMode);
+  setSettingBool('continuousJog', continuousJogMode);
   $('#jogTypeContinuous').prop('checked', continuousJogMode);
   $('.distbtn').toggle(!continuousJogMode);
   evaluateZJogDisable();
@@ -87,7 +87,7 @@ function jogToggleMode(forceMode) {
 
 function mmMode() {
   unit = "mm";
-  localStorage.setItem('unitsMode', unit);
+  setSettingEnum('unitsMode', unit);
   for (let i = 0; i < 4; i++) {
     const jogDist = jogDistArray[i];
     $(jogDist.label).html(jogDist.mmStr);
@@ -104,7 +104,7 @@ function mmMode() {
 
 function inMode() {
   unit = "in";
-  localStorage.setItem('unitsMode', unit);
+  setSettingEnum('unitsMode', unit);
   for (let i = 0; i < 4; i++) {
     const jogDist = jogDistArray[i];
     $(jogDist.label).html(jogDist.inStr);
@@ -410,18 +410,14 @@ function toastJogNotIdle() {
 }
 
 function jogDocReady() {
-  if (localStorage.getItem('jogOverride')) {
-    jogOverride(localStorage.getItem('jogOverride'));
-  }
+  jogOverride(getSettingNumber('jogOverride', 100, 1, 100));
 
-  if (localStorage.getItem('continuousJog')) {
-    continuousJogMode = JSON.parse(localStorage.getItem('continuousJog')) == true;
-    $('#jogTypeContinuous').prop('checked', continuousJogMode);
-    $('.distbtn').toggle(!continuousJogMode);
-  }
+  continuousJogMode = getSettingBool('continuousJog', false);
+  $('#jogTypeContinuous').prop('checked', continuousJogMode);
+  $('.distbtn').toggle(!continuousJogMode);
 
   setJogDist(jogDistIndex);
-  if (localStorage.getItem('unitsMode') == "in") {
+  if (getSettingEnum('unitsMode', ["mm", "in"]) == "in") {
     inMode();
     $('#inMode').click();
   } else {

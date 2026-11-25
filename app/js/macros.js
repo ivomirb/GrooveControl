@@ -17,17 +17,17 @@ function saveMacroButtons() {
   localStorage.setItem('macroButtons', JSON.stringify(buttonsarray));
 }
 
-function populateMacroButtons(runStartups) {
+function populateMacroButtons(firstRun, safeMode) {
   $('#macroToolsBtn').parent().nextAll().remove();
 
   for (let i = 0; i < buttonsarray.length; i++) {
     const button = buttonsarray[i];
 
-    if (button.codetype == "javascript") {
+    if (firstRun && button.codetype == "javascript") {
       if (button.javascript && button.javascript.startsWith(JAVASCRIPT_LOAD_PREFIX)) {
         button.javascript = loadJavascriptFile(button.javascript);
       }
-      if (button.jsrunonstartup && runStartups) {
+      if (button.jsrunonstartup && !safeMode) {
         try {
           executeJS(button.javascript);
           const icon = "";
@@ -198,11 +198,11 @@ function editMacro(buttonIdx, fileName, script) {
       }
     }
   }
-/*
+
   if (codetype == "javascript" && javascript && javascript.startsWith(JAVASCRIPT_LOAD_PREFIX)) {
     javascript = loadJavascriptFile(javascript);
   }
-*/
+
   const macroTemplate = `<form id="macroEditForm">
   <div class="p-1 m-0">
       <div class="row mb-2" style="align-items:center;">
@@ -384,15 +384,29 @@ function createMacroFromFile() {
   });
 }
 
-// run it to begin
-if (localStorage.getItem('macroButtons')) {
-  buttonsarray = JSON.parse(localStorage.getItem('macroButtons'));
-}
-
 function macrosDocReady() {
+  if (localStorage.getItem('macroButtons')) {
+    try {
+      const val = JSON.parse(localStorage.getItem('macroButtons'));
+      if (Array.isArray(val)) {
+        buttonsarray = val;
+      }
+    // eslint-disable-next-line no-empty
+    } catch {}
+  }
+
   const urlParams = new URLSearchParams(window.location.search);
   const safeMode = urlParams.get("safeMode") == "true";
-  populateMacroButtons(!safeMode);
+  populateMacroButtons(true, safeMode);
+
+  const groupSettings = getSettingObject('macroGroupView', {tabVisibility: 2, currentGroupLower: ""});
+  macroGroupView = groupSettings.tabVisibility;
+  if (macroGroupView != 0 && macroGroupsLower.indexOf(groupSettings.currentGroupLower) != -1) {
+    currentMacroGroupLower = groupSettings.currentGroupLower;
+  } else {
+    currentMacroGroupLower = "";
+  }
+
   setMacroGroupView(macroGroupView);
 }
 
@@ -661,7 +675,7 @@ var macroGroupsLower = [""];
 var selectedMacroGroup = undefined; // used in context menus
 
 function saveMacroGroupView() {
-  localStorage.setItem('macroGroupView', JSON.stringify({tabVisibility: macroGroupView, currentGroupLower: currentMacroGroupLower}));
+  getSettingObject('macroGroupView', {tabVisibility: macroGroupView, currentGroupLower: currentMacroGroupLower});
 }
 
 function setCurrentMacroGroup(groupLower) {
@@ -894,14 +908,4 @@ function moveMacroToGroup(buttonIdx) {
   const groupNameLower = groupName.toLowerCase();
   const groupIdx = Math.max(0, macroGroupsLower.indexOf(groupNameLower));
   $('#macroGroup').val(groupIdx);
-}
-
-if (localStorage.getItem('macroGroupView')) {
-  const settings = JSON.parse(localStorage.getItem('macroGroupView'));
-  macroGroupView = typeof(settings.tabVisibility) == "number" ? settings.tabVisibility : 2;
-  if (macroGroupView != 0 && typeof(settings.currentGroupLower) == "string" && macroGroupsLower.indexOf(settings.currentGroupLower) != -1) {
-    macroGroupsLower = settings.currentGroupLower;
-  } else {
-    macroGroupsLower = "";
-  }
 }

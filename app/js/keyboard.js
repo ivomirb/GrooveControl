@@ -289,7 +289,7 @@ function applyKeyboardSettings() {
 
   localStorage.setItem('keyboardShortcuts', JSON.stringify(keyboardShortcuts));
   disableKeyboardShortcuts = !$('#enableKeyboardShortcuts').prop('checked');
-  localStorage.setItem('disableKeyboardShortcuts', disableKeyboardShortcuts);
+  setSettingBool('disableKeyboardShortcuts', disableKeyboardShortcuts);
 }
 
 function showKbdWarning() {
@@ -322,15 +322,18 @@ function initKeyboardActions() {
   }
 
   if (localStorage.getItem('keyboardShortcuts')) {
-    let settings = JSON.parse(localStorage.getItem('keyboardShortcuts'));
-    for (const action of inputActions) {
-      if (settings[action.name] != undefined) {
-        keyboardShortcuts[action.name] = settings[action.name];
+    try {
+      let settings = JSON.parse(localStorage.getItem('keyboardShortcuts'));
+      for (const action of inputActions) {
+        if (settings[action.name] != undefined) {
+          keyboardShortcuts[action.name] = settings[action.name];
+        }
       }
-    }
+    // eslint-disable-next-line no-empty
+    } catch {}
   }
 
-  disableKeyboardShortcuts = localStorage.getItem('disableKeyboardShortcuts') == null || (JSON.parse(localStorage.getItem('disableKeyboardShortcuts')) == true);
+  disableKeyboardShortcuts = getSettingBool('disableKeyboardShortcuts', true);
 
   // Remove Keyboard Bindings from Override Sliders
   $('#jrocell').find('.marker').unbind(Metro.events.keydown);

@@ -369,7 +369,7 @@ function pinTabInternal(tabName) {
     tab.show().click();
   }
 
-	$('#sidePanelTab').children('span').hide();
+  $('#sidePanelTab').children('span').hide();
   if (tabName) {
     const tab = $('#' + tabName);
     const contentId = tab.attr('href');
@@ -399,14 +399,14 @@ function pinTabInternal(tabName) {
 function pinTab(event, tabName) {
   event.stopPropagation();
   pinTabInternal(tabName);
-  localStorage.setItem('pinnedTab', tabName);
+  setSettingString('pinnedTab', tabName);
 }
 
 function onWindowResize() {
   const width = window.innerWidth;
   if (width >= MIN_SIDEPANEL_WIDTH) {
     $('.pinbutton').show();
-    pinTabInternal(localStorage.getItem('pinnedTab'));
+    pinTabInternal(getSettingString('pinnedTab', ""));
   }
   else {
     pinTabInternal("");
@@ -418,20 +418,23 @@ function onWindowResize() {
 
 function uiDocReady() {
   $(window).on('resize', onWindowResize);
-  if (localStorage.getItem('pinnedTab') == null) { // on first run show the viewer
-    localStorage.setItem('pinnedTab', "gcodeviewertab");
+  if (getSettingString('pinnedTab', null) == null) { // on first run show the viewer
+    setSettingString('pinnedTab', "gcodeviewertab");
   }
-  const tabName = localStorage.getItem('pinnedTab');
+  const tabName = getSettingString('pinnedTab', "");
   if (tabName && $('#' + tabName).length == 0) { // tab doesn't exist
-    localStorage.setItem('pinnedTab', "");
+    setSettingString('pinnedTab', "");
   }
 
   if (localStorage.getItem('sidePanelSize')) {
-    let panelSize = JSON.parse(localStorage.getItem('sidePanelSize'));
-    if (Array.isArray(panelSize) && typeof panelSize[0] == 'string' && typeof panelSize[1] == 'string') {
-      $('#jogcontrols').parent().css('flex-basis', panelSize[0]);
-      $('#sidePanel').css('flex-basis', panelSize[1]);
-    }
+    try {
+      let panelSize = JSON.parse(localStorage.getItem('sidePanelSize'));
+      if (Array.isArray(panelSize) && typeof panelSize[0] == 'string' && typeof panelSize[1] == 'string') {
+        $('#jogcontrols').parent().css('flex-basis', panelSize[0]);
+        $('#sidePanel').css('flex-basis', panelSize[1]);
+      }
+    // eslint-disable-next-line no-empty
+    } catch {}
   }
 
   const observer = new ResizeObserver(() => {

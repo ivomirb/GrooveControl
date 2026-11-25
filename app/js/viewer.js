@@ -170,7 +170,7 @@ function drawWorkspace() {
 
   gridsystem.name = "Grid System"
   workspace.add(gridsystem);
-  redrawGrid(localStorage.getItem('unitsMode') == "in");
+  redrawGrid(getSettingString('unitsMode') == "in");
 
   const machineBoxVerts = [ // unit cube
     0, 0, 0, 0, 0, 1,
@@ -229,7 +229,7 @@ function setGridSize(xmin, xmax, ymin, ymax) {
   gridymin = ymin;
   gridymax = ymax;
 
-  redrawGrid(localStorage.getItem('unitsMode') == "in");
+  redrawGrid(getSettingString('unitsMode') == "in");
 }
 
 function redrawGrid(inches) {
@@ -430,10 +430,12 @@ function init3D() {
 }
 
 function setViewControls(orbitButton) {
-  if (orbitButton == "left") {
-    controls.mouseButtons = {ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
-  } else {
-    controls.mouseButtons = {ORBIT: THREE.MOUSE.MIDDLE, ZOOM: false, PAN: THREE.MOUSE.RIGHT };
+  if (controls) {
+    if (orbitButton == "left") {
+      controls.mouseButtons = {ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
+    } else {
+      controls.mouseButtons = {ORBIT: THREE.MOUSE.MIDDLE, ZOOM: false, PAN: THREE.MOUSE.RIGHT };
+    }
   }
 }
 

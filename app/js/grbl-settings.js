@@ -50,9 +50,22 @@ function loadGrblBackupFile() {
   });
 }
 
+// Retrieve backups from localStorage
+function readParamsBackups() {
+  if (localStorage.getItem('grblParamsBackups') != null) {
+    try {
+      const backups = JSON.parse(localStorage.getItem('grblParamsBackups'));
+      if (Array.isArray(backups)) {
+        return backups;
+      }
+    // eslint-disable-next-line no-empty
+    } catch {}
+  }
+  return [];
+}
+
 function populateRestoreMenu() {
-  // Retrieve backups from localStorage
-  const backups = JSON.parse(localStorage.getItem('grblParamsBackups')) || [];
+  const backups = readParamsBackups();
 
   // Get the dropdown menu element
   const backupMenu = document.getElementById('restoreBackupMenu');
@@ -91,8 +104,7 @@ function autoBackup(note) {
     }
   }; // Add timestamp to the current parameters
 
-  // Retrieve existing backups from localStorage or initialize an empty array
-  let backups = JSON.parse(localStorage.getItem('grblParamsBackups')) || [];
+  let backups = readParamsBackups();
 
   // Add the current backup to the beginning of the array
   backups.unshift(currentParams);
@@ -109,7 +121,7 @@ function autoBackup(note) {
 }
 
 function restoreAutoBackup(index) {
-  const backups = JSON.parse(localStorage.getItem('grblParamsBackups')) || [];
+  const backups = readParamsBackups();
   const selectedBackup = backups[index];
 
   // Retrieve grblParams from the backup
@@ -284,11 +296,7 @@ function grblSettings(data) {
 
   updateToolOnSValues();
 
-  if (localStorage.getItem('jogOverride')) {
-    jogOverride(localStorage.getItem('jogOverride'));
-  } else {
-    jogOverride(100);
-  }
+  jogOverride(getSettingNumber('jogOverride', 100, 1, 100));
 }
 
 function grblPopulate() {

@@ -529,7 +529,7 @@ function applyGamepadSettings() {
   analogStickSettings.invertX = $('#gamepadInvertX').prop('checked');
   analogStickSettings.invertY = $('#gamepadInvertY').prop('checked');
   analogStickSettings.invertZ = $('#gamepadInvertZ').prop('checked');
-  localStorage.setItem('analogStickSettings', JSON.stringify(analogStickSettings));
+  setSettingObject('analogStickSettings', analogStickSettings);
 
   const disable = !$('#enableGamepad').prop('checked');
 
@@ -543,9 +543,9 @@ function applyGamepadSettings() {
     $('#gamepadDisplay').hide();
   }
   disableGamepad = disable;
-  localStorage.setItem('disableGamepad', disableGamepad);
+  setSettingBool('disableGamepad', disableGamepad);
 
-  localStorage.setItem('gamepadPreset', gamepadPreset.name);
+  setSettingString('gamepadPreset', gamepadPreset.name);
   closeGamepadEditor();
 }
 
@@ -582,24 +582,26 @@ function initGamepadActions() {
     gamepadShortcuts[action.name] = "";
   }
 
-  disableGamepad = localStorage.getItem('disableGamepad') == null || JSON.parse(localStorage.getItem('disableGamepad')) == true;
+  disableGamepad = getSettingBool('disableGamepad', true);
 
   if (localStorage.getItem('gamepadShortcuts')) {
-    const settings = JSON.parse(localStorage.getItem('gamepadShortcuts'));
-    for (const action of inputActions) {
-      if (settings[action.name] != undefined) {
-        gamepadShortcuts[action.name] = settings[action.name];
+    try {
+      const settings = JSON.parse(localStorage.getItem('gamepadShortcuts'));
+      for (const action of inputActions) {
+        if (settings[action.name] != undefined) {
+          gamepadShortcuts[action.name] = settings[action.name];
+        }
       }
-    }
+    // eslint-disable-next-line no-empty
+    } catch {}
   }
 
-  if (localStorage.getItem('analogStickSettings')) {
-    const settings = JSON.parse(localStorage.getItem('analogStickSettings'));
-    if (settings.deadzone != undefined) { analogStickSettings.deadzone = settings.deadzone; }
-    if (settings.invertX != undefined) { analogStickSettings.invertX = settings.invertX; }
-    if (settings.invertY != undefined) { analogStickSettings.invertY = settings.invertY; }
-    if (settings.invertZ != undefined) { analogStickSettings.invertZ = settings.invertZ; }
-  }
+  analogStickSettings = getSettingObject('analogStickSettings', {
+    deadzone: 10,
+    invertX: false,
+    invertY: false,
+    invertZ: false,
+  });
 
   $('#gamepadDisplay').toggle(!disableGamepad);
   window.addEventListener('gamepadconnected', onGamepadConnected);
@@ -607,7 +609,7 @@ function initGamepadActions() {
   onGamepadDisconnected();
 
   gamepadPreset = gamepadPresets[0];
-  const presetName = localStorage.getItem('gamepadPreset');
+  const presetName = getSettingString('gamepadPreset', "");
   for (const preset of gamepadPresets) {
     if (preset.name == presetName) {
       gamepadPreset = preset;

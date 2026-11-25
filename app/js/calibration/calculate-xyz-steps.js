@@ -95,16 +95,23 @@ This can be adjusted via switches on the stepper driver or the motor itself"></s
 </div>`
 
 function readCalcXYZdefaults(settingsName) {
-  const settings = JSON.parse(localStorage.getItem(settingsName));
-  if (settings) {
-    $('#actuatorselect').val(settings.actuatorselect);
-    $('#motorselect').val(settings.motorselect);
-    $('#microstepselect').val(settings.microstepselect);
-    $('#beltselect').val(settings.beltselect);
-    $('#pulleyselect').val(settings.pulleyselect);
-    $('#leadscrewselect').val(settings.leadscrewselect);
-    $('#customsteps').val(settings.customsteps);
-  }
+  const settings = getSettingObject(settingsName, {
+    actuatorselect: "screw",
+    beltselect: 2,
+    pulleyselect: 20,
+    leadscrewselect: 8,
+    motorselect: 200,
+    microstepselect: 8,
+    customsteps: "",
+  });
+
+  $('#actuatorselect').val(settings.actuatorselect);
+  $('#beltselect').val(settings.beltselect);
+  $('#pulleyselect').val(settings.pulleyselect);
+  $('#leadscrewselect').val(settings.leadscrewselect);
+  $('#motorselect').val(settings.motorselect);
+  $('#microstepselect').val(settings.microstepselect);
+  $('#customsteps').val(settings.customsteps);
 }
 
 function writeCalcXYZdefaults(settingsName) {
@@ -116,7 +123,7 @@ function writeCalcXYZdefaults(settingsName) {
   settings.motorselect = parseInt($('#motorselect').data('select').val());
   settings.microstepselect = parseInt($('#microstepselect').data('select').val());
   settings.customsteps = $('#customsteps').val();
-  localStorage.setItem(settingsName, JSON.stringify(settings));
+  setSettingObject(settingsName, settings);
 }
 
 function xstepspermm() {

@@ -72,6 +72,8 @@ $(document).ready(function() {
     macrosDocReady();
     servoDocReady();
     themeDocReady();
+    jobStatsDocReady();
+    probeDocReady();
     heightmapDocReady();
 
     $('#command').inputHistory({
@@ -186,12 +188,12 @@ function onDocReady(data) {
   }
 
   if (localStorage.getItem('previousVersion')) {
-    let version = parseFloat(localStorage.getItem('previousVersion'));
+    let version = getSettingNumber('previousVersion', 0);
     if (APP_VERSION > version) {
       // new version detected, show critical what's new info
     }
   }
-  localStorage.setItem('previousVersion', APP_VERSION.toFixed(3));
+  setSettingNumber('previousVersion', APP_VERSION.toFixed(3));
 }
 
 function onFirstStatus(status) {

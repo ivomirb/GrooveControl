@@ -1,10 +1,16 @@
-var pastJobs = []
+var pastJobs = [];
 
-$(document).ready(function() {
-  if (localStorage.getItem('pastJobs')) {
-    pastJobs = JSON.parse(localStorage.getItem('pastJobs'));
-  };
-});
+function jobStatsDocReady() {
+  if (localStorage.getItem('pastJobs') != null) {
+    try {
+      const val = JSON.parse(localStorage.getItem('pastJobs'));
+      if (Array.isArray(val)) {
+        pastJobs = val;
+      }
+    // eslint-disable-next-line no-empty
+    } catch {}
+  }
+}
 
 function storeJob(completedJob) {
   // var completedJob = {
