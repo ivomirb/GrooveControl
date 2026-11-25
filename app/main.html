@@ -1072,15 +1072,15 @@ Restore previous origins from history.">
                       <button style="margin:1px;" title="Update the 3D View with the edited G-code" class="button success editorEnabled" onclick="previewGcode()"><i class="mif-3d-rotation fa-fw"></i> Update 3D View</button>&nbsp;
                       <button style="margin:1px;" title="Save G-code to file" class="button primary editorEnabled" onclick="saveGcode();"><i class="fa fa-save icon"></i></button>&nbsp;
                       <button style="margin:1px;" title="Find and Replace" class="button dark editorEnabled" onclick="editor.execCommand('replace')"><i class="fas fa-search"></i> Find/Replace</button>&nbsp;
-                      <button style="margin:1px;" title="Select All" class="button dark editorEnabled" onclick="editor.execCommand('selectall')"><i class="far fa-check-square"></i> Select All</button>&nbsp;
+                      <button style="margin:1px;" title="Select All" class="button dark editorEnabled" onclick="editor.execCommand('selectall')">Select All</button>&nbsp;
                       <button style="margin:1px;" title="Undo" class="button dark editorEnabled" onclick="editor.execCommand('undo')"><i class="fas fa-undo"></i> Undo</button>&nbsp;
                       <button style="margin:1px;" title="Redo" class="button dark editorEnabled" onclick="editor.execCommand('redo')"><i class="fas fa-redo"></i> Redo</button>&nbsp;
                       <button style="margin:1px;" title="Go to End" class="button dark editorEnabled" onclick="editor.execCommand('gotoend')"><i class="fas fa-chevron-down"></i></button>&nbsp;
                       <button style="margin:1px;" title="Go to Start" class="button dark editorEnabled" onclick="editor.execCommand('gotostart')"><i class="fas fa-chevron-up"></i></button>&nbsp;
+                      <button style="margin:1px;" title="Sync current line to job or simulation" class="button dark editorEnabled" onclick="toggleSyncLine();"><i id="syncEditorLineOn" class="far fa-check-square"></i><i id="syncEditorLineOff" class="far fa-square" style="display:none;"></i> Sync</button>&nbsp;
                       <button style="margin:1px;" title="Clear Editor" class="button dark" onclick="clearGcode()"><i class="fas fa-eraser"></i>Clear</button>
                     </div>
                   </div>
-
 
                   <div class="section" id="tab-three" style="height:100%">
                     <div id="renderArea"></div>

@@ -140,4 +140,5 @@ const usedFunctions = {
   runGcodeSection,
   addReloadHandler,
   pinTab,
+  toggleSyncLine,
 };

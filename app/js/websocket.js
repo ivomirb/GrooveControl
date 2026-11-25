@@ -304,6 +304,10 @@ function onQueueCount(data) {
   const donepercent = total > 0 ? (done * 100) / total : 0;
   $('#progressbar').data('progress').val(donepercent);
 
+  if (data[3] && laststatus && laststatus.comms.connectionStatus == 3) {
+    syncEditorLine(data[3] + 1);
+  }
+
   if (isJob && !isJogWidget && done > 0 && object?.userData?.pointCount > 2 && lastJobStartTime) {
     const timeremain = object.userData.totalTime;
     if (!isNaN(timeremain)) {

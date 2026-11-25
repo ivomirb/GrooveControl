@@ -49,6 +49,7 @@ var grblStatusLoop;
 
 // Queue
 var gcodeQueue = [];
+var gcodeQueueLines = [];
 var queuePointer = 0;
 var queueCounterLoop;
 const sentBuffer = [];
@@ -560,7 +561,9 @@ function handleOK(data, command) {
     serverEmit('fluidncConfig', fluidncConfig);
   }
   status.comms.blocked = false;
-  serverEmit('queueCount', [gcodeQueue.length + sentBuffer.length - queuePointer, gcodeQueue.length, jobStatusInternal > 0 && jobIsJob]);
+  const idx = queuePointer - sentBuffer.length;
+  const isJob = jobStatusInternal > 0 && jobIsJob;
+  serverEmit('queueCount', [gcodeQueue.length - idx, gcodeQueue.length, isJob, isJob ? gcodeQueueLines[idx] : undefined]);
   if (queuePointer < gcodeQueue.length) {
     send1Q();
   }
@@ -858,6 +861,12 @@ function machineSend(gcode) {
 function addLinesToQueue(data, isJob) {
   let empty = true;
   data = data.split('\n');
+
+  if (isJob) {
+    gcodeQueueLines.length = gcodeQueue.length;
+    gcodeQueueLines.fill(undefined);
+  }
+
   for (let i = 0; i < data.length; i++) {
 
     let line = data[i].replace("%", "").split(';')[0]; // Remove everything after ; = comment
@@ -876,11 +885,14 @@ function addLinesToQueue(data, isJob) {
 
     const tosend = line.trim();
     if (tosend.length > 0) {
+      const start = gcodeQueue.length;
       if (addQToEnd(tosend) && isJob && status.misc.spindleDelay > 0 && !status.misc.laserMode) {
         if (tosend.indexOf("M3") >= 0 || tosend.indexOf("M4") >= 0 || tosend.indexOf("M03") >= 0 || tosend.indexOf("M04") >= 0) {
           addQToEnd("G4 P" + parseInt(status.misc.spindleDelay) + ".");
         }
       }
+      gcodeQueueLines.length = gcodeQueue.length;
+      gcodeQueueLines.fill(i, start);
       empty = false;
     }
   }
@@ -912,15 +924,17 @@ function runJob(object, callback) {
   if (data && addLinesToQueue(data, true)) {
     // Start interval for qCount messages to socket clients
     queueCounterLoop = setInterval(function() {
-      status.comms.queue = gcodeQueue.length - queuePointer + sentBuffer.length;
+      const idx = queuePointer - sentBuffer.length;
+      const isJob = jobStatusInternal > 0 && jobIsJob;
+      status.comms.queue = gcodeQueue.length - idx;
       if (gcodeQueue.length > 0) {
-        serverEmit('queueCount', [status.comms.queue, gcodeQueue.length, jobStatusInternal > 0 && jobIsJob]);
-        jogWindowProgress(queuePointer / gcodeQueue.length);
+        serverEmit('queueCount', [status.comms.queue, gcodeQueue.length, isJob, isJob ? gcodeQueueLines[idx] : undefined]);
+        jogWindowProgress(idx / gcodeQueue.length);
       } else if (jobStatusInternal > 0) {
-        serverEmit('queueCount', [0, queueLengthInternal, jobIsJob]);
+        serverEmit('queueCount', [0, queueLengthInternal, isJob, undefined]);
         jogWindowProgress(1);
       } else {
-        serverEmit('queueCount', [0, 0, false]);
+        serverEmit('queueCount', [0, 0, false, undefined]);
         jogWindowProgress(0);
       }
     }, 1000);
@@ -972,7 +986,8 @@ function send1Q() {
   if (analogJogState != 0 || mpgJogState != 0) return; // can't send during jogging
   if (status.comms.connectionStatus > 0) {
     if (queuePointer == 0) {
-      serverEmit('queueCount', [gcodeQueue.length, gcodeQueue.length, jobStatusInternal > 0 && jobIsJob]);
+      const isJob = jobStatusInternal > 0 && jobIsJob;
+      serverEmit('queueCount', [gcodeQueue.length, gcodeQueue.length, isJob, isJob ? gcodeQueueLines[0] : undefined]);
     }
     while (queuePointer < gcodeQueue.length && !status.comms.blocked && !status.comms.paused) {
       const spaceLeft = calcBufferSpace();
@@ -1007,11 +1022,13 @@ function clearGcodeQueue(success) {
     serverEmit('queueComplete', data);
     const queueLeft = gcodeQueue.length - queuePointer + sentBuffer.length;
     const queueTotal = gcodeQueue.length;
-    serverEmit('queueCount', [queueLeft, queueTotal, jobStatusInternal > 0 && jobIsJob]);
+    const isJob = jobStatusInternal > 0 && jobIsJob;
+    serverEmit('queueCount', [queueLeft, queueTotal, isJob, undefined]);
   }
 
   status.comms.queue = 0;
   gcodeQueue.length = 0; // Dump the Queue
+  gcodeQueueLines.length = 0;
   queuePointer = 0;
 
   if (!success) {
@@ -1443,6 +1460,7 @@ function clearAlarm(data) {
         status.comms.queue = 0
         queuePointer = 0;
         gcodeQueue.length = 0; // Dump the queue
+        gcodeQueueLines.length = 0;
         sentBuffer.length = 0; // Dump bufferSizes
         debug_log('Clearing Lockout');
 
@@ -1548,6 +1566,7 @@ function onPortClose() {
   status.machine.inputs = [];
   status.machine.modals.homedRecently = false;
   gcodeQueue.length = 0;
+  gcodeQueueLines.length = 0;
   sentBuffer.length = 0; // dump bufferSizes
   queuePointer = 0;
   jobStatusInternal = 0;

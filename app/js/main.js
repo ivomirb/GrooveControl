@@ -9,6 +9,7 @@ var editor;
 var useEditor = true; // if false, currentGcode is used instead of the contents of the editor
 var isJogWidget = false;
 var lastJobStartTime = false;
+var syncEditorLineFlag = true;
 
 // Disable global Right-click menu, so we can implement UI right click menus
 document.addEventListener('contextmenu', function(e) {
@@ -127,12 +128,29 @@ $(document).ready(function() {
       activateContentTab('consoletab');
     }
 
+    syncEditorLineFlag = getSettingBool('syncEditorLine', true);
+    $('#syncEditorLineOn').toggle(syncEditorLineFlag);
+    $('#syncEditorLineOff').toggle(!syncEditorLineFlag);
+
     uiDocReady();
   }
 
   initSocket();
   socket.emit('docReady', onDocReady);
 });
+
+function toggleSyncLine() {
+  syncEditorLineFlag = !syncEditorLineFlag;
+  setSettingBool('syncEditorLine', syncEditorLineFlag);
+  $('#syncEditorLineOn').toggle(syncEditorLineFlag);
+  $('#syncEditorLineOff').toggle(!syncEditorLineFlag);
+}
+
+function syncEditorLine(line) { // line is 1-based
+  if (editor && syncEditorLineFlag) {
+    editor.gotoLine(line);
+  }
+}
 
 var reloadHandlers = [];
 
@@ -292,39 +310,26 @@ function reloadJobFile(filePath) {
   socket.emit('reopenFile', filePath);
 }
 
-
 function isWebGLAvailable() {
-
   try {
-
     const canvas = document.createElement('canvas');
     return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-
   } catch {
-
     return false;
-
   }
-
 }
 
 function isWebGL2Available() {
-
   try {
-
     const canvas = document.createElement('canvas');
     return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'));
-
   } catch {
-
     return false;
-
   }
 
 }
 
 function getWebGLErrorMessage() {
-
   if (window.WebGLRenderingContext) {
     return 'Your graphics card does not seem to support WebGL: See https://wikis.khronos.org/webgl/Main_Page to learn more';
   } else {

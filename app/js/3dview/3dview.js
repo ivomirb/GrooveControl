@@ -230,6 +230,19 @@ function resetConePosition() {
   cone.position.z = posz;
 }
 
+function setSimIdx(idx) {
+  simIdx = idx;
+  if (syncEditorLineFlag && object && laststatus && laststatus.comms.connectionStatus <= 2) {
+    if (simIdx >= 0 && simIdx < object.userData.pointCount) {
+      const srcLine = object.userData.srcArray[simIdx];
+      syncEditorLine(srcLine + 1);
+    } else if (simIdx >= object.userData.pointCount && object.userData.pointCount > 0) {
+      const srcLine = object.userData.srcArray.at(-1);
+      syncEditorLine(srcLine + 2);
+    }
+  }
+}
+
 function sim(fromLine, paused) {
   if (laststatus && laststatus.comms.connectionStatus > 2) {
     simstop();
@@ -243,7 +256,7 @@ function sim(fromLine, paused) {
    return;
   }
 
-  simIdx = fromLine;
+  setSimIdx(fromLine);
   if (SIM_DISPLAY_TYPE == 1) {
     $('#simText').show();
     $('#simText > span').html("");
@@ -293,9 +306,10 @@ function runSim() {
   let simTimeInSec = 0;
   let resetCone = false;
 
-  for (;simIdx < object.userData.pointCount; simIdx++) {
-    let simTimeMins = object.userData.durationArray[simIdx];
-    if (!object.userData.preciseEstimate && object.userData.gArray[simIdx] == 0 && grblParams.$110 != undefined) {
+  let sidx = simIdx;
+  for (; sidx < object.userData.pointCount; sidx++) {
+    let simTimeMins = object.userData.durationArray[sidx];
+    if (!object.userData.preciseEstimate && object.userData.gArray[sidx] == 0 && grblParams.$110 != undefined) {
       simTimeMins *= 1000 / parseFloat(grblParams.$110); // adjust rapid speed if it is known
     }
     simTimeInSec += simTimeMins * 60;
@@ -307,6 +321,7 @@ function runSim() {
     }
     resetCone = true;
   }
+  setSimIdx(sidx);
 
   if (simIdx >= object.userData.pointCount) {
     simpause();
@@ -351,7 +366,7 @@ function runSim() {
     onComplete: function() {
       simTween = false;
       if (simRunning) {
-        simIdx++;
+        setSimIdx(simIdx + 1);
         runSim();
       }
     }
@@ -404,7 +419,7 @@ function simStepBack() {
   }
 
   if (newIdx != undefined) {
-    simIdx = newIdx;
+    setSimIdx(newIdx);
     if (simTween) {
       simTween.kill();
       simTween = false;
@@ -438,7 +453,7 @@ function simSetProgress(progress) {
       }
     }
     if (newIdx != undefined) {
-      simIdx = newIdx;
+      setSimIdx(newIdx);
       if (simTween) {
         simTween.kill();
         simTween = false;
@@ -498,7 +513,7 @@ function simStepForward() {
       break;
     }
 
-  simIdx = newIdx;
+  setSimIdx(newIdx);
   if (simTween) {
     simTween.kill();
     simTween = false;
