@@ -377,6 +377,17 @@ function macrosDocReady() {
   const urlParams = new URLSearchParams(window.location.search);
   const safeMode = urlParams.get("safeMode") == "true";
   populateMacroButtons(!safeMode);
+
+  if (localStorage.getItem('macroGroupView')) {
+    const settings = JSON.parse(localStorage.getItem('macroGroupView'));
+    macroGroupView = typeof(settings.tabVisibility) == "number" ? settings.tabVisibility : 2;
+    if (macroGroupView != 0 && typeof(settings.currentGroupLower) == "string" && macroGroupsLower.indexOf(settings.currentGroupLower) != -1) {
+      currentMacroGroupLower = settings.currentGroupLower;
+    } else {
+      currentMacroGroupLower = "";
+    }
+  }
+
   setMacroGroupView(macroGroupView);
 }
 
@@ -878,14 +889,4 @@ function moveMacroToGroup(buttonIdx) {
   const groupNameLower = groupName.toLowerCase();
   const groupIdx = Math.max(0, macroGroupsLower.indexOf(groupNameLower));
   $('#macroGroup').val(groupIdx);
-}
-
-if (localStorage.getItem('macroGroupView')) {
-  const settings = JSON.parse(localStorage.getItem('macroGroupView'));
-  macroGroupView = typeof(settings.tabVisibility) == "number" ? settings.tabVisibility : 2;
-  if (macroGroupView != 0 && typeof(settings.currentGroupLower) == "string" && macroGroupsLower.indexOf(settings.currentGroupLower) != -1) {
-    macroGroupsLower = settings.currentGroupLower;
-  } else {
-    macroGroupsLower = "";
-  }
 }
