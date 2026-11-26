@@ -231,6 +231,7 @@ function savePersistentConfig() {
 }
 
 function loadPersistentConfig() {
+  let configExists = true;
   try {
     const text = fs.readFileSync(configFilePath, 'utf8');
     const stored = JSON.parse(text);
@@ -240,7 +241,9 @@ function loadPersistentConfig() {
       }
     }
   } catch (err) {
+    console.log("CONFIG FILE ERROR", err.message, err.code);
     debug_log(err);
+    configExists = (err.code != "ENOENT");
   }
 
   persistentConfig.grblWaitResponse = Math.max(persistentConfig.grblWaitResponse, 0.1);
@@ -250,10 +253,14 @@ function loadPersistentConfig() {
     persistentConfig.spindleDelay = 0;
   }
   status.misc.spindleDelay = persistentConfig.spindleDelay;
+
+  return configExists;
 }
 
 function initCore() {
-  loadPersistentConfig();
+  if (!loadPersistentConfig()) {
+    savePersistentConfig();
+  }
 }
 
 export {
