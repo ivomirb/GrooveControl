@@ -78,6 +78,7 @@ var analogJogPosition = undefined;
 var analogJogSettings = undefined;
 var analogJogDir = undefined;
 var analogJogWatchdog = undefined;
+var analogJogDeadzone = {x: 0, y: 0};
 
 var mpgJogState = 0; // 0 - none, 1 - at least one command is posted, 2 - at least one command is accepted
 var mpgJogSettings = null;
@@ -1227,8 +1228,26 @@ function sendAnalogJogCommand() {
       dt /= 2; // use 5ms for machines with larger planning buffer to improve cornering responsiveness
     }
 
-    const dx0 = speedXY * analogJogDir.dx * dt;
-    const dy0 = speedXY * analogJogDir.dy * dt;
+    let dx = analogJogDir.dx;
+    let dy = analogJogDir.dy;
+    if (Math.abs(dx) < analogJogDeadzone.x) {
+      dx = 0;
+    } else if (analogJogDeadzone.x > 0) {
+      analogJogDeadzone.x = 0;
+      if (Math.abs(dy) < analogJogDeadzone.y) {
+        analogJogDeadzone.y = persistentConfig.xyDeadzone2;
+      }
+    }
+    if (Math.abs(dy) < analogJogDeadzone.y) {
+      dy = 0;
+    } else if (analogJogDeadzone.y > 0) {
+      analogJogDeadzone.y = 0;
+      if (Math.abs(dx) < analogJogDeadzone.x) {
+        analogJogDeadzone.x = persistentConfig.xyDeadzone2;
+      }
+    }
+    const dx0 = speedXY * dx * dt;
+    const dy0 = speedXY * dy * dt;
 
     if (analogJogSettings.enableLimits) {
       let dx1 = analogJogPosition.x;
@@ -1315,6 +1334,7 @@ function onAnalogJog(data) {
       if (status.comms.runStatus == "Idle" && gcodeQueue.length == 0 && sentBuffer.length == 0 && status.comms.connectionStatus == 2) {
         if (data.dx != 0 || data.dy != 0) {
           analogJogType = "xy";
+          analogJogDeadzone = {x: persistentConfig.xyDeadzone1, y: persistentConfig.xyDeadzone1};
         } else if (data.dz != 0) {
           analogJogType = "z";
         }
