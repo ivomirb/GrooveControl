@@ -1234,16 +1234,16 @@ function sendAnalogJogCommand() {
       dx = 0;
     } else if (analogJogDeadzone.x > 0) {
       analogJogDeadzone.x = 0;
-      if (analogJogDeadzone.y > 0) {
-        analogJogDeadzone.y = persistentConfig.analogDeadzone2;
+      if (Math.abs(dy) < analogJogDeadzone.y) {
+        analogJogDeadzone.y = persistentConfig.xyDeadzone2;
       }
     }
     if (Math.abs(dy) < analogJogDeadzone.y) {
       dy = 0;
     } else if (analogJogDeadzone.y > 0) {
       analogJogDeadzone.y = 0;
-      if (analogJogDeadzone.x > 0) {
-        analogJogDeadzone.x = persistentConfig.analogDeadzone2;
+      if (Math.abs(dx) < analogJogDeadzone.x) {
+        analogJogDeadzone.x = persistentConfig.xyDeadzone2;
       }
     }
     const dx0 = speedXY * dx * dt;
@@ -1334,7 +1334,7 @@ function onAnalogJog(data) {
       if (status.comms.runStatus == "Idle" && gcodeQueue.length == 0 && sentBuffer.length == 0 && status.comms.connectionStatus == 2) {
         if (data.dx != 0 || data.dy != 0) {
           analogJogType = "xy";
-          analogJogDeadzone = {x: persistentConfig.analogDeadzone1, y: persistentConfig.analogDeadzone1};
+          analogJogDeadzone = {x: persistentConfig.xyDeadzone1, y: persistentConfig.xyDeadzone1};
         } else if (data.dz != 0) {
           analogJogType = "z";
         }

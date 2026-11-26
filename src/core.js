@@ -50,8 +50,10 @@ const persistentConfig = {
   spindleDelay: 0,
   enableUpdates: true,
   forceDevMode: false,
-  analogDeadzone1: 0.1, // minimum initial X or Y value to begin moving
-  analogDeadzone2: 0.2, // once in motion on X or Y, the other axis is ignored until it exceeds this value
+  // xyDeadzone1 and 2 increase the initial deadzone to start moving with the analog stick.
+  // It makes it easier to jog along a single axis. Set xyDeadzone2 to a larger number (like 0.2) to lock the initial axis even further.
+  xyDeadzone1: 0.1, // minimum initial X or Y value to begin moving
+  xyDeadzone2: 0.1, // once in motion on X or Y, the other axis is ignored until it exceeds this value
 };
 
 const configFilePath = path.join(electronApp.getPath('userData'), "config.json");
