@@ -50,6 +50,8 @@ const persistentConfig = {
   spindleDelay: 0,
   enableUpdates: true,
   forceDevMode: false,
+  analogDeadzone1: 0.1, // minimum initial X or Y value to begin moving
+  analogDeadzone2: 0.2, // once in motion on X or Y, the other axis is ignored until it exceeds this value
 };
 
 const configFilePath = path.join(electronApp.getPath('userData'), "config.json");
