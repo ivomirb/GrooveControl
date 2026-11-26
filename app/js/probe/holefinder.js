@@ -17,6 +17,7 @@ function findCenter() {
   ; Header
 
   G21 ; mm mode
+  G90 ; absolute mode
   G10 P0 L20 X0 Y0 Z0 ; zero out current location
 
   ; First we establish Zero
