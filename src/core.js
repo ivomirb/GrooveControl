@@ -39,9 +39,9 @@ config.maxRecentFiles = 10;
 // Individual settings are stored and restores wholesale.
 // If you add a new sub-field to the initial settings, it will be destroyed on load
 const persistentConfig = {
-  trayIcon: true,
+  trayIcon: false,
   trayIconStyle: "light",
-  autoStart: true,
+  autoStart: false,
   defaultPaths: {},
   recentFiles: [],
   persistDisplayMode: false,

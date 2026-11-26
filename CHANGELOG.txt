@@ -2,9 +2,10 @@ v1.1.0
 * New feature: Support for a gamepad. You can jog with the analog sticks and assign actions to buttons
 * New feature: Large monitor support. You can view two panels at the same time (e.g. the 3d view and the G-code editor)
 * Improvement: More acurrate job duration estimate
-* Safety fix: Stop the machine when the app is closed or when the port is disconnected
+* Safety fix: Stop the CNC machine when the app is closed or when the port is disconnected
 * Security fix: Prevent external websites from accessing the app
-* Security fix: OpenBuilds CAM integraton is removed, as the website doesn't exist anymore and causes security issues
+* Security fix: OpenBuilds CAM integraton is removed, as the website doesn't exist anymore and is a security risk
+* Note: The autostart and tray icon are disabled by default as they were mostly needed for OpenBuilds CAM. They can be turned on from the settings
 
 v1.0.3
 * Add optional second pass to the probing sequence to improve accuracy
