@@ -1001,6 +1001,9 @@ function send1Q() {
           jobStatusInternal = 2;
           status.misc.jobStatus = 2;
         }
+        if (gcode.startsWith("$H") && status.machine.firmware.platform == "gnea" && status.comms.runStatus == "Idle") {
+          status.comms.runStatus = "Home"; // classic Grbl doesn't send updates during homing, so we never get to see a "Home" status
+        }
         queuePointer++;
         sentBuffer.push(gcode);
         machineSend(gcode + '\n');
