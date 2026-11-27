@@ -56,21 +56,40 @@ const grblErrorCodes = {
   54: "Retract position is less than drill depth.",
   55: "Attempt to home two auto squared axes at the same time.",
   56: "Coordinate system is locked.",
+  57: "Unexpected file demarcation.",
+  58: "Port is not available.",
   60: "SD Card mount failed.",
   61: "SD Card file open/read failed.",
   62: "SD Card directory listing failed.",
   63: "SD Card directory not found.",
   64: "SD Card file empty.",
+  65: "File system not mounted.",
+  66: "File system is read only.",
+  71: "Unknown operation found in expression.",
+  72: "Divide by zero in expression attempted.",
+  73: "Too large or too small argrument provided.",
+  74: "Argument is not valid for the operation.",
+  75: "Expression is not valid.",
+  76: "Either NAN (not a number) or infinity was returned from expression.",
   77: "Authentication required.",
   78: "Access denied.",
-  79: "Not allowed while critical event is active."
+  79: "Not allowed while critical event is active.",
+  80: "Flow statement only allowed in filesystem macro.",
+  81: "Unknown flow statement.",
+  82: "Stack overflow while executing flow statement.",
+  83: "Out of memory while executing flow statement.",
+  84: "Could not open file.",
+  85: "File system format failed.",
+  86: "Port is not usable.",
+  87: "Tool in spindle.",
+  88: "No tool in spindle.",
 };
 
 
 const grblAlarmCodes = {
   0: "no alarm",
   1: "Hard limit triggered. Machine position is likely lost due to sudden and immediate halt. Re-homing is highly recommended.",
-  2: "G-code motion target exceeds machine travel. Machine position safely retained. Alarm may be unlocked.",
+  2: "Soft limit alarm. G-code motion target exceeds machine travel. Machine position safely retained. Alarm may be safely unlocked.",
   3: "Reset while in motion. Grbl cannot guarantee position. Lost steps are likely. Re-homing is highly recommended.",
   4: "Probe fail. The probe is not in the expected initial state before starting probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is triggered.",
   5: "Probe fail. Probe did not contact the workpiece within the programmed travel for G38.2 and G38.4.",
@@ -78,7 +97,7 @@ const grblAlarmCodes = {
   7: "Homing fail. Safety door was opened during active homing cycle.",
   8: "Homing fail. Cycle failed to clear limit switch when pulling off. Try increasing pull-off setting or check wiring.",
   9: "Homing fail. Could not find limit switch within search distance. Defined as 1.5 * max_travel on search and 5 * pulloff on locate phases.",
-  10: "EStop asserted. Clear and reset",
+  10: "EStop asserted. Clear and reset.",
   11: "Homing required. Execute homing command ($H) to continue.",
   12: "Limit switch engaged. Clear before continuing.",
   13: "Probe protection triggered. Clear before continuing.",
@@ -86,12 +105,126 @@ const grblAlarmCodes = {
   15: "Homing fail. Could not find second limit switch for auto squared axis within search distances. Try increasing max travel, decreasing pull-off distance, or check wiring.",
   16: "Power on selftest (POS) failed.",
   17: "Motor fault.",
-  18: "Homing fail. Bad configuration."
+  18: "Homing fail. Bad configuration.",
+  19: "Modbus exception. Timeout or message error.",
+  20: "I/O expander communication failed.",
+  21: "Non Volatile Storage (EEPROM) failure.",
+  22: "Buffer overflow.",
 };
 
-export function errors(id) {
-  return grblErrorCodes[id];
+const fluidErrorCodes = {
+/*
+  0: "No error",
+  1: "Expected GCodecommand letter",
+  2: "Bad GCode number format",
+  3: "Invalid $ statement",
+  4: "Negative value",
+  5: "Setting disabled",
+  6: "Step pulse too short",
+  7: "Failed to read settings",
+  8: "Command requires idle state",
+  9: "GCode cannot be executed in lock or alarm state",
+  10: "Soft limit error",
+  11: "Line too long",
+  12: "Max step rate exceeded",
+  13: "Check door",
+  14: "Line too long",
+  15: "Max travel exceeded during jog",
+  16: "Invalid jog command",
+  17: "Laser mode requires PWM output",
+*/
+  18: "No Homing/Cycle defined in settings",
+  19: "Single axis homing not allowed",
+  20: "Unsupported GCode command",
+  21: "Gcode modal group violation",
+  22: "Gcode undefined feed rate",
+  23: "Gcode command value not integer",
+  24: "Gcode axis command conflict",
+  25: "Gcode word repeated",
+  26: "Gcode no axis words",
+  27: "Gcode invalid line number",
+  28: "Gcode value word missing",
+  29: "Gcode unsupported coordinate system",
+  30: "Gcode G53 invalid motion mode",
+  31: "Gcode extra axis words",
+  32: "Gcode no axis words in plane",
+  33: "Gcode invalid target",
+  34: "Gcode arc radius error",
+  35: "Gcode no offsets in plane",
+  36: "Gcode unused words",
+  37: "Gcode G43 dynamic axis error",
+  38: "Gcode max value exceeded",
+  39: "P param max exceeded",
+  40: "Check startup pins",
+  60: "Failed to mount device",
+  61: "Read failed",
+  62: "Failed to open directory",
+  63: "Directory not found",
+  64: "File empty",
+  65: "File not found",
+  66: "Failed to open file",
+  67: "Device is busy",
+  68: "Failed to delete directory",
+  69: "Failed to delete file",
+  70: "Failed to rename file",
+  82: "Failed to create file",
+  83: "Failed to format filesystem",
+  80: "Number out of range for setting",
+  81: "Invalid value for setting",
+  90: "Failed to send message",
+  100: "Failed to store setting",
+  101: "Failed to get setting status",
+  110: "Authentication failed!",
+  111: "End of line",
+  112: "End of file",
+  113: "System Reset",
+  114: "No Data",
+  115: "Deferred",
+  120: "Another interface is busy",
+  150: "Bad Pin Specification",
+  151: "Bad Runtime Config Setting",
+  130: "Jog Cancelled",
+  152: "Configuration is invalid. Check boot messages for ERR's.",
+  160: "File Upload Failed",
+  161: "File Download Failed",
+  162: "Read-only setting",
+  170: "Expression Divide By Zero",
+  171: "Expression Invalid Argument",
+  173: "Expression Unknown Operator",
+  174: "Expression Argument Out of Range",
+  175: "Expression Syntax Error",
+  176: "Flow Control Syntax Error",
+  177: "Flow Control Not Executing Macro",
+  178: "Flow Control Out of Memory",
+  179: "Flow Control Stack Overflow",
+  180: "Parameter Assignment Failed",
+  181: "Gcode invalid word value",
+  182: "Gcode M72 without saved modal state",
+};
+
+const fluidAlarmCodes = {
+  10: "Spindle Control",
+  11: "Input Pin Initially On",
+  12: "Ambiguous Switch",
+  13: "Hard Stop",
+  14: "Unhomed",
+  15: "Init",
+  16: "Expander Reset",
+  17: "GCode Error",
+  18: "Probe Hard Limit",
+};
+
+export function errors(id, fluidNc) {
+  if (fluidNc) {
+    return fluidErrorCodes[id] || grblErrorCodes[id];
+  } else {
+    return grblErrorCodes[id];
+  }
 }
-export function alarms(id) {
-  return grblAlarmCodes[id];
+export function alarms(id, fluidNc) {
+  if (fluidNc) {
+    return fluidAlarmCodes[id] || grblAlarmCodes[id];
+  } else {
+    return grblAlarmCodes[id];
+  }
 };

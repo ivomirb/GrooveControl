@@ -580,7 +580,7 @@ function handleAlarm(data, command) {
   debug_log("ALARM:  " + data)
 
   const alarmCode = parseInt(data.split(':')[1]);
-  const alarmMessage = alarmCode + ' - ' + grblStrings.alarms(alarmCode);
+  const alarmMessage = alarmCode + ' - ' + grblStrings.alarms(alarmCode, status.machine.firmware.platform == "FluidNC");
 
   // certain alarm codes are safe and will not reset the home state
   const safeAlarmCodes = [0, 2, 4, 5, 12];
@@ -627,13 +627,14 @@ function handleError(data, command) {
     lastAlarm = "<hr>This error may just be a symptom of an earlier event:<br> ALARM: " + status.comms.alarm
   }
   const commandMsg = command == undefined ? "" : (" [ " + command + " ]");
-  debug_log('ERROR: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + commandMsg);
+  const errorMsg = grblStrings.errors(errorCode, status.machine.firmware.platform == "FluidNC");
+  debug_log('ERROR: ' + errorCode + ' - ' + errorMsg + commandMsg);
   serverEmitOutput({
     command: '',
-    response: 'ERROR: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + commandMsg + lastAlarm,
+    response: 'ERROR: ' + errorCode + ' - ' + errorMsg + commandMsg + lastAlarm,
     type: 'error'
   });
-  serverEmit('toastError', 'ERROR: ' + errorCode + ' - ' + grblStrings.errors(errorCode) + commandMsg + lastAlarm);
+  serverEmit('toastError', 'ERROR: ' + errorCode + ' - ' + errorMsg + commandMsg + lastAlarm);
 
   clearGcodeQueue(false);
   analogJogState = 0;
