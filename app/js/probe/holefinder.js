@@ -31,7 +31,7 @@ function findCenter() {
   ; Probe X
   G0 X-20 Y10 ; position to left side and move forward a little to be closer to center of edge
   G0 Z` + (zoffset - 6) + ` ; drop down to be next to plate
-  G38.2 X25 F100 ; Probe X
+  G38.2 X5 F100 ; Probe X
   G4 P0.3
   G10 P0 L20 X` + xoffset + ` ; set X as offset and half endmill diameter
   G0 X` + (xoffset - 2).toFixed(3) + `
@@ -40,7 +40,7 @@ function findCenter() {
   ; Probe Y
   G0 X15 Y-20 ; position to front side and move right a little to be closer to center of edge
   G0 Z` + (zoffset - 6) + ` ; drop down to be next to plate
-  G38.2 Y25 F100 ; probe Y
+  G38.2 Y5 F100 ; probe Y
   G4 P0.3
   G10 P0 L20 Y` + yoffset + ` ; set Y as offset and half endmill diameter
   G0 Y` + (yoffset - 2).toFixed(3) + `
