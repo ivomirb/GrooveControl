@@ -648,6 +648,7 @@ function onStatus(status) {
 
   if (featuresChanged) {
     updateGotoLimits();
+    updateHomeAxes();
   }
 
   waitingForStatus = false;
@@ -657,82 +658,10 @@ function onStatus(status) {
 }
 
 function onFeatures(data) {
-/* Ivo: none of these UI elements exist anymore. Besides, there is no code to revert the state if the feature disappears. Disabling the entire thing.
-  for (let i = 0; i < data.length; i++) {
-    switch (data[i]) {
-      case 'Q':
-        // console.log('SPINDLE_IS_SERVO Enabled')
-        // Also enabled for grblHAL from grbl-settings if $33=50
-        $('#enServo').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'V': // Variable spindle enabled
-        // console.log('Variable spindle enabled')
-        $('#enVariableSpindle').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'N': // Line numbers enabled
-        // console.log('Line numbers enabled')
-        $('#enLineNumbers').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'M': // Mist coolant enabled
-        // console.log('Mist coolant enabled')
-        $('#enMisting').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'C': // CoreXY enabled
-        // console.log('CoreXY enabled')
-        $('#enCoreXY').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'P': // Parking motion enabled
-        // console.log('Parking motion enabled')
-        $('#enParking').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'Z': // Homing force origin enabled
-        // console.log('Homing force origin enabled')
-        $('#enHomingOrigin').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'H': // Homing single axis enabled
-        // console.log('Homing single axis enabled')
-        $('#enSingleAxisHome').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'T': // Two limit switches on axis enabled
-        // console.log('Two limit switches on axis enabled')
-        $('#enTwoLimits').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'A': // Allow feed rate overrides in probe cycles
-        // console.log('Allow feed rate overrides in probe cycles')
-        $('#enFeedOVProbe').removeClass('alert').addClass('success').html('ON')
-        break;
-      case '$': // Restore EEPROM $ settings disabled
-        // console.log('Restore EEPROM $ settings disabled')
-        $('#enEepromSettingsDisable').removeClass('alert').addClass('success').html('ON')
-        break;
-      case '#': // Restore EEPROM parameter data disabled
-        // console.log('Restore EEPROM parameter data disabled')
-        $('#enEepromParamsDisable').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'I': // Build info write user string disabled
-        // console.log('Build info write user string disabled')
-        $('#enBuildInfoDisabled').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'E': // Force sync upon EEPROM write disabled
-        // console.log('Force sync upon EEPROM write disabled')
-        $('#enForceSyncEeprom').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'W': // Force sync upon work coordinate offset change disabled
-        // console.log('Force sync upon work coordinate offset change disabled')
-        $('#enForceSyncWco').removeClass('alert').addClass('success').html('ON')
-        break;
-      case 'L': // Homing init lock sets Grbl into an alarm state upon power up
-        // console.log('Homing init lock sets Grbl into an alarm state upon power up')
-        $('#enHomingInitLock').removeClass('alert').addClass('success').html('ON')
-        break;
-    }
-  }
-*/
   if (laststatus.machine.firmware.platform != "grblHAL") {
     $('.servo-active').toggle(data.contains('Q')); // the grblHAL case is handled by setting $33
   }
   $('#menuMisting').toggle(data.contains('M'));
-  $('#homeSingleMenu').parent().toggle(data.contains('H'));
 }
 
 function initSocket() {

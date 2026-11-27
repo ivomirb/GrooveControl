@@ -288,6 +288,7 @@ function grblSettings(data) {
   if (!isJogWidget && webgl) {
     updateMachineCoordinates();
   }
+  updateHomeAxes();
 
   if (laststatus.machine.firmware.platform == "grblHAL") {
     // grblHAL - enable Servo Buttons if Spindle PWM == 50hz (Ivo: HUH?)
@@ -707,6 +708,7 @@ function setFluidNcConfig(data) {
   fluidncConfigYaml = YAML.parse(data);
   updateMachineCoordinates();
   updateGotoLimits();
+  updateHomeAxes();
   if ($('#fluidnceditor').length > 0) {
     const fluidnceditor = ace.edit("fluidnceditor");
     fluidnceditor.session.setValue(fluidncConfig);
@@ -914,4 +916,27 @@ function updateGotoLimits() {
   } else {
     $('#gotozeroMPos > a > .gcode').html(commandZ + ", " + commandXY);
   }
+}
+
+function updateHomeAxes() {
+  let singleAxis = false;
+  if (laststatus) {
+    if (laststatus.machine.firmware.platform == "FluidNC") {
+      if (fluidncConfigYaml) {
+        const homeX = fluidncConfigYaml.axes.X?.homing?.allow_single_axis == true;
+        const homeY = fluidncConfigYaml.axes.Y?.homing?.allow_single_axis == true;
+        const homeZ = fluidncConfigYaml.axes.Z?.homing?.allow_single_axis == true;
+        const homeA = fluidncConfigYaml.axes.A?.homing?.allow_single_axis == true;
+        singleAxis = homeX || homeY || homeZ || homeA;
+
+        addRemoveClass('#homeAxisX', 'disabled', !homeX);
+        addRemoveClass('#homeAxisY', 'disabled', !homeY);
+        addRemoveClass('#homeAxisZ', 'disabled', !homeZ);
+        addRemoveClass('#homeAxisA', 'disabled', !homeA);
+      }
+    } else {
+      singleAxis = laststatus.machine.firmware.features.contains('H');
+    }
+  }
+  $('#homeSingleMenu').parent().toggle(singleAxis);
 }
