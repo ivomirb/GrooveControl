@@ -42,13 +42,12 @@ See all past versions here: [All Releases](https://github.com/ivomirb/GrooveCont
 * The Windows binaries are signed only with a test certificate, intended to test the GitHub release process.
 The certificate is not recognized by Windows. You will get a notification from SmartScreen about untrusted software.
 You will need to click on "More Info" and then "Run anyway".<br>
-A real certificate costs money. One will be added in the future for sure, but at this time I can't justify the expense
-until I know that enough people are even going to use it.<br>
-If you wish to speed up the process, you can contribute to this funding goal: https://github.com/sponsors/ivomirb
+A real certificate is expensive. One will be added in the future for sure, but at this time I can't justify the expense and hassle
+until I know that enough people are even going to use it.
 
 * The Mac binaries are not notarized and not well tested. I don't have a Mac to test them.<br>
-If you are a Mac developer and you are willing to help get things started, let me know
-
+Chances are everything will work fine, since Groove Control is built on a cross-platform framework.
+If you encounter any issues, let me know.
 
 ## Changes in Groove Control
 
