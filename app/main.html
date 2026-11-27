@@ -641,7 +641,7 @@ Restore previous origins from history.">
                             <li id="gotoXMaxMpos"><a href="#"><span class="fas fa-chart-line fg-red icon"></span>Goto Machine Right ($J=G53 X<span class="coord">0</span>)</a></li>
                             <li class="divider"></li>
                             <li class="needsXYZProbe"><a href="#" onclick="openProbeXDialog()"><span class="fas fa-podcast fa-rotate-180 fg-red icon"></span>Probe X-Zero Wizard</a></li>
-                            <li class="needsXYZProbe"><a href="#" onclick="openProbeDialog()"><span class="fas fa-podcast fa-rotate-180 fg-red icon"></span>Probe XYZ-Zero Wizard</a></li>
+                            <li class="needsXYZProbe"><a href="#" onclick="openProbeXYZDialog()"><span class="fas fa-podcast fa-rotate-180 fg-red icon"></span>Probe XYZ-Zero Wizard</a></li>
                           </ul>
                         </div>
                       </td>
@@ -677,7 +677,7 @@ Restore previous origins from history.">
                             <li id="gotoYMaxMpos"><a href="#"><span class="fas fa-chart-line fg-green icon"></span>Goto Machine Rear ($J=G53 Y<span class="coord">0</span>)</a></li>
                             <li class="divider"></li>
                             <li class="needsXYZProbe"><a href="#" onclick="openProbeYDialog()"><span class="fas fa-podcast fa-rotate-180 fg-green icon"></span>Probe Y-Zero Wizard</a></li>
-                            <li class="needsXYZProbe"><a href="#" onclick="openProbeDialog()"><span class="fas fa-podcast fa-rotate-180 fg-green icon"></span>Probe XYZ-Zero Wizard</a></li>
+                            <li class="needsXYZProbe"><a href="#" onclick="openProbeXYZDialog()"><span class="fas fa-podcast fa-rotate-180 fg-green icon"></span>Probe XYZ-Zero Wizard</a></li>
                           </ul>
                         </div>
                       </td>
@@ -713,7 +713,7 @@ Restore previous origins from history.">
                             <li id="gotoZMinMpos"><a href="#"><span class="fas fa-chart-line fg-blue icon"></span>Goto Machine Bottom ($J=G53 Z<span class="coord">0</span>) <span style="font-size: 14px; font-weight: 800; color: orangered; ">(use with caution)</span></a></li>
                             <li class="divider"></li>
                             <li><a href="#" onclick="openProbeZDialog()"><span class="fas fa-podcast fa-rotate-180 fg-blue icon"></span>Probe Z-Zero Wizard</a></li>
-                            <li class="needsXYZProbe"><a href="#" onclick="openProbeDialog()"><span class="fas fa-podcast fa-rotate-180 fg-blue icon"></span>Probe XYZ-Zero Wizard</a></li>
+                            <li class="needsXYZProbe"><a href="#" onclick="openProbeXYZDialog()"><span class="fas fa-podcast fa-rotate-180 fg-blue icon"></span>Probe XYZ-Zero Wizard</a></li>
                           </ul>
                         </div>
                       </td>
@@ -1510,12 +1510,12 @@ Restore previous origins from history.">
         <div class="dialog-content" style="max-height: calc(100vh - 100px);overflow-y: auto; overflow-x: hidden;">
           <nav data-role="ribbonmenu">
             <ul class="tabs-holder">
-              <li onclick="probeautotab();" class="probetabxyz" id="probeautotab"><a href="#">Automatic</a></li>
-              <li onclick="probexyztab();" class="probetabxyz" id="probexyztab"><a href="#">XYZ&nbsp;Zero</a></li>
-              <li onclick="probextab();" class="probetabxyz" id="probextab"><a href="#">X&nbsp;Zero</a></li>
-              <li onclick="probeytab();" class="probetabxyz" id="probeytab"><a href="#">Y&nbsp;Zero</a></li>
-              <li onclick="probeztab();" class="probetabxyz" id="probeztab"><a href="#">Z&nbsp;Zero</a></li>
-              <li onclick="probezplatetab();" class="probetabz" id="probezplatetab" style="display: none;"><a href="#">Z&nbsp;Touch&nbsp;Plate</a></li>
+              <li onclick="setProbeMode('auto');" class="probetab" id="probeautotab"><a href="#">Automatic</a></li>
+              <li onclick="setProbeMode('xyz');" class="probetab" id="probexyztab"><a href="#">XYZ&nbsp;Zero</a></li>
+              <li onclick="setProbeMode('xzero');" class="probetab" id="probexzerotab"><a href="#">X&nbsp;Zero</a></li>
+              <li onclick="setProbeMode('yzero');" class="probetab" id="probeyzerotab"><a href="#">Y&nbsp;Zero</a></li>
+              <li onclick="setProbeMode('zzero');" class="probetab" id="probezzerotab"><a href="#">Z&nbsp;Zero</a></li>
+              <li onclick="setProbeMode('zplate');" class="probetab" id="probezplatetab"><a href="#">Z&nbsp;Touch&nbsp;Plate</a></li>
             </ul>
           </nav>
 
@@ -1526,11 +1526,10 @@ Restore previous origins from history.">
                 <div id="xyzprobeimages">
                   <img src="./img/xyzprobe/auto.png" alt="probe-auto" height="450" id="img-probe-auto" class="img-probe" style="display: none;">
                   <img src="./img/xyzprobe/xyz.png" alt="probe-xyz" height="450" id="img-probe-xyz" class="img-probe" style="display: none;">
-                  <img src="./img/xyzprobe/x.png" alt="probe-x" height="450" id="img-probe-x" class="img-probe" style="display: none;">
-                  <img src="./img/xyzprobe/y.png" alt="probe-y" height="450" id="img-probe-y" class="img-probe" style="display: none;">
-                  <img src="./img/xyzprobe/z.png" alt="probe-z" height="450" id="img-probe-z" class="img-probe" style="display: none;">
+                  <img src="./img/xyzprobe/x.png" alt="probe-x" height="450" id="img-probe-xzero" class="img-probe" style="display: none;">
+                  <img src="./img/xyzprobe/y.png" alt="probe-y" height="450" id="img-probe-yzero" class="img-probe" style="display: none;">
+                  <img src="./img/xyzprobe/z.png" alt="probe-z" height="450" id="img-probe-zzero" class="img-probe" style="display: none;">
                   <img src="./img/xyzprobe/zplate.png" alt="probe-zplate" height="450" id="img-probe-zplate" class="img-probe" style="display: none;">
-                  <img src="./img/xyzprobe/endmill.png" alt="probe-endmill" height="450" id="img-probe-endmill" class="img-probe" style="display: none;">
                 </div>
 
               </td>
@@ -1550,35 +1549,29 @@ Restore previous origins from history.">
                   <small>Position the endmill above the hole in the probe plate as shown, just above the plate, clip
                     the magnet to the collet, then click the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
                 </div>
-                <div id="probe-x" class="probe-tab-content" style="display: none;">
+                <div id="probe-xzero" class="probe-tab-content" style="display: none;">
                   <small>X Probe Routine: This routine is used to find the X origin</small>
                   <hr>
                   <small>Position the endmill to the left of the probe plate as shown, clip the magnet to the collet,
                     then click the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
                 </div>
-                <div id="probe-y" class="probe-tab-content" style="display: none;">
+                <div id="probe-yzero" class="probe-tab-content" style="display: none;">
                   <small>Y Probe Routine: This routine is used to find the Y origin</small>
                   <hr>
                   <small>Position the endmill in front of the probe plate as shown, clip the magnet to the collet, then
                     click the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
                 </div>
-                <div id="probe-z" class="probe-tab-content" style="display: none;">
+                <div id="probe-zzero" class="probe-tab-content" style="display: none;">
                   <small>Z Probe Routine: This routine is used to find the Z origin</small>
                   <hr>
                   <small>Position the endmill above the probe plate as shown, clip the magnet to the collet or the alligator clip to the bit, then click
                     the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
                 </div>
-                <div id="probe-endmill" class="probe-tab-content" style="display: none;">
-                  <small>Endmill Probe Routine: This routine is used to find the Endmill Diameter</small>
+                <div id="probe-zplate" class="probe-tab-content" style="display: none;">
+                  <small>Z Probe Routine: This routine is used to find the Z origin</small>
                   <hr>
-                  <small>Position the endmill above the hole in the probe plate as shown, just above the plate, clip
-                    the magnet to the collet, then click the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
-                  <hr>
-                  <small>
-                    This operation will perform an XYZ probe to establish the plate position, then using the hole in the plate,
-                    it will measure and calculate the Endmill Diameter and display it onscreen. <br>This operation will NOT set
-                    any work-coordinates!
-                  </small>
+                  <small>Position the endmill above the probe plate as shown, clip the magnet to the collet or the alligator clip to the bit, then click
+                    the <span class="fg-grayBlue">Confirm Probe Position</span> button or touch the probe to enable the <span class="fg-grayBlue">Probe</span> button.</small>
                 </div>
                 <div id="probeJogWindow">
                   <hr>
@@ -1741,14 +1734,13 @@ Restore previous origins from history.">
         <div class="dialog-actions">
           <div class="row">
             <label style="padding-right:12px;padding-top:5px;">Probe Type: </label>
-            <select data-role="select" id="selectProbeType" data-filter="false" data-on-change="probetype(arguments[0])" class="compact-options" style="width:260px;">
+            <select data-role="select" id="selectProbeType" data-filter="false" data-on-change="setProbeType(arguments[0])" class="compact-options" style="width:260px;">
               <option value="xyz" data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px;' src='./img/xyzprobe/xyztouch.png' />$1</div>"> OpenBuilds XYZ Probe Plus</option>
               <option value="z" data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px;' src='./img/xyzprobe/ztouch.png' />$1</div>"> Z Touch Plate</option>
               <option value="custom" data-template="<div style='display:flex; align-items:baseline; gap:8px;'><img style='position:relative; left:auto; top:4px; width:20px;' src='./img/xyzprobe/custom.png' />$1</div>"> Custom XYZ Probe</option>
             </select>
           </div>
-          <button title="Configure Custom Probe parameters" class="button" onclick="editCustomProbe();" id="editCustomProbeBtn" style="display: none;"><i class="fas fa-cogs"></i></button>
-          <span style="padding-left: 50px;" id="ProbeButtonBarSpacer"></span>
+          <button title="Configure Custom Probe parameters" class="button" onclick="editCustomProbe();" id="editCustomProbeBtn"><i class="fas fa-cogs"></i></button>
           <button class="button alert js-dialog-close" onclick="resetJogModeAfterProbe(); Metro.dialog.close('#xyzProbeWindow');">Cancel</button>
           <button class="button primary" onclick="confirmProbeInPlace();" id="confirmNewProbeBtn">Confirm Probe Position</button>
           <button class="button success js-dialog-close disabled" onclick="runProbeNew();" id="runNewProbeBtn">Probe</button>
@@ -1884,8 +1876,7 @@ Restore previous origins from history.">
   <script type="text/javascript" src="./js/calibration/calibrate-z.js"></script>
   <script type="text/javascript" src="./js/calibration/calibrate-servo.js"></script>
 
-  <script type="text/javascript" src="./js/probe/probev2.js"></script>
-  <script type="text/javascript" src="./js/probe/holefinder.js"></script>
+  <script type="text/javascript" src="./js/probe/probe.js"></script>
 
   <script type="text/javascript" src="./js/surfacing/surfacing.js"></script>
   <script type="text/javascript" src="./js/heightmap/heightmap.js"></script>

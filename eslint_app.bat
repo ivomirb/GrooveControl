@@ -104,11 +104,8 @@ echo // >> all.js
 echo // NOTE: calibration\calibrate-servo.js >> all.js
 copy /b all.js + js\calibration\calibrate-servo.js
 
-echo // NOTE: probe\probev2.js >> all.js
-copy /b all.js + js\probe\probev2.js
-
-echo // NOTE: probe\holefinder.js >> all.js
-copy /b all.js + js\probe\holefinder.js
+echo // NOTE: probe\probe.js >> all.js
+copy /b all.js + js\probe\probe.js
 
 echo // NOTE: surfacing\surfacing.js >> all.js
 copy /b all.js + js\surfacing\surfacing.js
