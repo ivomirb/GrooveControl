@@ -114,7 +114,6 @@ const usedFunctions = {
   openProbeXDialog,
   openProbeYDialog,
   openProbeZDialog,
-  probeendmilltab,
   confirmProbeInPlace,
   runProbeNew,
   editCustomProbe,

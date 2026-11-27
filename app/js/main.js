@@ -1,7 +1,7 @@
 "use strict";
 
 const APP_NAME = "Groove Control";
-const APP_VERSION = 1000.002; // 1.0.2 (convenient way to represent the version as a number)
+const APP_VERSION = 1000.003; // 1.0.3 (convenient way to represent the version as a number)
 
 var currentGcode = ""; // this should always match what is in the 3d view, but the editor contents may be different
 var loadedFileName = ""; // name for the contents of the editor, usually the last loaded file
@@ -16,15 +16,17 @@ document.addEventListener('contextmenu', function(e) {
 }, false);
 
 function setWindowTitle(status) {
-  let string = "Groove Control";
+  let string = "";
 
   status = status || laststatus;
   if (status) {
     string += " v" + status.driver.version;
   }
 
+  document.title = APP_NAME + string;
+
   if (loadedFileName.length > 0) {
-    string += " / " + loadedFileName;
+    string += " / " + escapeHTML(loadedFileName);
   }
 
   if (status && status.comms.interfaces.activePort) {
@@ -32,7 +34,6 @@ function setWindowTitle(status) {
   }
 
   $('#windowtitle').html(string);
-  document.title = string;
 }
 
 function resetSplash() {

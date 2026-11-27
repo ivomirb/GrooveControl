@@ -6,7 +6,7 @@ const grblcalctemplateA = `<div>
           <tr>
             <td>Motor Type</td>
             <td colspan="3">
-              <select data-role="select" data-filter="false" id="motorselect" data-on-change="updateCalAControls();">
+              <select data-role="select" data-filter="false" id="motorselect" data-on-change="updateCalcAcontrols();">
                 <option value="200">1.8&deg; (200 steps per rotation)</option>
                 <option value="400">0.9&deg; (400 steps per rotation)</option>
                 <option value="0">Custom</option>
@@ -16,7 +16,7 @@ const grblcalctemplateA = `<div>
           <tr id="microsteprow">
             <td>Microstepping Type</td>
             <td colspan="3">
-              <select class="compact-options" data-role="select" data-filter="false" id="microstepselect" data-on-change="updateCalAControls();">
+              <select class="compact-options" data-role="select" data-filter="false" id="microstepselect" data-on-change="updateCalcAcontrols();">
                 <option value="32">1/32 Step</option>
                 <option value="16">1/16 Step</option>
                 <option value="8" selected>1/8 Step</option>
@@ -33,7 +33,7 @@ Select Custom motor type to set this manually"></span></td>
           <tr id="microsteprow3">
             <td>Custom Microsteps<span class="far fa-question-circle ml-1" title="Enter the number of microsteps required for one rotation of the motor.
 This can be adjusted via switches on the stepper driver or the motor itself"></span></td>
-            <td colspan="3"><input data-role="input" data-clear-button="false" data-append="steps/rotation" type="text" id="customsteps" onchange="updateCalAControls()"></td>
+            <td colspan="3"><input data-role="input" data-clear-button="false" data-append="steps/rotation" type="text" id="customsteps" onchange="updateCalcAcontrols()"></td>
           </tr>
           <tr>
             <td style="width:32%"><b>Gear Ratio<b><span class="far fa-question-circle ml-1" title="Enter the reduction ratio for the axis driving mechanism.
@@ -41,9 +41,9 @@ Examples:
   * For a 30:1 gearbox enter 30 and 1
   * For a belt drive with a 20-tooth gear on the motor and an 80-tooth gear on the chuck enter 80 and 20, or simply 4 and 1.
      Note that the chuck gear is in the first field"></span></td>
-            <td style="width:33%"><input data-role="input" data-clear-button="false" id="gearboxgear1" onchange="updateCalAControls()"></td>
+            <td style="width:33%"><input data-role="input" data-clear-button="false" id="gearboxgear1" onchange="updateCalcAcontrols()"></td>
             <td style="width:2%">:</td>
-            <td style="width:33%"><input data-role="input" data-clear-button="false" id="gearboxgear2" onchange="updateCalAControls()"></td>
+            <td style="width:33%"><input data-role="input" data-clear-button="false" id="gearboxgear2" onchange="updateCalcAcontrols()"></td>
           </tr>
           <tr>
             <td><b>Calculated Value</b><span class="far fa-question-circle ml-1" title="Microsteps divided by the gear ratio, then divided by 360"></span></td>
@@ -53,6 +53,27 @@ Examples:
       </table>
 
 </div>`
+
+function readCalcAdefaults() {
+  const settings = JSON.parse(localStorage.getItem('calcAsteps'));
+  if (settings) {
+    $('#motorselect').val(settings.motorselect);
+    $('#microstepselect').val(settings.microstepselect);
+    $('#customsteps').val(settings.customsteps);
+    $('#gearboxgear1').val(settings.gearboxgear1);
+    $('#gearboxgear2').val(settings.gearboxgear2);
+  }
+}
+
+function writeCalcAdefaults() {
+  let settings = {};
+  settings.motorselect = parseInt($('#motorselect').data('select').val());
+  settings.microstepselect = parseInt($('#microstepselect').data('select').val());
+  settings.customsteps = $('#customsteps').val();
+  settings.gearboxgear1 = parseFloat($('#gearboxgear1').val());
+  settings.gearboxgear2 = parseFloat($('#gearboxgear2').val());
+  localStorage.setItem('calcAsteps', JSON.stringify(settings));
+}
 
 function astepspermm() {
   Metro.dialog.create({
@@ -65,19 +86,21 @@ function astepspermm() {
         onclick: function() {
           $('#val-103-input').val($('#calculatedstepsperdeg').val());
           checkifchanged();
+          writeCalcAdefaults();
         }
       },
       {
         caption: "Cancel",
         cls: "js-dialog-close",
-        onclick: function() {}
+        onclick: writeCalcAdefaults
       }
     ]
   });
-  setTimeout(updateCalAControls, 0);
+  readCalcAdefaults();
+  setTimeout(updateCalcAcontrols, 0);
 }
 
-function updateCalAControls() {
+function updateCalcAcontrols() {
   const motorselect = parseInt($('#motorselect').data('select').val());
   const microstepselect = parseInt($('#microstepselect').data('select').val());
 

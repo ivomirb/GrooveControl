@@ -430,10 +430,12 @@ function init3D() {
 }
 
 function setViewControls(orbitButton) {
-  if (orbitButton == "left") {
-    controls.mouseButtons = {ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
-  } else {
-    controls.mouseButtons = {ORBIT: THREE.MOUSE.MIDDLE, ZOOM: false, PAN: THREE.MOUSE.RIGHT };
+  if (controls) {
+    if (orbitButton == "left") {
+      controls.mouseButtons = {ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
+    } else {
+      controls.mouseButtons = {ORBIT: THREE.MOUSE.MIDDLE, ZOOM: false, PAN: THREE.MOUSE.RIGHT };
+    }
   }
 }
 

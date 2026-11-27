@@ -20,7 +20,6 @@ function storeJob(completedJob) {
     pastJobs.length = 50;
   }
   localStorage.setItem('pastJobs', JSON.stringify(pastJobs));
-//  console.log(JSON.stringify(pastJobs, false, 4))
 }
 
 function showJobLog() {
@@ -55,7 +54,7 @@ function showJobLog() {
       template += `<td class="pt-1 mt-0 pb-0 pt-0"><i class="fas fa-times fg-darkRed"></td>`
     }
     template += `<td class="pt-1 mt-0 pb-0 pt-0">` + date + ", " + time + `</td>`
-    template += `<td class="pt-1 mt-0 pb-0 pt-0"><div style="max-width: 160px !important; word-wrap: break-word;">` + pastJobs[i].filename + `</div></td>`
+    template += `<td class="pt-1 mt-0 pb-0 pt-0"><div style="max-width: 160px !important; word-wrap: break-word;">` + escapeHTML(pastJobs[i].filename) + `</div></td>`
     template += `<td class="pt-1 mt-0 pb-0 pt-0">` + minToTime(pastJobs[i].estruntime) + ` (Estimate)<br>` + msToTime(pastJobs[i].streamruntime) + ` (Streamed)</td>`
     template += `</tr>`
   }
@@ -64,9 +63,8 @@ function showJobLog() {
 </table></div>`
 
   Metro.dialog.create({
-    title: "<i class='far fa-keyboard fa-fw'></i> Log: Jobs",
+    title: "<i class='fas fa-history fa-fw'></i> Log: Jobs",
     content: template,
-    toTop: true,
     width: 600,
     clsDialog: 'dark',
     actions: [{

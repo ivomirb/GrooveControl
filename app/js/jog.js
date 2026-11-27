@@ -410,6 +410,9 @@ function toastJogNotIdle() {
 }
 
 function jogDocReady() {
+  if (localStorage.getItem('jogOverride')) {
+    jogOverride(localStorage.getItem('jogOverride'));
+  }
 
   if (localStorage.getItem('continuousJog')) {
     continuousJogMode = JSON.parse(localStorage.getItem('continuousJog')) == true;
@@ -454,85 +457,104 @@ function jogDocReady() {
   $('#dist100').on('click', () => { setJogDist(3); });
 
   $('#gotozeroWPos').on('click', function() {
-    sendGcode('G21 G90');
-    sendGcode('G0 Z5');
-    sendGcode('G0 X0 Y0');
-    sendGcode('G0 Z0');
+    sendGcode("$J=G90 G21 Z5 F" + jogRate.z);
+    sendGcode("$J=G90 G21 X0 Y0 F" + jogRate.x);
+    sendGcode("$J=G90 G21 Z0 F" + jogRate.z);
+  });
+
+  $('#gotoXZero').on('click', function() {
+    sendGcode("$J=G90 G21 X0 F" + jogRate.x);
+  });
+  $('#gotoYZero').on('click', function() {
+    sendGcode("$J=G90 G21 Y0 F" + jogRate.y);
+  });
+  $('#gotoZZero').on('click', function() {
+    sendGcode("$J=G90 G21 Z0 F" + jogRate.z);
+  });
+  $('#gotoAZero').on('click', function() {
+    sendGcode("$J=G90 G21 A0 F" + jogRate.a);
+  });
+
+  $('#gotoAMZero').on('click', function() {
+    sendGcode("$J=G53 G90 G21 A0 F" + jogRate.a);
+  });
+  $('#gotoXYZero').on('click', function() {
+    sendGcode("$J=G90 G21 X0 Y0 F" + jogRate.x);
   });
 
   $('#gotoXMinMpos').on('click', function() {
     if (grblParams.$22 > 0) {
       const minX = computeMachineLimits().minX;
-      sendGcode("G0 G53 G90 G21 X" + minX.toFixed(2));
+      sendGcode("$J=G53 G90 G21 X" + minX.toFixed(2) + " F" + jogRate.x);
     }
   });
 
   $('#gotoXMaxMpos').on('click', function() {
     if (grblParams.$22 > 0) {
       const maxX = computeMachineLimits().maxX;
-      sendGcode("G0 G53 G90 G21 X" + maxX.toFixed(2));
+      sendGcode("$J=G53 G90 G21 X" + maxX.toFixed(2) + " F" + jogRate.x);
     }
   });
 
   $('#gotoYMinMpos').on('click', function() {
     if (grblParams.$22 > 0) {
       const minY = computeMachineLimits().minY;
-      sendGcode("G0 G53 G90 G21 Y" + minY.toFixed(2));
+      sendGcode("$J=G53 G90 G21 Y" + minY.toFixed(2) + " F" + jogRate.y);
     }
   });
 
   $('#gotoYMaxMpos').on('click', function() {
     if (grblParams.$22 > 0) {
       const maxY = computeMachineLimits().maxY;
-      sendGcode("G0 G53 G90 G21 Y" + maxY.toFixed(2));
+      sendGcode("$J=G53 G90 G21 Y" + maxY.toFixed(2) + " F" + jogRate.y);
     }
   });
 
   $('#gotoZMinMpos').on('click', function() {
     if (grblParams.$22 > 0) {
       const minZ = computeMachineLimits().minZ;
-      sendGcode("G0 G53 G90 G21 Z" + minZ.toFixed(2));
+      sendGcode("$J=G53 G90 G21 Z" + minZ.toFixed(2) + " F" + jogRate.z);
     }
   });
 
   $('#gotoZMaxMpos').on('click', function() {
     if (grblParams.$22 > 0) {
       const maxZ = computeMachineLimits().maxZ;
-      sendGcode("G0 G53 G90 G21 Z" + maxZ.toFixed(2));
+      sendGcode("$J=G53 G90 G21 Z" + maxZ.toFixed(2) + " F" + jogRate.z);
     }
   });
 
   $('#gotoAMinMpos').on('click', function() {
     if (grblParams.$22 > 0) {
       const minA = computeMachineLimits().minA;
-      sendGcode("G0 G53 G90 G21 A" + minA.toFixed(2));
+      sendGcode("$J=G53 G90 G21 A" + minA.toFixed(2) + " F" + jogRate.a);
     }
   });
 
   $('#gotoAMaxMpos').on('click', function() {
     if (grblParams.$22 > 0) {
       const maxA = computeMachineLimits().maxA;
-      sendGcode("G0 G53 G90 G21 A" + maxA.toFixed(2));
+      sendGcode("$J=G53 G90 G21 A" + maxA.toFixed(2) + " F" + jogRate.a);
     }
   });
 
   $('#gotozeroZmPosXYwPos').on('click', function() {
     const maxZ = computeMachineLimits().maxZ;
-    sendGcode('G0 G53 G90 G21 Z' + maxZ.toFixed(2));
-    sendGcode('G0 X0 Y0');
-    sendGcode('G0 Z0');
+    sendGcode("$J=G53 G90 G21 Z" + maxZ.toFixed(2) + " F" + jogRate.z);
+    sendGcode("$J=X0 Y0 F" + jogRate.x);
+    sendGcode("$J=Z0 F" + jogRate.z);
   });
 
   $('#gotozeroMPos').on('click', function() {
     const limits = computeMachineLimits();
     if (limits.homingMask && limits.homingMask.z) {
       // Z0 at the bottom - first move XY, then Z
-      sendGcode('G0 G53 X' + limits.X0.toFixed(2) + ' Y' + limits.Y0.toFixed(2));
-      sendGcode('G0 G53 G90 G21 Z' + limits.Z0.toFixed(2));
+      sendGcode("$J=G53 X" + limits.X0.toFixed(2) + " Y" + limits.Y0.toFixed(2) + " F" + jogRate.x);
+      sendGcode("$J=G53 G90 G21 Z" + limits.Z0.toFixed(2) + " F" + jogRate.z);
     } else {
       // Z0 at the top - first move Z, then XY
-      sendGcode('G0 G53 G90 G21 Z' + limits.Z0.toFixed(2));
-      sendGcode('G0 G53 X' + limits.X0.toFixed(2) + ' Y' + limits.Y0.toFixed(2));
+      sendGcode("$J=G53 G90 G21 Z" + limits.Z0.toFixed(2) + " F" + jogRate.z);
+      sendGcode("$J=G53 X" + limits.X0.toFixed(2) + " Y" + limits.Y0.toFixed(2) + " F" + jogRate.x);
     }
   });
 
@@ -572,19 +594,12 @@ function jogDocReady() {
   $('#chkSize').on('click', function() {
     const bbox2 = new THREE.Box3().setFromObject(object);
     console.log('bbox for Draw Bounding Box: ' + object + ' Min X: ', (bbox2.min.x), '  Max X:', (bbox2.max.x), 'Min Y: ', (bbox2.min.y), '  Max Y:', (bbox2.max.y));
-    const feedrate = 5000;
-    const moves = `
-      $J=G90G21X` + (bbox2.min.x).toFixed(3) + ` Y` + (bbox2.min.y).toFixed(3) + ` F` + feedrate + `\n
-      $J=G90G21X` + (bbox2.max.x).toFixed(3) + ` Y` + (bbox2.min.y).toFixed(3) + ` F` + feedrate + `\n
-      $J=G90G21X` + (bbox2.max.x).toFixed(3) + ` Y` + (bbox2.max.y).toFixed(3) + ` F` + feedrate + `\n
-      $J=G90G21X` + (bbox2.min.x).toFixed(3) + ` Y` + (bbox2.max.y).toFixed(3) + ` F` + feedrate + `\n
-      $J=G90G21X` + (bbox2.min.x).toFixed(3) + ` Y` + (bbox2.min.y).toFixed(3) + ` F` + feedrate + `\n
-      `;
-    socket.emit('runJob', {
-      data: moves,
-      isJob: false,
-      fileName: ""
-    });
+    const moves =
+      "$J=G90G21X" + (bbox2.min.x).toFixed(3) + " Y" + (bbox2.min.y).toFixed(3) + " F" + jogRate.x + "\n" +
+      "$J=G90G21X" + (bbox2.max.x).toFixed(3) + " Y" + (bbox2.min.y).toFixed(3) + " F" + jogRate.x + "\n" +
+      "$J=G90G21X" + (bbox2.max.x).toFixed(3) + " Y" + (bbox2.max.y).toFixed(3) + " F" + jogRate.y + "\n" +
+      "$J=G90G21X" + (bbox2.min.x).toFixed(3) + " Y" + (bbox2.max.y).toFixed(3) + " F" + jogRate.x + "\n" +
+      "$J=G90G21X" + (bbox2.min.x).toFixed(3) + " Y" + (bbox2.min.y).toFixed(3) + " F" + jogRate.y + "\n";
+    sendGcode(moves);
   });
-
 }

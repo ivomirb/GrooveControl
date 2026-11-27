@@ -1,3 +1,9 @@
+v1.0.3
+* Add optional second pass to the probing sequence to improve accuracy
+* Goto and Check Size actions use $J jog commands so the speed can be controlled and they can be safely stopped
+* Step calculators for settings $100, $101, $102 and $103 remember their last used settings
+* Few minor fixes
+
 v1.0.2
 * Improved error handling in the auto-updater
 * Fix for search in file dialogs on MacOS

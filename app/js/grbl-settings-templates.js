@@ -18,7 +18,7 @@ const grblSettingsTemplate = {
   2: {
     key: `$2`,
     title: `Step pulse invert, mask`,
-    description: `This setting inverts the step pulse signal. By default, a step signal starts at normal-low and goes high upon a step pulse event. After a step pulse time set by $0, the pin resets to low, until the next step pulse event. When inverted, the step pulse behavior switches from normal-high, to low during the pulse, and back to high. Usually if the stepper driver signals have common negative pin this should be 0, and they have common positive this should be 1`,
+    description: `This setting inverts the step pulse signal. By default, a step signal starts at normal-low and goes high upon a step pulse event. After a step pulse time set by $0, the pin resets to low, until the next step pulse event. When inverted, the step pulse behavior switches from normal-high, to low during the pulse, and back to high.\nThis is a bitmask with one bit for each axis. Usually if the stepper driver signals have common negative pin the bit should be 0, and they have common positive it should be 1`,
     template: `<input id="val-2-input" data-role="input" data-clear-button="false" data-append="mask" type="text">`,
     utils: ``
   },
